@@ -78,6 +78,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.0~pre.14" date="2026-11-06" type="development">
+      <description>
+        <p>Fourteenth pre-release (tag 0.1.0-pre.14), for testing: the program is that of 0.1.0-pre.12, rebuilt.</p>
+      </description>
+    </release>
     <release version="0.1.0~pre.13" date="2026-11-06" type="development">
       <description>
         <p>Thirteenth pre-release (tag 0.1.0-pre.13), for testing: the program is that of 0.1.0-pre.12, rebuilt.</p>
