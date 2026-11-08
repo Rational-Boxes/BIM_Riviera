@@ -321,6 +321,7 @@ impl Gui {
             Some("cabinet.run") => self.cabinet_run_finish(args),
             Some("counter.run") => self.counter_run_finish(args),
             Some("closet.create") => self.closet_finish(args),
+            Some("retail.run") => self.gondola_run_finish(args),
             _ => {}
         }
     }

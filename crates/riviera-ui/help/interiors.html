@@ -17,6 +17,7 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#counters">Counters</a>
   <a href="#closets">Closets</a>
   <a href="#hotels">Hotel guest rooms</a>
+  <a href="#gondolas">Gondola runs and aisles</a>
   <a href="#accessible">Accessible and not</a>
   <a href="#own">Your own packs</a>
   <a href="#limits">Limits and what to check</a>
@@ -157,6 +158,28 @@ or pick one. For an alteration, enter the rooms altered or added as the rooms co
 reading of the tables is provisional (EXPERT_REVIEW.md E-109). The sample
 <a href="riviera:sample/hotel_floor">A hotel floor</a> has six rooms that meet the counts.
 (<code>hotel.set_room</code>, <code>hotel.room_matrix</code>)</p>
+
+<h2 id="gondolas">Gondola runs and aisles</h2>
+<p>Choose <b>Architecture › Build › Gondola Run</b>, then click the run's start and end:</p>
+<ul>
+  <li><b>island:</b> its centre line. Shelves face both ways, 72 in high on 16 in decks (35¾ in
+  deep), with an end cap at each end as wide as the island;</li>
+  <li><b>wall:</b> its back line on the wall's face. Shelves face away from the wall, 84 in high.</li>
+</ul>
+<p>The run is filled with 48 in sections, or the width chosen, using 36, 30 and 24 in sections for
+the rest (the fixture makers' sizes). <b>View › Coordination › Check Rules</b> then reports any
+aisle that is too narrow:</p>
+<ul>
+  <li><b>2010 ADA Standards:</b> 36 in clear along each face (§403.5.1), and 48 in beyond each end
+  cap to turn round the run (§403.5.2);</li>
+  <li><b>IBC Group M:</b> 44 in, a public aisle no narrower than a corridor. Older editions asked
+  36 in with shelves on one side only; the pack is in use under the IBC;</li>
+  <li><b>store practice:</b> 6 ft for two carts, as a note, when <i>Store planning practice</i> is
+  ticked under <b>Manage › Model Properties › Retail rules</b>.</li>
+</ul>
+<p>The values are provisional (EXPERT_REVIEW.md E-110). The sample
+<a href="riviera:sample/store_aisles">Store aisles</a> has a wall run and three islands 2 m apart.
+(<code>retail.run</code>, <code>retail.runs</code>)</p>
 
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules

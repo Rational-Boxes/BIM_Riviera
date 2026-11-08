@@ -1,0 +1,80 @@
+{
+  "format": "riviera.rules-1",
+  "id": "practice_retail",
+  "title": "Store planning practice",
+  "domain": "retail",
+  "jurisdiction": "Any",
+  "edition": "Store fixture vendors' aisle guidance (research/15 B10)",
+  "layer": "recommended",
+  "notes": "Practice, not code: findings are notes. Grocery aisles with carts are 6–8 ft between gondolas; 6 ft is used.",
+  "zones": [
+    {
+      "id": "Cart aisle",
+      "description": "6 ft along each face of an island gondola, for two carts to pass",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Gondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          1.8288
+        ],
+        [
+          "back",
+          1.8288
+        ]
+      ],
+      "source": "S1419",
+      "confidence": "advisory"
+    },
+    {
+      "id": "Cart aisle wall",
+      "description": "6 ft in front of a wall gondola, for two carts to pass",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "WallGondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          1.8288
+        ]
+      ],
+      "source": "S1419",
+      "confidence": "advisory"
+    }
+  ]
+}

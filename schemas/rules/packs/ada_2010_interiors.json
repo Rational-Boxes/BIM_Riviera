@@ -4,7 +4,7 @@
   "title": "2010 ADA Standards: furniture in accessible rooms",
   "domain": "interiors",
   "jurisdiction": "US",
-  "edition": "2010 ADA Standards for Accessible Design: §806.2.3 (guest rooms with mobility features), §307.2 and §307.4 (protruding objects), §904.4 and §306 (sales and service counters, knee and toe clearance), §811 and §308 (storage within reach)",
+  "edition": "2010 ADA Standards for Accessible Design: §806.2.3 (guest rooms with mobility features), §307.2 and §307.4 (protruding objects), §904.4 and §306 (sales and service counters, knee and toe clearance), §811 and §308 (storage within reach), §403.5 (accessible routes along store fixtures)",
   "layer": "accessible",
   "notes": "A117.1-2017 asks 30 × 52 in; the ADA's 30 × 48 in is used here. One clear space between two beds also complies (§806.2.3 exception): mark one bed not accessible when two share a space.",
   "zones": [
@@ -169,6 +169,108 @@
       "source": "S1354",
       "confidence": "verified",
       "height": 0.6858
+    },
+    {
+      "id": "ADA 2010 403.5.1",
+      "description": "36 in clear along each face of an island gondola: the accessible route through the sales floor",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Gondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.9144
+        ],
+        [
+          "back",
+          0.9144
+        ]
+      ],
+      "source": "S1354",
+      "confidence": "verified"
+    },
+    {
+      "id": "ADA 2010 403.5.1 wall",
+      "description": "36 in clear in front of a wall gondola: the accessible route through the sales floor",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "WallGondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          0.9144
+        ]
+      ],
+      "source": "S1354",
+      "confidence": "verified"
+    },
+    {
+      "id": "ADA 2010 403.5.2",
+      "description": "48 in clear in front of an end cap, to turn 180° round the end of a run less than 48 in deep",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "EndCap"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          1.2192
+        ]
+      ],
+      "source": "S1354",
+      "confidence": "verified"
     }
   ],
   "headroom": [

@@ -4,7 +4,8 @@
 //! Manage › Model Properties (UN): the model-wide settings in one place (DM-CODE-001,
 //! DM-UNIT-001, ARC-MOD-031). Units (a preset, and the decimal and grouping symbols), the
 //! building code with its occupancy and the model's own stair headroom, the accessibility
-//! rule set, the bathroom rule packs (ARC-BATH-001) and the interiors rule packs (ARC-RULE-001).
+//! rule set, the bathroom rule packs (ARC-BATH-001) and the interiors and retail rule packs
+//! (ARC-RULE-001).
 //! OK applies what changed through `units.set_preset`, `units.set_number_format`, `code.set`,
 //! `clearance.set_rule_set`, `bath.set_rule_packs` and `rules.set_packs`. Tools use these as their defaults; a tool may use
 //! another code for one operation (the stair opening offer).
@@ -50,9 +51,6 @@ impl Gui {
         let packs = riviera_core::bath_rules::available(&store);
         let packs_chosen = riviera_core::bath_rules::chosen(&store);
         let packs_now: Vec<String> = riviera_core::bath_rules::active(&store).into_iter().map(|p| p.id).collect();
-        let interiors = riviera_core::rules::available(&store, "interiors");
-        let interiors_chosen = riviera_core::rules::chosen(&store, "interiors");
-        let interiors_now: Vec<String> = riviera_core::rules::active(&store, "interiors").into_iter().map(|p| p.id).collect();
         let preset_now = PRESETS.iter().position(|(_, p)| {
             UnitSettings::preset(*p).formats.get("length") == units.formats.get("length")
         });
@@ -200,40 +198,48 @@ impl Gui {
         note.wrap(380);
         grid.add(&note, 1, SizerFlag::Expand, 0);
 
-        // Interiors rule packs (ARC-RULE-001), the same way.
-        heading("Interiors rules");
-        let blank = StaticText::builder(&dialog).with_label("").build();
-        grid.add(&blank, 0, SizerFlag::AlignCenterVertical, 0);
-        let interiors_auto = CheckBox::builder(&dialog)
-            .with_label("Choose from the accessibility rule set")
-            .build();
-        interiors_auto.set_value(interiors_chosen.is_none());
-        interiors_auto.set_tooltip("The ADA interiors pack with the ADA rule set");
-        grid.add(&interiors_auto, 1, SizerFlag::Expand, 0);
-        let interiors_boxes: Vec<(String, CheckBox)> = interiors
-            .iter()
-            .map(|p| {
-                let layer = match p.layer {
-                    riviera_core::bath_rules::Layer::Minimum => "Code",
-                    riviera_core::bath_rules::Layer::Accessible => "Accessibility",
-                    riviera_core::bath_rules::Layer::Recommended => "Guidance",
-                };
-                let l = StaticText::builder(&dialog).with_label(layer).build();
-                let b = CheckBox::builder(&dialog).with_label(&p.title).build();
-                b.set_value(interiors_now.contains(&p.id));
-                b.set_tooltip(&p.edition);
-                grid.add(&l, 0, SizerFlag::AlignCenterVertical, 0);
-                grid.add(&b, 1, SizerFlag::Expand, 0);
-                (p.id.clone(), b)
-            })
-            .collect();
-        let blank = StaticText::builder(&dialog).with_label("").build();
-        grid.add(&blank, 0, SizerFlag::AlignCenterVertical, 0);
-        let note = StaticText::builder(&dialog)
-            .with_label("Furniture's use zones show as virtual volumes; Check Rules reports what is in them.")
-            .build();
-        note.wrap(380);
-        grid.add(&note, 1, SizerFlag::Expand, 0);
+        // The shared-format rule packs (ARC-RULE-001), the same way, one domain at a time:
+        // (domain, heading, automatic choice, its tip, note).
+        let domains = [
+            ("interiors", "Interiors rules", "Choose from the accessibility rule set", "The ADA interiors pack with the ADA rule set", "Furniture's use zones show as virtual volumes; Check Rules reports what is in them."),
+            ("retail", "Retail rules", "Choose from the building code", "The IBC Group M aisle pack under the IBC", "Aisles in front of gondolas and end caps show as virtual volumes; Check Rules reports what is in them."),
+        ];
+        let mut domain_picks: Vec<(&str, Option<Vec<String>>, Vec<String>, CheckBox, Vec<(String, CheckBox)>)> = Vec::new();
+        for (domain, title, auto_label, auto_tip, note_text) in domains {
+            let available = riviera_core::rules::available(&store, domain);
+            let chosen = riviera_core::rules::chosen(&store, domain);
+            let now: Vec<String> = riviera_core::rules::active(&store, domain).into_iter().map(|p| p.id).collect();
+            heading(title);
+            let blank = StaticText::builder(&dialog).with_label("").build();
+            grid.add(&blank, 0, SizerFlag::AlignCenterVertical, 0);
+            let auto_box = CheckBox::builder(&dialog).with_label(auto_label).build();
+            auto_box.set_value(chosen.is_none());
+            auto_box.set_tooltip(auto_tip);
+            grid.add(&auto_box, 1, SizerFlag::Expand, 0);
+            let boxes: Vec<(String, CheckBox)> = available
+                .iter()
+                .map(|p| {
+                    let layer = match p.layer {
+                        riviera_core::bath_rules::Layer::Minimum => "Code",
+                        riviera_core::bath_rules::Layer::Accessible => "Accessibility",
+                        riviera_core::bath_rules::Layer::Recommended => "Guidance",
+                    };
+                    let l = StaticText::builder(&dialog).with_label(layer).build();
+                    let b = CheckBox::builder(&dialog).with_label(&p.title).build();
+                    b.set_value(now.contains(&p.id));
+                    b.set_tooltip(&p.edition);
+                    grid.add(&l, 0, SizerFlag::AlignCenterVertical, 0);
+                    grid.add(&b, 1, SizerFlag::Expand, 0);
+                    (p.id.clone(), b)
+                })
+                .collect();
+            let blank = StaticText::builder(&dialog).with_label("").build();
+            grid.add(&blank, 0, SizerFlag::AlignCenterVertical, 0);
+            let note = StaticText::builder(&dialog).with_label(note_text).build();
+            note.wrap(380);
+            grid.add(&note, 1, SizerFlag::Expand, 0);
+            domain_picks.push((domain, chosen, now, auto_box, boxes));
+        }
 
         sizer.add_sizer(&grid, 1, SizerFlag::All | SizerFlag::Expand, 12);
         let ok = Button::builder(&dialog)
@@ -271,8 +277,10 @@ impl Gui {
         let rule_pick = RULES[sel(&rule)].1;
         let auto_pick = auto.is_checked();
         let packs_pick: Vec<String> = pack_boxes.iter().filter(|(_, b)| b.is_checked()).map(|(id, _)| id.clone()).collect();
-        let interiors_auto_pick = interiors_auto.is_checked();
-        let interiors_pick: Vec<String> = interiors_boxes.iter().filter(|(_, b)| b.is_checked()).map(|(id, _)| id.clone()).collect();
+        let domain_picks: Vec<(&str, Option<Vec<String>>, Vec<String>, bool, Vec<String>)> = domain_picks
+            .into_iter()
+            .map(|(d, chosen, now, auto_box, boxes)| (d, chosen, now, auto_box.is_checked(), boxes.iter().filter(|(_, b)| b.is_checked()).map(|(id, _)| id.clone()).collect()))
+            .collect();
         dialog.destroy();
 
         let mut problems = Vec::new();
@@ -322,11 +330,13 @@ impl Gui {
         if packs_change && let Err(e) = self.run("bath.set_rule_packs", packs_args) {
             problems.push(e);
         }
-        let automatic = interiors_auto_pick && interiors_pick == interiors_now;
-        let args = if automatic { json!({ "domain": "interiors" }) } else { json!({ "domain": "interiors", "packs": interiors_pick }) };
-        let change = if automatic { interiors_chosen.is_some() } else { interiors_chosen.as_ref() != Some(&interiors_pick) };
-        if change && let Err(e) = self.run("rules.set_packs", args) {
-            problems.push(e);
+        for (domain, chosen, now, auto_pick, pick) in domain_picks {
+            let automatic = auto_pick && pick == now;
+            let args = if automatic { json!({ "domain": domain }) } else { json!({ "domain": domain, "packs": pick }) };
+            let change = if automatic { chosen.is_some() } else { chosen.as_ref() != Some(&pick) };
+            if change && let Err(e) = self.run("rules.set_packs", args) {
+                problems.push(e);
+            }
         }
         self.properties_stale = true;
         self.refresh_scene(&frame);

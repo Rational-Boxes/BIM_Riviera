@@ -1492,3 +1492,22 @@ fn the_hotel_floor_sample_meets_the_room_counts() {
     let m = ok(&mut app, "hotel.room_matrix", json!({}));
     assert_eq!(m["findings"][0]["rule"], "ADA 2010 224.5", "{m:#}");
 }
+
+#[test]
+fn the_store_aisles_sample_keeps_its_aisles_clear() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "store_aisles");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    // A wall run of six sections and three islands of four sections and two end caps.
+    let runs = ok(&mut app, "retail.runs", json!({}));
+    let sizes: Vec<(String, usize)> = runs.as_array().unwrap().iter().map(|r| (r["kind"].as_str().unwrap().to_owned(), r["fixtures"].as_array().unwrap().len())).collect();
+    assert_eq!(sizes, vec![("wall".into(), 6), ("island".into(), 6), ("island".into(), 6), ("island".into(), 6)]);
+    // The middle island moved 1.2 m north leaves 0.8 m: below every pack's width.
+    let ids = runs[2]["fixtures"].clone();
+    ok(&mut app, "element.move", json!({ "element_ids": ids, "vector": [0.0, 1.2, 0.0] }));
+    let mut rules: Vec<String> = ok(&mut app, "rules.check", json!({})).as_array().unwrap().iter().map(|f| f["rule"].as_str().unwrap().to_owned()).collect();
+    rules.sort();
+    rules.dedup();
+    assert_eq!(rules, vec!["ADA 2010 403.5.1", "Cart aisle", "IBC 1018.3"]);
+}

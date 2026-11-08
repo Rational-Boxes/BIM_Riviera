@@ -49,6 +49,7 @@ pub const RESERVED_DOMAINS: &[&str] = &[
     "furnishing",
     "interior",
     "hotel",
+    "retail",
     "cabinet",
     "countertop",
     "counter",

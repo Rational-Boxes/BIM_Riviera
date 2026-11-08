@@ -351,6 +351,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(HotelSetRoom),
         registry.add(HotelRooms),
         registry.add(HotelRoomMatrix),
+        registry.add(RetailRun),
+        registry.add(RetailRuns),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4203,6 +4205,33 @@ read_command!(
     Option<crate::hotels::MatrixParams>,
     crate::hotels::Matrix,
     crate::hotels::matrix
+);
+
+edit_command!(
+    RetailRun,
+    "retail.run",
+    "Lay out a run of gondolas",
+    "Lays out a run of gondola shelving from `start` to `end` (ARC-RETAIL-001): an `island` run on its \
+     centre line with shelves both sides and an end cap at each end as wide as the island is deep, or a \
+     `wall` run on its back line facing away from the wall. The run is filled with the `section` width \
+     (default 48 in) and the other standard widths (48, 36, 30, 24 in), the rest left over at the ends; \
+     decks 16 in deep and 72 in (island) or 84 in (wall) high unless given. Sections are IfcFurniture SHELF \
+     with ElementType Gondola or WallGondola, end caps EndCap: the rule packs keep the aisles in front of \
+     them clear (ADA §403.5's 36 in route and 48 in turn, the IBC Group M aisle, practice cart aisles).",
+    "Gondola Run",
+    crate::retail::RunParams,
+    crate::retail::Run,
+    crate::retail::run
+);
+
+read_command!(
+    RetailRuns,
+    "retail.runs",
+    "List the fixture runs",
+    "Lists the gondola runs (ARC-RETAIL-001), each with its kind and fixtures in order, end caps last.",
+    Option<crate::retail::RunsParams>,
+    Vec<crate::retail::RunInfo>,
+    crate::retail::runs
 );
 
 edit_command!(

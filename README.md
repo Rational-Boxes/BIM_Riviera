@@ -656,6 +656,12 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   ADA Standards' Tables 224.2 and 224.4 and §224.5, or Approved Document M's one accessible
   bedroom in twenty (`hotel.set_room`, `hotel.room_matrix`). Not built yet: guest rooms as modular
   units, bathrooms in the templates, and whole floors in one step.
+- **Gondola runs** (ARC-RETAIL-001). Architecture › Build › Gondola Run lays an island run of
+  48, 36, 30 and 24 in gondola sections between end caps, or a wall run, at the fixture makers'
+  sizes (`retail.run`). Check Rules keeps the aisles clear: the 2010 ADA Standards' 36 in route
+  and 48 in turn round an end cap (§403.5), the IBC's 44 in Group M aisle, and a 6 ft practice cart
+  aisle as a note. Not built yet: store checks (occupant load, fitting rooms, signs), grids of
+  runs and passing spaces.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

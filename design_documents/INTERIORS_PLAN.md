@@ -1,6 +1,6 @@
 # Interiors workbench, retail fixtures, checkouts and gyms
 
-**Status:** Draft 0.2 · 2026-11-06 · four of the owner's answers in §11a; steps 1–4 and 6 built, step 5 begun (see §10).
+**Status:** Draft 0.2 · 2026-11-06 · four of the owner's answers in §11a; steps 1–4 and 6 built, steps 5 and 7 begun (see §10).
 **Owner's requests (2026-10-31):** "Additional research items: gym and excercise equipment.
 Retail hardware for grocery, department store, display cases, etc."; "We'll also need and
 interiors workbench section: Common furnature items, counters, ornimental lighting, bedrooms,
@@ -505,7 +505,11 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
 - Step 6 is built on rooms laid out one by one (the owner's answer to Q3): hotel guest-room
   templates, guest-room features and the room matrix with Tables 224.2 and 224.4, §224.5 and
   Approved Document M's one in twenty (ARC-INT-002). Moving them onto modular units waits for
-  ARC-GRP-004; next is step 7, the retail fixture runs and store checks.
+  ARC-GRP-004.
+- Step 7 is begun: straight gondola runs with end caps, and their aisles checked by use zones in
+  `ada_2010_interiors` and two new `retail` packs, `us_ibc_mercantile` and `practice_retail`
+  (ARC-RETAIL-001). The mercantile pack is in use by default under the IBC, as Question 2
+  proposes; this awaits the owner's answer. Store checks (`retail.check`) come next.
 
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command, exposed to Lua and MCP:

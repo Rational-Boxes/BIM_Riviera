@@ -39,7 +39,8 @@ fn rooms_are_furnished_from_templates_with_their_clear_spaces() {
     let r = ok(&mut app, "interior.layout", json!({ "template": "bedroom_queen", "point": [2.0, 2.5], "level": level, "wall_id": south }));
     assert_eq!(r["placed"].as_array().unwrap().len(), 4, "{r:#}");
     assert_eq!(r["fit"]["length_short"], 0.0);
-    assert_eq!(r["packs"], json!(["ada_2010_interiors", "practice_interiors"]));
+    // The IBC Group M pack is in use too (under the IBC), for gondola aisles.
+    assert_eq!(r["packs"], json!(["ada_2010_interiors", "practice_interiors", "us_ibc_mercantile"]));
     assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]), "nothing in any use zone");
     // The bed's head is at the south wall: its foot faces north, so its ADA spaces lie north of
     // its middle.

@@ -404,6 +404,19 @@
     ]
   },
   {
+    "name": "store_aisles",
+    "title": "Store aisles",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "store_aisles.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

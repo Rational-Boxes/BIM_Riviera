@@ -393,6 +393,50 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Gondola Run (ARC-RETAIL-001): an island or wall run of gondolas,
+    /// clicked from start to end, then the aisles checked.
+    pub(crate) fn gondola_run(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Gondola Run");
+        let kind = f.choice("Run", &["Island, with end caps (click its centre line)".to_owned(), "Wall (click its back line on the wall face)".to_owned()], 0);
+        let section = f.choice("Sections", &["48 in".to_owned(), "36 in".to_owned(), "30 in".to_owned(), "24 in".to_owned()], 0);
+        let height = f.text("Height (in)", "", "Default 72 in for an island, 84 in for a wall run");
+        let ok = f.show("Then click the run's start and end in a plan. Sections fill the run in standard widths; Check Rules keeps the aisles clear (ADA §403.5, IBC Group M, and practice if chosen).", "Pick the Run");
+        let k = ["island", "wall"][kind.get_selection().unwrap_or(0) as usize];
+        let w = [48.0, 36.0, 30.0, 24.0][section.get_selection().unwrap_or(0) as usize];
+        let h = height.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        let mut args = json!({ "kind": k, "section": w * 0.0254 });
+        if let Some(h) = h {
+            args["height"] = json!(h * 0.0254);
+        }
+        self.start_picking(
+            "retail.run",
+            vec![json!({ "key": "start", "kind": "at", "prompt": "Gondola Run: click the run's start" }), json!({ "key": "end", "kind": "point", "prompt": "Gondola Run: click its end" })],
+            args,
+        );
+    }
+
+    /// The gondola run picked: made, its aisles checked, and reported.
+    pub(crate) fn gondola_run_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let start = args["start"].take();
+        args["start"] = start["point"].clone();
+        args["level"] = start["level"].clone();
+        match self.run("retail.run", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let ids: Vec<serde_json::Value> = v["sections"].as_array().map(|a| a.iter().map(|s| s["element"].clone()).collect()).unwrap_or_default();
+                let problems = self.run("rules.check", json!({ "element_ids": ids })).ok().and_then(|f| f.as_array().map(|a| a.iter().filter(|x| x["severity"] == "error").count())).unwrap_or(0);
+                frame.set_status_text(&format!("{} fixture(s) over {:.2} m, {:.0} mm left over; Check Rules finds {problems} aisle error(s)", ids.len(), v["overall"].as_f64().unwrap_or(0.0), v["left_over"].as_f64().unwrap_or(0.0) * 1000.0), 0);
+            }
+            Err(e) => error(&frame, &format!("The run was not made:\n{e}")),
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

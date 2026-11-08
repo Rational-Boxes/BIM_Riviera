@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 916 numbered requirements (320 P0 · 356 P1 · 233 P2 · 7 P3), 2,382 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 917 numbered requirements (320 P0 · 357 P1 · 233 P2 · 7 P3), 2,384 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,382 commands; 916 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,384 commands; 917 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15660,10 +15660,12 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 
 | Pack | Layer | Covers |
 |---|---|---|
-| `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2) |
+| `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001) |
+| `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
+| `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas, as a note (ARC-RETAIL-001) |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472) |
 
-- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA. `practice_interiors` is only chosen by name.
+- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC. The practice packs are only chosen by name.
 - **One command family for every domain.**
   - `rules.packs` lists the packs of every domain, or of one: bathroom (ARC-BATH-001), vertical transport (ARC-VT-001) and the shared-format domains. Each has its domain, format, layer, jurisdiction and edition, its rule count, whether it is in use, and whether it ships.
   - `rules.set_packs`, `rules.add_pack` and `rules.remove_pack` choose, add and remove packs in any domain. A pack is routed by its `format`: a bathroom or vertical-transport pack goes to its domain's own store, so the `bath.*` and `vt.*` pack commands see the same packs.
@@ -15927,6 +15929,41 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 
 *Built (2026-11-07):* `riviera_core::hotels`, the hotel templates in `riviera_core::interior_layouts`, Architecture › Build › Guest Room (the selected rooms) and View › Coordination › Room Matrix (with Save Report). Defaults are E-109. Not yet: guest rooms as modular units with the matrix assigning typicals to bays (ARC-GRP-004); the bathroom in the template; roll-in showers found from the bathroom rather than marked; §224.3 beds in dormitories, §224.1.2 doors and §806.2.6 turning spaces; the UK room's transfer space and pull cord; hotel floors drawn along a corridor in one step.
 
+### 3.9b.11 Gondola runs
+**ID:** ARC-RETAIL-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §5.2 (step 7); research/15 B1, B10, G1–G2, G73 (S1400, S1354, S1394, S1419, S1420); ARC-KIT-001; ARC-RULE-001/002; ARC-FURN-001
+
+**Purpose.** Lay out a store's shelving in runs, at the sizes the fixture makers build, and keep the aisles between the runs as wide as accessibility, the building code and store practice ask, while the plan is drawn.
+
+**Behaviour & rules.**
+- **The run** goes from a start to an end, picked in a plan or typed (standing rule):
+  - an **island** run's line is its centre line, with shelves both sides;
+  - a **wall** run's line is its back line, its front away from the wall within 0.3 m behind it, or toward a given point (as cabinet runs, ARC-KIT-001).
+- **Sizes** (Lozier and Madix catalogues, research/15 B1): sections 48 in wide unless 36, 30 or 24 in is preferred; base decks 16 in (13–31 in); uprights 2½ in; 72 in high (island) or 84 in (wall), 36–120 in; a shelf a side every 16 in or so above the 8 in base.
+  - An island is two decks plus the upright and Lozier's 1¼ in allowance deep: 35¾ in on 16 in decks.
+  - An island has an **end cap** at each end unless asked not to: as wide as the island is deep, a deck and an upright long, facing out along the run.
+- **Fill.** Sections fill the length between the end caps with the preferred width and one or two other standard widths, leaving the least over (as ARC-KIT-001). What is left over is shared at both ends.
+- **IFC.** Sections are `IfcFurniture` SHELF with ElementType Gondola (island) or WallGondola; end caps EndCap. Each size is its own generated type with `Pset_FurnitureTypeCommon` (IsBuiltIn FALSE, nominal sizes). Each fixture carries its run's id and kind, which `retail.runs` lists.
+- **Aisles** are use zones (ARC-RULE-002) on those kinds, so Check Rules reports any fixture, wall or other body in them:
+
+| Pack | Layer | Zone |
+|---|---|---|
+| `ada_2010_interiors` | accessible | 36 in along each face of an island and in front of a wall run (§403.5.1); 48 in in front of an end cap, to turn round the end of a run under 48 in deep (§403.5.2) |
+| `us_ibc_mercantile` (domain `retail`) | minimum | 44 in along each face and in front of an end cap: a Group M public aisle no narrower than a corridor (§1018.3, §1020; secondary: the older 36 / 44 in reading is in its notes) |
+| `practice_retail` (domain `retail`) | recommended | 6 ft along each face for two carts to pass (vendor guidance, a note) |
+
+  `us_ibc_mercantile` is chosen automatically under the IBC; `practice_retail` only by name. Manage › Model Properties has a *Retail rules* section.
+
+**Commands.** `retail.run(start, end, level, kind, section?, deck?, height?, end_caps?, toward?)` → `{run, kind, length, overall, depth, sections: [{element, width, end_cap}], left_over}`; `retail.runs()` → `[{run, kind, fixtures}]`.
+
+**Acceptance criteria.**
+- [x] A 229 in island is four 48 in sections between two 18½ in end caps, 35¾ in deep, with nothing left over; alone, Check Rules finds nothing.
+- [x] A second island 40 in away meets the ADA's 36 in but not the IBC's 44 in; with the practice pack, the cart aisle is a note. At 30 in, §403.5.1 is reported.
+- [x] A wall 40 in past an end cap is reported against §403.5.2.
+- [x] A wall run on a wall's face is 84 in high, its back on the face; nothing overlaps.
+- [x] The sample *Store aisles* (a wall run and three islands 2 m apart) passes every check; an island moved to leave 0.8 m is reported against all three packs.
+
+*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks (`retail.check`: occupant load, fitting rooms, signs, sprinkler clearance, anchoring); shelf lights and loads (`Riviera_RetailFixture`).
+
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
 
@@ -15939,7 +15976,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
   - *Retail*: island, wall and end-cap gondolas, a pallet rack bay, produce table, garment rounder and 4-way, mannequin, counter showcase, cash wrap, shopping cart, EAS pedestal, two checkstands, a compact cash desk, two self-checkouts and an attendant station.
 - **Sizes** are research/15's, from manufacturers' sheets, Approved Document M's furniture schedule and planning guides, each with its source IDs. Sizes no source gave (a dresser's depth, a bench, a plate tree, a mannequin, a produce table, a rower's height) are judgement, and their descriptions say so (E-103).
 - **IFC** (`INTERIORS_PLAN.md` §8.1):
-  - Furniture has its `IfcFurnitureTypeEnum` value (BED, TABLE, DESK, CHAIR, SOFA, SHELF), else USERDEFINED with its kind as ElementType (Nightstand, Dresser, Treadmill, Gondola, Checkstand, SelfCheckout, …).
+  - Furniture has its `IfcFurnitureTypeEnum` value (BED, TABLE, DESK, CHAIR, SOFA, SHELF), else USERDEFINED with its kind as ElementType (Nightstand, Dresser, Treadmill, Gondola, WallGondola, EndCap, Checkstand, SelfCheckout, …).
   - The EAS pedestal is an `IfcSensor` USERDEFINED ("EASPedestal").
   - Each has its description.
 - **Shape and frame.** Simple prisms, centred on the insertion point and standing on the floor. The front, the side a person uses, is −y: a bed's foot, a dresser's drawers, a treadmill's rear where the user steps on.
@@ -17178,6 +17215,8 @@ All commands below are registered once in the command registry and exposed autom
 | `hotel.set_room` | room_ids, room_type?, beds?, mobility?, communication?, clear? | — | Yes | ARC-INT-002 |
 | `hotel.rooms` | level_ids? | [{room, number, name, level, room_type, beds, mobility, communication}] | No (query) | ARC-INT-002 |
 | `hotel.room_matrix` | level_ids?, standards?, total? | {placed, total, floors, classes, ada?, uk?, findings} | No (query) | ARC-INT-002 |
+| `retail.run` | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
+| `retail.runs` | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
@@ -30714,14 +30753,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 111 | 37 | 1 | 226 |
+| ARC | 77 | 112 | 37 | 1 | 227 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **356** | **233** | **7** | **916** |
+| **Total** | **320** | **357** | **233** | **7** | **917** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -30935,7 +30974,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2382 unique commands** in 450 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2384 unique commands** in 451 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31266,6 +31305,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `render` | 15 |
 | `report` | 2 |
 | `results` | 11 |
+| `retail` | 2 |
 | `revcloud` | 2 |
 | `revision` | 8 |
 | `revisionsequence` | 1 |
@@ -32923,6 +32963,8 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `results.presets` | 4 | — | presets[] | No | STR-RES-001 |
 | `results.save_preset` | 4 | name, view_id | preset_id | Yes | STR-RES-001 |
 | `results.show` | 4 | view_id, package_id, load_group_id, result_type, style_id? | — | No | STR-RES-001 |
+| `retail.run` | 3 | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
+| `retail.runs` | 3 | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
 | `revcloud.create` | 5 | view_id, loops[], revision_id? | annotation_id | Yes | DOC-ANN-021 |
 | `revcloud.set_revision` | 5 | annotation_ids[], revision_id | () | Yes | DOC-ANN-021 |
 | `revision.create` | 5 | description?, date?, numbering_sequence_id?, index? | revision_id | Yes | DOC-SHT-008 |

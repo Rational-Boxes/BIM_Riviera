@@ -233,7 +233,7 @@
       "description": "A 48 in wall section, a 16 in deck, 84 in high, five shelves.",
       "tags": [
         "shelving",
-        "Gondola",
+        "WallGondola",
         "shelf",
         "Uniclass Pr_40_30_78_71"
       ],
@@ -243,7 +243,7 @@
         "licence": "CC0-1.0",
         "sources": "S1400"
       },
-      "sha256": "00a2e149e40d2d3134179cceeecccbab56d8e5c2f5a9602d4650b5e29dcabc83"
+      "sha256": "c9dd9c02aca335533f88d78ec3227d63b257035e7392d77f10a8c92586c4090c"
     },
     "Shelving/pallet_rack_bay_96_x_42_in.ifc": {
       "guid": "a79002d7-c5a3-4133-92d3-ae8e1bf7810d",

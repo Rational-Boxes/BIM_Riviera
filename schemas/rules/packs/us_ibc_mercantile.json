@@ -1,0 +1,114 @@
+{
+  "format": "riviera.rules-1",
+  "id": "us_ibc_mercantile",
+  "title": "IBC Group M: aisles",
+  "domain": "retail",
+  "jurisdiction": "US",
+  "edition": "IBC §1018.3 as the 2025 California Building Code prints it (the model text was not read)",
+  "layer": "minimum",
+  "notes": "A public aisle in Group M is sized from its occupant capacity (§1005.1) and is not narrower than the corridor it would be (§1020: 44 in, or 36 in serving fewer than 50); 44 in is used. Older editions asked 36 in with displays on one side and 44 in with displays on both, which LADBS still quotes (S1420); a secondary summary gives 36 in (S1451). Wider aisles from the occupant load are not checked yet.",
+  "zones": [
+    {
+      "id": "IBC 1018.3",
+      "description": "44 in clear along each face of an island gondola: a Group M public aisle",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Gondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          1.1176
+        ],
+        [
+          "back",
+          1.1176
+        ]
+      ],
+      "source": "S1394",
+      "confidence": "secondary"
+    },
+    {
+      "id": "IBC 1018.3 wall",
+      "description": "44 in clear in front of a wall gondola: a Group M public aisle",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "WallGondola"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          1.1176
+        ]
+      ],
+      "source": "S1394",
+      "confidence": "secondary"
+    },
+    {
+      "id": "IBC 1018.3 end",
+      "description": "44 in clear in front of an end cap: the cross aisle",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "EndCap"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          1.1176
+        ]
+      ],
+      "source": "S1394",
+      "confidence": "secondary"
+    }
+  ]
+}
