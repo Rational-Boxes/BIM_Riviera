@@ -1555,11 +1555,14 @@ fn the_gym_floor_sample_passes() {
     let work = tempfile::tempdir().unwrap();
     let mut app = open(work.path(), "gym_floor");
     assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
-    // Nine types of exercise equipment, each with an accessible unit and its clear space; the
-    // dumbbell rack is storage.
+    // Ten types of exercise equipment, each with an accessible unit and its clear space (the
+    // dumbbell rack is storage), in three rooms: the fitness room, the cycling studio and the
+    // circuit room laid out by gym.layout.
     let c = ok(&mut app, "gym.check", json!({}));
     let types = c["types"].as_array().unwrap();
-    assert_eq!((types.len(), c["findings"].clone()), (9, json!([])), "{c:#}");
+    assert_eq!((types.len(), c["findings"].clone()), (10, json!([])), "{c:#}");
     assert!(types.iter().all(|t| t["with_space"].as_u64() > Some(0)), "{c:#}");
-    assert!(types.iter().any(|t| t["kind"] == "ExerciseBike" && t["units"] == 2));
+    let rooms: Vec<(String, u64)> = c["rooms"].as_array().unwrap().iter().map(|r| (r["name"].as_str().unwrap().to_owned(), r["pieces"].as_u64().unwrap())).collect();
+    assert_eq!(rooms.len(), 3, "{c:#}");
+    assert!(rooms.iter().any(|(n, p)| n == "Cycle studio" && *p >= 10) && rooms.iter().any(|(n, p)| n == "Circuit" && *p == 8), "{rooms:?}");
 }

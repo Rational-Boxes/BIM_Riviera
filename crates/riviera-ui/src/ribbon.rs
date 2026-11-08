@@ -64,6 +64,8 @@ pub const UI_ACTIONS: &[&str] = &[
     "ui.check_scos",
     "ui.gym_mirror",
     "ui.check_gym",
+    "ui.gym_layout",
+    "ui.gym_studio",
     "ui.make_product",
     "ui.fixture_count",
     "ui.toilet_core",

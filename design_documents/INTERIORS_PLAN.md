@@ -522,8 +522,9 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
   aggregates, service clearances as IFC volumes and the EU and UK profiles remain.
 - Step 10 is begun: the `gym_equipment` pack's use zones, wall mirrors as `IfcCovering` MIRROR,
   the ceiling fan as `IfcFan` (Q4, answered 2026-11-08), and the gym check of §236.1 by type,
-  ceiling heights and mirrors (ARC-GYM-001). Layouts, the UK's IFI counts and building integration
-  (§7.3) remain.
+  ceiling heights and mirrors (ARC-GYM-001); gym layouts in rows, cycling, mat and HIIT studios and
+  occupant loads (ARC-GYM-002). Zoning, the accessible route, the UK's IFI counts and building
+  integration (§7.3) remain.
 
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command, exposed to Lua and MCP:

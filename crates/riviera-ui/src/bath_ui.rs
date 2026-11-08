@@ -790,6 +790,75 @@ impl Gui {
         }
     }
 
+    /// The one room selected, or an error shown.
+    fn selected_room(&mut self) -> Option<u64> {
+        let frame = self.frame;
+        let store = self.store_now()?;
+        let rooms: Vec<u64> = self.selection().into_iter().filter(|id| store.get(*id).is_some_and(|e| riviera_core::rooms::room_recipe(e).is_some())).map(|id| id.0).collect();
+        if rooms.len() != 1 {
+            error(&frame, "Select one room first.");
+            return None;
+        }
+        Some(rooms[0])
+    }
+
+    /// Architecture › Build › Gym Layout (ARC-GYM-002): the selected room filled in rows with the
+    /// counts given, each piece kept clear by its zones.
+    pub(crate) fn gym_layout(&mut self) {
+        let frame = self.frame;
+        let Some(room) = self.selected_room() else { return };
+        let items: Vec<String> = riviera_core::furnishings::list(&riviera_core::Store::default(), None)
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|i| i.library == riviera_core::furnishings::Library::Gym)
+            .map(|i| i.name)
+            .collect();
+        let f = super::reinforcement_ui::Form::new(&frame, "Gym Layout");
+        let counts: Vec<TextCtrl> = items.iter().map(|n| f.text(n, "0", "")).collect();
+        let ok = f.show("Rows run from the room's longest wall, the pieces in this order, each kept clear by its own zones with a 36 in aisle between rows.", "Lay Out");
+        let pieces: Vec<serde_json::Value> = items
+            .iter()
+            .zip(&counts)
+            .filter_map(|(n, t)| t.get_value().trim().parse::<u32>().ok().filter(|c| *c > 0).map(|c| json!({ "item": n, "count": c })))
+            .collect();
+        f.dialog.destroy();
+        if !ok || pieces.is_empty() {
+            return;
+        }
+        match self.run("gym.layout", json!({ "room_id": room, "pieces": pieces })) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let left: u64 = v["unplaced"].as_object().map_or(0, |m| m.values().filter_map(serde_json::Value::as_u64).sum());
+                let tail = if left > 0 { format!("; {left} did not fit") } else { String::new() };
+                frame.set_status_text(&format!("{} pieces in {} row(s){tail}; Check Gym and Check Rules check them", v["placed"].as_array().map_or(0, Vec::len), v["rows"]), 0);
+            }
+            Err(e) => error(&frame, &format!("The gym was not laid out:\n{e}")),
+        }
+    }
+
+    /// Architecture › Build › Studio (ARC-GYM-002): the selected room's class capacity, and a
+    /// cycling studio's bikes.
+    pub(crate) fn gym_studio(&mut self) {
+        let frame = self.frame;
+        let Some(room) = self.selected_room() else { return };
+        let labels = ["Indoor cycling (1.5 × 2.0 m a bike), placing the bikes", "Yoga and mat Pilates (25 ft² a person)", "HIIT and functional (50 ft² a person)"];
+        let d = SingleChoiceDialog::builder(&frame, "The selected room is a studio for:", "Studio", &labels).build();
+        if d.show_modal() != ID_OK {
+            return;
+        }
+        let kind = ["cycle", "mat", "hiit"][d.get_selection().max(0) as usize];
+        d.destroy();
+        match self.run("gym.studio", json!({ "room_id": room, "kind": kind })) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let placed = v["placed"].as_array().map_or(0, Vec::len);
+                let msg = format!("{:.0} m²: about {} places ({}).{}", v["area"].as_f64().unwrap_or(0.0), v["capacity"], v["note"].as_str().unwrap_or_default(), if placed > 0 { format!(" {placed} bikes placed facing the instructor's wall.") } else { String::new() });
+                frame.set_status_text(&msg, 0);
+            }
+            Err(e) => error(&frame, &format!("The studio was not sized:\n{e}")),
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

@@ -157,9 +157,21 @@ pub struct GymFinding {
     pub message: String,
 }
 
+/// A room holding gym equipment.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct GymRoom {
+    pub room: ElementId,
+    pub name: String,
+    pub area: f64,
+    pub pieces: u32,
+    /// IBC Table 1004.5's exercise rooms: 50 ft² gross an occupant.
+    pub occupants: u32,
+}
+
 #[derive(Debug, Clone, Serialize, JsonSchema)]
 pub struct GymCheck {
     pub types: Vec<TypeCount>,
+    pub rooms: Vec<GymRoom>,
     pub findings: Vec<GymFinding>,
 }
 
@@ -211,7 +223,7 @@ pub(crate) fn check(store: &Store, _: Option<CheckParams>) -> Result<GymCheck> {
         findings.push(GymFinding { rule: rule.into(), source: source.into(), severity: severity.into(), element, message });
     };
     if pieces.is_empty() && mirrors.is_empty() {
-        return Ok(GymCheck { types: Vec::new(), findings: Vec::new() });
+        return Ok(GymCheck { types: Vec::new(), rooms: Vec::new(), findings: Vec::new() });
     }
     let bodies = crate::bodies::all(store);
     let cuts = crate::sco::slice(store, 0.3);
@@ -275,6 +287,298 @@ pub(crate) fn check(store: &Store, _: Option<CheckParams>) -> Result<GymCheck> {
             }
         }
     }
+    // Each room's occupant load, and its equipment against Sport England's 5 m² a piece.
+    let mut rooms = Vec::new();
+    for r in crate::rooms::all(store).into_iter().filter(|r| !r.redundant) {
+        let Some(region) = &r.geometry.region else { continue };
+        let ring: Vec<[f64; 2]> = region.outer.iter().map(|e| e.line.start).collect();
+        let n = pieces.iter().filter(|p| p.2 && crate::sco::inside([p.3.frame.origin[0], p.3.frame.origin[1]], &ring)).count() as u32;
+        if n == 0 {
+            continue;
+        }
+        let area = r.geometry.area();
+        if area / f64::from(n) < 5.0 - 1e-9 {
+            note("Sport England density", "S1377", "note", Some(r.id), format!("{n} pieces in {area:.0} m²: Sport England plans 5 m² a piece with its circulation"));
+        }
+        rooms.push(GymRoom { room: r.id, name: r.name.clone(), area, pieces: n, occupants: (area / (50.0 * 0.092_903_04) - 1e-9).ceil().max(0.0) as u32 });
+    }
     findings.sort_by_key(|f| f.severity != "error");
-    Ok(GymCheck { types: types.into_values().collect(), findings })
+    Ok(GymCheck { types: types.into_values().collect(), rooms, findings })
+}
+
+// ---- Layouts (`gym.layout`, `gym.studio`) ----
+
+/// The tag on a layout's pieces: `{layout, row}`.
+pub const LAYOUT_KEY: &str = "rxd:gym_layout";
+/// An accessible route between rows (ADA §403.5.1).
+const AISLE: f64 = 36.0 * IN;
+
+/// The clear margins a piece keeps round its body when laid out: (sides, back, front), metres. A
+/// treadmill's front is its step-on end; a strength station's 0.9 m is the ACSM's.
+fn margins(kind: &str) -> (f64, f64, f64) {
+    match kind {
+        "Treadmill" => (0.5, 0.3, 2.0),
+        "Rower" => (0.305, 0.15, 0.15),
+        "DumbbellRack" => (0.3, 0.0, 0.91),
+        "LegPress" | "CableCrossover" | "PowerRack" | "HalfRack" | "SmithMachine" => (0.9, 0.9, 0.9),
+        // Circuit machines: 0.6 m (a consumer guide's minimum; 0.9 m preferred).
+        _ => (0.6, 0.3, 0.6),
+    }
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct Piece {
+    /// A catalogue item from the gym library.
+    pub item: String,
+    #[serde(default = "one")]
+    pub count: u32,
+}
+
+fn one() -> u32 {
+    1
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct LayoutParams {
+    pub room_id: ElementRef,
+    /// The pieces, in rows from the head wall in this order.
+    pub pieces: Vec<Piece>,
+    /// The head wall: the room's edge nearest this point (default its longest edge).
+    pub head: Option<[f64; 2]>,
+    /// Between rows, where the pieces' own zones leave less (default 36 in, an accessible route).
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub aisle: Option<f64>,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct Placed {
+    pub item: String,
+    pub element: ElementId,
+    pub row: u32,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct Layout {
+    pub layout: String,
+    pub placed: Vec<Placed>,
+    /// Pieces that did not fit, by item.
+    pub unplaced: BTreeMap<String, u32>,
+    pub rows: u32,
+}
+
+/// A room's outline, level and floor height.
+fn room_outline(store: &Store, r: &ElementRef) -> Result<(Vec<[f64; 2]>, String)> {
+    let id = store.resolve(r).ok_or_else(|| bad("element.not_found", "no such room"))?;
+    let info = crate::rooms::all(store).into_iter().find(|i| i.id == id).ok_or_else(|| bad("gym.not_a_room", "not a Riviera room"))?;
+    let region = info.geometry.region.ok_or_else(|| bad("gym.not_enclosed", "the room is not enclosed"))?;
+    let ring: Vec<[f64; 2]> = region.outer.iter().map(|e| e.line.start).collect();
+    let level = store.get(id).and_then(crate::rooms::room_recipe).map(|r| r.level).unwrap_or_default();
+    Ok((ring, level))
+}
+
+/// A frame on a room's head wall: its origin at the edge's start, `u` along it, `n` into the room.
+fn head_frame(ring: &[[f64; 2]], head: Option<[f64; 2]>) -> ([f64; 2], [f64; 2], [f64; 2]) {
+    let n = ring.len();
+    let edge = |k: usize| (ring[k], ring[(k + 1) % n]);
+    let dist = |p: [f64; 2], (a, b): ([f64; 2], [f64; 2])| {
+        let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+        let t = (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy).max(1e-12)).clamp(0.0, 1.0);
+        (p[0] - a[0] - dx * t).hypot(p[1] - a[1] - dy * t)
+    };
+    let len = |(a, b): ([f64; 2], [f64; 2])| (b[0] - a[0]).hypot(b[1] - a[1]);
+    let k = match head {
+        Some(p) => (0..n).min_by(|i, j| dist(p, edge(*i)).total_cmp(&dist(p, edge(*j)))).unwrap_or(0),
+        None => (0..n).max_by(|i, j| len(edge(*i)).total_cmp(&len(edge(*j)))).unwrap_or(0),
+    };
+    let (a, b) = edge(k);
+    let l = len((a, b)).max(1e-12);
+    let u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    let mut nn = [-u[1], u[0]];
+    // Into the room: toward the ring's centroid.
+    let c = ring.iter().fold([0.0, 0.0], |s, p| [s[0] + p[0] / n as f64, s[1] + p[1] / n as f64]);
+    if (c[0] - a[0]) * nn[0] + (c[1] - a[1]) * nn[1] < 0.0 {
+        nn = [-nn[0], -nn[1]];
+    }
+    (a, u, nn)
+}
+
+/// Lays a gym out in rows from its head wall (`gym.layout`).
+pub(crate) fn layout(txn: &mut Transaction<'_>, p: LayoutParams) -> Result<Layout> {
+    let (ring, level) = room_outline(txn.store(), &p.room_id)?;
+    let (o, u, n) = head_frame(&ring, p.head);
+    let to_local = |q: [f64; 2]| [(q[0] - o[0]) * u[0] + (q[1] - o[1]) * u[1], (q[0] - o[0]) * n[0] + (q[1] - o[1]) * n[1]];
+    let local_ring: Vec<[f64; 2]> = ring.iter().map(|q| to_local(*q)).collect();
+    let (a0, a1) = local_ring.iter().fold((f64::MAX, f64::MIN), |(lo, hi), q| (lo.min(q[0]), hi.max(q[0])));
+    let aisle = p.aisle.unwrap_or(AISLE);
+    let names: Vec<String> = p.pieces.iter().map(|q| q.item.clone()).collect();
+    let types = crate::furnishings::load(txn, crate::furnishings::LoadParams { names: names.clone() })?;
+    let sizes = crate::interior_layouts::sizes();
+    let store = txn.store().clone();
+    let mut queue = Vec::new();
+    for q in &p.pieces {
+        let ty = types[&q.item];
+        let kind = store.get(ty).and_then(|t| t.param("@ElementType")).and_then(Value::as_str).unwrap_or_default().to_owned();
+        if !KINDS.iter().any(|k| k.0 == kind) {
+            return Err(bad("gym.not_equipment", format!("{} is not gym equipment", q.item)));
+        }
+        for _ in 0..q.count {
+            queue.push((q.item.clone(), ty, kind.clone(), sizes[&q.item]));
+        }
+    }
+    // A cell inside the room: every corner of its body and margins.
+    let fits = |x0: f64, x1: f64, y0: f64, y1: f64| [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].iter().all(|q| inside_or_on(*q, &local_ring));
+    let layout = crate::id::GlobalId::new().as_str().to_owned();
+    let mut placed = Vec::new();
+    let mut unplaced: BTreeMap<String, u32> = BTreeMap::new();
+    // Rows: `y` is where the row's bodies start (their backs), less their back margins.
+    let (mut y, mut row, mut x, mut prev_side) = (0.0, 0u32, a0, 0.0);
+    let (mut row_end, mut row_front) = (0.0f64, 0.0f64);
+    let mut k = 0;
+    while k < queue.len() {
+        let (item, ty, kind, size) = &queue[k];
+        let (w, l) = (size[0], size[1]);
+        let (side, back, front) = margins(kind);
+        // To the wall or the previous piece, whichever needs more.
+        let gap = if x == a0 { side } else { side.max(prev_side) };
+        let (bx0, by0) = (x + gap, y + back);
+        let fits_here = fits(bx0 - side, bx0 + w + side, by0 - back, by0 + l + front);
+        if fits_here {
+            // Its back toward the head wall, its front into the room.
+            let c = [bx0 + w / 2.0, by0 + l / 2.0];
+            let point = [o[0] + u[0] * c[0] + n[0] * c[1], o[1] + u[1] * c[0] + n[1] * c[1]];
+            // Its front (local −y) into the room, along `n`.
+            let rotation = n[0].atan2(-n[1]);
+            let level_ref = level_ref(&level)?;
+            let id = crate::mesh_objects::place(txn, crate::mesh_objects::PlaceParams { type_id: ElementRef::Id(*ty), point, level: level_ref, offset: 0.0, rotation, mirror: false, scale: 1.0 })?;
+            let tag = json!({ "layout": layout, "row": row });
+            txn.modify(id, |e| {
+                e.params.insert(LAYOUT_KEY.into(), tag);
+            })?;
+            placed.push(Placed { item: item.clone(), element: id, row });
+            x = bx0 + w;
+            prev_side = side;
+            row_end = row_end.max(by0 + l);
+            row_front = row_front.max(front);
+            k += 1;
+            continue;
+        }
+        if x == a0 {
+            // Not even first in a row: it does not fit the room at this depth.
+            *unplaced.entry(item.clone()).or_default() += 1;
+            k += 1;
+            if row_end == 0.0 {
+                continue;
+            }
+        }
+        // The next row, past this one's fronts and an aisle.
+        if row_end == 0.0 && x == a0 {
+            continue;
+        }
+        y = row_end + row_front.max(aisle);
+        row += 1;
+        x = a0;
+        prev_side = 0.0;
+        row_end = 0.0;
+        row_front = 0.0;
+        if y > local_ring.iter().fold(f64::MIN, |m, q| m.max(q[1])) {
+            for (item, ..) in &queue[k..] {
+                *unplaced.entry(item.clone()).or_default() += 1;
+            }
+            break;
+        }
+    }
+    let rows = placed.iter().map(|q| q.row + 1).max().unwrap_or(0);
+    let _ = a1;
+    Ok(Layout { layout, placed, unplaced, rows })
+}
+
+fn level_ref(guid: &str) -> Result<ElementRef> {
+    crate::id::GlobalId::parse(guid).map(ElementRef::Guid).ok_or_else(|| bad("level.missing", "the room's level no longer exists"))
+}
+
+fn inside_or_on(p: [f64; 2], poly: &[[f64; 2]]) -> bool {
+    crate::sco::inside(p, poly) || (0..poly.len()).any(|i| {
+        let (a, b) = (poly[i], poly[(i + 1) % poly.len()]);
+        let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+        let l2 = dx * dx + dy * dy;
+        let t = (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2.max(1e-12)).clamp(0.0, 1.0);
+        (p[0] - a[0] - dx * t).hypot(p[1] - a[1] - dy * t) < 1e-6
+    })
+}
+
+/// What a studio is for.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Studio {
+    /// Indoor cycling: 1.5 × 2.0 m a bike (Spinning).
+    Cycle,
+    /// Yoga and mat Pilates: 25 ft² a person.
+    Mat,
+    /// HIIT and functional classes: 50 ft² a person.
+    Hiit,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct StudioParams {
+    pub room_id: ElementRef,
+    pub kind: Studio,
+    /// The instructor's wall: the room's edge nearest this point (default its longest edge).
+    pub head: Option<[f64; 2]>,
+    /// For cycling, place the bikes (default true).
+    pub place: Option<bool>,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct StudioResult {
+    pub area: f64,
+    /// Places by the planning density.
+    pub capacity: u32,
+    /// The bikes placed, facing the instructor's wall.
+    pub placed: Vec<ElementId>,
+    pub note: String,
+}
+
+/// Sizes a studio, and lays out a cycling studio's bikes (`gym.studio`).
+pub(crate) fn studio(txn: &mut Transaction<'_>, p: StudioParams) -> Result<StudioResult> {
+    let (ring, level) = room_outline(txn.store(), &p.room_id)?;
+    let area = crate::sketch::signed_area(&ring).abs();
+    const FT2: f64 = 0.092_903_04;
+    let (per, note) = match p.kind {
+        Studio::Cycle => (3.0, "1.5 × 2.0 m a bike (Spinning); Les Mills plans about 2 m²"),
+        Studio::Mat => (25.0 * FT2, "25 ft² a person for yoga and mat Pilates (20–25 ft²; dynamic styles 25–30)"),
+        Studio::Hiit => (50.0 * FT2, "50 ft² a person for HIIT and functional classes (35–50 ft²)"),
+    };
+    let capacity = (area / per).floor() as u32;
+    let mut placed = Vec::new();
+    if p.kind == Studio::Cycle && p.place.unwrap_or(true) {
+        let (o, u, n) = head_frame(&ring, p.head);
+        let local: Vec<[f64; 2]> = ring.iter().map(|q| [(q[0] - o[0]) * u[0] + (q[1] - o[1]) * u[1], (q[0] - o[0]) * n[0] + (q[1] - o[1]) * n[1]]).collect();
+        let (a0, a1) = local.iter().fold((f64::MAX, f64::MIN), |(lo, hi), q| (lo.min(q[0]), hi.max(q[0])));
+        let d1 = local.iter().fold(f64::MIN, |m, q| m.max(q[1]));
+        let ty = crate::furnishings::load(txn, crate::furnishings::LoadParams { names: vec!["Indoor cycle".into()] })?["Indoor cycle"];
+        // The instructor's podium and its 2 m in front of the head wall, then 1.5 × 2.0 m cells.
+        let (cw, cd, start) = (1.5, 2.0, 2.0);
+        let cols = ((a1 - a0) / cw).floor() as i32;
+        let rows = ((d1 - start) / cd).floor() as i32;
+        let x0 = a0 + ((a1 - a0) - f64::from(cols) * cw) / 2.0;
+        // Riders face the instructor: each bike's console (its +y) toward the head wall, its front
+        // (−y) into the room.
+        let rotation = n[0].atan2(-n[1]);
+        for r in 0..rows {
+            for c in 0..cols {
+                let cx = x0 + (f64::from(c) + 0.5) * cw;
+                let cy = start + (f64::from(r) + 0.5) * cd;
+                let cell = [[cx - cw / 2.0, cy - cd / 2.0], [cx + cw / 2.0, cy - cd / 2.0], [cx + cw / 2.0, cy + cd / 2.0], [cx - cw / 2.0, cy + cd / 2.0]];
+                if !cell.iter().all(|q| inside_or_on(*q, &local)) {
+                    continue;
+                }
+                let point = [o[0] + u[0] * cx + n[0] * cy, o[1] + u[1] * cx + n[1] * cy];
+                placed.push(crate::mesh_objects::place(txn, crate::mesh_objects::PlaceParams { type_id: ElementRef::Id(ty), point, level: level_ref(&level)?, offset: 0.0, rotation, mirror: false, scale: 1.0 })?);
+            }
+        }
+    }
+    Ok(StudioResult { area, capacity, placed, note: note.into() })
 }

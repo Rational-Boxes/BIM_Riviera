@@ -1454,6 +1454,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "sco_pod" => format!(
             r#"<rect x="3" y="4" width="7" height="5" fill="{f}" {s}/><rect x="3" y="11" width="7" height="5" fill="{a}" {s}/><rect x="3" y="18" width="7" height="5" fill="{f}" {s}/><rect x="22" y="4" width="7" height="5" fill="{f}" {s}/><rect x="22" y="11" width="7" height="5" fill="{f}" {s}/><rect x="22" y="18" width="7" height="5" fill="{a}" {s}/><rect x="11" y="25" width="10" height="4" fill="{f}" {s}/>"#
         ),
+        // A room in plan with a row of treadmills along its head wall and a rack below.
+        "gym_layout" => format!(
+            r#"<rect x="3" y="3" width="26" height="26" fill="none" {s}/><rect x="6" y="5" width="4" height="9" fill="{f}" {s}/><rect x="14" y="5" width="4" height="9" fill="{f}" {s}/><rect x="22" y="5" width="4" height="9" fill="{f}" {s}/><rect x="10" y="19" width="12" height="6" fill="{a}" {s}/>"#
+        ),
         // A mirror on a wall in elevation, with a glint.
         "gym_mirror" => format!(
             r#"<path d="M2 29h28" {s}/><rect x="7" y="4" width="18" height="21" fill="{f}" {s}/><path d="M11 18l6-8M15 20l5-6" stroke="{a}" stroke-width="2"/>"#

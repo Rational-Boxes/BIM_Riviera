@@ -5833,7 +5833,32 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A mirror across the treadmills' rear is a note; one without safety glazing is a note. The mirror is an `IfcCovering`.
 - [x] The sample *A fitness room* has one of each type accessible with its clear space, every zone clear and nothing overlapping.
 
-*Built (2026-11-08):* `riviera_core::gym`, the `gym_equipment` pack, the ceiling fan, Architecture › Build › Wall Mirror, View › Coordination › Check Gym. Defaults are E-114. Not yet: gym layouts and studios (`gym.layout`, §7.2), whether the accessible machines are on an accessible route (G33), the UK's inclusive transfer space and IFI counts (G35–G36), occupant loads (G42), and building integration (§7.3): dedicated circuits, heat gains, outdoor air, floor loads, anchors. Also not yet: the fan-light's aggregated light kit and the fan's wall clearance.
+*Built (2026-11-08):* `riviera_core::gym`, the `gym_equipment` pack, the ceiling fan, Architecture › Build › Wall Mirror, View › Coordination › Check Gym. Defaults are E-114. Not yet (gym layouts and studios are ARC-GYM-002): whether the accessible machines are on an accessible route (G33), the UK's inclusive transfer space and IFI counts (G35–G36), and building integration (§7.3): dedicated circuits, heat gains, outdoor air, floor loads, anchors. Also not yet: the fan-light's aggregated light kit and the fan's wall clearance.
+
+### 3.9b.16 Gym layouts and studios
+**ID:** ARC-GYM-002 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §7.2 (step 10); research/15 A2, A4 (S1372, S1377, S1379, S1380, S1390, S1392); ARC-GYM-001
+
+**Purpose.** Fill a gym room or a studio from a list of equipment in one step, each piece kept clear by its zones, and size group-exercise studios from their area.
+
+**Behaviour & rules.**
+- **`gym.layout`** fills a Riviera room in rows from its **head wall**: the room's edge nearest `head`, else its longest edge.
+  - The `pieces` (catalogue items with counts) go in order, left to right along the head wall, each piece's back toward it and its front into the room. A treadmill's front is its step-on end, so its runner faces the head wall.
+  - **Margins**: each piece keeps (sides, back, front) clear. A treadmill keeps 0.5, 0.3 and 2.0 m; a rower 0.305, 0.15 and 0.15 m, its use area; a dumbbell rack 0.3, 0 and 0.91 m. Strength stations keep 0.9 m all round (the ACSM's); other circuit machines 0.6, 0.3 and 0.6 m (a consumer guide's minimum, 0.9 m preferred). Between two pieces the larger of their side margins is kept, since each zone only has to keep the other's body out; against a wall, the piece's own.
+  - A piece goes where its body and margins lie inside the room. When a row is full, the next starts past the row's bodies and the larger of its front margins and the `aisle` (default 36 in, an accessible route, ADA §403.5.1).
+  - Pieces that do not fit are reported by item, not placed. Each piece placed carries its layout and row (RXD `rxd:gym_layout`).
+- **`gym.studio`** sizes a studio from its room's area. Indoor cycling takes 1.5 × 2.0 m a bike (Spinning; Les Mills plans about 2 m²), mat classes 25 ft² a person and HIIT 50 ft² (research/15 A4).
+  - For cycling it also places indoor cycles in 1.5 × 2.0 m cells, centred across the room. The cells start 2 m out from the instructor's wall (the edge nearest `head`), with each bike's console toward it, unless `place` is false.
+- **`gym.check`** gains each room's **occupant load**: its area at 50 ft² gross an occupant (IBC Table 1004.5 as adopted in WAC 51-54A, G42). Exercise equipment at less than Sport England's 5 m² a piece is a note (S1377).
+
+**Commands.** `gym.layout(room_id, pieces: [{item, count}], head?, aisle?)` → `{layout, placed: [{item, element, row}], unplaced, rows}`; `gym.studio(room_id, kind: cycle|mat|hiit, head?, place?)` → `{area, capacity, placed, note}`.
+
+**Acceptance criteria.**
+- [x] Four treadmills, two bikes, a rower, a power rack and a leg press all fit a 14 × 10 m room, in at least two rows. Check Rules, overlaps and Check Gym find nothing, and the room's occupant load is about 29.
+- [x] Twenty more treadmills do not all fit; the rest are reported.
+- [x] A 10 × 8 m cycling studio holds 10 or more bikes, no more than its capacity, facing the instructor's wall with nothing overlapping. As a mat studio it holds about 30, and nothing is placed.
+- [x] The sample *A fitness room* has a cycling studio and a circuit room laid out this way, with three rooms' occupant loads.
+
+*Built (2026-11-08):* `gym.layout` and `gym.studio`, Architecture › Build › Gym Layout and Studio, the rooms in `gym.check`. Defaults are E-115. Not yet: picking the head wall in the window, zones by type (cardio and strength apart, a circuit holding one of each accessible machine), the accessible route to accessible machines (G33), L-shaped rooms beyond what fits their bounding rows, mat and HIIT studios' storage and instructor zones.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -5868,6 +5893,71 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 *Built (2026-11-06):* `riviera_core::furnishings`, made into the bundled libraries (DM-LIB-006). Not yet: kitchen cabinets and appliances (`KITCHENS_PLAN.md`), lighting fixtures for interiors (`INTERIORS_PLAN.md` §4.5), and detailed shapes.
 
 ---
+
+## 3.9c Swimming pools
+
+Owner requirement (2026-11-08), planned in `POOLS_PLAN.md` and researched in `research/23_swimming_pools.md` (sources S2762–S2868). The toolset covers public, leisure, teaching, competition and residential pools. Hot tubs, saunas, steam rooms and spa access are the bathroom toolset's (ARC-BATH-013…016).
+- **The pool:** its geometry, shell and equipment.
+- **The rules:** rule packs in the shared format (ARC-RULE-001). Each pack checks its own text's value, so where sources conflict, the packs disagree visibly (the owner's answer to Q4).
+- **The building:** what the pool asks of it (hall air, water treatment, structure, bonding, lighting), which comes after the geometry and checks (Q7).
+
+Public and competition pools come first (Q6).
+
+### 3.9c.1 The pool element
+**ID:** ARC-POOL-001 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §3, §7 (step 1; the owner's answers to Q1, Q2 and Q6, 2026-11-08); research/23 A.2, A.3, B.1, B.2, D.1–D.3, D.5 (S2762, S2772, S2783, S2836, S2844, S2847); ARC-WALL-001 (walls), ARC-FLR-001 (floors), ARC-OPEN-002 (openings)
+
+**Purpose.** Model a pool as one element: draw its outline, give its depths, and get the shell, the water, the coping and its numbers, all kept in step as it changes.
+
+**Behaviour & rules.**
+- **`pool.create`** takes:
+  - a level and the **deck** height above it (default 0, the level's floor);
+  - an **outline**, sketched or typed (closed polyline, arcs allowed), or a **template** placed by an origin and a rotation.
+  - Templates are a rectangle, L and lap pool by their sizes, and the competition pools: 25 yd (22.86 m), 25 m and 50 m by lane count and width, each 0.03 m longer for touch pads (research/23 D.1.1). A teaching pool is 12 × 7 m, 0.6–0.9 m deep (Sport England, B.1). A wading pool is 0.6 m deep at most.
+- **The axis** runs from the shallow end to the deep end: the outline's first edge's middle to the opposite side, or two points given.
+- **The water level** is a depth below the deck (default 0.15 m for a skimmer pool, 0 for deck-level gutters).
+- **The depth profile** is a list of stations along the axis, each a distance and a depth below the water. The floor is linear between stations and constant across the axis.
+  - A station may be named `break`: the **break point**, where depth reaches 5 ft (1.52 m) and the slope limits change (A.2).
+  - The pool reports each segment's slope; `pool.check` (ARC-POOL-002) judges it.
+  - Default profiles: a public pool 1.0 m to 2.0 m with the break at 1.52 m; a competition pool a constant 2.0 m (2.5 m with the World Aquatics option, Q5); a teaching pool 0.9 m.
+- **The wall–floor cove** has a radius (default 150 mm, the MAHC's 6 in at depths to 3 ft, A.3), tangent to the wall.
+- **The edge**, per outline edge:
+  - `skimmer`;
+  - `deck_level` (Finnish, Wiesbaden or Zurich, with its gutter width, default 0.3 m);
+  - `infinity`, with its catch basin: its width (default 0.45 m) and its depth (default 0.6 m) are inputs, sized in step 7;
+  - `raised`, with a height.
+- **The coping** follows the edges that are not deck-level or infinity. It is 0.3 m wide by default, overhangs 40 mm (the MAHC's 1–2 in) and is at most 2.5 in (64 mm) thick.
+- **The shell** (Q2) is generated from the outline and the profile:
+  - walls the shell's thickness outside the outline (default 0.3 m of cast concrete), from the deck down to the floor;
+  - a floor slab under the profile;
+  - shotcrete, panel or one-piece shells by type, with their thicknesses as inputs;
+  - an optional tiling layer, its thickness given, and a waterproofing membrane.
+  - The pool cuts its outline, grown by the shell, out of any floor or deck slab on its level (as a vertical opening, ARC-OPEN-002), and regenerates when the outline, profile or shell changes.
+- **The water** is the volume under the water level inside the outline. Read-outs give:
+  - the water area, perimeter and volume;
+  - the depth at any plan point;
+  - the deepest and shallowest points;
+  - each segment's slope;
+  - the shell's concrete volume.
+- Shell, coping, water and finishes are the pool's own parts. They are selected, moved and deleted with it, and each edit of the pool is one undo step.
+
+**Data (IFC mapping)** (Q1):
+- the shell's walls as `IfcWall` (RETAININGWALL in IFC 4.3, SOLIDWALL in IFC4) and its floor as `IfcSlab` BASESLAB, aggregated under the pool (`IfcElementAssembly` USERDEFINED "SWIMMINGPOOL");
+- tiling as `IfcCovering` FLOORING and CLADDING, the membrane as MEMBRANE, coping as COPING in IFC 4.3 (USERDEFINED in IFC4);
+- the water as an `IfcSpace` USERDEFINED ("WATER") with `Qto_SpaceBaseQuantities` area and volume, contained in the space it is in;
+- the recipe in RXD (`recipe.pool`);
+- Uniclass: SL_42_85_41 or SL_42_85_59 (indoor or outdoor), Ss_37_40_85 tiling (research/23 D.5.3).
+
+**Commands.** `pool.create(level, outline | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell?)` → id; `pool.set(pool_id, …)` (any of the same); `pool.info(pool_id, points?)` → `{area, perimeter, volume, depths, segments: [{from, to, slope}], deepest, shallowest, shell_volume}`; `pool.list()`.
+
+**Acceptance criteria.**
+- [ ] A 25 m × 6-lane competition template is 25.03 × 15.0 m (2.5 m lanes), constant 2.0 m deep, with a volume within 1 % of 25.03 × 15 × 2.0 m³.
+- [ ] A public pool profiled 1.0 m to 1.52 m over 7 m, then to 2.0 m over 3 m, reports slopes of about 1:13.5 and 1:6.3, and its depth at a point between.
+- [ ] The shell's walls and floor follow the outline and the profile. The floor slab of the level has an opening round the pool, and nothing overlaps.
+- [ ] Changing the profile regenerates the shell and the water, in one undo step.
+- [ ] Exported to IFC, the pool is an assembly of walls, a base slab and coverings, with a WATER space carrying its volume, and it reads back.
+- [ ] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool.
+
+*Specified (2026-11-08), not built.* Later steps: `pool.check` and the US packs (ARC-POOL-002), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
 
 ## 3.11 Massing and site
 
@@ -7098,7 +7188,13 @@ All commands below are registered once in the command registry and exposed autom
 | `sco.set_profile` | element_ids, operable?, approach?, obstruction_depth?, screen_height?, speech?, tactile_keypad?, braille? | null | Yes | ARC-RETAIL-004 |
 | `sco.check` | sight_height? | {pods, findings} | No (query) | ARC-RETAIL-004 |
 | `gym.mirror` | start, end, level, toward, bottom?, top?, safety_glazing? | element id | Yes | ARC-GYM-001 |
-| `gym.check` | — | {types, findings} | No (query) | ARC-GYM-001 |
+| `gym.check` | — | {types, rooms, findings} | No (query) | ARC-GYM-001, -002 |
+| `gym.layout` | room_id, pieces, head?, aisle? | {layout, placed, unplaced, rows} | Yes | ARC-GYM-002 |
+| `gym.studio` | room_id, kind, head?, place? | {area, capacity, placed, note} | Yes | ARC-GYM-002 |
+| `pool.create` | level, outline \| template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell? | id | Yes | ARC-POOL-001 |
+| `pool.set` | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
+| `pool.info` | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
+| `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |

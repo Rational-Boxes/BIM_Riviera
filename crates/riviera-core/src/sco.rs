@@ -302,7 +302,7 @@ fn segments_cross(a: [f64; 2], b: [f64; 2], c: [f64; 2], d: [f64; 2]) -> bool {
     (d1 > 0.0) != (d2 > 0.0) && (d3 > 0.0) != (d4 > 0.0)
 }
 
-fn inside(p: [f64; 2], poly: &[[f64; 2]]) -> bool {
+pub(crate) fn inside(p: [f64; 2], poly: &[[f64; 2]]) -> bool {
     let mut c = false;
     for i in 0..poly.len() {
         let (a, b) = (poly[i], poly[(i + 1) % poly.len()]);

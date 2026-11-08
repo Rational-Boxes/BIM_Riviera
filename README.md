@@ -685,8 +685,22 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   (Check Rules). Architecture › Build › Wall Mirror places a mirror as an `IfcCovering` (MIRROR).
   View › Coordination › Check Gym checks one accessible machine of each type with its 30 × 48 in
   space (ADA §236.1), the ceiling over each piece, and mirrors at treadmills (`gym.mirror`,
-  `gym.check`). A 52 in ceiling fan (`IfcFan`) joins the Interiors library. Not built yet: gym
-  layouts, the UK's IFI counts, circuits, heat gains, floor loads and anchors.
+  `gym.check`). A 52 in ceiling fan (`IfcFan`) joins the Interiors library. Not built yet: the
+  UK's IFI counts, circuits, heat gains, floor loads and anchors.
+- **Gym layouts and studios** (ARC-GYM-002). Architecture › Build › Gym Layout fills a selected room
+  in rows from its longest wall, each piece kept clear by its own zones with a 36 in aisle between
+  rows (`gym.layout`); Studio sizes a cycling, mat or HIIT studio and lays out a cycling studio's
+  bikes facing the instructor (`gym.studio`). Check Gym gives each room's occupant load. Not built
+  yet: zoning cardio and strength, the accessible route to accessible machines.
+- **Swimming pools** (ARC-POOL-001…, `POOLS_PLAN.md`, research/23). Specified, not built yet. A
+  pool element from an outline or a template (25 yd, 25 m and 50 m competition, teaching, lap):
+  - its depth profile with the 5 ft break point, its edge (skimmer, deck-level gutters or an
+    infinity edge) and coping;
+  - a generated shell of walls and a sloped base slab, cut into the floor;
+  - its water as an IfcSpace (WATER) with area and volume.
+  Planned after it: `pool.check` with the ISPSC, MAHC, ADA §242/§1009 and VGB packs, entries and a
+  pool equipment library, competition presets and diving envelopes, UK packs, then the hall's
+  dehumidification, water treatment, structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

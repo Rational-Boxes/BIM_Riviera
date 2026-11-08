@@ -363,6 +363,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(ScoCheck),
         registry.add(GymMirror),
         registry.add(GymCheck),
+        registry.add(GymLayout),
+        registry.add(GymStudio),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4377,6 +4379,36 @@ read_command!(
     Option<crate::gym::CheckParams>,
     crate::gym::GymCheck,
     crate::gym::check
+);
+
+edit_command!(
+    GymLayout,
+    "gym.layout",
+    "Lay out a gym",
+    "Lays gym equipment out in a room (ARC-GYM-002) in rows from its head wall (the edge nearest `head`, \
+     default the longest), the `pieces` in order: each piece's back toward the head wall, its front into the \
+     room, kept clear of its neighbours and walls by its own zones (a treadmill 0.5 m at the sides and 2 m \
+     at its step-on end; a rower its use area; strength stations 0.9 m; circuit machines 0.6 m), with \
+     `aisle` between rows where the zones leave less (default 36 in, an accessible route). Pieces that do \
+     not fit are reported, not placed.",
+    "Gym Layout",
+    crate::gym::LayoutParams,
+    crate::gym::Layout,
+    crate::gym::layout
+);
+
+edit_command!(
+    GymStudio,
+    "gym.studio",
+    "Size a studio",
+    "Sizes a group-exercise studio (ARC-GYM-002) from its room's area: indoor cycling at 1.5 × 2.0 m a \
+     bike (Spinning), mat classes at 25 ft² a person, HIIT at 50 ft² a person. For cycling it also places \
+     the bikes in rows facing the instructor's wall (the edge nearest `head`), 2 m clear in front of it, \
+     unless `place` is false.",
+    "Studio",
+    crate::gym::StudioParams,
+    crate::gym::StudioResult,
+    crate::gym::studio
 );
 
 read_command!(
