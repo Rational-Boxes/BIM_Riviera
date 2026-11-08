@@ -1459,6 +1459,14 @@ fn body(name: &str, dark: bool) -> Option<String> {
             r#"<path d="M6 3h20M16 3v8" {s}/><path d="M7 15c2 5 16 5 18 0z" fill="{f}" {s}/><path d="M7 15v-4M25 15v-4M16 18v-5" {s}/><circle cx="7" cy="9" r="1.6" fill="{a}" {s}/><circle cx="25" cy="9" r="1.6" fill="{a}" {s}/><path d="M12 23l4 6 4-6" fill="none" {sa}/>"#
         ),
         // A room in plan: a bed against one wall, a nightstand beside it, a dresser opposite.
+        // A guest room's door with its number plate and a bed beyond.
+        "guest_room" => format!(
+            r#"<rect x="3" y="3" width="26" height="26" fill="none" {s}/><rect x="6" y="6" width="12" height="16" rx="1" fill="{f}" {s}/><path d="M6 10h12" {s}/><rect x="21" y="6" width="6" height="4" fill="{a}" {s}/><path d="M22 24v-6M26 24v-6M22 21h4" {s}/>"#
+        ),
+        // A matrix of rooms by floor, two of them marked accessible.
+        "room_matrix" => format!(
+            r#"<rect x="3" y="5" width="26" height="22" fill="{f}" {s}/><path d="M3 12h26M3 19h26M10 5v22M16 5v22M22 5v22" {s}/><rect x="10" y="12" width="6" height="7" fill="{a}"/><rect x="22" y="19" width="7" height="8" fill="{a}"/>"#
+        ),
         "room_layout" => format!(
             r#"<rect x="3" y="3" width="26" height="26" fill="none" {s}/><rect x="10" y="5" width="12" height="14" rx="1" fill="{f}" {s}/><path d="M10 8h12" {s}/><rect x="5" y="5" width="4" height="4" fill="{a}" {s}/><rect x="11" y="24" width="10" height="3" fill="{a}" {s}/>"#
         ),

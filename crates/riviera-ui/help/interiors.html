@@ -16,6 +16,7 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#cabinets">Cabinet runs and countertops</a>
   <a href="#counters">Counters</a>
   <a href="#closets">Closets</a>
+  <a href="#hotels">Hotel guest rooms</a>
   <a href="#accessible">Accessible and not</a>
   <a href="#own">Your own packs</a>
   <a href="#limits">Limits and what to check</a>
@@ -131,6 +132,31 @@ the other. The rods are centred in a 24 in deep closet and a 12 in shelf goes on
 </ul>
 <p>The sample <a href="riviera:sample/closets">Closets</a> has one of each. Doors and walk-ins are
 not made yet. (<code>closet.create</code>)</p>
+
+<h2 id="hotels">Hotel guest rooms</h2>
+<p><b>Architecture › Build › Room Layout</b> has four guest rooms: a king (3.6 × 4.6 m inside), two
+queens (4.0 × 4.6 m), an accessible king (3.6 × 5.0 m, its bed keeping a 30 × 48 in space each
+side) and a junior suite (5.5 × 4.6 m). Each marks its room as a guest room, placing the room when
+there is none. A standard room's pieces are marked not accessible, so only the accessible room has
+the ADA's bed spaces. The bathroom is its own room: lay it out with Bathroom Layout.</p>
+<p>Select rooms and choose <b>Architecture › Build › Guest Room</b> to set their class, beds and
+features: mobility, mobility with a roll-in shower, and communication (visible alarms and
+notification, §806.3).</p>
+<p><b>View › Coordination › Room Matrix</b> counts the guest rooms by floor and by class and checks
+them:</p>
+<ul>
+  <li><b>2010 ADA Standards:</b> Table 224.2 (mobility rooms without and with roll-in showers),
+  Table 224.4 (communication rooms) and §224.5. At least one mobility room must have communication
+  features too, but only a tenth of the mobility rooms required may count toward Table 224.4: in a
+  small hotel, none. A class with no accessible room, while there are enough to go round, is a
+  note.</li>
+  <li><b>Approved Document M vol. 2:</b> one wheelchair-accessible bedroom per 20 (§4.24).</li>
+</ul>
+<p>The building code chooses the standard (England's code, Approved Document M; otherwise the ADA),
+or pick one. For an alteration, enter the rooms altered or added as the rooms counted. The
+reading of the tables is provisional (EXPERT_REVIEW.md E-109). The sample
+<a href="riviera:sample/hotel_floor">A hotel floor</a> has six rooms that meet the counts.
+(<code>hotel.set_room</code>, <code>hotel.room_matrix</code>)</p>
 
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules

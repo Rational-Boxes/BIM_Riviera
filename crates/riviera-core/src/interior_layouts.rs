@@ -12,6 +12,10 @@
 //! piece, and every use zone the rule packs in use give it ([`crate::rules`]), stays inside the
 //! room and clear of the other pieces. When it does not, nothing is placed and the shortfall is
 //! reported.
+//!
+//! The hotel templates (ARC-INT-002) also mark the room as a guest room ([`crate::hotels`]); a
+//! standard room's pieces are marked not accessible, so only the accessible room has the ADA's
+//! bed spaces.
 
 use std::collections::BTreeMap;
 
@@ -58,6 +62,8 @@ enum Out {
     At(f64),
     /// In the middle of the room, plus this.
     Middle(f64),
+    /// This far from the opposite wall's face (its centre).
+    FromOpposite(f64),
 }
 
 /// Where a piece sits along the head wall.
@@ -68,6 +74,8 @@ enum Along {
     /// Against the left / right wall.
     LeftWall,
     RightWall,
+    /// This far from the right wall's face (its centre).
+    FromRight(f64),
 }
 
 #[derive(Debug, Clone)]
@@ -196,7 +204,59 @@ fn defs() -> Vec<(&'static str, &'static str, Build)> {
             v.push(p("Task chair", Mid(end), Middle(0.0), Left));
             v
         }),
+        ("hotel_king", "Hotel room, king", |s| hotel_room(s, &[KING], 0.0, true)),
+        ("hotel_double_queen", "Hotel room, two queens", |s| hotel_room(s, &[QUEEN, QUEEN], 0.0, false)),
+        ("hotel_accessible_king", "Hotel room, accessible king", |s| hotel_room(s, &[KING], 0.0, true)),
+        ("hotel_junior_suite", "Hotel junior suite, king", |s| {
+            // The king room's pieces to the left, a sofa against the right wall facing in with a
+            // coffee table 450 mm in front of it.
+            let (sofa, table) = (s["Sofa, 2-seat 1300 × 850"], s["Coffee table 1050 × 500"]);
+            let mut v = hotel_room(s, &[KING], -1.0, true);
+            v.push(p("Sofa, 2-seat 1300 × 850", RightWall, Middle(0.0), Left));
+            v.push(p("Coffee table 1050 × 500", FromRight(GAP + sofa[1] + 0.45 + table[1] / 2.0), Middle(0.0), Left));
+            v
+        }),
     ]
+}
+
+const KING: &str = "Bed, king 76 × 80 in";
+const QUEEN: &str = "Bed, queen 60 × 80 in";
+
+/// A hotel guest room's sleeping area (research/15 D6): its beds against the head wall with
+/// nightstands, the dresser and the desk with its chair against the opposite wall, and a luggage
+/// rack against the left wall when there is room beside the beds (`rack`); all shifted along the
+/// head wall by `shift`.
+fn hotel_room(s: &BTreeMap<String, [f64; 3]>, beds: &[&'static str], shift: f64, rack: bool) -> Vec<Piece> {
+    use Along::*;
+    use Facing::*;
+    use Out::*;
+    let n = s["Nightstand"][0];
+    let mut v = Vec::new();
+    match beds {
+        [one] => {
+            let b = s[*one][0];
+            v.push(p(one, Mid(shift), Head, Away));
+            v.push(p("Nightstand", Mid(shift - (b + n) / 2.0 - GAP), Head, Away));
+            v.push(p("Nightstand", Mid(shift + (b + n) / 2.0 + GAP), Head, Away));
+        }
+        _ => {
+            // Two beds with a nightstand between them.
+            for (k, bed) in beds.iter().enumerate().take(2) {
+                let off = (s[*bed][0] + n) / 2.0 + GAP;
+                v.push(p(bed, Mid(shift + if k == 0 { -off } else { off }), Head, Away));
+            }
+            v.push(p("Nightstand", Mid(shift), Head, Away));
+        }
+    }
+    let (dresser, desk, chair) = (s["Dresser"], s["Desk 60 × 30 in"], s["Task chair"]);
+    v.push(p("Dresser", Mid(shift - dresser[0] / 2.0 - 0.05), Opposite, Toward));
+    let at = shift + desk[0] / 2.0 + 0.05;
+    v.push(p("Desk 60 × 30 in", Mid(at), Opposite, Toward));
+    v.push(p("Task chair", Mid(at), FromOpposite(GAP + desk[1] + 0.1 + chair[1] / 2.0), Away));
+    if rack {
+        v.push(p("Luggage rack", LeftWall, Middle(0.0), Right));
+    }
+    v
 }
 
 /// A dining table in the middle of the room with `per_side` chairs along each long side, 50 mm
@@ -282,6 +342,9 @@ pub struct Layout {
     pub fit: Fit,
     /// The rule packs whose zones were fitted.
     pub packs: Vec<String>,
+    /// The room a hotel template marked as a guest room (ARC-INT-002), placed when there was none.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub guest_room: Option<ElementId>,
 }
 
 /// The room round a point: its head wall's face midpoint, the frame and its size.
@@ -359,12 +422,14 @@ fn place_piece(piece: &Piece, size: [f64; 3], room: &Room) -> Placed {
         Along::Mid(x) => x,
         Along::LeftWall => -room.length / 2.0 + GAP + ea / 2.0,
         Along::RightWall => room.length / 2.0 - GAP - ea / 2.0,
+        Along::FromRight(x) => room.length / 2.0 - x,
     };
     let o = match piece.out {
         Out::Head => GAP + eo / 2.0,
         Out::Opposite => room.depth - GAP - eo / 2.0,
         Out::At(x) => x,
         Out::Middle(x) => room.depth / 2.0 + x,
+        Out::FromOpposite(x) => room.depth - x,
     };
     // The direction the front faces, in plan.
     let f = match piece.facing {
@@ -378,8 +443,8 @@ fn place_piece(piece: &Piece, size: [f64; 3], room: &Room) -> Placed {
     let centre = [room.origin[0] + room.along[0] * a + room.out[0] * o, room.origin[1] + room.along[1] * a + room.out[1] * o];
     Placed {
         item: piece.item,
-        to_side: matches!(piece.along, Along::LeftWall | Along::RightWall),
-        to_opposite: matches!(piece.out, Out::Opposite),
+        to_side: matches!(piece.along, Along::LeftWall | Along::RightWall | Along::FromRight(_)),
+        to_opposite: matches!(piece.out, Out::Opposite | Out::FromOpposite(_)),
         rect: [[a - ea / 2.0, a + ea / 2.0], [o - eo / 2.0, o + eo / 2.0]],
         centre,
         rotation,
@@ -424,6 +489,7 @@ pub(crate) fn layout(txn: &mut Transaction<'_>, p: LayoutParams) -> Result<Layou
     // Place them, then measure the pieces and their use zones in the room's frame.
     let names: Vec<String> = pieces.iter().map(|x| x.item.to_owned()).collect();
     let types = crate::furnishings::load(txn, crate::furnishings::LoadParams { names })?;
+    let standard_guest_room = crate::hotels::template_room(template_id).is_some_and(|t| !t.2.accessible());
     let mut placed = Vec::new();
     for x in &pieces {
         let id = crate::mesh_objects::place(
@@ -433,6 +499,10 @@ pub(crate) fn layout(txn: &mut Transaction<'_>, p: LayoutParams) -> Result<Layou
         let tag = json!({ "template": template_id, "room": room.key });
         txn.modify(id, |e| {
             e.params.insert(LAYOUT_KEY.into(), tag);
+            // A standard guest room's pieces need no ADA clear spaces (only mobility rooms do).
+            if standard_guest_room {
+                e.params.insert(crate::rules::ACCESSIBLE_KEY.into(), Value::Bool(false));
+            }
         })?;
         placed.push(id);
     }
@@ -500,9 +570,10 @@ pub(crate) fn layout(txn: &mut Transaction<'_>, p: LayoutParams) -> Result<Layou
         for id in &placed {
             txn.delete(*id)?;
         }
-        return Ok(Layout { placed: Vec::new(), fit, packs });
+        return Ok(Layout { placed: Vec::new(), fit, packs, guest_room: None });
     }
-    Ok(Layout { placed, fit, packs })
+    let guest_room = crate::hotels::mark_layout(txn, template_id, level.id(), p.point)?;
+    Ok(Layout { placed, fit, packs, guest_room })
 }
 
 #[cfg(test)]

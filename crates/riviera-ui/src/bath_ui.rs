@@ -477,6 +477,100 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Guest Room (ARC-INT-002): the selected rooms marked as hotel guest
+    /// rooms, with their class, beds and accessible features.
+    pub(crate) fn guest_room(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return frame.set_status_text("Open a model first", 0) };
+        let rooms: Vec<u64> = self.selection().into_iter().filter(|id| store.get(*id).is_some_and(|e| riviera_core::rooms::room_recipe(e).is_some())).map(|id| id.0).collect();
+        if rooms.is_empty() {
+            return error(&frame, "Select one or more rooms first.");
+        }
+        let before = store.get(riviera_core::ElementId(rooms[0])).and_then(riviera_core::hotels::guest_room);
+        let classes = ["king", "double_queen", "junior_suite"];
+        let class_labels = ["King".to_owned(), "Two queens".to_owned(), "Junior suite".to_owned()];
+        let class_at = before.as_ref().and_then(|b| classes.iter().position(|c| *c == b.room_type)).unwrap_or(0);
+        let mobilities = [riviera_core::hotels::Mobility::None, riviera_core::hotels::Mobility::Mobility, riviera_core::hotels::Mobility::RollIn];
+        let mobility_at = before.as_ref().and_then(|b| mobilities.iter().position(|m| *m == b.mobility)).unwrap_or(0);
+        let f = super::reinforcement_ui::Form::new(&frame, "Guest Room");
+        let class = f.choice("Class", &class_labels, class_at);
+        let beds = f.text("Beds", &before.as_ref().map_or(1, |b| b.beds).to_string(), "The beds in the room");
+        let mobility = f.choice("Mobility features", &["None".to_owned(), "Mobility, tub or transfer shower".to_owned(), "Mobility, roll-in shower".to_owned()], mobility_at);
+        let comm = f.check("Communication", "Visible alarms and notification (ADA §806.3)", before.as_ref().is_some_and(|b| b.communication));
+        let clear = f.check("Not a guest room", "Stop counting these rooms", false);
+        let ok = f.show(&format!("Marks the {} selected room(s) for the room matrix (View › Coordination › Room Matrix).", rooms.len()), "Mark");
+        let room_type = classes[class.get_selection().map_or(0, |k| k as usize)];
+        let mobility = ["none", "mobility", "roll_in"][mobility.get_selection().map_or(0, |k| k as usize)];
+        let args = json!({
+            "room_ids": rooms,
+            "room_type": room_type,
+            "beds": beds.get_value().trim().parse::<u32>().unwrap_or(1),
+            "mobility": mobility,
+            "communication": comm.get_value(),
+            "clear": clear.get_value(),
+        });
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("hotel.set_room", args) {
+            Ok(_) => frame.set_status_text(&format!("{} guest room(s) marked", rooms.len()), 0),
+            Err(e) => error(&frame, &format!("The rooms were not marked:\n{e}")),
+        }
+    }
+
+    /// View › Coordination › Room Matrix (ARC-INT-002): the guest rooms counted by floor and class
+    /// and checked, with Save Report.
+    pub(crate) fn room_matrix(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Room Matrix");
+        let standard = f.choice("Check against", &["The building code's (default)".to_owned(), "2010 ADA Standards".to_owned(), "Approved Document M vol. 2".to_owned(), "Both".to_owned()], 0);
+        let total = f.text("Rooms counted", "", "Leave empty to count the rooms placed; an alteration counts the rooms altered or added");
+        let ok = f.show("Counts the guest rooms with mobility, roll-in shower and communication features and checks them against the tables.", "Count");
+        let standards: &[&str] = match standard.get_selection() {
+            Some(1) => &["ada_2010"],
+            Some(2) => &["uk_adm_m2"],
+            Some(3) => &["ada_2010", "uk_adm_m2"],
+            _ => &[],
+        };
+        let mut args = json!({ "standards": standards });
+        if let Ok(n) = total.get_value().trim().parse::<u32>() {
+            args["total"] = json!(n);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        let m = match self.run("hotel.room_matrix", args.clone()) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        if m["placed"] == 0 {
+            return error(&frame, "No guest rooms: lay rooms out with a hotel template, or mark them with Architecture › Build › Guest Room.");
+        }
+        let row = |r: &serde_json::Value| format!("{} rooms, {} mobility ({} roll-in), {} communication", r["rooms"], r["mobility"], r["roll_in"], r["communication"]);
+        let mut lines = vec![format!("{} guest rooms placed; counted on {}.", m["placed"], m["total"]), String::new(), "By floor:".to_owned()];
+        for fl in m["floors"].as_array().cloned().unwrap_or_default() {
+            lines.push(format!("  {}: {}", fl["level"].as_str().unwrap_or_default(), row(&fl)));
+        }
+        lines.push("By class:".to_owned());
+        for c in m["classes"].as_array().cloned().unwrap_or_default() {
+            lines.push(format!("  {}, {} bed(s): {}", c["room_type"].as_str().unwrap_or_default().replace('_', " "), c["beds"], row(&c)));
+        }
+        if let Some(a) = m.get("ada") {
+            lines.push(format!("\nADA: mobility {} + roll-in {} needed, {} + {} provided; communication {} needed, {} counted.", a["without_roll_in_required"], a["roll_in_required"], a["without_roll_in"], a["roll_in"], a["communication_required"], a["communication_counted"]));
+        }
+        if let Some(u) = m.get("uk") {
+            lines.push(format!("Approved Document M: {} accessible bedrooms needed, {} provided.", u["required"], u["accessible"]));
+        }
+        let findings = m["findings"].as_array().cloned().unwrap_or_default();
+        lines.push(if findings.is_empty() { "\nThe counts are met.".to_owned() } else { String::new() });
+        for x in &findings {
+            lines.push(format!("{} {}: {}", if x["severity"] == "error" { "✗" } else { "•" }, x["rule"].as_str().unwrap_or_default(), x["message"].as_str().unwrap_or_default()));
+        }
+        self.report_message("Room Matrix", &lines.join("\n"), "hotel.room_matrix", args);
+    }
+
     /// Architecture › Build › Countertop (ARC-KIT-002): tops on the selected units' runs, or every
     /// base run.
     pub(crate) fn countertop(&mut self) {

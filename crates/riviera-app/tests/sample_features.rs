@@ -1473,3 +1473,22 @@ fn the_closets_sample_keeps_its_accessible_closet_within_reach() {
     let found = ok(&mut app, "rules.check", json!({}));
     assert_eq!((found.as_array().unwrap().len(), found[0]["rule"].as_str()), (1, Some("ADA 2010 308.3.2")), "{found:#}");
 }
+
+#[test]
+fn the_hotel_floor_sample_meets_the_room_counts() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "hotel_floor");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    // Six guest rooms in two classes: one mobility room, three with communication features (two
+    // counted), and the counts met.
+    let m = ok(&mut app, "hotel.room_matrix", json!({}));
+    assert_eq!((m["placed"].as_u64(), m["classes"].as_array().unwrap().len()), (Some(6), 2), "{m:#}");
+    assert_eq!((m["ada"]["without_roll_in"].as_u64(), m["ada"]["communication_counted"].as_u64()), (Some(1), Some(2)), "{m:#}");
+    assert_eq!(m["findings"], json!([]));
+    // Without its communication features the accessible room fails §224.5.
+    let acc = ok(&mut app, "hotel.rooms", json!({})).as_array().unwrap().iter().find(|r| r["mobility"] == "mobility").unwrap()["room"].clone();
+    ok(&mut app, "hotel.set_room", json!({ "room_ids": [acc], "communication": false }));
+    let m = ok(&mut app, "hotel.room_matrix", json!({}));
+    assert_eq!(m["findings"][0]["rule"], "ADA 2010 224.5", "{m:#}");
+}

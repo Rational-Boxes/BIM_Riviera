@@ -348,6 +348,9 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(FurnishingLoad),
         registry.add(InteriorLayouts),
         registry.add(InteriorLayout),
+        registry.add(HotelSetRoom),
+        registry.add(HotelRooms),
+        registry.add(HotelRoomMatrix),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4136,8 +4139,9 @@ read_command!(
     "interior.layouts",
     "List the room layout templates",
     "Lists the room layout templates (ARC-INT-001): bedrooms (queen, king, two twins, a UK double), a living \
-     room, dining rooms for 4 and 6, a home office, a private office and a meeting room for 8, each with \
-     the furnishings it places.",
+     room, dining rooms for 4 and 6, a home office, a private office, a meeting room for 8, and hotel \
+     guest rooms (king, two queens, accessible king, junior suite; ARC-INT-002), each with the furnishings \
+     it places.",
     Option<crate::interior_layouts::NoParams>,
     Vec<crate::interior_layouts::Template>,
     crate::interior_layouts::list
@@ -4151,11 +4155,54 @@ edit_command!(
      head, a sofa's back, a desk) against `wall_id` or one of the longer walls, the rest round it. It fits \
      when every piece, and every use zone the rule packs in use give it, stays in the room and clear of the \
      other pieces. When it does not, nothing is placed and the shortfall along and across the room is \
-     reported. `replace` removes an earlier layout in the room first; `fit_only` reports without placing.",
+     reported. `replace` removes an earlier layout in the room first; `fit_only` reports without placing. \
+     A hotel template also marks the Riviera room there as a guest room (placing one when there is none) \
+     and returns it as `guest_room`; a standard room's pieces are marked not accessible.",
     "Room Layout",
     crate::interior_layouts::LayoutParams,
     crate::interior_layouts::Layout,
     crate::interior_layouts::layout
+);
+
+edit_command!(
+    HotelSetRoom,
+    "hotel.set_room",
+    "Mark guest rooms",
+    "Marks Riviera rooms as hotel guest rooms (ARC-INT-002) or changes them: their class for dispersion \
+     (`room_type`: king, double_queen, junior_suite or any name), `beds`, `mobility` (none, mobility, or \
+     roll_in for a roll-in shower; 2010 ADA §806.2) and `communication` features (§806.3). Values not \
+     given are kept. `clear` stops counting them as guest rooms.",
+    "Guest Room",
+    crate::hotels::SetRoomParams,
+    (),
+    crate::hotels::set_room
+);
+
+read_command!(
+    HotelRooms,
+    "hotel.rooms",
+    "List the guest rooms",
+    "Lists the guest rooms (ARC-INT-002) floor by floor, in room-number order, with their class, beds and \
+     accessible features; `level_ids` limits the list.",
+    Option<crate::hotels::RoomsParams>,
+    Vec<crate::hotels::Listed>,
+    crate::hotels::rooms
+);
+
+read_command!(
+    HotelRoomMatrix,
+    "hotel.room_matrix",
+    "Count and check the guest rooms",
+    "Counts the guest rooms (ARC-INT-002) by floor and by class, with those with mobility features, roll-in \
+     showers and communication features, and checks them: under the 2010 ADA Standards against Table 224.2, \
+     Table 224.4 and §224.5 (a mobility room with communication features, at most 10 % of the mobility \
+     rooms required counting toward communication, and dispersion across classes, as notes); under \
+     Approved Document M vol. 2 (§4.24), one wheelchair-accessible bedroom per 20. The standards default \
+     to Approved Document M when the building code is England's, else the ADA. `total` bases the counts \
+     on another number of rooms (an alteration's, §224.1.1). Errors come first, each with its shortfall.",
+    Option<crate::hotels::MatrixParams>,
+    crate::hotels::Matrix,
+    crate::hotels::matrix
 );
 
 edit_command!(

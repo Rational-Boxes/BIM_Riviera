@@ -189,6 +189,7 @@ pub mod roofs;
 pub mod room_separators;
 pub mod decorative_lighting;
 pub mod furnishings;
+pub mod hotels;
 pub mod interior_layouts;
 pub mod rooms;
 pub mod rules;

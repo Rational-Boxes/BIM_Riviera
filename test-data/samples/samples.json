@@ -391,6 +391,19 @@
     ]
   },
   {
+    "name": "hotel_floor",
+    "title": "A hotel floor",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "hotel_floor.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

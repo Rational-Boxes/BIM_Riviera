@@ -4812,6 +4812,8 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.place_bathroom_component" => with(gui, Gui::place_bathroom_component),
         "ui.make_product" => with(gui, Gui::make_product),
         "ui.fixture_count" => with(gui, Gui::fixture_count),
+        "ui.guest_room" => with(gui, Gui::guest_room),
+        "ui.room_matrix" => with(gui, Gui::room_matrix),
         "ui.toilet_core" => with(gui, Gui::toilet_core),
         "ui.locker_room" => with(gui, |g| {
             g.locker_room();

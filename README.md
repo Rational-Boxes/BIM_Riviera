@@ -649,6 +649,13 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   back wall: a single rod at 66 in, double hang at 40 and 80 in, or accessible fittings at 42 and
   46 in, which Check Rules holds within the 2010 ADA Standards' side reach (§308.3.2)
   (`closet.create`). Not built yet: closet doors, walk-ins and drawers.
+- **Hotel guest rooms** (ARC-INT-002). Room Layout gains king, two-queen, accessible-king and
+  junior-suite guest rooms, each marking its room as a guest room; Architecture › Build › Guest
+  Room sets a room's class and its mobility, roll-in shower and communication features. View ›
+  Coordination › Room Matrix counts the rooms by floor and class and checks them against the 2010
+  ADA Standards' Tables 224.2 and 224.4 and §224.5, or Approved Document M's one accessible
+  bedroom in twenty (`hotel.set_room`, `hotel.room_matrix`). Not built yet: guest rooms as modular
+  units, bathrooms in the templates, and whole floors in one step.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

@@ -25,6 +25,7 @@ pub const REPORTS: &[(&str, &str)] = &[
     ("clearance.check", "Clearances (Check Overlaps)"),
     ("bath.check", "Bathrooms"),
     ("rules.check", "Interiors rules"),
+    ("hotel.room_matrix", "Hotel room matrix"),
     ("elevator.check", "Elevators"),
     ("elevator.check_lobbies", "Evacuation elevator lobbies"),
     ("escalator.check", "Escalators and moving walks"),

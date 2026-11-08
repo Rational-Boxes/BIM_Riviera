@@ -5498,7 +5498,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] Every template fits a 6 × 6 m room with Check Rules finding nothing in its pieces' zones.
 - [x] The sample *A furnished apartment* furnishes four rooms with no overlaps or clearance intrusions.
 
-*Built (2026-11-06):* `riviera_core::interior_layouts`, Architecture › Build › Room Layout (a template, then a click in the room). Defaults are E-104. Not yet: furniture already in the room (other than an earlier layout) is not avoided, doors' clearances are not part of the fit, and rooms must be rectangles; hotel rooms come with ARC-INT-002.
+*Built (2026-11-06):* `riviera_core::interior_layouts`, Architecture › Build › Room Layout (a template, then a click in the room). Defaults are E-104. Not yet: furniture already in the room (other than an earlier layout) is not avoided, doors' clearances are not part of the fit, and rooms must be rectangles. Hotel rooms are ARC-INT-002.
 
 ### 3.9b.5 Decorative lighting
 **ID:** ARC-INT-003 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.5; research/15 D4 (S1471–S1473, S1354); ARC-RULE-002; ARC-FURN-001
@@ -5631,6 +5631,45 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] The closets sample's three closets pass every check and overlap nothing.
 
 *Built (2026-11-06):* `riviera_core::closets` and Architecture › Build › Closet. Defaults are E-108. Not yet: doors and the 30 × 48 in clear floor space in front of an accessible closet; walk-ins with rods on several walls; drawers, shoe shelves and hooks; closet lighting's storage zone (NEC 410.16).
+
+### 3.9b.10 Hotel guest rooms
+**ID:** ARC-INT-002 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.3 (step 6; the owner's answer to Q3); research/15 D6, G140–G147 (S1354, S1466, S1498); ARC-INT-001; ARC-RULE-002; ARC-GRP-004 (later)
+
+**Purpose.** Furnish typical guest rooms in one step, know which rooms have which accessible features, and check the counts the ADA and Approved Document M ask of a hotel while it is being planned, floor by floor.
+
+**Behaviour & rules.**
+- **Templates** (`interior.layout`, ARC-INT-001), for a guest room's sleeping area; the bathroom is its own room (ARC-BATH-005):
+
+| Template | What it places | Fits (inside) |
+|---|---|---|
+| `hotel_king` | A king bed on the head wall with a nightstand each side; the dresser, and the desk with its chair, on the opposite wall; a luggage rack on the left wall | 3.6 × 4.6 m |
+| `hotel_double_queen` | Two queen beds with a nightstand between them; the dresser and desk opposite | 4.0 × 4.6 m |
+| `hotel_accessible_king` | As the king room, its pieces accessible: the bed keeps its two 30 × 48 in spaces (§806.2.3) | 3.6 × 5.0 m |
+| `hotel_junior_suite` | The king room's pieces to one side; a 2-seat sofa on the right wall with a coffee table in front | 5.5 × 4.6 m |
+
+- **Guest rooms.** A guest room is a Riviera room (ARC-ROOM-001) with guest-room data (RXD `rxd:guest_room`): its **class** (`king`, `double_queen`, `junior_suite` or any name), its **beds**, its **mobility features** (none; mobility, with a tub or transfer shower; or a roll-in shower, §806.2) and whether it has **communication features** (§806.3).
+  - A hotel template marks the room round its point, placing one ("Guest Room") when there is none. The accessible king is a king room with mobility features; laid out again in a roll-in room, it stays roll-in. Communication features are kept.
+  - A standard room's pieces are marked not accessible (ARC-RULE-002): the ADA asks bed spaces only in mobility rooms.
+  - `hotel.set_room` marks any rooms, or changes them; values not given are kept. `clear` unmarks them.
+- **The room matrix** (`hotel.room_matrix`) counts the guest rooms on the levels given (or all) by floor and by class (class and beds), each with its mobility, roll-in and communication rooms. The counts are based on the rooms placed, or on `total` (an alteration counts the rooms altered or added, §224.1.1). The standards are Approved Document M when the building code is England's, else the ADA, or those given:
+  - **ADA Table 224.2:** the rooms with mobility features without roll-in showers, and those with them, each checked on its own. From 501 to 1000 rooms they are 2 % and 1 %, rounded up; over 1000, 20 and 10 plus one each per 100 or part over 1000.
+  - **ADA Table 224.4:** rooms with communication features (5 % from 501 to 1000; over 1000, 50 plus 3 per 100 or part over 1000). A single room needs one.
+  - **§224.5:** at least one mobility room must also have communication features. Mobility rooms with them count toward Table 224.4 only up to a tenth of the mobility rooms required, rounded down: in a small hotel, none.
+  - **§224.5 dispersion:** while the rooms required are at least as many as the classes, a class with none of them is a **note**; spreading them further is the designer's judgement.
+  - **Approved Document M vol. 2 §4.24:** one wheelchair-accessible bedroom per 20 bedrooms or part; a room with mobility features counts.
+
+  Each finding gives its rule, source, shortfall in rooms and message; errors come first.
+
+**Commands.** `hotel.set_room(room_ids, room_type?, beds?, mobility?, communication?, clear?)`, `hotel.rooms(level_ids?)` → `[{room, number, name, level, room_type, beds, mobility, communication}]`, `hotel.room_matrix(level_ids?, standards?, total?)` → `{placed, total, floors, classes, ada?, uk?, findings}`. `interior.layout` returns the room a hotel template marked as `guest_room`.
+
+**Acceptance criteria.**
+- [x] A king room fits 3.6 × 4.6 m, its room is placed and marked king, and its bed has no ADA spaces. An accessible king fits 3.8 × 5.0 m with both bed spaces, and is marked with mobility features. Check Rules finds nothing in any of them.
+- [x] Three rooms with one mobility room and no communication features: Table 224.4 is two short and §224.5 is reported. With the accessible room and a king given communication features, one is still short, since the accessible room does not count.
+- [x] Counted as 60 rooms, Table 224.2 asks three mobility rooms and one roll-in, Table 224.4 seven; a class with no mobility room is a note. Under Approved Document M, 60 rooms need three.
+- [x] An accessible room set to roll-in and laid out again stays roll-in and keeps its communication features.
+- [x] The sample *A hotel floor* (six rooms) meets the counts, and Check Rules and overlaps find nothing.
+
+*Built (2026-11-07):* `riviera_core::hotels`, the hotel templates in `riviera_core::interior_layouts`, Architecture › Build › Guest Room (the selected rooms) and View › Coordination › Room Matrix (with Save Report). Defaults are E-109. Not yet: guest rooms as modular units with the matrix assigning typicals to bays (ARC-GRP-004); the bathroom in the template; roll-in showers found from the bathroom rather than marked; §224.3 beds in dormitories, §224.1.2 doors and §806.2.6 turning spaces; the UK room's transfer space and pull cord; hotel floors drawn along a corridor in one step.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -6879,7 +6918,10 @@ All commands below are registered once in the command registry and exposed autom
 | `counter.run` | start, end, level, kind?, height?, depth?, toward?, accessible? | {counter, length, height, elements, portion?} | Yes | ARC-INT-004 |
 | `closet.create` | start, end, level, layout?, depth?, rod_heights?, shelf_height?, toward? | {closet, layout, length, rods, shelves} | Yes | ARC-INT-005 |
 | `interior.layouts` | — | [{id, title, items}] | No (query) | ARC-INT-001 |
-| `interior.layout` | template, point, level, wall_id?, replace?, fit_only? | {placed, fit, packs} | Yes | ARC-INT-001 |
+| `interior.layout` | template, point, level, wall_id?, replace?, fit_only? | {placed, fit, packs, guest_room?} | Yes | ARC-INT-001 |
+| `hotel.set_room` | room_ids, room_type?, beds?, mobility?, communication?, clear? | — | Yes | ARC-INT-002 |
+| `hotel.rooms` | level_ids? | [{room, number, name, level, room_type, beds, mobility, communication}] | No (query) | ARC-INT-002 |
+| `hotel.room_matrix` | level_ids?, standards?, total? | {placed, total, floors, classes, ada?, uk?, findings} | No (query) | ARC-INT-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
