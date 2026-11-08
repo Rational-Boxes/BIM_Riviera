@@ -5706,7 +5706,31 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A wall run on a wall's face is 84 in high, its back on the face; nothing overlaps.
 - [x] The sample *Store aisles* (a wall run and three islands 2 m apart) passes every check; an island moved to leave 0.8 m is reported against all three packs.
 
-*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks (`retail.check`: occupant load, fitting rooms, signs, sprinkler clearance, anchoring); shelf lights and loads (`Riviera_RetailFixture`).
+*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks are ARC-RETAIL-002; shelf lights and loads (`Riviera_RetailFixture`).
+
+### 3.9b.12 Store checks
+**ID:** ARC-RETAIL-002 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §5.3 (step 7); research/15 B10, B12, B14, G71–G72 (S1395, S1397, S1398, S1399, S1402); ARC-RETAIL-001; MEP-PIPE-007; ARC-ROOM-001
+
+**Purpose.** Tell a store planner how many people the store holds, and catch the shelving problems that fire and building officials look for, from the model as it is drawn.
+
+**Behaviour & rules.**
+- **Store areas.** `retail.set_area` marks Riviera rooms as the **sales** floor or **stock** rooms (RXD `rxd:retail_area`).
+- **Occupant load** (IBC Table 1004.5 as adopted, G71–G72): each marked room's area over its factor, rounded up: sales 60 ft² (5.57 m²) a person, or `sales_factor` (some jurisdictions use 30 ft² at grade and in basements); stock 300 ft² (27.9 m²). Totals by level and for the store. The room's area is its area inside its walls, not the gross area the table asks: a slight undercount.
+- **Storage fixtures** are the gondolas, end caps and pallet racks (ElementType Gondola, WallGondola, EndCap, PalletRack). Each is checked:
+  - **under sprinklers** (NFPA 13, from summaries, S1398): its top at least 18 in below the deflector of the lowest head over it, or 36 in below an ESFR head (one named ESFR, or quick response with a K-factor of 200 L/min/bar^½ or more). A head is over it when its plan point is within its reach of the fixture's footprint: half the side of its type's coverage area, else 2.3 m. A pendent head's deflector is its bottom, an upright's its top. A shortfall is an **error**;
+  - **high-piled storage** over 12 ft (IFC ch. 32, S1397): a **note**, with its permit, aisle and sprinkler rules;
+  - **anchoring** (notes): a gondola over 96 in, or a wall gondola over Madix's unanchored height for its base shelf (54, 78 and 102 in on 12, 16 and 20 in shelves: 6 × deck − 18 in, S1402); a pallet rack 8 ft or more high on a sales floor (FEMA 460, S1399).
+
+**Commands.** `retail.set_area(room_ids, area?)`; `retail.check(level_ids?, sales_factor?)` → `{areas: [{room, number, name, level, area_use, area, factor, occupants}], levels: [{level, sales_area, stock_area, occupants}], occupants, findings: [{rule, source, severity, element, message, measured?, limit?}]}`.
+
+**Acceptance criteria.**
+- [x] A 96 m² sales floor holds 18 people and a 32 m² stock room 2; at 30 ft² a person the sales floor holds 35.
+- [x] A 72 in island under upright heads 3 m up passes. A 120 in island under one is too close to its deflector (an error) and over 96 in (a note), for each of its fixtures.
+- [x] An 84 in wall run on 16 in decks is noted against Madix's 78 in.
+- [x] A 16 ft pallet rack on the sales floor is high-piled and needs anchoring; moved into the stock room it is only high-piled.
+- [x] The *Store aisles* sample holds 31 people and its shelving passes.
+
+*Built (2026-11-07):* `retail.set_area` and `retail.check` in `riviera_core::retail`, Architecture › Build › Store Area and View › Coordination › Check Store (with Save Report). Defaults are E-111. Not yet: the occupant load feeding the egress tools (ANA-ROUTE); fitting rooms (§222.1, §803); signs (§307); sidewall heads' reach; commodity classes and high-hazard storage over 6 ft; EAS pedestals on their own circuit; gross areas.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -6961,6 +6985,8 @@ All commands below are registered once in the command registry and exposed autom
 | `hotel.room_matrix` | level_ids?, standards?, total? | {placed, total, floors, classes, ada?, uk?, findings} | No (query) | ARC-INT-002 |
 | `retail.run` | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
 | `retail.runs` | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
+| `retail.set_area` | room_ids, area? | — | Yes | ARC-RETAIL-002 |
+| `retail.check` | level_ids?, sales_factor? | {areas, levels, occupants, findings} | No (query) | ARC-RETAIL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |

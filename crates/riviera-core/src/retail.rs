@@ -264,3 +264,255 @@ pub(crate) fn runs(store: &Store, _: Option<RunsParams>) -> Result<Vec<RunInfo>>
         })
         .collect())
 }
+
+// ---- Store checks (ARC-RETAIL-002) ----
+
+/// On a room: what part of a store it is.
+pub const AREA_KEY: &str = "rxd:retail_area";
+/// IBC Table 1004.5 (research/15 G71–G72): mercantile 60 gross ft² a person, storage and stock
+/// rooms 300.
+const FT2: f64 = 0.092_903_04;
+const SALES_FACTOR: f64 = 60.0 * FT2;
+const STOCK_FACTOR: f64 = 300.0 * FT2;
+/// NFPA 13: storage at least 18 in below a sprinkler's deflector, 36 in below an ESFR head's.
+const CLEAR: f64 = 18.0 * IN;
+const CLEAR_ESFR: f64 = 36.0 * IN;
+/// Storage over 12 ft is high-piled (IFC ch. 32).
+const HIGH_PILED: f64 = 12.0 * 12.0 * IN;
+/// Pallet racks storing goods 8 ft up in public areas are anchored and restrained (FEMA 460).
+const RACK_ANCHOR: f64 = 8.0 * 12.0 * IN;
+/// Gondolas over 96 in are always anchored (Madix, S1402).
+const GONDOLA_ANCHOR: f64 = 96.0 * IN;
+/// A head's reach when its type gives no coverage area: half a 15 ft spacing.
+const REACH: f64 = 2.3;
+
+/// The storage fixtures the checks look at.
+fn storage() -> crate::rules::Selector {
+    crate::rules::Selector { classes: vec!["IfcFurniture".into()], object_types: vec!["Gondola".into(), "WallGondola".into(), "EndCap".into(), "PalletRack".into()], ..Default::default() }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Area {
+    /// The sales floor (mercantile).
+    Sales,
+    /// Stock and storage rooms.
+    Stock,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct SetAreaParams {
+    /// Riviera rooms.
+    pub room_ids: Vec<ElementRef>,
+    /// What they are; none to unmark them.
+    pub area: Option<Area>,
+}
+
+/// Marks rooms as a store's sales floor or stock rooms (`retail.set_area`).
+pub(crate) fn set_area(txn: &mut Transaction<'_>, p: SetAreaParams) -> Result<()> {
+    if p.room_ids.is_empty() {
+        return Err(bad("retail.no_rooms", "no rooms given"));
+    }
+    let store = txn.store().clone();
+    for r in &p.room_ids {
+        let id = store.resolve(r).filter(|id| store.get(*id).is_some_and(|e| crate::rooms::room_recipe(e).is_some())).ok_or_else(|| bad("retail.not_a_room", "not a Riviera room"))?;
+        let v = p.area.map(|a| serde_json::to_value(a).expect("serialises"));
+        txn.modify(id, |e| match &v {
+            Some(v) => {
+                e.params.insert(AREA_KEY.into(), v.clone());
+            }
+            None => {
+                e.params.remove(AREA_KEY);
+            }
+        })?;
+    }
+    Ok(())
+}
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CheckParams {
+    /// Only these levels (default every level).
+    #[serde(default)]
+    pub level_ids: Vec<ElementRef>,
+    /// The sales floor's area a person (default 60 ft², 5.57 m²; some jurisdictions use 30 at
+    /// grade and in basements).
+    #[schemars(extend("x-riviera-data-type" = "area"))]
+    pub sales_factor: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct AreaLoad {
+    pub room: ElementId,
+    pub number: String,
+    pub name: String,
+    pub level: String,
+    pub area_use: Area,
+    /// m².
+    pub area: f64,
+    /// m² a person.
+    pub factor: f64,
+    pub occupants: u32,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct LevelLoad {
+    pub level: String,
+    pub sales_area: f64,
+    pub stock_area: f64,
+    pub occupants: u32,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct StoreFinding {
+    pub rule: String,
+    pub source: String,
+    /// `error` or `note`.
+    pub severity: String,
+    pub element: ElementId,
+    pub message: String,
+    /// The measured value and the limit (metres), where there are.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub measured: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct StoreCheck {
+    pub areas: Vec<AreaLoad>,
+    pub levels: Vec<LevelLoad>,
+    /// Every area's occupants.
+    pub occupants: u32,
+    /// Errors first.
+    pub findings: Vec<StoreFinding>,
+}
+
+/// A head's deflector height, its reach in plan, and whether it is an ESFR head: named so, or
+/// quick response with a K-factor of 200 L/min/bar^½ (K14) or more.
+fn head(store: &Store, e: &crate::element::Element) -> Option<([f64; 2], f64, f64, bool)> {
+    let it = crate::rules::item(store, e)?;
+    let ty = crate::mesh_objects::type_of(store, e).and_then(|(id, _)| store.get(id))?;
+    let m = crate::mep_sprinklers::mounting(ty);
+    let deflector = if m == crate::mep_sprinklers::Mounting::Upright { it.z[1] } else { it.z[0] };
+    let val = |k: &str| ty.param(&format!("{}.{k}", crate::mep_sprinklers::PSET)).map(|v| v.get("value").cloned().unwrap_or_else(|| v.clone()));
+    let esfr = ty.name.as_deref().is_some_and(|n| n.to_ascii_uppercase().contains("ESFR"))
+        || (val("Response").and_then(|v| v.as_str().map(str::to_owned)).as_deref() == Some("QUICK") && val("DischargeCoefficient").and_then(|v| v.as_f64()).is_some_and(|k| k >= 200.0));
+    let reach = val("CoverageArea").and_then(|v| v.as_f64()).filter(|a| *a > 0.0).map_or(REACH, |a| a.sqrt() / 2.0);
+    let c = it.frame.apply([0.0, 0.0, 0.0]);
+    Some(([c[0], c[1]], deflector, reach, esfr))
+}
+
+/// Checks a store (`retail.check`): occupant loads from its marked rooms, and its storage
+/// fixtures against the sprinklers over them, high-piled storage and anchoring.
+pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<StoreCheck> {
+    let p = p.unwrap_or_default();
+    let sales_factor = p.sales_factor.unwrap_or(SALES_FACTOR);
+    if sales_factor <= 0.0 {
+        return Err(bad("retail.bad_factor", "the sales floor's area a person must be above zero"));
+    }
+    let wanted: Vec<String> = p
+        .level_ids
+        .iter()
+        .map(|r| store.resolve(r).and_then(|id| store.get(id)).map(|e| e.guid().to_string()).ok_or_else(|| bad("element.not_found", "no such level")))
+        .collect::<Result<_>>()?;
+    let level_name = |guid: &str| crate::id::GlobalId::parse(guid).and_then(|g| store.find_by_guid(&g)).and_then(|l| store.get(l)).and_then(|l| l.name.clone()).unwrap_or_default();
+    let mut areas = Vec::new();
+    let mut levels: Vec<(String, LevelLoad, f64)> = Vec::new();
+    // Sales rooms by level, to know which fixtures stand in public areas.
+    let mut sales_regions = Vec::new();
+    for r in crate::rooms::all(store) {
+        let Some(e) = store.get(r.id) else { continue };
+        let Some(area_use) = e.param(AREA_KEY).and_then(|v| serde_json::from_value::<Area>(v.clone()).ok()) else { continue };
+        if (!wanted.is_empty() && !wanted.contains(&r.level)) || r.redundant {
+            continue;
+        }
+        let area = r.geometry.area();
+        let factor = if area_use == Area::Sales { sales_factor } else { STOCK_FACTOR };
+        let occupants = (area / factor - 1e-9).ceil().max(0.0) as u32;
+        let name = level_name(&r.level);
+        if area_use == Area::Sales
+            && let Some(reg) = r.geometry.region.clone()
+        {
+            sales_regions.push((r.geometry.z_base, r.geometry.z_top, reg));
+        }
+        let elevation = crate::id::GlobalId::parse(&r.level).and_then(|g| store.find_by_guid(&g)).and_then(|l| store.get(l)).map_or(0.0, crate::levels::elevation);
+        match levels.iter_mut().find(|l| l.0 == r.level) {
+            Some(l) => {
+                l.1.occupants += occupants;
+                if area_use == Area::Sales { l.1.sales_area += area } else { l.1.stock_area += area }
+            }
+            None => levels.push((
+                r.level.clone(),
+                LevelLoad { level: name.clone(), sales_area: if area_use == Area::Sales { area } else { 0.0 }, stock_area: if area_use == Area::Stock { area } else { 0.0 }, occupants },
+                elevation,
+            )),
+        }
+        areas.push(AreaLoad { room: r.id, number: r.number, name: r.name, level: name, area_use, area, factor, occupants });
+    }
+    levels.sort_by(|a, b| a.2.total_cmp(&b.2));
+    let heads: Vec<([f64; 2], f64, f64, bool)> = store.iter().filter(|e| e.class == "IfcFireSuppressionTerminal").filter_map(|e| head(store, e)).collect();
+    let sel = storage();
+    let mut findings = Vec::new();
+    for e in store.iter().filter(|e| sel.selects_element(store, e)) {
+        let Some(it) = crate::rules::item(store, e) else { continue };
+        let corners: Vec<[f64; 3]> = [[it.x[0], it.front], [it.x[1], it.front], [it.x[1], it.back], [it.x[0], it.back]].iter().map(|q| it.frame.apply([q[0], q[1], 0.0])).collect();
+        let (lo, hi) = (
+            [corners.iter().map(|c| c[0]).fold(f64::MAX, f64::min), corners.iter().map(|c| c[1]).fold(f64::MAX, f64::min)],
+            [corners.iter().map(|c| c[0]).fold(f64::MIN, f64::max), corners.iter().map(|c| c[1]).fold(f64::MIN, f64::max)],
+        );
+        let top = it.z[1];
+        let height = top - it.floor;
+        let finding = |rule: &str, source: &str, error: bool, message: String, measured: Option<f64>, limit: Option<f64>| StoreFinding {
+            rule: rule.into(),
+            source: source.into(),
+            severity: if error { "error" } else { "note" }.into(),
+            element: e.id(),
+            message,
+            measured,
+            limit,
+        };
+        // The lowest head over it (in reach of its footprint, above its top).
+        let over = heads
+            .iter()
+            .filter(|(c, d, r, _)| *d > it.floor && c[0] > lo[0] - r && c[0] < hi[0] + r && c[1] > lo[1] - r && c[1] < hi[1] + r)
+            .min_by(|a, b| (a.1 - if a.3 { CLEAR_ESFR } else { CLEAR }).total_cmp(&(b.1 - if b.3 { CLEAR_ESFR } else { CLEAR })));
+        if let Some((_, d, _, esfr)) = over {
+            let need = if *esfr { CLEAR_ESFR } else { CLEAR };
+            if d - top < need - 1e-6 {
+                findings.push(finding(
+                    if *esfr { "NFPA 13 ESFR clearance" } else { "NFPA 13 clearance" },
+                    "S1398",
+                    true,
+                    format!("its top is {:.0} mm under a sprinkler deflector; storage needs {:.0} in{}", (d - top) * 1000.0, need / IN, if *esfr { " under an ESFR head" } else { "" }),
+                    Some(d - top),
+                    Some(need),
+                ));
+            }
+        }
+        if height > HIGH_PILED + 1e-6 {
+            findings.push(finding("IFC 3201 high-piled", "S1397", false, format!("{:.1} ft high: high-piled storage, with its permit, aisle and sprinkler rules (IFC ch. 32)", height / (12.0 * IN)), Some(height), Some(HIGH_PILED)));
+        }
+        let public = sales_regions.iter().any(|(z0, z1, reg)| it.floor >= z0 - 0.05 && it.floor < *z1 && reg.contains([(lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0]));
+        let kind = crate::rules::Selector { object_types: vec!["PalletRack".into()], ..Default::default() };
+        if kind.selects_element(store, e) {
+            if public && height >= RACK_ANCHOR - 1e-6 {
+                findings.push(finding("FEMA 460 anchorage", "S1399", false, format!("a {:.1} ft rack on the sales floor: anchor it, and restrain what is stored 8 ft up and above (FEMA 460)", height / (12.0 * IN)), Some(height), Some(RACK_ANCHOR)));
+            }
+        } else {
+            // Madix's table for wall uprights: unanchored to 54, 78 and 102 in on 12, 16 and 20 in
+            // base shelves (six leveller spacings, 6 × deck − 18 in); any gondola over 96 in is
+            // anchored.
+            let wall = crate::rules::Selector { object_types: vec!["WallGondola".into()], ..Default::default() }.selects_element(store, e);
+            let deck = (it.back - it.front).abs() - UPRIGHT;
+            let limit = if wall { (6.0 * deck - 18.0 * IN).min(GONDOLA_ANCHOR) } else { GONDOLA_ANCHOR };
+            if height > limit + 1e-6 {
+                findings.push(finding("Madix anchorage", "S1402", false, format!("{:.0} in high: anchor it to the floor or fix it at the top (unanchored to {:.0} in)", height / IN, limit / IN), Some(height), Some(limit)));
+            }
+        }
+    }
+    findings.sort_by_key(|f| f.severity != "error");
+    let occupants = areas.iter().map(|a| a.occupants).sum();
+    Ok(StoreCheck { areas, levels: levels.into_iter().map(|l| l.1).collect(), occupants, findings })
+}

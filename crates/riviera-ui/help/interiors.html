@@ -18,6 +18,7 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#closets">Closets</a>
   <a href="#hotels">Hotel guest rooms</a>
   <a href="#gondolas">Gondola runs and aisles</a>
+  <a href="#store">Store checks</a>
   <a href="#accessible">Accessible and not</a>
   <a href="#own">Your own packs</a>
   <a href="#limits">Limits and what to check</a>
@@ -180,6 +181,23 @@ aisle that is too narrow:</p>
 <p>The values are provisional (EXPERT_REVIEW.md E-110). The sample
 <a href="riviera:sample/store_aisles">Store aisles</a> has a wall run and three islands 2 m apart.
 (<code>retail.run</code>, <code>retail.runs</code>)</p>
+
+<h2 id="store">Store checks</h2>
+<p>Select a store's rooms and choose <b>Architecture › Build › Store Area</b> to mark them as the sales
+floor or stock rooms. <b>View › Coordination › Check Store</b> then gives:</p>
+<ul>
+  <li><b>the occupant load:</b> each room's area at 60 ft² a person on the sales floor and 300 ft²
+  in stock rooms (IBC Table 1004.5), by level and in all;</li>
+  <li><b>sprinkler clearance:</b> every gondola, end cap and pallet rack at least 18 in below the
+  deflector of a sprinkler over it, 36 in below an ESFR head (an error);</li>
+  <li><b>high-piled storage:</b> anything over 12 ft, which brings the fire code's chapter 32 rules
+  (a note);</li>
+  <li><b>anchoring:</b> gondolas over 96 in, wall gondolas over their unanchored height (78 in on
+  16 in shelves), and pallet racks 8 ft or more high on the sales floor (notes).</li>
+</ul>
+<p>Pick a finding to select and frame the fixture. The values are provisional (EXPERT_REVIEW.md
+E-111). The sample <a href="riviera:sample/store_aisles">Store aisles</a> holds 31 people.
+(<code>retail.set_area</code>, <code>retail.check</code>)</p>
 
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules

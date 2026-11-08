@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 917 numbered requirements (320 P0 · 357 P1 · 233 P2 · 7 P3), 2,384 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 918 numbered requirements (320 P0 · 358 P1 · 233 P2 · 7 P3), 2,386 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,384 commands; 917 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,386 commands; 918 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15962,7 +15962,31 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A wall run on a wall's face is 84 in high, its back on the face; nothing overlaps.
 - [x] The sample *Store aisles* (a wall run and three islands 2 m apart) passes every check; an island moved to leave 0.8 m is reported against all three packs.
 
-*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks (`retail.check`: occupant load, fitting rooms, signs, sprinkler clearance, anchoring); shelf lights and loads (`Riviera_RetailFixture`).
+*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks are ARC-RETAIL-002; shelf lights and loads (`Riviera_RetailFixture`).
+
+### 3.9b.12 Store checks
+**ID:** ARC-RETAIL-002 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §5.3 (step 7); research/15 B10, B12, B14, G71–G72 (S1395, S1397, S1398, S1399, S1402); ARC-RETAIL-001; MEP-PIPE-007; ARC-ROOM-001
+
+**Purpose.** Tell a store planner how many people the store holds, and catch the shelving problems that fire and building officials look for, from the model as it is drawn.
+
+**Behaviour & rules.**
+- **Store areas.** `retail.set_area` marks Riviera rooms as the **sales** floor or **stock** rooms (RXD `rxd:retail_area`).
+- **Occupant load** (IBC Table 1004.5 as adopted, G71–G72): each marked room's area over its factor, rounded up: sales 60 ft² (5.57 m²) a person, or `sales_factor` (some jurisdictions use 30 ft² at grade and in basements); stock 300 ft² (27.9 m²). Totals by level and for the store. The room's area is its area inside its walls, not the gross area the table asks: a slight undercount.
+- **Storage fixtures** are the gondolas, end caps and pallet racks (ElementType Gondola, WallGondola, EndCap, PalletRack). Each is checked:
+  - **under sprinklers** (NFPA 13, from summaries, S1398): its top at least 18 in below the deflector of the lowest head over it, or 36 in below an ESFR head (one named ESFR, or quick response with a K-factor of 200 L/min/bar^½ or more). A head is over it when its plan point is within its reach of the fixture's footprint: half the side of its type's coverage area, else 2.3 m. A pendent head's deflector is its bottom, an upright's its top. A shortfall is an **error**;
+  - **high-piled storage** over 12 ft (IFC ch. 32, S1397): a **note**, with its permit, aisle and sprinkler rules;
+  - **anchoring** (notes): a gondola over 96 in, or a wall gondola over Madix's unanchored height for its base shelf (54, 78 and 102 in on 12, 16 and 20 in shelves: 6 × deck − 18 in, S1402); a pallet rack 8 ft or more high on a sales floor (FEMA 460, S1399).
+
+**Commands.** `retail.set_area(room_ids, area?)`; `retail.check(level_ids?, sales_factor?)` → `{areas: [{room, number, name, level, area_use, area, factor, occupants}], levels: [{level, sales_area, stock_area, occupants}], occupants, findings: [{rule, source, severity, element, message, measured?, limit?}]}`.
+
+**Acceptance criteria.**
+- [x] A 96 m² sales floor holds 18 people and a 32 m² stock room 2; at 30 ft² a person the sales floor holds 35.
+- [x] A 72 in island under upright heads 3 m up passes. A 120 in island under one is too close to its deflector (an error) and over 96 in (a note), for each of its fixtures.
+- [x] An 84 in wall run on 16 in decks is noted against Madix's 78 in.
+- [x] A 16 ft pallet rack on the sales floor is high-piled and needs anchoring; moved into the stock room it is only high-piled.
+- [x] The *Store aisles* sample holds 31 people and its shelving passes.
+
+*Built (2026-11-07):* `retail.set_area` and `retail.check` in `riviera_core::retail`, Architecture › Build › Store Area and View › Coordination › Check Store (with Save Report). Defaults are E-111. Not yet: the occupant load feeding the egress tools (ANA-ROUTE); fitting rooms (§222.1, §803); signs (§307); sidewall heads' reach; commodity classes and high-hazard storage over 6 ft; EAS pedestals on their own circuit; gross areas.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -17217,6 +17241,8 @@ All commands below are registered once in the command registry and exposed autom
 | `hotel.room_matrix` | level_ids?, standards?, total? | {placed, total, floors, classes, ada?, uk?, findings} | No (query) | ARC-INT-002 |
 | `retail.run` | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
 | `retail.runs` | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
+| `retail.set_area` | room_ids, area? | — | Yes | ARC-RETAIL-002 |
+| `retail.check` | level_ids?, sales_factor? | {areas, levels, occupants, findings} | No (query) | ARC-RETAIL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
@@ -30753,14 +30779,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 112 | 37 | 1 | 227 |
+| ARC | 77 | 113 | 37 | 1 | 228 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **357** | **233** | **7** | **917** |
+| **Total** | **320** | **358** | **233** | **7** | **918** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -30974,7 +31000,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2384 unique commands** in 451 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2386 unique commands** in 451 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31305,7 +31331,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `render` | 15 |
 | `report` | 2 |
 | `results` | 11 |
-| `retail` | 2 |
+| `retail` | 4 |
 | `revcloud` | 2 |
 | `revision` | 8 |
 | `revisionsequence` | 1 |
@@ -32963,8 +32989,10 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `results.presets` | 4 | — | presets[] | No | STR-RES-001 |
 | `results.save_preset` | 4 | name, view_id | preset_id | Yes | STR-RES-001 |
 | `results.show` | 4 | view_id, package_id, load_group_id, result_type, style_id? | — | No | STR-RES-001 |
+| `retail.check` | 3 | level_ids?, sales_factor? | {areas, levels, occupants, findings} | No (query) | ARC-RETAIL-002 |
 | `retail.run` | 3 | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
 | `retail.runs` | 3 | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
+| `retail.set_area` | 3 | room_ids, area? | — | Yes | ARC-RETAIL-002 |
 | `revcloud.create` | 5 | view_id, loops[], revision_id? | annotation_id | Yes | DOC-ANN-021 |
 | `revcloud.set_revision` | 5 | annotation_ids[], revision_id | () | Yes | DOC-ANN-021 |
 | `revision.create` | 5 | description?, date?, numbering_sequence_id?, index? | revision_id | Yes | DOC-SHT-008 |

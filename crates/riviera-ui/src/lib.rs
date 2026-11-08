@@ -4814,6 +4814,8 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.fixture_count" => with(gui, Gui::fixture_count),
         "ui.guest_room" => with(gui, Gui::guest_room),
         "ui.room_matrix" => with(gui, Gui::room_matrix),
+        "ui.store_area" => with(gui, Gui::store_area),
+        "ui.check_store" => with(gui, Gui::check_store),
         "ui.toilet_core" => with(gui, Gui::toilet_core),
         "ui.locker_room" => with(gui, |g| {
             g.locker_room();

@@ -509,7 +509,10 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
 - Step 7 is begun: straight gondola runs with end caps, and their aisles checked by use zones in
   `ada_2010_interiors` and two new `retail` packs, `us_ibc_mercantile` and `practice_retail`
   (ARC-RETAIL-001). The mercantile pack is in use by default under the IBC, as Question 2
-  proposes; this awaits the owner's answer. Store checks (`retail.check`) come next.
+  proposes; this awaits the owner's answer. Store checks are built too (ARC-RETAIL-002):
+  occupant loads from marked rooms, sprinkler clearance, high-piled storage and anchoring.
+  Fitting rooms, signs and the link to egress remain; next is step 8, checkstands and the front
+  end.
 
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command, exposed to Lua and MCP:

@@ -1510,4 +1510,8 @@ fn the_store_aisles_sample_keeps_its_aisles_clear() {
     rules.sort();
     rules.dedup();
     assert_eq!(rules, vec!["ADA 2010 403.5.1", "Cart aisle", "IBC 1018.3"]);
+    // The store: 31 occupants on the sales floor, the shelving clear of the sprinklers and within
+    // its unanchored heights.
+    let c = ok(&mut app, "retail.check", json!({}));
+    assert_eq!((c["occupants"].as_u64(), c["findings"].as_array().unwrap().len()), (Some(31), 0), "{c:#}");
 }

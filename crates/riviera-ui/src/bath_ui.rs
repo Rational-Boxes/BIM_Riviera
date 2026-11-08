@@ -437,6 +437,60 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Store Area (ARC-RETAIL-002): the selected rooms marked as a sales
+    /// floor or stock rooms.
+    pub(crate) fn store_area(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return frame.set_status_text("Open a model first", 0) };
+        let rooms: Vec<u64> = self.selection().into_iter().filter(|id| store.get(*id).is_some_and(|e| riviera_core::rooms::room_recipe(e).is_some())).map(|id| id.0).collect();
+        if rooms.is_empty() {
+            return error(&frame, "Select one or more rooms first.");
+        }
+        let labels = ["Sales floor (60 ft² a person)", "Stock room (300 ft² a person)", "Not part of a store"];
+        let d = SingleChoiceDialog::builder(&frame, &format!("The {} selected room(s) are:", rooms.len()), "Store Area", &labels).build();
+        if d.show_modal() != ID_OK {
+            return;
+        }
+        let pick = d.get_selection();
+        d.destroy();
+        let area = match pick {
+            0 => json!("sales"),
+            1 => json!("stock"),
+            _ => serde_json::Value::Null,
+        };
+        match self.run("retail.set_area", json!({ "room_ids": rooms, "area": area })) {
+            Ok(_) => frame.set_status_text(&format!("{} room(s) marked", rooms.len()), 0),
+            Err(e) => error(&frame, &format!("The rooms were not marked:\n{e}")),
+        }
+    }
+
+    /// View › Coordination › Check Store (ARC-RETAIL-002): occupant loads and the storage checks,
+    /// the finding picked selected and framed.
+    pub(crate) fn check_store(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("retail.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        let mut head = vec![format!("{} occupants", c["occupants"])];
+        for l in c["levels"].as_array().cloned().unwrap_or_default() {
+            head.push(format!("{}: {:.0} m² sales, {:.0} m² stock, {} occupants", l["level"].as_str().unwrap_or_default(), l["sales_area"].as_f64().unwrap_or(0.0), l["stock_area"].as_f64().unwrap_or(0.0), l["occupants"]));
+        }
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        if findings.is_empty() {
+            let note = if c["areas"].as_array().is_none_or(Vec::is_empty) { "\n\nNo rooms are marked as store areas (Architecture › Build › Store Area)." } else { "" };
+            return self.report_message("Check Store", &format!("{}\n\nThe storage fixtures pass.{note}", head.join("\n")), "retail.check", json!({}));
+        }
+        let rows: Vec<String> = findings.iter().map(|f| format!("{} {}: {}", if f["severity"] == "error" { "✗" } else { "•" }, f["rule"].as_str().unwrap_or_default(), f["message"].as_str().unwrap_or_default())).collect();
+        if let Some(k) = self.pick_or_report("Check Store", &head.join("\n"), &rows, "retail.check", json!({}))
+            && let Some(id) = findings[k]["element"].as_u64()
+        {
+            let _ = self.run("selection.set", json!({ "ids": [id] }));
+            self.selection_changed();
+            self.zoom_to_fit();
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

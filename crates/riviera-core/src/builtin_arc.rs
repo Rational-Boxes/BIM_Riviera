@@ -353,6 +353,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(HotelRoomMatrix),
         registry.add(RetailRun),
         registry.add(RetailRuns),
+        registry.add(RetailSetArea),
+        registry.add(RetailCheck),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4222,6 +4224,33 @@ edit_command!(
     crate::retail::RunParams,
     crate::retail::Run,
     crate::retail::run
+);
+
+edit_command!(
+    RetailSetArea,
+    "retail.set_area",
+    "Mark store areas",
+    "Marks Riviera rooms as a store's `sales` floor or `stock` rooms (ARC-RETAIL-002), for the occupant load \
+     and the checks that apply in public areas; no `area` unmarks them.",
+    "Store Area",
+    crate::retail::SetAreaParams,
+    (),
+    crate::retail::set_area
+);
+
+read_command!(
+    RetailCheck,
+    "retail.check",
+    "Check a store",
+    "Checks a store (ARC-RETAIL-002): the occupant load of its marked rooms (sales floor 60 ft² a person, \
+     or `sales_factor`; stock 300 ft²; IBC Table 1004.5), by room and level; and its storage fixtures \
+     (gondolas, end caps, pallet racks): their tops at least 18 in under the sprinkler deflectors over them, \
+     36 in under ESFR heads (NFPA 13, an error); high-piled storage over 12 ft (IFC ch. 32), and \
+     anchoring for gondolas over 96 in or wall uprights over six leveller spacings (Madix) and pallet racks \
+     storing 8 ft up on the sales floor (FEMA 460), as notes. Errors come first.",
+    Option<crate::retail::CheckParams>,
+    crate::retail::StoreCheck,
+    crate::retail::check
 );
 
 read_command!(

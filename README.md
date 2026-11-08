@@ -660,8 +660,12 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   48, 36, 30 and 24 in gondola sections between end caps, or a wall run, at the fixture makers'
   sizes (`retail.run`). Check Rules keeps the aisles clear: the 2010 ADA Standards' 36 in route
   and 48 in turn round an end cap (§403.5), the IBC's 44 in Group M aisle, and a 6 ft practice cart
-  aisle as a note. Not built yet: store checks (occupant load, fitting rooms, signs), grids of
-  runs and passing spaces.
+  aisle as a note. Not built yet: grids of runs and passing spaces.
+- **Store checks** (ARC-RETAIL-002). Architecture › Build › Store Area marks rooms as a sales
+  floor or stock rooms; View › Coordination › Check Store counts the occupants (60 and 300 ft² a
+  person) and checks gondolas and racks: 18 in under sprinkler deflectors (36 in for ESFR), and
+  notes for high-piled storage and anchoring (`retail.set_area`, `retail.check`). Not built yet:
+  fitting rooms, signs, and the load feeding the egress tools.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

@@ -26,6 +26,7 @@ pub const REPORTS: &[(&str, &str)] = &[
     ("bath.check", "Bathrooms"),
     ("rules.check", "Interiors rules"),
     ("hotel.room_matrix", "Hotel room matrix"),
+    ("retail.check", "Store checks"),
     ("elevator.check", "Elevators"),
     ("elevator.check_lobbies", "Evacuation elevator lobbies"),
     ("escalator.check", "Escalators and moving walks"),
