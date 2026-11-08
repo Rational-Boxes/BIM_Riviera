@@ -1,6 +1,6 @@
 # Interiors workbench, retail fixtures, checkouts and gyms
 
-**Status:** Draft 0.2 · 2026-11-06 · four of the owner's answers in §11a; steps 1–4 and 6 built, steps 5 and 7 begun (see §10).
+**Status:** Draft 0.2 · 2026-11-06 · six of the owner's answers in §11a; steps 1–4 and 6 built, steps 5 and 7 begun (see §10).
 **Owner's requests (2026-10-31):** "Additional research items: gym and excercise equipment.
 Retail hardware for grocery, department store, display cases, etc."; "We'll also need and
 interiors workbench section: Common furnature items, counters, ornimental lighting, bedrooms,
@@ -508,8 +508,8 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
   ARC-GRP-004.
 - Step 7 is begun: straight gondola runs with end caps, and their aisles checked by use zones in
   `ada_2010_interiors` and two new `retail` packs, `us_ibc_mercantile` and `practice_retail`
-  (ARC-RETAIL-001). The mercantile pack is in use by default under the IBC, as Question 2
-  proposes; this awaits the owner's answer. Store checks are built too (ARC-RETAIL-002):
+  (ARC-RETAIL-001). The mercantile pack is in use by default under the IBC (Question 2, answered
+  2026-11-07). Store checks are built too (ARC-RETAIL-002):
   occupant loads from marked rooms, sprinkler clearance, high-piled storage and anchoring.
   Fitting rooms, signs and the link to egress remain; next is step 8, checkstands and the front
   end.
@@ -562,6 +562,13 @@ Question 7 asks which goes first.
 - **Q4, IFC classes:** the mapping in §8.1 is accepted, with IFC4 fallbacks for the 4.3-only
   classes. The gym mirror and ceiling fan classes are still open.
 
-Still open: Q2 (default packs), Q5 (checkout rules), Q6 (planogram schema), and the mirror and
-fan classes. Each is asked when its build step comes up.
+Further answers (2026-11-07):
+
+- **Q2, default packs:** keep the default built in step 7: `us_ibc_mercantile` is in use
+  automatically under the IBC; the practice packs only when chosen.
+- **Q5, checkout rules:** each self-checkout bank counts as its own function under Table 227.2
+  (the default); the lane-count calculator ships, marked as an estimate.
+
+Still open: Q6 (planogram schema), and the mirror and fan classes. Each is asked when its build
+step comes up.
 
