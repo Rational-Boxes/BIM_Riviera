@@ -258,6 +258,18 @@ fn checkstand(l: f64, w: f64, deck: f64) -> Shape {
         .cuboid([l / 2.0 - 0.1, l / 2.0 - 0.05], [w / 2.0 - 0.1, w / 2.0 - 0.05], [deck, 2.38])
 }
 
+/// A ceiling fan `dia` across, its blades at 0 and its canopy `drop` up: four blades, a motor
+/// housing and a downrod.
+fn ceiling_fan(dia: f64, drop: f64) -> Shape {
+    let (r, b) = (dia / 2.0, 0.06);
+    Shape::default()
+        .cuboid([-r, r], [-b, b], [0.04, 0.05])
+        .cuboid([-b, b], [-r, r], [0.04, 0.05])
+        .prism(&rounded([0.0, 0.0], 0.22, 0.22, 0.11), 0.0, 0.18)
+        .prism(&rounded([0.0, 0.0], 0.03, 0.03, 0.015), 0.18, drop - 0.06)
+        .prism(&rounded([0.0, 0.0], 0.14, 0.14, 0.07), drop - 0.06, drop)
+}
+
 /// A chandelier, its bottom at 0: a bowl, a ring of arms and candles, a canopy stem up to `h`.
 fn chandelier(dia: f64, h: f64) -> Shape {
     let mut s = Shape::default()
@@ -350,6 +362,7 @@ pub fn catalogue() -> Vec<Item> {
         item!(Interiors, "Office", "Bookcase 36 in", Furniture, "SHELF", None, None, WOOD, "Five shelves 36 in wide; its 12 in depth and 72 in height are unverified.", "", || shelves(36.0 * IN, 12.0 * IN, 72.0 * IN, 5)),
         item!(Interiors, "Office", "Reception desk 72 × 30 in", Furniture, "USERDEFINED", Some("ServiceCounter"), None, WOOD, "A work surface at 29 in behind a 42 in transaction ledge, 72 × 30 in.", "S1492", || block(72.0 * IN, 30.0 * IN, 29.0 * IN).cuboid([-36.0 * IN, 36.0 * IN], [-15.0 * IN, -9.0 * IN], [29.0 * IN, 42.0 * IN])),
         // ---- Interiors: decorative lighting (research/15 D4) ----
+        item!(Interiors, "Fans", "Ceiling fan 52 in", Fan, "USERDEFINED", Some("CEILINGFAN"), None, WHITE, "A ceiling fan 52 in (1.32 m) across, its blades 0.45 m under its canopy; its blades at least 7 ft (2.1 m) up and 30 in from walls by the stricter maker. A fan-light's light kit is a light fixture of its own.", "S1474", || ceiling_fan(52.0 * IN, 0.45), || vec![power(75.0, 120.0, 0.43, 0.0)]),
         item!(Interiors, "Lighting", "Chandelier 24 in", LightingFixture, "USERDEFINED", Some("Chandelier"), Some("Pr_70_70_48_13"), BRASS, "A chandelier 24 in across and 20 in tall (2.5 in a foot of an 8 ft ceiling), hung from the ceiling; its geometry starts at its bottom.", "S1471", || chandelier(24.0 * IN, 20.0 * IN), || vec![power(240.0, 120.0, 20.0 * IN, 0.0)], || fixture("SUSPENDED", "CEILING", 240.0)),
         item!(Interiors, "Lighting", "Chandelier 36 in", LightingFixture, "USERDEFINED", Some("Chandelier"), Some("Pr_70_70_48_13"), BRASS, "A chandelier 36 in across and 30 in tall, for a large room or a long table.", "S1471", || chandelier(36.0 * IN, 30.0 * IN), || vec![power(480.0, 120.0, 30.0 * IN, 0.0)], || fixture("SUSPENDED", "CEILING", 480.0)),
         item!(Interiors, "Lighting", "Pendant 12 in", LightingFixture, "USERDEFINED", Some("Pendant"), Some("Pr_70_70_48_62"), BLACK, "A pendant shade 12 in across and 14 in tall, for islands and tables (24–30 in apart).", "S1472", || pendant(12.0 * IN, 14.0 * IN), || vec![power(60.0, 120.0, 14.0 * IN, 0.0)], || fixture("SUSPENDED", "CEILING", 60.0)),

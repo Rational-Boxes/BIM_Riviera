@@ -45,6 +45,7 @@ const SHIPPED: &[&str] = &[
     include_str!("../../../schemas/rules/packs/practice_interiors.json"),
     include_str!("../../../schemas/rules/packs/us_ibc_mercantile.json"),
     include_str!("../../../schemas/rules/packs/practice_retail.json"),
+    include_str!("../../../schemas/rules/packs/gym_equipment.json"),
 ];
 /// A zone's height above the floor when its rule gives none (metres).
 pub const DEFAULT_HEIGHT: f64 = 1.0;
@@ -291,7 +292,8 @@ pub fn chosen(store: &Store, domain: &str) -> Option<Vec<String>> {
 }
 
 /// The packs chosen for a domain the project names none for: for interiors, the ADA pack with
-/// the ADA rule set; for retail, the IBC mercantile pack under the IBC.
+/// the ADA rule set; for retail, the IBC mercantile pack under the IBC; for gyms, the equipment
+/// makers' clearances always.
 pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     let mut out = Vec::new();
     if domain == "interiors" && crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
@@ -299,6 +301,9 @@ pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     }
     if domain == "retail" && crate::codes::settings(store).code == crate::codes::Code::Ibc {
         out.push("us_ibc_mercantile".to_owned());
+    }
+    if domain == "gym" {
+        out.push("gym_equipment".to_owned());
     }
     out
 }

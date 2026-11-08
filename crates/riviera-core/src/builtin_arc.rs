@@ -358,6 +358,11 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(FrontendLayout),
         registry.add(CheckoutCheck),
         registry.add(CheckoutLanesEstimate),
+        registry.add(ScoPlacePod),
+        registry.add(ScoSetProfile),
+        registry.add(ScoCheck),
+        registry.add(GymMirror),
+        registry.add(GymCheck),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4296,6 +4301,82 @@ read_command!(
     crate::checkouts::EstimateParams,
     crate::checkouts::Estimate,
     crate::checkouts::lanes_estimate
+);
+
+edit_command!(
+    ScoPlacePod,
+    "sco.place_pod",
+    "Place a self-checkout pod",
+    "Places a self-checkout pod (ARC-RETAIL-004): `units` (default 4, NCR's quad pod) in two rows facing \
+     each other across a `courtyard` (default 11 ft, the middle of NCR's 10–12 ft), reaching from the open \
+     `entry` toward `toward`, at `pitch` along each row (default a unit's length and 1 ft), with an \
+     attendant station at the closed end facing the entry (`attendant`, default true) and a shared queue \
+     `queue` deep beyond the entry (default 3 m). The pod is a self-checkout bank of its own: the units \
+     Table 227.2 asks are accessible, spread, unless `accessible` names them. `item` is a catalogue \
+     self-checkout (default the pedestal).",
+    "Self-checkout Pod",
+    crate::sco::PodParams,
+    crate::sco::Pod,
+    crate::sco::place_pod
+);
+
+edit_command!(
+    ScoSetProfile,
+    "sco.set_profile",
+    "State a self-checkout's accessibility features",
+    "States the accessibility features of self-checkout units (ARC-RETAIL-004), as their maker gives them: \
+     the lowest and highest operable part (`operable`, metres), the `approach` (forward or side) and how \
+     deep the reach passes over the unit (`obstruction_depth`), the screen's centre height, and speech \
+     output, a tactile keypad and Braille instructions. `sco.check` measures them against EN 301 549 \
+     cl. 8.3 and the Access Board's 2022 ANPRM.",
+    "Self-checkout Profile",
+    crate::sco::SetProfileParams,
+    (),
+    crate::sco::set_profile
+);
+
+read_command!(
+    ScoCheck,
+    "sco.check",
+    "Check the self-checkout pods",
+    "Checks the self-checkout pods (ARC-RETAIL-004). Practice notes (NCR): the courtyard 10–12 ft across, \
+     an attendant station for every 4–8 units with a clear sightline to every unit's screen at \
+     `sight_height` (default 1.4 m), the shared queue clear, and 96 in clear over each unit for its lane \
+     light. Advisory findings from the accessibility profile (EN 301 549 cl. 8.3, the 2022 ANPRM): operable \
+     parts 380–1220 mm (lower over a deep reach), a 760 × 1220 mm clear floor space, speech, a tactile \
+     keypad and Braille, the screen at 1200–1400 mm (recommended); at least one unit in each pod should \
+     meet it. There is no fixed US rule for self-checkout, so nothing is an error.",
+    Option<crate::sco::CheckParams>,
+    crate::sco::ScoCheck,
+    crate::sco::check
+);
+
+edit_command!(
+    GymMirror,
+    "gym.mirror",
+    "Place a wall mirror",
+    "Places a wall mirror (ARC-GYM-001) along a wall's face from `start` to `end`, facing the room at \
+     `toward`: an IfcCovering USERDEFINED (MIRROR), from `bottom` (default 0.4 m, the top of the makers' \
+     12–16 in) to `top` (default 2.1 m), of safety glazing unless `safety_glazing` is false. Returns its id.",
+    "Wall Mirror",
+    crate::gym::MirrorParams,
+    ElementId,
+    crate::gym::mirror
+);
+
+read_command!(
+    GymCheck,
+    "gym.check",
+    "Check the gym",
+    "Checks a gym's equipment (ARC-GYM-001). With the ADA rule set, one of each type of exercise machine \
+     must be accessible with a clear 30 × 48 in space beside it (§236.1, §1004.1; strength machines by \
+     function, each cardio machine its own type): an error. Notes: the lowest thing over each piece against \
+     the height its use needs (a treadmill 2.5 m, a stair climber 2.9 m, racks 2.7 m, a lifting platform \
+     3.7 m), mirrors in line with a treadmill (Sport England), mirrors without safety glazing. The use \
+     zones (treadmill sides and rear, rower, dumbbell rack) are `rules.check`'s.",
+    Option<crate::gym::CheckParams>,
+    crate::gym::GymCheck,
+    crate::gym::check
 );
 
 read_command!(

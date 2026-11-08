@@ -192,6 +192,8 @@ pub mod furnishings;
 pub mod hotels;
 pub mod retail;
 pub mod checkouts;
+pub mod sco;
+pub mod gym;
 pub mod interior_layouts;
 pub mod rooms;
 pub mod rules;

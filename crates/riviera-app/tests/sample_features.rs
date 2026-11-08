@@ -1535,3 +1535,31 @@ fn the_store_front_sample_meets_table_227_2() {
     ok(&mut app, "rules.set_accessible", json!({ "element_ids": [lane], "accessible": false }));
     assert_eq!(ok(&mut app, "checkout.check", json!({}))["findings"][0]["short"], 1);
 }
+
+#[test]
+fn the_sco_pods_sample_meets_the_profile() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "sco_pods");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
+    // Two pods, each with its attendant and its accessible units meeting the profile: two of six
+    // pedestals, one of four lanes.
+    let c = ok(&mut app, "sco.check", json!({}));
+    let mut p: Vec<(u64, u64, u64)> = c["pods"].as_array().unwrap().iter().map(|p| (p["units"].as_u64().unwrap(), p["attendants"].as_u64().unwrap(), p["meeting_profile"].as_u64().unwrap())).collect();
+    p.sort();
+    assert_eq!((p, c["findings"].clone()), (vec![(4, 1, 1), (6, 1, 2)], json!([])), "{c:#}");
+    assert_eq!(ok(&mut app, "checkout.check", json!({}))["functions"].as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn the_gym_floor_sample_passes() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "gym_floor");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
+    // Nine types of exercise equipment, each with an accessible unit and its clear space; the
+    // dumbbell rack is storage.
+    let c = ok(&mut app, "gym.check", json!({}));
+    let types = c["types"].as_array().unwrap();
+    assert_eq!((types.len(), c["findings"].clone()), (9, json!([])), "{c:#}");
+    assert!(types.iter().all(|t| t["with_space"].as_u64() > Some(0)), "{c:#}");
+    assert!(types.iter().any(|t| t["kind"] == "ExerciseBike" && t["units"] == 2));
+}

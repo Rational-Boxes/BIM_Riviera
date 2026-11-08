@@ -202,6 +202,7 @@ impl Gui {
         // (domain, heading, automatic choice, its tip, note).
         let domains = [
             ("interiors", "Interiors rules", "Choose from the accessibility rule set", "The ADA interiors pack with the ADA rule set", "Furniture's use zones show as virtual volumes; Check Rules reports what is in them."),
+            ("gym", "Gym rules", "Always the equipment makers' clearances", "The equipment makers' clearances", "Treadmill, rower and dumbbell rack use zones show as virtual volumes; Check Rules reports what is in them."),
             ("retail", "Retail rules", "Choose from the building code", "The IBC Group M aisle pack under the IBC", "Aisles in front of gondolas and end caps show as virtual volumes; Check Rules reports what is in them."),
         ];
         let mut domain_picks: Vec<(&str, Option<Vec<String>>, Vec<String>, CheckBox, Vec<(String, CheckBox)>)> = Vec::new();

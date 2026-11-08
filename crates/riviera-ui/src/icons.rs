@@ -1450,6 +1450,18 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "checkout_bank" => format!(
             r#"<path d="M3 27h26" {s}/><rect x="4" y="8" width="5" height="17" fill="{f}" {s}/><rect x="13.5" y="8" width="5" height="17" fill="{a}" {s}/><rect x="23" y="8" width="5" height="17" fill="{f}" {s}/>"#
         ),
+        // A pod in plan: two rows of units facing across a courtyard, the attendant at its end.
+        "sco_pod" => format!(
+            r#"<rect x="3" y="4" width="7" height="5" fill="{f}" {s}/><rect x="3" y="11" width="7" height="5" fill="{a}" {s}/><rect x="3" y="18" width="7" height="5" fill="{f}" {s}/><rect x="22" y="4" width="7" height="5" fill="{f}" {s}/><rect x="22" y="11" width="7" height="5" fill="{f}" {s}/><rect x="22" y="18" width="7" height="5" fill="{a}" {s}/><rect x="11" y="25" width="10" height="4" fill="{f}" {s}/>"#
+        ),
+        // A mirror on a wall in elevation, with a glint.
+        "gym_mirror" => format!(
+            r#"<path d="M2 29h28" {s}/><rect x="7" y="4" width="18" height="21" fill="{f}" {s}/><path d="M11 18l6-8M15 20l5-6" stroke="{a}" stroke-width="2"/>"#
+        ),
+        // A treadmill in elevation under a ceiling line, with a tick.
+        "check_gym" => format!(
+            r#"<path d="M2 4h28" {s}/><path d="M3 26l14-3M15 23l2-11h3" {s}/><circle cx="4" cy="26" r="1.5" fill="{a}"/><path d="M20 22l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#
+        ),
         // A tally of lanes against a tick.
         "check_checkouts" => format!(
             r#"<rect x="3" y="6" width="4" height="20" fill="{f}" {s}/><rect x="9" y="6" width="4" height="20" fill="{a}" {s}/><rect x="15" y="6" width="4" height="20" fill="{f}" {s}/><path d="M21 17l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#

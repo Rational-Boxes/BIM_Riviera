@@ -295,6 +295,22 @@
       },
       "sha256": "59f88f3857ceca38df19c3d4be7819d878223db90d80629d233f7d2530f1036f"
     },
+    "Fans/ceiling_fan_52_in.ifc": {
+      "guid": "7b8c8136-4ef9-45ec-930b-be8cb87f7e77",
+      "name": "Ceiling fan 52 in",
+      "description": "A ceiling fan 52 in (1.32 m) across, its blades 0.45 m under its canopy; its blades at least 7 ft (2.1 m) up and 30 in from walls by the stricter maker. A fan-light's light kit is a light fixture of its own.",
+      "tags": [
+        "fans",
+        "CEILINGFAN"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1474"
+      },
+      "sha256": "665d1cf2ce518142d966c8b9dfcd1d92a1fd7cd1c540f7305933731980cbceb3"
+    },
     "Lighting/chandelier_24_in.ifc": {
       "guid": "6d696a3d-7c83-4883-994a-a6b273d574ff",
       "name": "Chandelier 24 in",

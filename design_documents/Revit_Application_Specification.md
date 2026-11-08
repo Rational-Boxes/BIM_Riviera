@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 919 numbered requirements (320 P0 · 359 P1 · 233 P2 · 7 P3), 2,389 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 921 numbered requirements (320 P0 · 359 P1 · 235 P2 · 7 P3), 2,394 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,389 commands; 919 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,394 commands; 921 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15662,10 +15662,11 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 |---|---|---|
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
+| `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
-| `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472) |
+| `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
 
-- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC. The practice packs are only chosen by name.
+- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always. The practice packs are only chosen by name.
 - **One command family for every domain.**
   - `rules.packs` lists the packs of every domain, or of one: bathroom (ARC-BATH-001), vertical transport (ARC-VT-001) and the shared-format domains. Each has its domain, format, layer, jurisdiction and edition, its rule count, whether it is in use, and whether it ships.
   - `rules.set_packs`, `rules.add_pack` and `rules.remove_pack` choose, add and remove packs in any domain. A pack is routed by its `format`: a bathroom or vertical-transport pack goes to its domain's own store, so the `bath.*` and `vt.*` pack commands see the same packs.
@@ -16016,7 +16017,79 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] 300 customers an hour with 20 items at 900 items a lane-hour need about 8 lanes, marked an estimate.
 - [x] The sample *A store front* meets Table 227.2 for its three functions.
 
-*Built (2026-11-07):* `riviera_core::checkouts`, Architecture › Build › Checkout Bank, View › Coordination › Check Checkouts and Checkout Lanes Estimate. Defaults are E-112. Not yet: parametric checkstands (§6.1: transport length, bag well, scanner cut-out, card terminal height), the 38 in counter and the check-writing surface (§904.3.2–3), ISA signs (§216.11), self-checkout pods and attendant sightlines (§6.2), queue zones as `IfcSpatialZone` QUEUE, exit gates and the front end's egress checks, lane circuits.
+*Built (2026-11-07):* `riviera_core::checkouts`, Architecture › Build › Checkout Bank, View › Coordination › Check Checkouts and Checkout Lanes Estimate. Defaults are E-112. Not yet: parametric checkstands (§6.1: transport length, bag well, scanner cut-out, card terminal height), the 38 in counter and the check-writing surface (§904.3.2–3), ISA signs (§216.11), queue zones as `IfcSpatialZone` QUEUE, exit gates and the front end's egress checks, lane circuits.
+
+### 3.9b.14 Self-checkout pods
+**ID:** ARC-RETAIL-004 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §6.2 (step 9; the owner's answers to Q5, 2026-11-07); research/15 C7–C9, F2 item 10 (S1408, S1424, S1427, S1458); ARC-RETAIL-003; ARC-RULE-002
+
+**Purpose.** Place a self-checkout pod in one step: units round a courtyard with the attendant in view of every screen and a shared queue. Check each accessible unit against an accessibility profile while no fixed US rule exists.
+
+**Behaviour & rules.**
+- **A pod** (`sco.place_pod`) is drawn as its open end (`entry`) and a point down the pod (`toward`), picked or typed.
+  - `units` (default 4, NCR's quad pod) of a catalogue self-checkout (default the pedestal; or the scan-and-bag lane) stand in two rows facing each other across the `courtyard` (default 11 ft, the middle of NCR's 10–12 ft), at `pitch` along each row (default a unit's length and 1 ft). The row on the left looking in has the extra unit of an odd count.
+  - An **attendant station** stands at the closed end facing the entry, 0.6 m past the rows (`attendant`, default true). NCR says only that the station is in clear view of every lane; the closed end keeps the entry and the queue free (judgement).
+  - A **shared queue** reaches `queue` deep (default 3 m) beyond the entry, as wide as the courtyard. It is stored with the pod as a rectangle.
+  - The pod is a **self-checkout bank of its own** (ARC-RETAIL-003, Q5): its units carry the lane tag, so `checkout.check` counts them under Table 227.2. The accessible ones are spread over both rows unless named; the others are marked not accessible, so the ADA's 36 in zone (§904.3.1) is kept in front of the accessible ones.
+  - Each unit and the station carry the pod, their role, the courtyard and the queue (RXD `rxd:sco_pod`).
+- **A unit's profile** (`sco.set_profile`), as its maker states it (RXD `rxd:sco_profile`):
+  - the lowest and highest operable part (touch targets, PIN pad, card and cash slots, receipt);
+  - the approach (forward or side) and how deep the reach passes over the unit;
+  - the screen's centre height;
+  - speech output through a headphone jack, a tactile keypad and Braille instructions.
+- **`sco.check`** checks each pod. Its **practice notes** follow NCR (research/15 C8):
+  - a courtyard outside 10–12 ft;
+  - no attendant station, or more than 8 units for each station;
+  - anything crossing the sightline from a station to a unit's screen, sliced at `sight_height` (default 1.4 m);
+  - anything standing in the shared queue;
+  - anything less than 96 in above the floor over a unit, where its lane light needs room.
+- **Its advisory findings** come from the accessibility profile (EN 301 549 V3.2.1 cl. 8.3 and the Access Board's 2022 ANPRM, research/15 C9). Each accessible unit is checked:
+  - operable parts from 380 to 1220 mm. Over a forward reach 510–635 mm deep the high limit is 1120 mm; over a side reach 255–610 mm deep, 1170 mm. A deeper reach is out of reach.
+  - a 760 × 1220 mm clear floor space in front;
+  - speech, a tactile keypad and Braille;
+  - the screen's centre at 1200–1400 mm, as a recommendation;
+  - an accessible unit with no stated profile is a finding.
+  - A pod with no unit meeting the whole profile is a finding: at least one should, preferably all (the ANPRM's comparators range from one per type to all).
+- Nothing here is an error: the 2010 Standards have no self-checkout section, and the ANPRM is not a rule.
+
+**Commands.** `sco.place_pod(entry, toward, level, units?, item?, courtyard?, pitch?, attendant?, queue?, accessible?)` → `{pod, units, accessible, attendant?, courtyard, queue}`; `sco.set_profile(element_ids, operable?, approach?, obstruction_depth?, screen_height?, speech?, tactile_keypad?, braille?)`; `sco.check(sight_height?)` → `{pods: [{pod, units, attendants, meeting_profile, courtyard}], findings}`.
+
+**Acceptance criteria.**
+- [x] Six pedestals from (0, 0) toward the north stand in two rows of three, their fronts 11 ft apart. Units 1 and 4 are accessible, and the station is past the rows facing south. Check Rules, overlaps and Table 227.2 find nothing.
+- [x] With no profile, the two accessible units and the pod are advisory findings. With a stated profile meeting every item, nothing is found and two units meet it.
+- [x] An operable part at 1300 mm and no Braille are shortfalls against EN 301 549 and the ANPRM.
+- [x] An EAS pedestal between the station and a screen is a sightline note; in the queue, a queue note.
+- [x] A pod 2.5 m across with no attendant gets both notes, and its bank with no accessible unit is short under Table 227.2.
+- [x] The sample *Self-checkout pods* follows the practice and meets the profile.
+
+*Built (2026-11-08):* `riviera_core::sco`, Architecture › Build › Self-checkout Pod and Self-checkout Profile, View › Coordination › Check Self-checkouts. Defaults are E-113. Not yet: units as `IfcFurniture` SELFCHECKOUT aggregating a terminal, scanner and display; service clearances as `IfcBuildingElementProxy` PROVISIONFORSPACE; the queue as `IfcSpatialZone` QUEUE and serpentine queues; H-pods and straight banks with a station; the units' circuits; the EU and UK profiles (the EAA's dates, Approved Document M's 750–1200 mm controls).
+
+### 3.9b.15 Gyms
+**ID:** ARC-GYM-001 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §7.1, §7.2 (step 10; the owner's answer to Q4 on mirror and fan classes, 2026-11-08); research/15 A2–A5, G32–G41 (S1354, S1355, S1358, S1359, S1360, S1366, S1370, S1375, S1376, S1388, S1389, S1390, S1474); ARC-FURN-001; ARC-RULE-002
+
+**Purpose.** Check a gym as its equipment is placed: the clear zones round each machine, one accessible machine of each type, the ceiling over each piece, and its mirrors.
+
+**Behaviour & rules.**
+- **Use zones** (ARC-RULE-002) come from the `gym_equipment` pack (domain `gym`, in use by default). A treadmill's front in Riviera is its step-on end.
+  - A treadmill keeps 0.5 m clear along each side and 2.0 m behind the belt, as wide as the treadmill and its side zones. 2.0 m is the strictest common reading of ASTM F2115 as makers quote it; others give 1 m, 1.25 m or 78 in (G37–G38).
+  - A rower keeps its 2.74 × 1.22 m use area (G39). A dumbbell rack keeps 0.9 m in front, its 1.55 m live depth (G40).
+  - Strength stations keep 0.9 m clear round them (the ACSM's, quoted second-hand: advisory, G41).
+- **Wall mirrors** (`gym.mirror`) are drawn along a wall's face, picked or typed, with a point in the room. Each is an `IfcCovering` USERDEFINED ("MIRROR"), from `bottom` (default 0.4 m, the top of the makers' 12–16 in) to `top` (default 2.1 m). It is safety glazing unless said otherwise (RXD `rxd:gym_mirror`).
+- **`gym.check`** reads the pieces of the *Gym* library by their ElementType:
+  - **ADA §236.1** (with the ADA rule set; an error): one of each type of exercise machine and equipment must be accessible. Its 30 × 48 in clear floor space (§1004.1, §305.3) must be free beside it: along a side, or at an end. Spaces may overlap their neighbours' (the Advisory). Strength machines are typed by function; each cardio machine is its own type; storage (dumbbell racks, plate trees) is not counted. Pieces marked not accessible (ARC-RULE-002) do not count (G32, G34).
+  - **Ceiling height** (a note): the lowest thing over each piece against the clear height its use needs, measured to ceilings, ducts, fans and lights rather than the slab. A treadmill or elliptical needs 2.5 m, a stair climber 2.9 m, a bike 2.5 m (S1370), racks and a Smith machine 2.7 m (S1388), a bench 2.4 m, a lifting platform 3.7 m. Anything else needs its own height and 0.1 m.
+  - **Mirrors** (notes): a mirror in line with a treadmill's belt within 3 m of either end. Sport England keeps mirrors to the free-weight area, as they confuse visually impaired users (S1376). A mirror that is not safety glazing is also a note (ANSI Z97.1, CPSC 16 CFR 1201; S1389).
+- **Ceiling fans** (*Interiors › Fans*) are `IfcFan` USERDEFINED ("CEILINGFAN"). `practice_interiors` keeps their blades 7 ft (2.13 m) up at least, as a note.
+
+**Commands.** `gym.mirror(start, end, level, toward, bottom?, top?, safety_glazing?)` → element id; `gym.check()` → `{types: [{kind, units, accessible, with_space}], findings}`.
+
+**Acceptance criteria.**
+- [x] Two treadmills 2 m apart keep their zones clear. A bench 1.5 m behind one is in its rear zone; 0.3 m beside it, in its side zone.
+- [x] With both treadmills marked not accessible, §236.1 is an error.
+- [x] A power rack under a 2.4 m ceiling is a note (2.7 m needed).
+- [x] A mirror across the treadmills' rear is a note; one without safety glazing is a note. The mirror is an `IfcCovering`.
+- [x] The sample *A fitness room* has one of each type accessible with its clear space, every zone clear and nothing overlapping.
+
+*Built (2026-11-08):* `riviera_core::gym`, the `gym_equipment` pack, the ceiling fan, Architecture › Build › Wall Mirror, View › Coordination › Check Gym. Defaults are E-114. Not yet: gym layouts and studios (`gym.layout`, §7.2), whether the accessible machines are on an accessible route (G33), the UK's inclusive transfer space and IFI counts (G35–G36), occupant loads (G42), and building integration (§7.3): dedicated circuits, heat gains, outdoor air, floor loads, anchors. Also not yet: the fan-light's aggregated light kit and the fan's wall clearance.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -16024,7 +16097,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 **Purpose.** Stand-in furniture and equipment at their usual sizes, typed for IFC and for the rule packs, until a product is chosen.
 
 **Behaviour & rules.**
-- **The catalogue** (`riviera_core::furnishings`) holds 64 items in three libraries:
+- **The catalogue** (`riviera_core::furnishings`) holds 65 items in three libraries:
   - *Interiors*: beds (US twin, full, queen and king; Approved Document M's single, double and principal double), nightstand, dresser, chest of drawers, double wardrobe, luggage rack, sofas, armchair, coffee and occasional tables, storage unit, rug, dining tables (4 and 6 seats, round), dining chair, counter stool, desks (fixed and standing), task chair, conference table, bookcase and reception desk;
   - *Gym*: commercial treadmill, elliptical, stair climber, upright and recumbent bikes, indoor cycle, rower, leg press, cable crossover, power and half racks, Smith machine, dumbbell rack, flat bench, plate tree and lifting platform;
   - *Retail*: island, wall and end-cap gondolas, a pallet rack bay, produce table, garment rounder and 4-way, mannequin, counter showcase, cash wrap, shopping cart, EAS pedestal, two checkstands, a compact cash desk, two self-checkouts and an attendant station.
@@ -16032,6 +16105,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - **IFC** (`INTERIORS_PLAN.md` §8.1):
   - Furniture has its `IfcFurnitureTypeEnum` value (BED, TABLE, DESK, CHAIR, SOFA, SHELF), else USERDEFINED with its kind as ElementType (Nightstand, Dresser, Treadmill, Gondola, WallGondola, EndCap, Checkstand, SelfCheckout, …).
   - The EAS pedestal is an `IfcSensor` USERDEFINED ("EASPedestal").
+  - The 52 in ceiling fan (*Interiors › Fans*) is an `IfcFan` USERDEFINED ("CEILINGFAN"), the owner's answer to Question 4 (2026-11-08). A fan-light's light kit is to be an `IfcLightFixture` aggregated under it.
   - Each has its description.
 - **Shape and frame.** Simple prisms, centred on the insertion point and standing on the floor. The front, the side a person uses, is −y: a bed's foot, a dresser's drawers, a treadmill's rear where the user steps on.
 - **Connectors.** Powered items carry a power connector at the back:
@@ -17276,6 +17350,11 @@ All commands below are registered once in the command registry and exposed autom
 | `frontend.layout` | start, end, level, toward, count?, pitch?, item?, handing?, function?, accessible? | {frontend, function, lanes, pitch, accessible_required} | Yes | ARC-RETAIL-003 |
 | `checkout.check` | selling_area?, alteration? | {functions, selling_area?, small_store, findings} | No (query) | ARC-RETAIL-003 |
 | `checkout.lanes_estimate` | customers_per_hour, items_per_basket, items_per_hour?, target_wait? | {lanes, utilisation, wait, estimate, note} | No (query) | ARC-RETAIL-003 |
+| `sco.place_pod` | entry, toward, level, units?, item?, courtyard?, pitch?, attendant?, queue?, accessible? | {pod, units, accessible, attendant?, courtyard, queue} | Yes | ARC-RETAIL-004 |
+| `sco.set_profile` | element_ids, operable?, approach?, obstruction_depth?, screen_height?, speech?, tactile_keypad?, braille? | null | Yes | ARC-RETAIL-004 |
+| `sco.check` | sight_height? | {pods, findings} | No (query) | ARC-RETAIL-004 |
+| `gym.mirror` | start, end, level, toward, bottom?, top?, safety_glazing? | element id | Yes | ARC-GYM-001 |
+| `gym.check` | — | {types, findings} | No (query) | ARC-GYM-001 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
@@ -30812,14 +30891,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 114 | 37 | 1 | 229 |
+| ARC | 77 | 114 | 39 | 1 | 231 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **359** | **233** | **7** | **919** |
+| **Total** | **320** | **359** | **235** | **7** | **921** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31033,7 +31112,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2389 unique commands** in 453 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2394 unique commands** in 455 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31227,6 +31306,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `growing` | 7 |
 | `guidegrid` | 1 |
 | `gutter` | 1 |
+| `gym` | 2 |
 | `hanger` | 3 |
 | `hc_loads` | 3 |
 | `history` | 11 |
@@ -31382,6 +31462,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `rxd` | 9 |
 | `schedule` | 27 |
 | `scheduleinstance` | 3 |
+| `sco` | 3 |
 | `scopebox` | 4 |
 | `script` | 11 |
 | `section` | 3 |
@@ -32433,6 +32514,8 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `growing.summary` | 3 | layout_id | {growing_area, floor_area, share, counts} | No (query) | ARC-GLZ-005 |
 | `guidegrid.create` | 5 | name, spacing, extents | guide_grid_id | Yes | DOC-SHT-005 |
 | `gutter.create` | 3 | type_id, edge_refs | element_id | Yes | ARC-ROOF-004 |
+| `gym.check` | 3 | — | {types, findings} | No (query) | ARC-GYM-001 |
+| `gym.mirror` | 3 | start, end, level, toward, bottom?, top?, safety_glazing? | element id | Yes | ARC-GYM-001 |
 | `hanger.place` | 4 | part_id, position, template_id, attach_to_structure? | id | Yes | MEP-FAB-008 |
 | `hanger.place_along` | 4 | run_ids[], spacing, template_id | ids[] | Yes | MEP-FAB-008 |
 | `hanger.set` | 4 | ids[], {rod_length?, rod_diameter?, attach_to_structure?, flipped?} | — | Yes | MEP-FAB-008 |
@@ -33123,6 +33206,9 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `scheduleinstance.join` | 5 | instance_id, segment_index | () | Yes | DOC-SCH-011 |
 | `scheduleinstance.set_rotation` | 5 | instance_id, angle | () | Yes | DOC-SCH-011 |
 | `scheduleinstance.split` | 5 | instance_id, segment_heights[], positions? | () | Yes | DOC-SCH-011 |
+| `sco.check` | 3 | sight_height? | {pods, findings} | No (query) | ARC-RETAIL-004 |
+| `sco.place_pod` | 3 | entry, toward, level, units?, item?, courtyard?, pitch?, attendant?, queue?, accessible? | {pod, units, accessible, attendant?, courtyard, queue} | Yes | ARC-RETAIL-004 |
+| `sco.set_profile` | 3 | element_ids, operable?, approach?, obstruction_depth?, screen_height?, speech?, tactile_keypad?, braille? | null | Yes | ARC-RETAIL-004 |
 | `scopebox.create` | 3 | name, rectangle: {corner_a, corner_b, rotation?}, height, level_id? | element_id | Yes | ARC-SCOPE-001 |
 | `scopebox.set_extents` | 3 | id, min, max, rotation? | — | Yes | ARC-SCOPE-001 |
 | `scopebox.set_view_visibility` | 5 | scopebox_id, view_ids[] | () | Yes | DOC-GFX-019 |

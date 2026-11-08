@@ -90,10 +90,12 @@ pub enum Category {
     Humidifier,
     /// Elevators, escalators and other people movers (ARC-VT-002).
     Transport,
+    /// Wall mirrors and other finishes placed as objects (ARC-GYM-001).
+    Covering,
 }
 
 impl Category {
-    pub const ALL: [Category; 28] = [
+    pub const ALL: [Category; 29] = [
         Category::GenericModel,
         Category::Furniture,
         Category::Column,
@@ -122,6 +124,7 @@ impl Category {
         Category::Humidifier,
         Category::Transport,
         Category::SystemFurniture,
+        Category::Covering,
     ];
 
     pub fn label(self) -> &'static str {
@@ -154,6 +157,7 @@ impl Category {
             Category::Humidifier => "Humidifier",
             Category::Transport => "Transport Element",
             Category::SystemFurniture => "System Furniture",
+            Category::Covering => "Covering",
         }
     }
 
@@ -188,6 +192,7 @@ impl Category {
             Category::Humidifier => "IfcHumidifier",
             Category::Transport => "IfcTransportElement",
             Category::SystemFurniture => "IfcSystemFurnitureElement",
+            Category::Covering => "IfcCovering",
         }
     }
 
@@ -222,6 +227,7 @@ impl Category {
             Category::Humidifier => "IfcHumidifierType",
             Category::Transport => "IfcTransportElementType",
             Category::SystemFurniture => "IfcSystemFurnitureElementType",
+            Category::Covering => "IfcCoveringType",
         }
     }
 

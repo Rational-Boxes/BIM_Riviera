@@ -20,6 +20,8 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#gondolas">Gondola runs and aisles</a>
   <a href="#store">Store checks</a>
   <a href="#checkouts">Checkouts</a>
+  <a href="#sco">Self-checkout pods</a>
+  <a href="#gyms">Gyms</a>
   <a href="#accessible">Accessible and not</a>
   <a href="#own">Your own packs</a>
   <a href="#limits">Limits and what to check</a>
@@ -213,6 +215,57 @@ enough. <b>Checkout Lanes Estimate</b> gives the staffed lanes a peak hour needs
 model: an estimate, not a requirement. The values are provisional (EXPERT_REVIEW.md E-112). The
 sample <a href="riviera:sample/store_front">A store front</a> has three banks.
 (<code>frontend.layout</code>, <code>checkout.check</code>, <code>checkout.lanes_estimate</code>)</p>
+
+<h2 id="sco">Self-checkout pods</h2>
+<p>Choose <b>Architecture › Build › Self-checkout Pod</b>, pick the units, how many and the
+courtyard (11 ft: NCR leaves 10–12 ft). Then click the pod's open end and a point down the pod.
+The units stand in two rows facing each other, with an attendant station at the closed end facing
+the entry. A shared queue reaches 3 m beyond the entry. The pod is a self-checkout bank of its own:
+the accessible units Table 227.2 asks are spread over both rows.</p>
+<p>The 2010 ADA Standards have no self-checkout section, and the Access Board's 2022 proposal is
+not a rule. So Riviera checks the accessible units against a profile built from EN 301 549 cl. 8.3
+and that proposal, as advice. Select the units and choose <b>Self-checkout Profile</b> to state
+what the maker gives:</p>
+<ul>
+  <li>the lowest and highest operable part, and how deep the reach is;</li>
+  <li>the screen's height;</li>
+  <li>speech output, a tactile keypad and Braille.</li>
+</ul>
+<p><b>View › Coordination › Check Self-checkouts</b> checks each pod:</p>
+<ul>
+  <li><b>Practice notes</b> (NCR): the courtyard's width, an attendant station for every 4–8 units
+  with a clear sightline to each screen, the queue kept clear, and 96 in over each unit for its
+  lane light.</li>
+  <li><b>Advisory findings</b> for each accessible unit: operable parts 380–1220 mm (lower over a
+  deep reach), a 760 × 1220 mm clear floor space, speech, a keypad and Braille. At least one unit in
+  a pod should meet the whole profile.</li>
+</ul>
+<p>The values are provisional (EXPERT_REVIEW.md E-113). The sample
+<a href="riviera:sample/sco_pods">Self-checkout pods</a> has two pods.
+(<code>sco.place_pod</code>, <code>sco.set_profile</code>, <code>sco.check</code>)</p>
+
+<h2 id="gyms">Gyms</h2>
+<p>Place equipment from the <b>Riviera Gym Equipment</b> library. Each piece's clear zones show
+as virtual volumes, and <b>Check Rules</b> reports what stands in them. The equipment makers'
+clearances are always in use:</p>
+<ul>
+  <li>a treadmill keeps 0.5 m along each side and 2 m behind the belt, where its user steps on;</li>
+  <li>a rower keeps its 2.74 × 1.22 m use area, and a dumbbell rack 0.9 m in front;</li>
+  <li>strength stations keep 0.9 m round them, as a note.</li>
+</ul>
+<p><b>Architecture › Build › Wall Mirror</b> puts a mirror along a wall, from 0.4 to 2.1 m, of
+safety glazing. <b>View › Coordination › Check Gym</b> checks:</p>
+<ul>
+  <li>with the ADA rule set, one of each type of machine accessible, with a 30 × 48 in clear floor
+  space beside it (§236.1, §1004.1);</li>
+  <li>the lowest thing over each piece: a treadmill needs 2.5 m, a stair climber 2.9 m, a rack
+  2.7 m, a lifting platform 3.7 m;</li>
+  <li>mirrors in line with a treadmill (Sport England keeps them to the free-weight area), and
+  mirrors without safety glazing.</li>
+</ul>
+<p>The values are provisional (EXPERT_REVIEW.md E-114). The sample
+<a href="riviera:sample/gym_floor">A fitness room</a> has a cardio row and a strength area.
+(<code>gym.mirror</code>, <code>gym.check</code>)</p>
 
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules

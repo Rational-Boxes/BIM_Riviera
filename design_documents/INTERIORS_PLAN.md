@@ -1,6 +1,6 @@
 # Interiors workbench, retail fixtures, checkouts and gyms
 
-**Status:** Draft 0.2 · 2026-11-06 · six of the owner's answers in §11a; steps 1–4 and 6 built, steps 5, 7 and 8 begun (see §10).
+**Status:** Draft 0.2 · 2026-11-06 · six of the owner's answers in §11a; steps 1–4, 6 and 9 built, steps 5, 7, 8 and 10 begun (see §10).
 **Owner's requests (2026-10-31):** "Additional research items: gym and excercise equipment.
 Retail hardware for grocery, department store, display cases, etc."; "We'll also need and
 interiors workbench section: Common furnature items, counters, ornimental lighting, bedrooms,
@@ -445,11 +445,11 @@ Following Uniclass's published mappings and research/15 E1–E2:
 The IFC 4.3 classes are written in IFC4X3 projects through the class override the guideway
 devices use (`rxd:ifc4x3_class`, ARC-ALN-002), with the IFC4 class as the fallback.
 
-The gym mirror and ceiling fan classes are open:
-- **mirror:** `IfcFurniture` or `IfcCovering`. `IfcSign` MIRROR is meant for signage;
-- **ceiling fan:** a fan, or a light fixture for a fan-light.
-
-Both are Question 4.
+The gym mirror and ceiling fan classes (Question 4, answered 2026-11-08):
+- **mirror:** a wall mirror is an `IfcCovering` USERDEFINED ("MIRROR"); a freestanding one is
+  `IfcFurniture` (`IfcSign` MIRROR is meant for signage);
+- **ceiling fan:** an `IfcFan` USERDEFINED ("CEILINGFAN"), its light kit an aggregated
+  `IfcLightFixture`.
 
 ### 8.2 Riviera property sets (MIT)
 No standard set exists for retail, checkout or gym data (E1). Three sets are proposed, added to
@@ -515,7 +515,15 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
 - Step 8 is begun: banks of catalogue checkstands and self-checkout lanes along the front with
   Table 227.2's accessible lanes spread, their aisles and queues as use zones, the check per
   function and the lane estimate (ARC-RETAIL-003). Parametric checkstands, the counter and
-  check-writing heights, signs, exit gates and egress remain; then step 9, self-checkout pods.
+  check-writing heights, signs, exit gates and egress remain.
+- Step 9 is built: self-checkout pods round a courtyard with the attendant station and the shared
+  queue, each pod its own bank under Table 227.2, and the check of the courtyard, sightlines, queue,
+  lane-light headroom and the advisory EN 301 549 / ANPRM profile (ARC-RETAIL-004). Units as
+  aggregates, service clearances as IFC volumes and the EU and UK profiles remain.
+- Step 10 is begun: the `gym_equipment` pack's use zones, wall mirrors as `IfcCovering` MIRROR,
+  the ceiling fan as `IfcFan` (Q4, answered 2026-11-08), and the gym check of §236.1 by type,
+  ceiling heights and mirrors (ARC-GYM-001). Layouts, the UK's IFI counts and building integration
+  (§7.3) remain.
 
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command, exposed to Lua and MCP:
@@ -572,6 +580,11 @@ Further answers (2026-11-07):
 - **Q5, checkout rules:** each self-checkout bank counts as its own function under Table 227.2
   (the default); the lane-count calculator ships, marked as an estimate.
 
-Still open: Q6 (planogram schema), and the mirror and fan classes. Each is asked when its build
-step comes up.
+Further answers (2026-11-08):
+
+- **Q4, mirror and fan classes:** a wall mirror is an `IfcCovering` USERDEFINED ("MIRROR") on its
+  wall, and a freestanding mirror stays `IfcFurniture`. A ceiling fan is an `IfcFan` USERDEFINED
+  ("CEILINGFAN"), and a fan-light's light kit is an `IfcLightFixture` aggregated under it.
+
+Still open: Q6 (planogram schema), asked when its build step comes up.
 

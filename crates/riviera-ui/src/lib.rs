@@ -4822,6 +4822,17 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
             g.checkout_bank();
             focus(g);
         }),
+        "ui.sco_pod" => with(gui, |g| {
+            g.sco_pod();
+            focus(g);
+        }),
+        "ui.sco_profile" => with(gui, Gui::sco_profile),
+        "ui.check_scos" => with(gui, Gui::check_scos),
+        "ui.gym_mirror" => with(gui, |g| {
+            g.gym_mirror();
+            focus(g);
+        }),
+        "ui.check_gym" => with(gui, Gui::check_gym),
         "ui.toilet_core" => with(gui, Gui::toilet_core),
         "ui.locker_room" => with(gui, |g| {
             g.locker_room();

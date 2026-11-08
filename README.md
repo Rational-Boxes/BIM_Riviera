@@ -671,7 +671,22 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   accessible lanes ADA Table 227.2 asks spread across the bank and their 36 in aisles kept clear
   (`frontend.layout`). Check Checkouts counts each function, each self-checkout bank on its own,
   with the small-store exception (`checkout.check`); Checkout Lanes Estimate sizes a bank from the
-  peak hour, as an estimate. Not built yet: parametric checkstands, self-checkout pods, exit gates.
+  peak hour, as an estimate. Not built yet: parametric checkstands, exit gates.
+- **Self-checkout pods** (ARC-RETAIL-004). Architecture › Build › Self-checkout Pod sets units in
+  two rows across a 10–12 ft courtyard with an attendant station at the closed end and a shared
+  queue at the open end, a bank of its own under Table 227.2 (`sco.place_pod`). Self-checkout
+  Profile states a unit's operable heights, screen and speech, keypad and Braille
+  (`sco.set_profile`). Check Self-checkouts gives practice notes for the courtyard, sightlines,
+  queue and lane-light headroom. Its advisory findings check the accessible units against EN 301
+  549 cl. 8.3 and the Access Board's 2022 ANPRM (`sco.check`). Not built yet: units as aggregates,
+  service clearances as IFC volumes, queues as `IfcSpatialZone`.
+- **Gyms** (ARC-GYM-001). The `gym_equipment` pack keeps each treadmill's 0.5 m sides and 2 m
+  rear clear, a rower's use area, a dumbbell rack's live depth and 0.9 m round strength stations
+  (Check Rules). Architecture › Build › Wall Mirror places a mirror as an `IfcCovering` (MIRROR).
+  View › Coordination › Check Gym checks one accessible machine of each type with its 30 × 48 in
+  space (ADA §236.1), the ceiling over each piece, and mirrors at treadmills (`gym.mirror`,
+  `gym.check`). A 52 in ceiling fan (`IfcFan`) joins the Interiors library. Not built yet: gym
+  layouts, the UK's IFI counts, circuits, heat gains, floor loads and anchors.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

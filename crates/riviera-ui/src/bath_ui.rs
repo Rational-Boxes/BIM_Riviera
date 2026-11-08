@@ -594,6 +594,202 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Self-checkout Pod (ARC-RETAIL-004): units in two facing rows round a
+    /// courtyard, clicked at its open end and then down the pod.
+    pub(crate) fn sco_pod(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Self-checkout Pod");
+        let items = ["Self-checkout, pedestal", "Self-checkout lane"];
+        let item = f.choice("Units", &items.map(str::to_owned), 0);
+        let count = f.text("How many", "4", "NCR's quad pod is 4; pods of 4–8 are usual");
+        let court = f.text("Courtyard (ft)", "11", "Between the rows' fronts: NCR leaves 10–12 ft");
+        let queue = f.text("Shared queue (m)", "3", "Kept clear beyond the open end");
+        let attendant = f.check("Attendant", "Attendant station at the closed end", true);
+        let ok = f.show("Then click the pod's open end and a point down the pod. Table 227.2's accessible units are spread across both rows.", "Pick the Pod");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let item = items[item.get_selection().unwrap_or(0) as usize];
+        let mut args = json!({ "item": item, "attendant": attendant.get_value() });
+        if let Ok(n) = count.get_value().trim().parse::<u32>() {
+            args["units"] = json!(n);
+        }
+        if let Some(c) = num(&court) {
+            args["courtyard"] = json!(c * 0.3048);
+        }
+        if let Some(q) = num(&queue) {
+            args["queue"] = json!(q);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking(
+            "sco.place_pod",
+            vec![
+                json!({ "key": "entry", "kind": "at", "prompt": "Self-checkout Pod: click the courtyard's open end" }),
+                json!({ "key": "toward", "kind": "point", "prompt": "Self-checkout Pod: click a point down the pod" }),
+            ],
+            args,
+        );
+    }
+
+    /// The pod picked: placed, and reported.
+    pub(crate) fn sco_pod_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let entry = args["entry"].take();
+        args["entry"] = entry["point"].clone();
+        args["level"] = entry["level"].clone();
+        match self.run("sco.place_pod", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let n = v["units"].as_array().map_or(0, Vec::len);
+                let acc = v["accessible"].as_array().map_or(0, Vec::len);
+                frame.set_status_text(&format!("{n} unit(s), {acc} accessible; state their features with Self-checkout Profile, then Check Self-checkouts"), 0);
+            }
+            Err(e) => error(&frame, &format!("The pod was not placed:\n{e}")),
+        }
+    }
+
+    /// Architecture › Build › Self-checkout Profile (ARC-RETAIL-004): the selected units'
+    /// accessibility features, as their maker states them.
+    pub(crate) fn sco_profile(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return frame.set_status_text("Open a model first", 0) };
+        let units: Vec<u64> = self
+            .selection()
+            .into_iter()
+            .filter(|id| store.get(*id).and_then(|e| e.param(riviera_core::checkouts::LANE_KEY)).is_some_and(|t| t["function"] == "self_checkout"))
+            .map(|id| id.0)
+            .collect();
+        if units.is_empty() {
+            return error(&frame, "Select one or more self-checkout units first.");
+        }
+        let f = super::reinforcement_ui::Form::new(&frame, "Self-checkout Profile");
+        let lo = f.text("Lowest operable part (mm)", "", "Touch targets, PIN pad, card and cash slots, receipt");
+        let hi = f.text("Highest operable part (mm)", "", "");
+        let approach = f.choice("Approach", &["Forward".to_owned(), "Side".to_owned()], 0);
+        let depth = f.text("Reach over the unit (mm)", "0", "To the highest part, over the deck or shelf");
+        let screen = f.text("Screen centre (mm)", "", "1200–1400 mm is recommended");
+        let speech = f.check("Speech", "Speech output through a headphone jack", false);
+        let keypad = f.check("Tactile keypad", "12 keys with a raised 5", false);
+        let braille = f.check("Braille", "Braille instructions to start speech", false);
+        let ok = f.show(&format!("The features of {} unit(s), checked against EN 301 549 cl. 8.3 and the Access Board's 2022 ANPRM (advisory).", units.len()), "Set");
+        let mm = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok().map(|v| v / 1000.0);
+        let approach = ["forward", "side"][approach.get_selection().unwrap_or(0) as usize];
+        let mut args = json!({
+            "element_ids": units,
+            "approach": approach,
+            "obstruction_depth": mm(&depth),
+            "screen_height": mm(&screen),
+            "speech": speech.get_value(),
+            "tactile_keypad": keypad.get_value(),
+            "braille": braille.get_value(),
+        });
+        if let (Some(l), Some(h)) = (mm(&lo), mm(&hi)) {
+            args["operable"] = json!([l, h]);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("sco.set_profile", args) {
+            Ok(_) => frame.set_status_text(&format!("{} unit(s) stated", units.len()), 0),
+            Err(e) => error(&frame, &format!("The profile was not set:\n{e}")),
+        }
+    }
+
+    /// View › Coordination › Check Self-checkouts (ARC-RETAIL-004): the pods' practice notes and
+    /// the accessibility profile.
+    pub(crate) fn check_scos(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("sco.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        let pods = c["pods"].as_array().cloned().unwrap_or_default();
+        if pods.is_empty() {
+            return error(&frame, "No self-checkout pods: place one with Architecture › Build › Self-checkout Pod.");
+        }
+        let mut lines: Vec<String> = pods
+            .iter()
+            .map(|p| format!("Pod {}: {} units, {} attendant station(s), {} meeting the profile, courtyard {:.2} m", p["pod"].as_str().unwrap_or_default(), p["units"], p["attendants"], p["meeting_profile"], p["courtyard"].as_f64().unwrap_or(0.0)))
+            .collect();
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        lines.push(if findings.is_empty() { "\nThe pods follow the practice and meet the profile.".into() } else { String::new() });
+        for x in &findings {
+            lines.push(format!("• {} ({}): {}", x["rule"].as_str().unwrap_or_default(), x["severity"].as_str().unwrap_or_default(), x["message"].as_str().unwrap_or_default()));
+        }
+        lines.push("\nThere is no fixed US rule for self-checkout: these are practice notes and advice.".into());
+        self.report_message("Check Self-checkouts", &lines.join("\n"), "sco.check", json!({}));
+    }
+
+    /// Architecture › Build › Wall Mirror (ARC-GYM-001): a mirror along a wall's face, clicked from
+    /// start to end, then a point in the room.
+    pub(crate) fn gym_mirror(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Wall Mirror");
+        let bottom = f.text("Bottom edge (m)", "0.4", "Makers give 12–16 in; above about 0.6 m where there are wall outlets");
+        let top = f.text("Top edge (m)", "2.1", "");
+        let safety = f.check("Safety glazing", "Tempered glass or a safety-film backing", true);
+        let ok = f.show("Then click along the wall's face from start to end, and a point in the room. Sport England keeps mirrors to the free-weight area, away from treadmills.", "Pick the Wall");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let args = json!({ "bottom": num(&bottom), "top": num(&top), "safety_glazing": safety.get_value() });
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking(
+            "gym.mirror",
+            vec![
+                json!({ "key": "start", "kind": "at", "prompt": "Wall Mirror: click the start along the wall's face" }),
+                json!({ "key": "end", "kind": "point", "prompt": "Wall Mirror: click its end" }),
+                json!({ "key": "toward", "kind": "point", "prompt": "Wall Mirror: click a point in the room" }),
+            ],
+            args,
+        );
+    }
+
+    /// The mirror picked: placed.
+    pub(crate) fn gym_mirror_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let start = args["start"].take();
+        args["start"] = start["point"].clone();
+        args["level"] = start["level"].clone();
+        match self.run("gym.mirror", args) {
+            Ok(_) => {
+                self.refresh_scene(&frame);
+                frame.set_status_text("Mirror placed; Check Gym looks for mirrors in line with treadmills", 0);
+            }
+            Err(e) => error(&frame, &format!("The mirror was not placed:\n{e}")),
+        }
+    }
+
+    /// View › Coordination › Check Gym (ARC-GYM-001): ADA §236.1 by type, ceilings and mirrors, the
+    /// finding picked selected and framed.
+    pub(crate) fn check_gym(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("gym.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        let types = c["types"].as_array().cloned().unwrap_or_default();
+        if types.is_empty() {
+            return error(&frame, "No gym equipment: place some from the Riviera Gym Equipment library.");
+        }
+        let head: Vec<String> = types.iter().map(|t| format!("{}: {} units, {} accessible with a clear space", t["kind"].as_str().unwrap_or_default(), t["units"], t["with_space"])).collect();
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        if findings.is_empty() {
+            return self.report_message("Check Gym", &format!("{}\n\nThe gym passes; Check Rules covers the equipment's use zones.", head.join("\n")), "gym.check", json!({}));
+        }
+        let rows: Vec<String> = findings.iter().map(|f| format!("{} {}: {}", if f["severity"] == "error" { "✗" } else { "•" }, f["rule"].as_str().unwrap_or_default(), f["message"].as_str().unwrap_or_default())).collect();
+        if let Some(k) = self.pick_or_report("Check Gym", &head.join("\n"), &rows, "gym.check", json!({}))
+            && let Some(id) = findings[k]["element"].as_u64()
+        {
+            let _ = self.run("selection.set", json!({ "ids": [id] }));
+            self.selection_changed();
+            self.zoom_to_fit();
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

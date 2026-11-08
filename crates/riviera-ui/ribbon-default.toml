@@ -960,6 +960,36 @@ icon = "check_checkouts"
 help = "An M/M/c queueing estimate of the staffed lanes a peak hour needs, from customers, basket size and scanning rate; an estimate, not a check (ARC-RETAIL-003)"
 
 [[action]]
+id = "ui.gym_mirror"
+label = "Wall Mirror"
+icon = "gym_mirror"
+help = "A gym mirror along a wall's face, an IfcCovering (MIRROR) from 0.4 to 2.1 m, of safety glazing (ARC-GYM-001)"
+
+[[action]]
+id = "ui.check_gym"
+label = "Check Gym..."
+icon = "check_gym"
+help = "One of each type of exercise machine accessible with a 30 × 48 in clear space (ADA §236.1, §1004.1), the ceiling over each piece, and mirrors at treadmills (ARC-GYM-001); Check Rules covers the use zones"
+
+[[action]]
+id = "ui.sco_pod"
+label = "Self-checkout Pod"
+icon = "sco_pod"
+help = "Self-checkout units in two rows facing each other across a 10–12 ft courtyard, an attendant station at the closed end in view of every screen and a shared queue at the open end; a bank of its own under ADA Table 227.2 (ARC-RETAIL-004)"
+
+[[action]]
+id = "ui.sco_profile"
+label = "Self-checkout Profile..."
+icon = "sco_pod"
+help = "The selected self-checkout units' accessibility features as their maker states them: operable heights, reach, screen height, speech, tactile keypad and Braille (ARC-RETAIL-004)"
+
+[[action]]
+id = "ui.check_scos"
+label = "Check Self-checkouts..."
+icon = "check_checkouts"
+help = "The self-checkout pods' courtyard, attendant sightlines, shared queue and lane-light headroom (NCR practice), and each accessible unit against a profile from EN 301 549 cl. 8.3 and the 2022 ANPRM (advisory) (ARC-RETAIL-004)"
+
+[[action]]
 id = "ui.cabinet_run"
 label = "Cabinet Run"
 icon = "cabinet_run"
@@ -3719,6 +3749,9 @@ tools = [
   { action = "ui.gondola_run", size = "small" },
   { action = "ui.store_area", size = "small" },
   { action = "ui.checkout_bank", size = "small" },
+  { action = "ui.sco_pod", size = "small" },
+  { action = "ui.sco_profile", size = "small" },
+  { action = "ui.gym_mirror", size = "small" },
   { action = "ui.toilet_core", size = "large" },
   { action = "ui.locker_room", size = "large" },
   { action = "ui.sauna", size = "large" },
@@ -4424,6 +4457,8 @@ tools = [
   { action = "ui.check_store", size = "small" },
   { action = "ui.check_checkouts", size = "small" },
   { action = "ui.checkout_estimate", size = "small" },
+  { action = "ui.check_scos", size = "small" },
+  { action = "ui.check_gym", size = "small" },
   { action = "geometry.remove_boolean", size = "small" },
   { action = "view.set_virtual_volumes", size = "large" },
   { action = "clearance.set_rule_set" },
@@ -4984,7 +5019,7 @@ items = [
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
   "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "-",
+  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",

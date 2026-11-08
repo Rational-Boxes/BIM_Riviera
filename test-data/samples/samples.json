@@ -430,6 +430,32 @@
     ]
   },
   {
+    "name": "sco_pods",
+    "title": "Self-checkout pods",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "sco_pods.lua"
+        }
+      }
+    ]
+  },
+  {
+    "name": "gym_floor",
+    "title": "A fitness room",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "gym_floor.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

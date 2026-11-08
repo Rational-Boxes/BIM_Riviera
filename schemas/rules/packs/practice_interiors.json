@@ -124,6 +124,23 @@
       "confidence": "secondary"
     }
   ],
+  "headroom": [
+    {
+      "id": "Ceiling fan blades",
+      "description": "A ceiling fan's blades at least 7 ft (2.13 m) above the floor, the lower of two makers' figures (the other is 7 ft 6 in)",
+      "applies_to": {
+        "classes": [
+          "IfcFan"
+        ],
+        "object_types": [
+          "CEILINGFAN"
+        ]
+      },
+      "min": 2.1336,
+      "source": "S1474",
+      "confidence": "verified"
+    }
+  ],
   "heights_over": [
     {
       "id": "Chandelier over a table",

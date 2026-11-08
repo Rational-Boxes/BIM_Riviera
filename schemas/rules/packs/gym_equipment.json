@@ -1,0 +1,220 @@
+{
+  "format": "riviera.rules-1",
+  "id": "gym_equipment",
+  "title": "Exercise equipment clearances",
+  "domain": "gym",
+  "jurisdiction": "Any",
+  "edition": "Equipment makers' installation clearances and ASTM F2115 as they quote it; ACSM's general clearance (research/15 A2)",
+  "layer": "minimum",
+  "notes": "A treadmill's front in Riviera is its step-on end (its rear as the runner sees it). Its rear zone is 2.0 m long, the strictest common reading of ASTM F2115 as makers quote it (others give 1 m, 1.25 m or 78 in), and as wide as the treadmill plus its 0.5 m side zones. The ACSM's 0.9 m round strength stations is quoted only second-hand, so it is advisory.",
+  "zones": [
+    {
+      "id": "ASTM F2115 treadmill sides",
+      "description": "0.5 m clear along each side of a treadmill",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Treadmill"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -0.5
+        ],
+        [
+          "left",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "back",
+          0.0
+        ]
+      ],
+      "source": "S1358 S1359",
+      "confidence": "verified"
+    },
+    {
+      "id": "ASTM F2115 treadmill sides right",
+      "description": "0.5 m clear along each side of a treadmill",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Treadmill"
+        ]
+      },
+      "across": [
+        [
+          "right",
+          0.0
+        ],
+        [
+          "right",
+          0.5
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "back",
+          0.0
+        ]
+      ],
+      "source": "S1358 S1359",
+      "confidence": "verified"
+    },
+    {
+      "id": "ASTM F2115 treadmill rear",
+      "description": "2.0 m clear behind the belt, as wide as the treadmill and its side zones",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Treadmill"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -0.5
+        ],
+        [
+          "right",
+          0.5
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          2.0
+        ]
+      ],
+      "source": "S1355 S1358",
+      "confidence": "verified"
+    },
+    {
+      "id": "Rower use area",
+      "description": "a 2.74 × 1.22 m use area round the rower",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Rower"
+        ]
+      },
+      "across": [
+        [
+          "centre",
+          -0.61
+        ],
+        [
+          "centre",
+          0.61
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.15
+        ],
+        [
+          "back",
+          0.15
+        ]
+      ],
+      "source": "S1360",
+      "confidence": "verified"
+    },
+    {
+      "id": "Dumbbell rack live area",
+      "description": "the rack's live area 1.55 m deep: about 0.9 m to stand and lift in front of it",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "DumbbellRack"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          0.0
+        ],
+        [
+          "right",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "front",
+          0.91
+        ]
+      ],
+      "source": "S1366",
+      "confidence": "verified"
+    },
+    {
+      "id": "ACSM station clearance",
+      "description": "0.9 m (3 ft) clear round strength stations for passage and egress",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "LegPress",
+          "CableCrossover",
+          "PowerRack",
+          "HalfRack",
+          "SmithMachine"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -0.9
+        ],
+        [
+          "right",
+          0.9
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.9
+        ],
+        [
+          "back",
+          0.9
+        ]
+      ],
+      "source": "S1390",
+      "confidence": "advisory"
+    }
+  ]
+}
