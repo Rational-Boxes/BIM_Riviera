@@ -322,6 +322,7 @@ impl Gui {
             Some("counter.run") => self.counter_run_finish(args),
             Some("closet.create") => self.closet_finish(args),
             Some("retail.run") => self.gondola_run_finish(args),
+            Some("frontend.layout") => self.checkout_bank_finish(args),
             _ => {}
         }
     }

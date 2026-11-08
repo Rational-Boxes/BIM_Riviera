@@ -491,6 +491,109 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Checkout Bank (ARC-RETAIL-003): checkstands or self-checkout lanes
+    /// along the store front, clicked from start to end, then a click on the sales floor side.
+    pub(crate) fn checkout_bank(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Checkout Bank");
+        let items = ["Checkstand, carousel rear 142 × 48 in", "Checkstand, belted take-away 150 × 48 in", "Cash desk, compact 2500 × 1250", "Self-checkout lane"];
+        let item = f.choice("Lanes", &items.map(str::to_owned), 0);
+        let handing = f.choice("Handing", &["Aisle on the right".to_owned(), "Aisle on the left".to_owned(), "Tandem pairs".to_owned()], 0);
+        let function = f.choice("Function", &["Checkout".to_owned(), "Express".to_owned(), "Pharmacy".to_owned()], 0);
+        let count = f.text("Lanes", "", "Leave empty for as many as fit");
+        let pitch = f.text("Pitch (in)", "84", "Centre to centre: a 48 in stand and a 36 in aisle");
+        let ok = f.show("Then click the line the lanes' exit ends stand on, from start to end, and a point on the sales floor. Table 227.2's accessible lanes are spread across the bank.", "Pick the Front");
+        let item = items[item.get_selection().unwrap_or(0) as usize];
+        let handing = ["right", "left", "paired"][handing.get_selection().unwrap_or(0) as usize];
+        let function = ["checkout", "express", "pharmacy"][function.get_selection().unwrap_or(0) as usize];
+        let mut args = json!({ "item": item, "handing": handing, "function": function });
+        if let Ok(n) = count.get_value().trim().parse::<u32>() {
+            args["count"] = json!(n);
+        }
+        if let Ok(p) = pitch.get_value().trim().replace(',', ".").parse::<f64>() {
+            args["pitch"] = json!(p * 0.0254);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking(
+            "frontend.layout",
+            vec![
+                json!({ "key": "start", "kind": "at", "prompt": "Checkout Bank: click the start of the lanes' exit line" }),
+                json!({ "key": "end", "kind": "point", "prompt": "Checkout Bank: click its end" }),
+                json!({ "key": "toward", "kind": "point", "prompt": "Checkout Bank: click a point on the sales floor" }),
+            ],
+            args,
+        );
+    }
+
+    /// The bank picked: laid out, and reported.
+    pub(crate) fn checkout_bank_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let start = args["start"].take();
+        args["start"] = start["point"].clone();
+        args["level"] = start["level"].clone();
+        match self.run("frontend.layout", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let lanes = v["lanes"].as_array().cloned().unwrap_or_default();
+                let acc = lanes.iter().filter(|l| l["accessible"] == true).count();
+                frame.set_status_text(&format!("{} lane(s), {acc} accessible (Table 227.2 asks {}); Check Checkouts counts every bank", lanes.len(), v["accessible_required"]), 0);
+            }
+            Err(e) => error(&frame, &format!("The bank was not laid out:\n{e}")),
+        }
+    }
+
+    /// View › Coordination › Check Checkouts (ARC-RETAIL-003): Table 227.2 per function.
+    pub(crate) fn check_checkouts(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("checkout.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        let functions = c["functions"].as_array().cloned().unwrap_or_default();
+        if functions.is_empty() {
+            return error(&frame, "No check-out lanes: lay a bank out with Architecture › Build › Checkout Bank.");
+        }
+        let mut lines: Vec<String> = functions.iter().map(|f| format!("{}: {} lanes, {} accessible, {} needed", f["function"].as_str().unwrap_or_default().replace('_', " "), f["lanes"], f["accessible"], f["required"])).collect();
+        if c["small_store"] == true {
+            lines.push("Under 5,000 ft² of selling space: one accessible lane is enough.".into());
+        }
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        lines.push(if findings.is_empty() { "\nTable 227.2 is met.".into() } else { String::new() });
+        for x in &findings {
+            lines.push(format!("{} {}: {}", if x["severity"] == "error" { "✗" } else { "•" }, x["rule"].as_str().unwrap_or_default(), x["message"].as_str().unwrap_or_default()));
+        }
+        self.report_message("Check Checkouts", &lines.join("\n"), "checkout.check", json!({}));
+    }
+
+    /// View › Coordination › Checkout Lanes Estimate (ARC-RETAIL-003): an M/M/c estimate of the lanes a peak
+    /// hour needs.
+    pub(crate) fn checkout_estimate(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Checkout Lanes Estimate");
+        let customers = f.text("Customers at the peak hour", "300", "");
+        let basket = f.text("Items per basket", "20", "");
+        let rate = f.text("Items a lane scans an hour", "900", "");
+        let wait = f.text("Average wait under (min)", "3", "");
+        let ok = f.show("An estimate from a queueing model, not a requirement: check it against the operator's experience.", "Estimate");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let args = json!({ "customers_per_hour": num(&customers).unwrap_or(0.0), "items_per_basket": num(&basket).unwrap_or(0.0), "items_per_hour": num(&rate), "target_wait": num(&wait) });
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("checkout.lanes_estimate", args) {
+            Ok(e) => {
+                let msg = format!("About {} lanes: each busy {:.0} % of the time, an average wait of {:.1} min.\n\n{}", e["lanes"], e["utilisation"].as_f64().unwrap_or(0.0) * 100.0, e["wait"].as_f64().unwrap_or(0.0), e["note"].as_str().unwrap_or_default());
+                let d = MessageDialog::builder(&frame, &msg, "Checkout Lanes Estimate").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build();
+                d.show_modal();
+            }
+            Err(e) => error(&frame, &e),
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

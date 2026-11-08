@@ -666,6 +666,12 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   person) and checks gondolas and racks: 18 in under sprinkler deflectors (36 in for ESFR), and
   notes for high-piled storage and anchoring (`retail.set_area`, `retail.check`). Not built yet:
   fitting rooms, signs, and the load feeding the egress tools.
+- **Checkout front ends** (ARC-RETAIL-003). Architecture › Build › Checkout Bank lays checkstands
+  or self-checkout lanes at a pitch along the store front, handed or in tandem pairs, with the
+  accessible lanes ADA Table 227.2 asks spread across the bank and their 36 in aisles kept clear
+  (`frontend.layout`). Check Checkouts counts each function, each self-checkout bank on its own,
+  with the small-store exception (`checkout.check`); Checkout Lanes Estimate sizes a bank from the
+  peak hour, as an estimate. Not built yet: parametric checkstands, self-checkout pods, exit gates.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

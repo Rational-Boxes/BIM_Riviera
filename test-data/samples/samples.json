@@ -417,6 +417,19 @@
     ]
   },
   {
+    "name": "store_front",
+    "title": "A store front",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "store_front.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

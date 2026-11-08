@@ -19,6 +19,7 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#hotels">Hotel guest rooms</a>
   <a href="#gondolas">Gondola runs and aisles</a>
   <a href="#store">Store checks</a>
+  <a href="#checkouts">Checkouts</a>
   <a href="#accessible">Accessible and not</a>
   <a href="#own">Your own packs</a>
   <a href="#limits">Limits and what to check</a>
@@ -198,6 +199,20 @@ floor or stock rooms. <b>View › Coordination › Check Store</b> then gives:</
 <p>Pick a finding to select and frame the fixture. The values are provisional (EXPERT_REVIEW.md
 E-111). The sample <a href="riviera:sample/store_aisles">Store aisles</a> holds 31 people.
 (<code>retail.set_area</code>, <code>retail.check</code>)</p>
+
+<h2 id="checkouts">Checkouts</h2>
+<p>Choose <b>Architecture › Build › Checkout Bank</b>, pick the lanes and their handing, then click
+the line their exit ends stand on and a point on the sales floor. The lanes go at the pitch (84 in:
+a 48 in stand and a 36 in aisle), or in tandem pairs. As many lanes as the 2010 ADA Standards'
+Table 227.2 asks are made accessible, spread across the bank: one of 1–4, two of 5–8, three of
+9–15, then 20 % of those over 15. Check Rules keeps 36 in clear beside each (§904.3.1) and, with
+<i>Store planning practice</i>, each lane's queue 3 m beyond its in-feed.</p>
+<p><b>View › Coordination › Check Checkouts</b> counts every function (checkout, express, pharmacy;
+each self-checkout bank on its own). Under 5,000 ft² of selling space one accessible lane is
+enough. <b>Checkout Lanes Estimate</b> gives the staffed lanes a peak hour needs from a queueing
+model: an estimate, not a requirement. The values are provisional (EXPERT_REVIEW.md E-112). The
+sample <a href="riviera:sample/store_front">A store front</a> has three banks.
+(<code>frontend.layout</code>, <code>checkout.check</code>, <code>checkout.lanes_estimate</code>)</p>
 
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules

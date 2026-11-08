@@ -1446,6 +1446,14 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "counter_run" => format!(
             r#"<path d="M2 10h18v18H2zM20 15h10v13" fill="{f}" {s}/><path d="M2 10h18M20 15h10" stroke="{a}" stroke-width="2.5"/><path d="M24 22a2 2 0 1 0 0.1 0" {s}/>"#
         ),
+        // Checkstands in plan side by side, one marked accessible, their aisles between.
+        "checkout_bank" => format!(
+            r#"<path d="M3 27h26" {s}/><rect x="4" y="8" width="5" height="17" fill="{f}" {s}/><rect x="13.5" y="8" width="5" height="17" fill="{a}" {s}/><rect x="23" y="8" width="5" height="17" fill="{f}" {s}/>"#
+        ),
+        // A tally of lanes against a tick.
+        "check_checkouts" => format!(
+            r#"<rect x="3" y="6" width="4" height="20" fill="{f}" {s}/><rect x="9" y="6" width="4" height="20" fill="{a}" {s}/><rect x="15" y="6" width="4" height="20" fill="{f}" {s}/><path d="M21 17l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#
+        ),
         // A store's plan: a sales floor with a person, and the stock room hatched.
         "store_area" => format!(
             r#"<rect x="3" y="5" width="26" height="22" fill="none" {s}/><path d="M21 5v22" {s}/><rect x="21" y="5" width="8" height="22" fill="{a}"/><path d="M11 13a2 2 0 1 0 0.1 0M8 23v-4h6v4" {s}/>"#

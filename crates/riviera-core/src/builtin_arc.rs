@@ -355,6 +355,9 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(RetailRuns),
         registry.add(RetailSetArea),
         registry.add(RetailCheck),
+        registry.add(FrontendLayout),
+        registry.add(CheckoutCheck),
+        registry.add(CheckoutLanesEstimate),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4251,6 +4254,48 @@ read_command!(
     Option<crate::retail::CheckParams>,
     crate::retail::StoreCheck,
     crate::retail::check
+);
+
+edit_command!(
+    FrontendLayout,
+    "frontend.layout",
+    "Lay out a bank of checkouts",
+    "Lays out a bank of checkstands or self-checkout lanes (ARC-RETAIL-003) with their exit ends on the line \
+     from `start` to `end`, reaching toward the sales floor at `toward`: `count` lanes (default as many as \
+     fit) at `pitch` (default 84 in: a 48 in stand and a 36 in aisle), handed `right`, `left` or `paired` \
+     (tandem pairs cashier to cashier). The lanes ADA Table 227.2 asks of the bank are made accessible, \
+     spread across it, unless `accessible` names them; the others are marked not accessible, so the ADA's \
+     36 in aisle (§904.3.1) is kept beside the accessible ones. `item` is a catalogue checkstand or \
+     self-checkout lane; `function` names what the bank serves (a self-checkout bank is its own).",
+    "Checkout Bank",
+    crate::checkouts::LayoutParams,
+    crate::checkouts::Bank,
+    crate::checkouts::layout
+);
+
+read_command!(
+    CheckoutCheck,
+    "checkout.check",
+    "Check the check-out aisles",
+    "Checks the check-out lanes (ARC-RETAIL-003) against ADA Table 227.2 for each function (1–4 lanes need \
+     1 accessible, 5–8 need 2, 9–15 need 3, then 20 % of those over 15), each self-checkout bank counted \
+     on its own: one is enough under 5,000 ft² of selling space (`selling_area`, default the marked sales \
+     floor) or in an `alteration` (§227.2.1). Accessible lanes side by side in a bank are a note.",
+    Option<crate::checkouts::CheckParams>,
+    crate::checkouts::CheckoutCheck,
+    crate::checkouts::check
+);
+
+read_command!(
+    CheckoutLanesEstimate,
+    "checkout.lanes_estimate",
+    "Estimate the lanes a peak hour needs",
+    "Estimates the staffed lanes a peak hour needs (ARC-RETAIL-003) with an M/M/c queue: the fewest lanes \
+     whose average wait is under `target_wait` minutes (default 3), from the peak hour's customers, items \
+     per basket and items a lane scans an hour (default 900). An estimate, never a check.",
+    crate::checkouts::EstimateParams,
+    crate::checkouts::Estimate,
+    crate::checkouts::lanes_estimate
 );
 
 read_command!(

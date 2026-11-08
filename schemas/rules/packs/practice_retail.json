@@ -4,9 +4,9 @@
   "title": "Store planning practice",
   "domain": "retail",
   "jurisdiction": "Any",
-  "edition": "Store fixture vendors' aisle guidance (research/15 B10)",
+  "edition": "Store fixture vendors' aisle guidance and front-end practice (research/15 B10, C10)",
   "layer": "recommended",
-  "notes": "Practice, not code: findings are notes. Grocery aisles with carts are 6–8 ft between gondolas; 6 ft is used.",
+  "notes": "Practice, not code: findings are notes. Grocery aisles with carts are 6–8 ft between gondolas; 6 ft is used. A full-service lane's queue is kept clear 3 m beyond its in-feed end (two carts waiting and one unloading, judgement from the cart's 43¾ in).",
   "zones": [
     {
       "id": "Cart aisle",
@@ -74,6 +74,40 @@
         ]
       ],
       "source": "S1419",
+      "confidence": "advisory"
+    },
+    {
+      "id": "Checkout queue",
+      "description": "3 m beyond a checkstand's in-feed end, for the customers waiting",
+      "applies_to": {
+        "classes": [
+          "IfcFurniture"
+        ],
+        "object_types": [
+          "Checkstand"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -3.0
+        ],
+        [
+          "left",
+          0.0
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "back",
+          0.0
+        ]
+      ],
+      "source": "S1411",
       "confidence": "advisory"
     }
   ]

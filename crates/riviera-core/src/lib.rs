@@ -191,6 +191,7 @@ pub mod decorative_lighting;
 pub mod furnishings;
 pub mod hotels;
 pub mod retail;
+pub mod checkouts;
 pub mod interior_layouts;
 pub mod rooms;
 pub mod rules;

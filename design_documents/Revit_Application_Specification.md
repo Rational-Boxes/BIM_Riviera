@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 918 numbered requirements (320 P0 · 358 P1 · 233 P2 · 7 P3), 2,386 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 919 numbered requirements (320 P0 · 359 P1 · 233 P2 · 7 P3), 2,389 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,386 commands; 918 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,389 commands; 919 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15660,9 +15660,9 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 
 | Pack | Layer | Covers |
 |---|---|---|
-| `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001) |
+| `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
-| `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas, as a note (ARC-RETAIL-001) |
+| `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472) |
 
 - **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC. The practice packs are only chosen by name.
@@ -15987,6 +15987,36 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] The *Store aisles* sample holds 31 people and its shelving passes.
 
 *Built (2026-11-07):* `retail.set_area` and `retail.check` in `riviera_core::retail`, Architecture › Build › Store Area and View › Coordination › Check Store (with Save Report). Defaults are E-111. Not yet: the occupant load feeding the egress tools (ANA-ROUTE); fitting rooms (§222.1, §803); signs (§307); sidewall heads' reach; commodity classes and high-hazard storage over 6 ft; EAS pedestals on their own circuit; gross areas.
+
+### 3.9b.13 Checkout front ends
+**ID:** ARC-RETAIL-003 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §6.1, §6.3 (step 8; the owner's answers to Q5, 2026-11-07); research/15 C2, C4, C10, G100–G104, G109 (S1354, S1411, S1432, S1453, S1457); ARC-RULE-002; ARC-FURN-001
+
+**Purpose.** Lay out a store's checkouts along its front in one step, with as many accessible lanes as the ADA asks spread across each bank, and check the count as banks are added or changed.
+
+**Behaviour & rules.**
+- **A bank** (`frontend.layout`) is drawn as the line its lanes' exit ends stand on, picked or typed, and a point on the sales floor side; the lanes reach from the line toward it.
+  - Its lanes are a catalogue checkstand (default the 142 × 48 in carousel lane) or the self-checkout lane, `count` of them (default as many as fit), at `pitch` centre to centre (default 84 in: a 48 in stand and a 36 in aisle, research/15 C4).
+  - **Handing:** each lane's customer aisle on its right or left looking toward the floor, or **tandem pairs** cashier to cashier (each pair at twice the pitch). A lane's handing is a mirrored copy.
+  - **Accessible lanes:** as many as Table 227.2 asks of the bank, at the middles of equal shares of it, unless they are named. The others are marked not accessible (ARC-RULE-002).
+  - Each lane carries its bank, function, index and whether it is accessible (RXD `rxd:checkout_lane`). The result gives each lane's aisle to the next lane on its aisle side.
+- **Zones** (ARC-RULE-002): `ada_2010_interiors` keeps 36 in clear along an accessible lane's customer side (§904.3.1). `practice_retail` keeps a checkstand's queue clear 3 m beyond its in-feed (two carts waiting and one unloading, a note).
+- **`checkout.check`** counts the lanes of each **function** (`checkout`, `express`, `pharmacy`, …). Each self-checkout bank is its own function. For each it checks Table 227.2: 1–4 lanes need one accessible, 5–8 two, 9–15 three, then three plus 20 % of those over 15, rounded up.
+  - **Small stores:** under 5,000 ft² of selling space (`selling_area`, default the sales floor rooms marked with ARC-RETAIL-002), one is enough.
+  - **Alterations** (`alteration`): one per function until the table is met (§227.2.1).
+  - Accessible lanes all side by side in a bank are a **note** (dispersion).
+- **`checkout.lanes_estimate`**, an **estimate**: the fewest staffed lanes whose average queue wait (an M/M/c queue, Erlang C) is under a target (default 3 min), from the peak hour's customers, items per basket and items a lane scans an hour (default 900). It is never a check.
+
+**Commands.** `frontend.layout(start, end, level, toward, count?, pitch?, item?, handing?, function?, accessible?)` → `{frontend, function, lanes: [{element, index, accessible, aisle?}], pitch, accessible_required}`; `checkout.check(selling_area?, alteration?)` → `{functions: [{function, lanes, accessible, required}], selling_area?, small_store, findings}`; `checkout.lanes_estimate(customers_per_hour, items_per_basket, items_per_hour?, target_wait?)` → `{lanes, utilisation, wait, estimate, note}`.
+
+**Acceptance criteria.**
+- [x] Nine carousel lanes fit a 20 m front at 84 in; lanes 1, 4 and 7 are accessible with 36 in aisles, their exit ends on the line. Check Rules, overlaps and Table 227.2 find nothing.
+- [x] A bank of four self-checkouts is its own function. Five express lanes with none accessible are two short; under 5,000 ft² of selling space, or in an alteration, one.
+- [x] At 80 in, the accessible lanes' 32 in aisles are reported against §904.3.1.
+- [x] Tandem pairs have aisles only between pairs, of twice the pitch less two lanes.
+- [x] 300 customers an hour with 20 items at 900 items a lane-hour need about 8 lanes, marked an estimate.
+- [x] The sample *A store front* meets Table 227.2 for its three functions.
+
+*Built (2026-11-07):* `riviera_core::checkouts`, Architecture › Build › Checkout Bank, View › Coordination › Check Checkouts and Checkout Lanes Estimate. Defaults are E-112. Not yet: parametric checkstands (§6.1: transport length, bag well, scanner cut-out, card terminal height), the 38 in counter and the check-writing surface (§904.3.2–3), ISA signs (§216.11), self-checkout pods and attendant sightlines (§6.2), queue zones as `IfcSpatialZone` QUEUE, exit gates and the front end's egress checks, lane circuits.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -17243,6 +17273,9 @@ All commands below are registered once in the command registry and exposed autom
 | `retail.runs` | — | [{run, kind, fixtures}] | No (query) | ARC-RETAIL-001 |
 | `retail.set_area` | room_ids, area? | — | Yes | ARC-RETAIL-002 |
 | `retail.check` | level_ids?, sales_factor? | {areas, levels, occupants, findings} | No (query) | ARC-RETAIL-002 |
+| `frontend.layout` | start, end, level, toward, count?, pitch?, item?, handing?, function?, accessible? | {frontend, function, lanes, pitch, accessible_required} | Yes | ARC-RETAIL-003 |
+| `checkout.check` | selling_area?, alteration? | {functions, selling_area?, small_store, findings} | No (query) | ARC-RETAIL-003 |
+| `checkout.lanes_estimate` | customers_per_hour, items_per_basket, items_per_hour?, target_wait? | {lanes, utilisation, wait, estimate, note} | No (query) | ARC-RETAIL-003 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
@@ -30779,14 +30812,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 113 | 37 | 1 | 228 |
+| ARC | 77 | 114 | 37 | 1 | 229 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **358** | **233** | **7** | **918** |
+| **Total** | **320** | **359** | **233** | **7** | **919** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31000,7 +31033,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2386 unique commands** in 451 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2389 unique commands** in 453 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31059,6 +31092,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `category` | 1 |
 | `cde` | 7 |
 | `ceiling` | 3 |
+| `checkout` | 2 |
 | `circuit` | 13 |
 | `circuit_naming_scheme` | 4 |
 | `clash` | 10 |
@@ -31177,6 +31211,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `foundation_slab` | 1 |
 | `frame` | 3 |
 | `framing` | 7 |
+| `frontend` | 1 |
 | `funicular` | 3 |
 | `furnishing` | 2 |
 | `gbxml` | 2 |
@@ -31701,6 +31736,8 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `ceiling.create` | 3 | type_id, loops, level_id, offset?, slope? | element_id | Yes | ARC-CEIL-001 |
 | `ceiling.create_auto` | 3 | type_id, level_id, point, offset? | element_id | Yes | ARC-CEIL-001 |
 | `ceiling.edit_boundary` | 3 | ceiling_id, loops, slope? | — | Yes | ARC-CEIL-001 |
+| `checkout.check` | 3 | selling_area?, alteration? | {functions, selling_area?, small_store, findings} | No (query) | ARC-RETAIL-003 |
+| `checkout.lanes_estimate` | 3 | customers_per_hour, items_per_basket, items_per_hour?, target_wait? | {lanes, utilisation, wait, estimate, note} | No (query) | ARC-RETAIL-003 |
 | `circuit.add` | 4 | circuit_id, element_ids[] | — | Yes | MEP-ELEC-003 |
 | `circuit.compatible_panels` | 4 | circuit_id, search? | panels[] | No | MEP-ELEC-003 |
 | `circuit.create` | 4 | kind, element_ids[], voltage?, poles? | circuit_id | Yes | MEP-ELEC-002 |
@@ -32328,6 +32365,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `framing.set_cutback` | 4 | id, end, distance | — | Yes | STR-BEAM-002 |
 | `framing.set_extension` | 4 | id, end, length | — | Yes | STR-BEAM-002 |
 | `framing.set_justification` | 4 | ids[], y_just, y_offset, z_just, z_offset, mode | — | Yes | STR-BEAM-002 |
+| `frontend.layout` | 3 | start, end, level, toward, count?, pitch?, item?, handing?, function?, accessible? | {frontend, function, lanes, pitch, accessible_required} | Yes | ARC-RETAIL-003 |
 | `funicular.check` | 3 | demand? | [{funicular, severity, rule, message}] | No (query) | ARC-VT-024 |
 | `funicular.create` | 3 | alignment_id, layout?, gauge?, car_length?, car_width?, car_height?, car_floor?, car_capacity?, speed?, dwell?, walkway? | {funicular, length, rise, max_grade, passing_loop, trip, capacity, …} | Yes | ARC-VT-024 |
 | `funicular.list` | 3 | — | [{funicular, layout, gauge, length, rise, max_grade, trip, capacity, …}] | No (query) | ARC-VT-024 |

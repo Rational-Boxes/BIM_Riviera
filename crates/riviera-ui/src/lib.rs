@@ -4816,6 +4816,12 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.room_matrix" => with(gui, Gui::room_matrix),
         "ui.store_area" => with(gui, Gui::store_area),
         "ui.check_store" => with(gui, Gui::check_store),
+        "ui.check_checkouts" => with(gui, Gui::check_checkouts),
+        "ui.checkout_estimate" => with(gui, Gui::checkout_estimate),
+        "ui.checkout_bank" => with(gui, |g| {
+            g.checkout_bank();
+            focus(g);
+        }),
         "ui.toilet_core" => with(gui, Gui::toilet_core),
         "ui.locker_room" => with(gui, |g| {
             g.locker_room();

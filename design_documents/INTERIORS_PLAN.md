@@ -1,6 +1,6 @@
 # Interiors workbench, retail fixtures, checkouts and gyms
 
-**Status:** Draft 0.2 · 2026-11-06 · six of the owner's answers in §11a; steps 1–4 and 6 built, steps 5 and 7 begun (see §10).
+**Status:** Draft 0.2 · 2026-11-06 · six of the owner's answers in §11a; steps 1–4 and 6 built, steps 5, 7 and 8 begun (see §10).
 **Owner's requests (2026-10-31):** "Additional research items: gym and excercise equipment.
 Retail hardware for grocery, department store, display cases, etc."; "We'll also need and
 interiors workbench section: Common furnature items, counters, ornimental lighting, bedrooms,
@@ -511,8 +511,11 @@ No standard set exists for retail, checkout or gym data (E1). Three sets are pro
   (ARC-RETAIL-001). The mercantile pack is in use by default under the IBC (Question 2, answered
   2026-11-07). Store checks are built too (ARC-RETAIL-002):
   occupant loads from marked rooms, sprinkler clearance, high-piled storage and anchoring.
-  Fitting rooms, signs and the link to egress remain; next is step 8, checkstands and the front
-  end.
+  Fitting rooms, signs and the link to egress remain.
+- Step 8 is begun: banks of catalogue checkstands and self-checkout lanes along the front with
+  Table 227.2's accessible lanes spread, their aisles and queues as use zones, the check per
+  function and the lane estimate (ARC-RETAIL-003). Parametric checkstands, the counter and
+  check-writing heights, signs, exit gates and egress remain; then step 9, self-checkout pods.
 
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command, exposed to Lua and MCP:

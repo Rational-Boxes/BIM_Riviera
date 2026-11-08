@@ -1515,3 +1515,23 @@ fn the_store_aisles_sample_keeps_its_aisles_clear() {
     let c = ok(&mut app, "retail.check", json!({}));
     assert_eq!((c["occupants"].as_u64(), c["findings"].as_array().unwrap().len()), (Some(31), 0), "{c:#}");
 }
+
+#[test]
+fn the_store_front_sample_meets_table_227_2() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "store_front");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]));
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    // Three functions: nine staffed lanes with three accessible, five express with two, and the
+    // self-checkout bank on its own with one.
+    let c = ok(&mut app, "checkout.check", json!({}));
+    let mut f: Vec<(String, u64, u64)> = c["functions"].as_array().unwrap().iter().map(|f| (f["function"].as_str().unwrap().split(' ').next().unwrap().to_owned(), f["lanes"].as_u64().unwrap(), f["accessible"].as_u64().unwrap())).collect();
+    f.sort();
+    assert_eq!(f, vec![("checkout".into(), 9, 3), ("express".into(), 5, 2), ("self_checkout".into(), 4, 1)], "{c:#}");
+    assert_eq!(c["findings"], json!([]));
+    // Marking an accessible staffed lane not accessible leaves the table one short.
+    let s = store(&app);
+    let lane = s.iter().find(|e| e.param(riviera_core::checkouts::LANE_KEY).is_some_and(|t| t["function"] == "checkout" && t["accessible"] == true)).unwrap().id().0;
+    ok(&mut app, "rules.set_accessible", json!({ "element_ids": [lane], "accessible": false }));
+    assert_eq!(ok(&mut app, "checkout.check", json!({}))["findings"][0]["short"], 1);
+}
