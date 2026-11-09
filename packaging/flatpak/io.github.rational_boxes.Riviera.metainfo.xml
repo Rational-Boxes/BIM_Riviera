@@ -78,6 +78,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.0~pre.16" date="2026-11-09" type="development">
+      <description>
+        <p>Sixteenth pre-release (tag 0.1.0-pre.16), for testing. New: hotel guest rooms; gondola runs, store checks, checkout front ends and self-checkout pods; gym checks, layouts and studios; swimming pools with their generated shell, water and coping, built-in stairs, sloped entries and benches, checks against the ISPSC, the Model Aquatic Health Code, the ADA and the VGB Act, and a bundled Riviera Pools equipment library; new sample models of a pool hall, a checked public pool and a backyard pool.</p>
+      </description>
+    </release>
     <release version="0.1.0~pre.15" date="2026-11-06" type="development">
       <description>
         <p>Fifteenth pre-release (tag 0.1.0-pre.15), for testing: the program is that of 0.1.0-pre.12, rebuilt.</p>
