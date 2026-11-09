@@ -4,8 +4,9 @@
 //! Swimming pools in IFC (ARC-POOL-001, the owner's answer to `POOLS_PLAN.md` Question 1): the
 //! pool is an `IfcElementAssembly` (SWIMMINGPOOL) contained in its level, aggregating its shell's
 //! `IfcWall` (SOLIDWALL) and `IfcSlab` (BASESLAB) and its coping's `IfcCovering` (COPING), each a
-//! faceted B-rep. Its water is an `IfcSpace` (USERDEFINED, WATER) under the level, with its area
-//! and volume in `Qto_SpaceBaseQuantities`.
+//! faceted B-rep, with its entries' `IfcStair`, `IfcRamp` and `IfcBuildingElementProxy`
+//! (POOLBENCH) (ARC-POOL-003). Its water is an `IfcSpace` (USERDEFINED, WATER) under the level,
+//! with its area and volume in `Qto_SpaceBaseQuantities`.
 //!
 //! The parts are made from the pool: they are not elements of their own. The aggregations are
 //! marked `rxd:pool:<signature>` (the water's `rxd:pool:water:<pool GlobalId>`) and each part
@@ -29,7 +30,7 @@ fn r(id: StepId) -> AttrValue {
 
 fn signature(g: &PoolGeometry, scale: f64) -> String {
     let mut h = std::collections::hash_map::DefaultHasher::new();
-    for set in [&g.walls, &g.base, &g.coping, &g.water] {
+    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches] {
         set.len().hash(&mut h);
         for (p, i) in set {
             for q in p {
@@ -176,6 +177,10 @@ pub(crate) fn write_pools(ifc: &mut IfcModel, doc: &Document, steps: &HashMap<El
             ("IfcWall", "shell walls", "SOLIDWALL", None, &g.walls),
             ("IfcSlab", "base slab", "BASESLAB", None, &g.base),
             ("IfcCovering", "coping", "USERDEFINED", Some("COPING"), &g.coping),
+            // Its entries (ARC-POOL-003).
+            ("IfcStair", "stairs", "STRAIGHT_RUN_STAIR", None, &g.stairs),
+            ("IfcRamp", "sloped entries", "STRAIGHT_RUN_RAMP", None, &g.ramps),
+            ("IfcBuildingElementProxy", "benches", "USERDEFINED", Some("POOLBENCH"), &g.benches),
         ] {
             if meshes.is_empty() {
                 continue;

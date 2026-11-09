@@ -109,6 +109,65 @@
         "competition"
       ],
       "min": 4.6452
+    },
+    {
+      "id": "ISPSC 2021 411.2 (public)",
+      "description": "Pool stairs: treads at least 10 in deep",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "stair_tread",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.254
+    },
+    {
+      "id": "ISPSC 2021 411.2 (public)",
+      "description": "Pool stairs: risers 12 in at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "stair_riser",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.3048
+    },
+    {
+      "id": "ISPSC 2021 411.2 (public)",
+      "description": "Pool stairs: treads at least 24 in wide",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "stair_width",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.6096
+    },
+    {
+      "id": "ISPSC 2021 411.5 (public)",
+      "description": "Underwater seating: the seat 20 in below the design water level at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "bench_seat",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.508
+    },
+    {
+      "id": "ISPSC 2021 809.5",
+      "description": "Residential stairs: treads at least 10 in deep",
+      "source": "S2767",
+      "confidence": "verified",
+      "check": "stair_tread",
+      "pools": [
+        "residential"
+      ],
+      "min": 0.254
     }
   ]
 }

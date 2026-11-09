@@ -5964,7 +5964,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built) and the *Riviera Pools* library, competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6006,6 +6006,36 @@ Public and competition pools come first (Q6).
 - [x] The sample *A public pool checked against the codes* passes the MAHC, VGB and ADA packs, with ladders and drains in the water and no overlaps.
 
 *Built (2026-11-09):* the `pool` rule kind, the four packs, `pool.check`, the pool ladder and drain components, View › Coordination › Check Pools. Defaults are E-117. Not yet: depth markings and NO DIVING markers, the break-point line and float line, barriers and gates (ISPSC §305, MAHC 4.8.6), where entries stand (within 10 ft of each end, on both sides of a pool over 30 ft wide, 75 ft apart), stairs and handrails, deck slopes and the IBC deck occupant load, the diving tables, a sloped entry's own geometry, and spas (the bathroom toolset's, ARC-BATH-013).
+
+### 3.9c.3 Pool entries
+**ID:** ARC-POOL-003 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §3, §8 (step 3, first part); research/23 A.3, A.4.2, A.15.2 (S2762, S2767, S2768, S2773); ARC-POOL-001 (the pool), ARC-POOL-002 (the checks)
+
+**Purpose.** Build the ways into a pool into the pool itself (stairs, an accessible sloped entry, underwater benches), so the shell, the water and the checks all see them.
+
+**Behaviour & rules.**
+- **`pool.add_entry`** builds an entry against an outline edge: the edge nearest a clicked `point`, its middle there; or `edge` (from 1, the shallow end's wall) and `at`, a distance along it. Each entry runs from the wall into the pool, square to the edge, and is clipped to the outline. `pool.set(entries)` replaces them all; `pool.remove_entry(index)` takes one out.
+- **Stairs** (default 1.5 m wide): the depth from the deck to the floor at the wall is split into equal risers no higher than `riser` (default 0.25 m), on `tread`-deep treads (default 0.305 m, the MAHC's 12 in). Each tread is a block from the floor up, so the last riser is the floor.
+- **A sloped entry** (ADA 1009.3; default 1.0 m wide): a ramp from the deck at the wall falling at `slope` (default 1:12) to `reach` below the water (default 27 in, the middle of 24–30 in), or as far as the pool lets it. It reports its run and the depth it reaches.
+- **An underwater bench** (default 2.0 m long): `depth` out from the wall (default 0.45 m), its seat `seat` below the water (default 0.45 m).
+- **The water's volume** is less what the entries displace below the water. Its mesh is not cut by them.
+- **Checks** (ARC-POOL-002) count stairs as *Pool Stairs* and a sloped entry as *Sloped Entry*, so they count as entries and, the sloped entry, as an accessible means of entry (a lift or sloped entry under §242). New rule checks measure them:
+  - `stair_tread`, `stair_riser`, `stair_width`: the MAHC's 12–18 in treads, 6–12 in risers and 24 in width; the ISPSC's 10 in treads, 12 in risers and 24 in (public, secondary), 10 in residential treads (809.5).
+  - `sloped_entry_slope`, `sloped_entry_depth`: the ADA's 1:12 and 24–30 in (1009.3).
+  - `bench_seat`: the MAHC's seat 20 in below the water at most, in water 5 ft deep at most (4.5.16); the ISPSC's 20 in (411.5, secondary).
+- **The window:** Architecture › Build › Pool Entry, on the selected pool (or the only one), then a click by the wall.
+
+**Data (IFC mapping).** Each kind is one more part aggregated under the pool: `IfcStair` STRAIGHT_RUN_STAIR, `IfcRamp` STRAIGHT_RUN_RAMP and `IfcBuildingElementProxy` USERDEFINED ("POOLBENCH"), faceted B-reps marked `rxd:pool` like the shell. The entries are in the recipe.
+
+**Commands.** `pool.add_entry(pool_id, kind, point | edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth?)` → `{index, kind, edge, width, at, water_depth, risers?, riser?, tread?, slope?, run?, reaches?, seat?}`; `pool.remove_entry(pool_id, index)`; `pool.info` lists them.
+
+**Acceptance criteria.**
+- [x] Stairs against a 1.15 m deep wall have five 0.23 m risers on 0.305 m treads, and the water's volume falls by exactly the four treads' volume below the water.
+- [x] A sloped entry from the shallow end runs 10.03 m at 1:12 to 27 in below the water; the stairs and the sloped entry are the pool's two entries and its accessible one, and nothing overlaps.
+- [x] A bench on the 2.0 m deep end fails the MAHC's 5 ft; removed, the pool passes. 250 mm treads fail the MAHC's 12 in, and a 1:10 sloped entry the ADA's 1:12. An entry on an edge the pool lacks is refused.
+- [x] Saved, the entries are an `IfcStair` and a POOLBENCH proxy in the pool's assembly; reopened, the pool has its two entries and the same volume, and they are not loaded as elements.
+- [x] The sample *A public pool checked against the codes* has stairs and a sloped entry at its shallow end and passes its packs.
+
+*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: recessed steps and swimouts, beach (zero-depth) entries, a sloped entry along the wall with its landings, handrails and grab rails (the MAHC's 34–38 in and the ADA's 33–38 in apart), nosing stripes, transfer walls and systems as built entries, and the *Riviera Pools* equipment library with use zones (the rest of step 3).
 
 ## 3.11 Massing and site
 
@@ -7243,6 +7273,8 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.set` | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `pool.info` | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
+| `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes | ARC-POOL-003 |
+| `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |

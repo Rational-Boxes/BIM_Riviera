@@ -53,6 +53,28 @@
         ]
       },
       "near": 1.5
+    },
+    {
+      "id": "ADA 2010 1009.3.1",
+      "description": "A sloped entry's running slope: 1:12 at most (§405.2)",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "sloped_entry_slope",
+      "max": 0.083333
+    },
+    {
+      "id": "ADA 2010 1009.3.2",
+      "description": "A sloped entry reaches 24–30 in below the stationary water level (wading pools: the deepest point)",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "sloped_entry_depth",
+      "pools": [
+        "public",
+        "competition",
+        "residential"
+      ],
+      "min": 0.6096,
+      "max": 0.762
     }
   ]
 }

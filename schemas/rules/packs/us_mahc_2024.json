@@ -147,6 +147,41 @@
         "competition"
       ],
       "min": 1.8581
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.4.5",
+      "description": "Pool stairs: treads 12–18 in deep",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "stair_tread",
+      "min": 0.3048,
+      "max": 0.4572
+    },
+    {
+      "id": "MAHC 2024 4.5.4.6",
+      "description": "Pool stairs: risers 6–12 in",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "stair_riser",
+      "min": 0.1524,
+      "max": 0.3048
+    },
+    {
+      "id": "MAHC 2024 4.5.4.4",
+      "description": "Pool stairs: treads at least 24 in wide",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "stair_width",
+      "min": 0.6096
+    },
+    {
+      "id": "MAHC 2024 4.5.16",
+      "description": "Underwater benches: the seat 20 in below the water at most, where the pool is 5 ft deep at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "bench_seat",
+      "max": 0.508,
+      "water_depth_max": 1.524
     }
   ]
 }

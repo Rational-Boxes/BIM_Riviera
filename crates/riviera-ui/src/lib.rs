@@ -4840,6 +4840,10 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
             g.swimming_pool();
             focus(g);
         }),
+        "ui.pool_entry" => with(gui, |g| {
+            g.pool_entry();
+            focus(g);
+        }),
         "ui.toilet_core" => with(gui, Gui::toilet_core),
         "ui.locker_room" => with(gui, |g| {
             g.locker_room();

@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: A public pool checked against the codes
--- description: A 20 × 10 m public pool, 0.9 m deep falling to 5 ft at 1:12.8 and to 2.5 m at 1:3.1, with ladders on both sides, a pool lift and two main drains 2 m apart; checked against the CDC's Model Aquatic Health Code, the VGB Act's drain rules and the ADA's pool rules.
+-- description: A 20 × 10 m public pool, 0.9 m deep falling to 5 ft at 1:12.8 and to 2.5 m at 1:3.1, with stairs and an ADA sloped entry at the shallow end, ladders on both sides of the deep end, a pool lift and two main drains 2 m apart; checked against the CDC's Model Aquatic Health Code, the VGB Act's drain rules and the ADA's pool rules.
 --
 -- Riviera sample model (test-data/samples): swimming-pool checks (ARC-POOL-002). pool.check
 -- checks each pool against the pool rule packs in use: the ISPSC and VGB packs under the IBC,
@@ -24,14 +24,18 @@ riviera.floor.create{ loops = { rect(0, 0, 32, 20) }, level_id = l1 }
 local pool = riviera.pool.create{ level = l1, name = "Pool", outline = { { 6, 15 }, { 6, 5 }, { 26, 5 }, { 26, 15 } },
   profile = { { at = 0, depth = 0.9 }, { at = 8, depth = 1.524 }, { at = 11, depth = 2.5 } } }
 
--- Entries: ladders on both long sides at each end (the pool is over 30 ft wide), and a lift.
+-- Entries built into the shallow end's wall (ARC-POOL-003): stairs, and a sloped entry falling
+-- 1:12 to 27 in below the water (ADA 1009.3).
+local stairs = riviera.pool.add_entry{ pool_id = pool, kind = "stairs", point = { 6, 8 } }
+local ramp = riviera.pool.add_entry{ pool_id = pool, kind = "sloped_entry", point = { 6, 13 } }
+print(string.format("Stairs: %d risers of %.0f mm; sloped entry: %.2f m long to %.0f mm below the water", stairs.risers, stairs.riser * 1000, ramp.run, ramp.reaches * 1000))
+
+-- Ladders on both long sides at the deep end (the pool is over 30 ft wide), and a lift.
 local t = riviera.bath.load_components{ names = { "Pool ladder", "Pool lift", "Pool main drain, 300 × 300" } }
 local function place(ty, x, y, turn, offset)
   return riviera.bath.place_component{ type_id = ty, point = { x, y }, level = l1, rotation = turn, offset = offset or 0, work_plane = true }
 end
-place(t["Pool ladder"], 9, 15.3, 0)
 place(t["Pool ladder"], 24.5, 15.3, 0)
-place(t["Pool ladder"], 9, 4.7, math.pi)
 place(t["Pool ladder"], 24.5, 4.7, math.pi)
 place(t["Pool lift"], 10, 4.4, math.pi)
 -- Two blockable main drains in the deep end, 2 m apart (the VGB Act's 3 ft at least).

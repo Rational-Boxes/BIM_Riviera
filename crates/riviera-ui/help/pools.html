@@ -12,6 +12,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#place">Placing one</a>
   <a href="#depths">Depths and slopes</a>
   <a href="#edges">Edges, coping and shell</a>
+  <a href="#entries">Stairs, sloped entries and benches</a>
   <a href="#check">Checking a pool</a>
   <a href="#ifc">In IFC</a>
   <a href="#limits">Limits and what to check</a>
@@ -47,6 +48,21 @@ is given as 1:n; <a href="#check">Check Pools</a> judges it against the codes.</
   under the floor. The floor on the pool's level is cut round it.</li>
 </ul>
 <p>The values are provisional (EXPERT_REVIEW.md E-116).</p>
+
+<h2 id="entries">Stairs, sloped entries and benches</h2>
+<p>Select the pool and choose <b>Architecture › Build › Pool Entry</b>, then click by the wall
+where the entry's middle goes. It runs from that edge into the pool and becomes part of it:</p>
+<ul>
+  <li><b>Stairs</b>, 1.5 m wide: the depth at the wall split into equal risers no higher than
+  0.25 m, on 12 in (0.305 m) treads.</li>
+  <li><b>Sloped entry</b>, 1.0 m wide: a 1:12 ramp from the deck to 27 in below the water, the
+  ADA's accessible entry (§1009.3); it stops where the pool does.</li>
+  <li><b>Underwater bench</b>, 2.0 m long and 0.45 m deep, its seat 0.45 m below the water.</li>
+</ul>
+<p>The water's volume is less what they displace. Check Pools counts stairs and sloped entries
+as entries, a sloped entry as an accessible one, and measures treads, risers, widths, the ramp's
+slope and depth, and benches. From a script: <code>pool.add_entry</code>,
+<code>pool.remove_entry</code>, or <code>pool.set</code> with <code>entries</code>.</p>
 
 <h2 id="check">Checking a pool</h2>
 <p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
@@ -84,11 +100,11 @@ mapping.</p>
   <li>Gutters and infinity-edge basins are recorded but not drawn; the wall–floor cove is a value
   only; tiling and the membrane are not drawn.</li>
   <li>Not checked yet: depth markings and NO DIVING markers, the break-point and float lines,
-  barriers and gates, where entries stand along the pool, stairs and handrails, and diving
-  envelopes.</li>
+  barriers and gates, where entries stand along the pool, handrails, and diving envelopes.
+  Recessed steps, swimouts and beach entries are not built yet.</li>
 </ul>
 
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>

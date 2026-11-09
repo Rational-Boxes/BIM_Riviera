@@ -225,6 +225,12 @@ pub enum PoolMeasure {
     AccessibleEntries,
     Drains,
     BatherLoad,
+    StairTread,
+    StairRiser,
+    StairWidth,
+    SlopedEntrySlope,
+    SlopedEntryDepth,
+    BenchSeat,
 }
 
 /// A rule on a swimming pool, checked by `pool.check` (ARC-POOL-002).
@@ -256,6 +262,9 @@ pub struct PoolRule {
     pub spacing: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cover: Option<[f64; 2]>,
+    /// A bench: the deepest water it may stand in.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub water_depth_max: Option<f64>,
 }
 
 /// A shared-format rule pack.

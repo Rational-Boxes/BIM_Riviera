@@ -370,6 +370,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolInfo),
         registry.add(PoolList),
         registry.add(PoolCheck),
+        registry.add(PoolAddEntry),
+        registry.add(PoolRemoveEntry),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4467,6 +4469,35 @@ read_command!(
     Option<serde_json::Value>,
     Vec<crate::pools::Listed>,
     crate::pools::list
+);
+
+edit_command!(
+    PoolAddEntry,
+    "pool.add_entry",
+    "Build an entry into a pool",
+    "Builds stairs, a sloped entry or an underwater bench into a swimming pool (ARC-POOL-003), against the \
+     outline edge nearest `point` with its middle there, or on `edge` (from 1, the shallow end's wall) `at` a \
+     distance along it. Stairs step down from the deck in equal risers no higher than `riser` (default 0.25 m) \
+     on `tread`-deep treads (default 0.305 m), 1.5 m wide; a sloped entry falls at `slope` (default 1:12) to \
+     `reach` below the water (default 27 in), 1.0 m wide; a bench's seat is `seat` below the water (default \
+     0.45 m), `depth` out from the wall, 2.0 m long. Each is part of the pool, its water's volume less what it \
+     displaces; `pool.check` counts stairs as entries and a sloped entry as an accessible one. Returns its \
+     numbers.",
+    "Pool Entry",
+    crate::pools::AddEntryParams,
+    crate::pools::EntryInfo,
+    crate::pools::add_entry
+);
+
+edit_command!(
+    PoolRemoveEntry,
+    "pool.remove_entry",
+    "Take an entry out of a pool",
+    "Removes a pool's entry by its index (from 1, as `pool.info` lists them) (ARC-POOL-003).",
+    "Remove Pool Entry",
+    crate::pools::RemoveEntryParams,
+    (),
+    crate::pools::remove_entry
 );
 
 read_command!(

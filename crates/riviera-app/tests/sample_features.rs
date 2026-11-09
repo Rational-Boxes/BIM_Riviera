@@ -1589,7 +1589,8 @@ fn the_pool_rules_sample_passes_its_packs() {
     let c = ok(&mut app, "pool.check", json!({}));
     assert_eq!(c["packs"], json!(["us_mahc_2024", "us_vgb", "ada_2010_pools"]), "{c:#}");
     let p = &c["pools"][0];
-    assert_eq!((p["entries"].as_u64(), p["accessible_entries"].as_u64(), p["drains"].as_u64()), (Some(4), Some(1), Some(2)), "{p:#}");
+    assert_eq!((p["entries"].as_u64(), p["accessible_entries"].as_u64(), p["drains"].as_u64()), (Some(4), Some(2), Some(2)), "{p:#}");
+    assert_eq!(p["entries"].as_u64(), Some(4), "two ladders, the stairs and the sloped entry");
     assert_eq!(p["loads"][0]["bathers"].as_u64(), Some(107), "{p:#}");
     assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
 }

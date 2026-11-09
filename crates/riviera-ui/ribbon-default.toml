@@ -960,6 +960,12 @@ icon = "check_checkouts"
 help = "An M/M/c queueing estimate of the staffed lanes a peak hour needs, from customers, basket size and scanning rate; an estimate, not a check (ARC-RETAIL-003)"
 
 [[action]]
+id = "ui.pool_entry"
+label = "Pool Entry"
+icon = "pool_entry"
+help = "Stairs, a sloped entry or an underwater bench built into a swimming pool, against the edge you click: equal risers on 12 in treads, a 1:12 ramp to 27 in below the water (ADA 1009.3), a seat 0.45 m down; Check Pools counts and measures them (ARC-POOL-003)"
+
+[[action]]
 id = "ui.swimming_pool"
 label = "Swimming Pool"
 icon = "swimming_pool"
@@ -3776,6 +3782,7 @@ tools = [
   { action = "ui.sco_pod", size = "small" },
   { action = "ui.sco_profile", size = "small" },
   { action = "ui.swimming_pool", size = "small" },
+  { action = "ui.pool_entry", size = "small" },
   { action = "ui.gym_layout", size = "small" },
   { action = "ui.gym_studio", size = "small" },
   { action = "ui.gym_mirror", size = "small" },
@@ -5047,7 +5054,7 @@ items = [
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
   "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "-",
+  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",

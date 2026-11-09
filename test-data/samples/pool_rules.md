@@ -14,20 +14,24 @@ Start with **File › New**.
 3. **The pool.** Choose **Architecture › Build › Swimming Pool**, *Typed outline*, and type the
    outline `6,15; 6,5; 26,5; 26,15` (its first edge, on x = 6, is the shallow end) and the depths
    `0:0.9, 8:1.524, 11:2.5`. The floor falls 1:12.8 to the 5 ft break and 1:3.1 beyond it.
-4. **Entries.** Load the *Pool ladder* and *Pool lift* with **Architecture › Build › Bathroom**
-   and place them on the work plane, away from walls: ladders at (9, 15.3) and (24.5, 15.3), and
-   turned 180° at (9, 4.7) and (24.5, 4.7); the lift turned 180° at (10, 4.4).
-5. **Drains.** Place two *Pool main drain, 300 × 300* at (24, 9) and (24, 11), 2.65 m down (the
+4. **Built-in entries.** Select the pool and choose **Architecture › Build › Pool Entry**:
+   *Stairs*, then click by the shallow end's wall at (6, 8): five equal risers of 210 mm on 12 in
+   treads. Again, *Sloped entry (ADA)*, at (6, 13): a 1:12 ramp 10 m long to 27 in below the
+   water.
+5. **Ladders and a lift.** Load the *Pool ladder* and *Pool lift* with **Architecture › Build ›
+   Bathroom** and place them on the work plane, away from walls: ladders at (24.5, 15.3) and,
+   turned 180°, at (24.5, 4.7); the lift turned 180° at (10, 4.4).
+6. **Drains.** Place two *Pool main drain, 300 × 300* at (24, 9) and (24, 11), 2.65 m down (the
    floor of the deep end): two blockable drains, 2 m apart.
-6. **Check.** **Coordination › Check Pools** lists each pool's entries, accessible means of entry
+7. **Check.** **Coordination › Check Pools** lists each pool's entries, accessible means of entry
    and drains, its bather loads (the MAHC's 20 ft² of water a bather: 107), and any findings by
    pack and clause. This pool passes. Move one drain within 3 ft of the other, or make the
    shallow slope steeper than 1:12 with `pool.set`, and the check names the rule.
 
 ## Gaps
 
-- **[gap]** Entries (stairs, recessed steps, sloped entries, benches) are not yet cut into the
-  shell: ladders, lifts and drains are placed as components, and the checks count them by type.
+- **[gap]** Recessed steps, swimouts, beach entries and handrails are not built yet; ladders, lifts
+  and drains are placed as components, and the checks count them by type.
 - **[gap]** Depth markings, NO DIVING markers, the break-point line and float line, barriers and
   gates, the diving envelopes and the MAHC's "within 10 ft of each end" placement of entries are
   not checked yet.

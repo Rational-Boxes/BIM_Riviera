@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–2 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–2 and the first half of step 3 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -212,3 +212,9 @@ exposed to Lua and MCP.
   depth markings, NO DIVING, the break-point and float lines, barriers and gates, where entries
   stand, stairs and handrails, deck slopes, diving tables. Next: step 3, entries cut into the
   shell and the *Riviera Pools* equipment library with use zones.
+- Step 3, first half (ARC-POOL-003, 2026-11-09): stairs, ADA sloped entries and underwater
+  benches built into the pool (`pool.add_entry`, `pool.remove_entry`, Architecture › Build › Pool
+  Entry), displacing water, written to IFC as the pool's `IfcStair`, `IfcRamp` and POOLBENCH parts,
+  counted and measured by `pool.check` (treads, risers, widths, the ramp's slope and depth,
+  benches). Not yet: recessed steps, swimouts, beach entries, handrails. Next: the second half,
+  the *Riviera Pools* equipment library with use zones.

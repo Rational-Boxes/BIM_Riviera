@@ -702,8 +702,11 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   Pool checks are built too (ARC-POOL-002; View › Coordination › Check Pools; `pool.check`):
   slopes either side of the break, depths, cove, coping, a clear deck, entries, accessible means of
   entry (ADA §242) and main drains (VGB), against the ISPSC, MAHC, ADA and VGB packs, each citing
-  its own clause, with bather loads. Not built yet: sketched outlines, drawn gutters and basins,
-  depth markings, barriers. Planned next: entries and a pool equipment library, competition
+  its own clause, with bather loads. Stairs, ADA sloped entries and underwater benches are built
+  into the pool (ARC-POOL-003; Architecture › Build › Pool Entry; `pool.add_entry`), counted and
+  measured by the checks. Not built yet: sketched outlines, drawn gutters and basins, depth
+  markings, barriers, handrails, recessed steps and beach entries. Planned next: a pool equipment
+  library, competition
   presets and diving envelopes, UK packs, then the hall's dehumidification, water treatment,
   structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the

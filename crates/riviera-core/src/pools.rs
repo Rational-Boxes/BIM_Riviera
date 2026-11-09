@@ -162,6 +162,68 @@ pub struct Station {
     pub depth: f64,
 }
 
+/// What an entry built into the pool is (ARC-POOL-003).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum EntryKind {
+    /// Steps down from the deck into the pool, projecting from its wall.
+    Stairs,
+    /// A ramp down from the deck into the water (ADA 1009.3).
+    SlopedEntry,
+    /// An underwater bench along the wall.
+    Bench,
+}
+
+impl EntryKind {
+    /// Its IFC class and the type name the pool rules count it by.
+    pub fn counted_as(self) -> (&'static str, &'static str) {
+        match self {
+            EntryKind::Stairs => ("IfcStair", "Pool Stairs"),
+            EntryKind::SlopedEntry => ("IfcRamp", "Sloped Entry"),
+            EntryKind::Bench => ("IfcBuildingElementProxy", "Pool Bench"),
+        }
+    }
+}
+
+/// An entry built into the pool against one of its edges (ARC-POOL-003): it runs from the wall
+/// into the pool, square to the edge.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct Entry {
+    pub kind: EntryKind,
+    /// The outline edge it stands against, from 1 (the shallow end's wall).
+    pub edge: usize,
+    /// Its middle's distance along the edge from the edge's start.
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub at: f64,
+    /// Along the edge (default 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub width: Option<f64>,
+    /// Stairs: each tread's depth (default 0.305 m, the MAHC's 12 in).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub tread: Option<f64>,
+    /// Stairs: the highest riser allowed (default 0.25 m); the risers are made equal under it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub riser: Option<f64>,
+    /// A sloped entry's slope, rise over run (default 1:12).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub slope: Option<f64>,
+    /// How far below the water a sloped entry reaches (default 0.69 m, 27 in).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub reach: Option<f64>,
+    /// A bench's seat below the water (default 0.45 m).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub seat: Option<f64>,
+    /// A bench's depth out from the wall (default 0.45 m).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub depth: Option<f64>,
+}
+
 /// A pool (`recipe.pool`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct PoolRecipe {
@@ -189,6 +251,9 @@ pub struct PoolRecipe {
     /// What it is for; by default from its template, else public.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub class: Option<PoolClass>,
+    /// Stairs, sloped entries and benches built into it (ARC-POOL-003).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub entries: Vec<Entry>,
 }
 
 impl PoolRecipe {
@@ -226,6 +291,9 @@ pub struct PoolGeometry {
     pub base: Vec<Mesh>,
     pub walls: Vec<Mesh>,
     pub coping: Vec<Mesh>,
+    pub stairs: Vec<Mesh>,
+    pub ramps: Vec<Mesh>,
+    pub benches: Vec<Mesh>,
     pub deck_z: f64,
     pub water_z: f64,
     pub area: f64,
@@ -338,6 +406,131 @@ fn mesh_volume(m: &Mesh) -> f64 {
         .abs()
 }
 
+/// An entry as built: its numbers.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct EntryInfo {
+    /// From 1, in the recipe's order.
+    pub index: usize,
+    pub kind: EntryKind,
+    pub edge: usize,
+    pub width: f64,
+    /// Its middle at the wall.
+    pub at: [f64; 2],
+    /// The water's depth at the wall there.
+    pub water_depth: f64,
+    /// Stairs: how many risers, each one's height, and the treads' depth.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub risers: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub riser: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tread: Option<f64>,
+    /// A sloped entry's slope, its run from the wall, and the depth below the water it reaches.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub slope: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub run: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reaches: Option<f64>,
+    /// A bench's seat below the water.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub seat: Option<f64>,
+}
+
+/// The top of an entry's block: level, or a ramp falling from the wall.
+#[derive(Clone, Copy)]
+enum Top {
+    Flat(f64),
+    Ramp { z: f64, slope: f64, from: [f64; 2], n: [f64; 2] },
+}
+
+impl Top {
+    fn at(&self, p: [f64; 2]) -> f64 {
+        match *self {
+            Top::Flat(z) => z,
+            Top::Ramp { z, slope, from, n } => z - slope * ((p[0] - from[0]) * n[0] + (p[1] - from[1]) * n[1]).max(0.0),
+        }
+    }
+}
+
+/// How far from `c` on edge `from` the pool reaches along `dir`, to its first other edge.
+fn across(r: &[[f64; 2]], from: usize, c: [f64; 2], dir: [f64; 2]) -> f64 {
+    let n = r.len();
+    (0..n)
+        .filter(|i| *i != from)
+        .filter_map(|i| {
+            let (a, b) = (r[i], r[(i + 1) % n]);
+            let e = [b[0] - a[0], b[1] - a[1]];
+            let den = dir[0] * e[1] - dir[1] * e[0];
+            if den.abs() < 1e-12 {
+                return None;
+            }
+            let w = [a[0] - c[0], a[1] - c[1]];
+            let t = (w[0] * e[1] - w[1] * e[0]) / den;
+            let s = (w[0] * dir[1] - w[1] * dir[0]) / den;
+            (t > 1e-6 && (-1e-9..=1.0 + 1e-9).contains(&s)).then_some(t)
+        })
+        .fold(f64::MAX, f64::min)
+}
+
+/// An entry's blocks (plan rectangles with their tops) and numbers; `None` when its edge is not
+/// the pool's.
+fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Option<(Vec<(Ring, Top)>, EntryInfo)> {
+    let n = rec.outline.len();
+    let i = e.edge.checked_sub(1).filter(|i| *i < n)?;
+    let (a, b) = (rec.outline[i], rec.outline[(i + 1) % n]);
+    let l = (b[0] - a[0]).hypot(b[1] - a[1]).max(1e-12);
+    let u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+    // Inward of a counter-clockwise ring: to the left of the edge.
+    let nin = [-u[1], u[0]];
+    let c = [a[0] + u[0] * e.at, a[1] + u[1] * e.at];
+    let w = e.width.unwrap_or(match e.kind {
+        EntryKind::Stairs => 1.5,
+        EntryKind::SlopedEntry => 1.0,
+        EntryKind::Bench => 2.0,
+    });
+    let rect = |d0: f64, d1: f64| -> Ring {
+        let q = |s: f64, d: f64| [c[0] + u[0] * s + nin[0] * d, c[1] + u[1] * s + nin[1] * d];
+        vec![q(-w / 2.0, d0), q(w / 2.0, d0), q(w / 2.0, d1), q(-w / 2.0, d1)]
+    };
+    let water_depth = rec.depth_at(rec.t(c));
+    let mut info = EntryInfo { index, kind: e.kind, edge: e.edge, width: w, at: c, water_depth, risers: None, riser: None, tread: None, slope: None, run: None, reaches: None, seat: None };
+    let mut blocks = Vec::new();
+    match e.kind {
+        EntryKind::Stairs => {
+            let (tread, max) = (e.tread.unwrap_or(0.305), e.riser.unwrap_or(0.25));
+            let h = rec.water_level + water_depth;
+            let risers = (h / max - 1e-9).ceil().max(1.0) as u32;
+            let r = h / f64::from(risers);
+            for k in 1..risers {
+                blocks.push((rect(f64::from(k - 1) * tread, f64::from(k) * tread), Top::Flat(deck_z - f64::from(k) * r)));
+            }
+            (info.risers, info.riser, info.tread) = (Some(risers), Some(r), Some(tread));
+        }
+        EntryKind::SlopedEntry => {
+            let (slope, reach) = (e.slope.unwrap_or(1.0 / 12.0), e.reach.unwrap_or(0.6858));
+            // As far as the pool lets it.
+            let run = ((rec.water_level + reach) / slope).min(across(&rec.outline, i, c, nin));
+            blocks.push((rect(0.0, run), Top::Ramp { z: deck_z, slope, from: c, n: nin }));
+            let foot = [c[0] + nin[0] * run, c[1] + nin[1] * run];
+            let reaches = (slope * run - rec.water_level).min(rec.depth_at(rec.t(foot)));
+            (info.slope, info.run, info.reaches) = (Some(slope), Some(run), Some(reaches));
+        }
+        EntryKind::Bench => {
+            let seat = e.seat.unwrap_or(0.45);
+            blocks.push((rect(0.0, e.depth.unwrap_or(0.45)), Top::Flat(deck_z - rec.water_level - seat)));
+            info.seat = Some(seat);
+        }
+    }
+    Some((blocks, info))
+}
+
+/// Each entry's numbers.
+pub fn entries(store: &Store, rec: &PoolRecipe) -> Vec<EntryInfo> {
+    let deck_z = crate::levels::elevation_of(store, &rec.level).unwrap_or(0.0) + rec.deck;
+    rec.entries.iter().enumerate().filter_map(|(k, e)| entry_layout(rec, k + 1, e, deck_z).map(|x| x.1)).collect()
+}
+
 /// Regenerates a pool.
 pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     let rec = recipe(e).ok_or_else(|| bad("pool.not_a_pool", "not a pool"))?;
@@ -379,15 +572,38 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
             coping.push(extrude(&s, &|_| deck_z - c.thickness, &|_| deck_z));
         }
     }
+    // Entries: blocks from the floor up to their tops, inside the outline; the water they
+    // displace comes off its volume.
+    let (mut stairs, mut ramps, mut benches) = (Vec::new(), Vec::new(), Vec::new());
+    let mut displaced = 0.0;
+    for (k, en) in rec.entries.iter().enumerate() {
+        let Some((blocks, _)) = entry_layout(&rec, k + 1, en, deck_z) else { continue };
+        for (r, top) in blocks {
+            let inside = crate::polygons::intersection(std::slice::from_ref(&outline), &[Shape { outer: r, holes: Vec::new() }]);
+            for s in strips(&rec, &inside) {
+                let up = |p: [f64; 2]| top.at(p).max(floor(p));
+                if s.outer.iter().all(|p| up(*p) - floor(*p) < 1e-4) {
+                    continue;
+                }
+                let m = extrude(&s, &floor, &up);
+                displaced += mesh_volume(&extrude(&s, &floor, &|p| up(p).min(water_z)));
+                match en.kind {
+                    EntryKind::Stairs => stairs.push(m),
+                    EntryKind::SlopedEntry => ramps.push(m),
+                    EntryKind::Bench => benches.push(m),
+                }
+            }
+        }
+    }
     let area = crate::polygons::area(&rec.outline).abs();
     let n = rec.outline.len();
     let perimeter = (0..n).map(|i| {
         let (a, b) = (rec.outline[i], rec.outline[(i + 1) % n]);
         (b[0] - a[0]).hypot(b[1] - a[1])
     }).sum();
-    let volume = water.iter().map(mesh_volume).sum();
+    let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -503,6 +719,9 @@ pub struct CreateParams {
     pub shell: Option<Shell>,
     /// What it is for (default from the template, else public).
     pub class: Option<PoolClass>,
+    /// Stairs, sloped entries and benches (ARC-POOL-003).
+    #[serde(default)]
+    pub entries: Vec<Entry>,
     pub name: Option<String>,
 }
 
@@ -538,6 +757,18 @@ fn validate(rec: &PoolRecipe) -> Result<()> {
     }
     if rec.edges.len() != rec.outline.len() {
         return Err(bad("pool.bad_edges", format!("give one edge or one per outline edge ({})", rec.outline.len())));
+    }
+    let n = rec.outline.len();
+    for (k, e) in rec.entries.iter().enumerate() {
+        let Some(i) = e.edge.checked_sub(1).filter(|i| *i < n) else {
+            return Err(bad("pool.bad_entry", format!("entry {}: the pool has edges 1 to {n}", k + 1)));
+        };
+        let (a, b) = (rec.outline[i], rec.outline[(i + 1) % n]);
+        let l = (b[0] - a[0]).hypot(b[1] - a[1]);
+        let positive = [e.width, e.tread, e.riser, e.slope, e.reach, e.seat, e.depth].iter().flatten().all(|v| *v > 0.0);
+        if !(0.0..=l).contains(&e.at) || !positive {
+            return Err(bad("pool.bad_entry", format!("entry {}: its middle must be on edge {} (0 to {l:.2} m) and its sizes above zero", k + 1, e.edge)));
+        }
     }
     if rec.shell.thickness.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) || rec.water_level.partial_cmp(&0.0).is_none_or(std::cmp::Ordering::is_lt) {
         return Err(bad("pool.bad_shell", "the shell needs a thickness, and the water must be at or below the deck"));
@@ -588,6 +819,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Eleme
         shell: p.shell.unwrap_or_default(),
         template: kind,
         class: p.class,
+        entries: p.entries,
     };
     validate(&rec)?;
     let id = txn.create(
@@ -655,6 +887,8 @@ pub struct SetParams {
     pub coping: Option<Coping>,
     pub shell: Option<Shell>,
     pub class: Option<PoolClass>,
+    /// Replaces its entries.
+    pub entries: Option<Vec<Entry>>,
 }
 
 /// Changes a pool (`pool.set`); its shell, water and openings follow.
@@ -701,6 +935,9 @@ pub(crate) fn set(txn: &mut Transaction<'_>, p: SetParams) -> Result<()> {
     if let Some(v) = p.class {
         rec.class = Some(v);
     }
+    if let Some(v) = p.entries {
+        rec.entries = v;
+    }
     validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");
     txn.modify(id, |e| {
@@ -740,6 +977,7 @@ pub struct Info {
     pub shallowest: f64,
     pub shell_volume: f64,
     pub water_level: f64,
+    pub entries: Vec<EntryInfo>,
 }
 
 /// A pool's numbers (`pool.info`).
@@ -772,7 +1010,90 @@ pub(crate) fn info(store: &Store, p: InfoParams) -> Result<Info> {
         shallowest: depths.iter().copied().fold(f64::MAX, f64::min),
         shell_volume: g.shell_volume,
         water_level: g.water_z,
+        entries: entries(store, &rec),
     })
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AddEntryParams {
+    pub pool_id: ElementRef,
+    pub kind: EntryKind,
+    /// A plan point by the wall: the entry goes on the nearest edge, its middle there. Or give
+    /// `edge` and `at`.
+    pub point: Option<[f64; 2]>,
+    pub edge: Option<usize>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub at: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub width: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub tread: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub riser: Option<f64>,
+    pub slope: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub reach: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub seat: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub depth: Option<f64>,
+}
+
+/// The nearest edge to a plan point (from 1) and the distance along it.
+fn nearest_edge(r: &[[f64; 2]], p: [f64; 2]) -> (usize, f64) {
+    let n = r.len();
+    (0..n)
+        .map(|i| {
+            let (a, b) = (r[i], r[(i + 1) % n]);
+            let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+            let l = dx.hypot(dy).max(1e-12);
+            let at = (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l).clamp(0.0, l);
+            let d = (p[0] - a[0] - at * dx / l).hypot(p[1] - a[1] - at * dy / l);
+            (i + 1, at, d)
+        })
+        .min_by(|x, y| x.2.total_cmp(&y.2))
+        .map(|(i, at, _)| (i, at))
+        .unwrap_or((1, 0.0))
+}
+
+/// Builds an entry into a pool (`pool.add_entry`); its numbers back.
+pub(crate) fn add_entry(txn: &mut Transaction<'_>, p: AddEntryParams) -> Result<EntryInfo> {
+    let (id, mut rec) = resolve(txn.store(), &p.pool_id)?;
+    let (edge, at) = match (p.point, p.edge, p.at) {
+        (Some(q), None, None) => nearest_edge(&rec.outline, q),
+        (None, Some(e), Some(a)) => (e, a),
+        _ => return Err(bad("pool.bad_entry", "give a point by the wall, or an edge and a distance along it")),
+    };
+    rec.entries.push(Entry { kind: p.kind, edge, at, width: p.width, tread: p.tread, riser: p.riser, slope: p.slope, reach: p.reach, seat: p.seat, depth: p.depth });
+    validate(&rec)?;
+    let v = serde_json::to_value(&rec).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })?;
+    entries(txn.store(), &rec).pop().ok_or_else(|| bad("pool.bad_entry", "the entry was not made"))
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RemoveEntryParams {
+    pub pool_id: ElementRef,
+    /// From 1, as `pool.info` lists them.
+    pub index: usize,
+}
+
+/// Takes an entry out of a pool (`pool.remove_entry`).
+pub(crate) fn remove_entry(txn: &mut Transaction<'_>, p: RemoveEntryParams) -> Result<()> {
+    let (id, mut rec) = resolve(txn.store(), &p.pool_id)?;
+    if p.index == 0 || p.index > rec.entries.len() {
+        return Err(bad("pool.bad_entry", format!("the pool has entries 1 to {}", rec.entries.len())));
+    }
+    rec.entries.remove(p.index - 1);
+    let v = serde_json::to_value(&rec).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })?;
+    Ok(())
 }
 
 #[derive(Debug, Serialize, JsonSchema)]
@@ -888,6 +1209,32 @@ impl PoolClass {
     }
 }
 
+/// "a–b", "at least a" or "at most b", each in `unit`.
+fn bounds(min: Option<f64>, max: Option<f64>, unit: &dyn Fn(f64) -> String) -> String {
+    match (min, max) {
+        (Some(a), Some(b)) => {
+            // One unit for both: "12–18 in".
+            let (x, y) = (unit(a), unit(b));
+            match x.rsplit_once(' ') {
+                Some((n, u)) if y.ends_with(&format!(" {u}")) => format!("{n}–{y}"),
+                _ => format!("{x}–{y}"),
+            }
+        }
+        (Some(a), None) => format!("at least {}", unit(a)),
+        (None, Some(b)) => format!("at most {}", unit(b)),
+        _ => String::new(),
+    }
+}
+
+fn outside(v: f64, min: Option<f64>, max: Option<f64>) -> bool {
+    min.is_some_and(|m| v < m - 1e-6) || max.is_some_and(|m| v > m + 1e-6)
+}
+
+fn inches(m: f64) -> String {
+    let i = m / 0.0254;
+    if (i - i.round()).abs() < 0.05 { format!("{:.0} in", i) } else { format!("{:.1} in", i) }
+}
+
 fn feet(m: f64) -> String {
     let inches = (m / 0.0254).round() as i64;
     if inches % 12 == 0 { format!("{} ft", inches / 12) } else { format!("{}′ {}″", inches / 12, inches % 12) }
@@ -935,6 +1282,12 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
         let selected = |sel: &crate::rules::Selector, f: &dyn Fn([f64; 2]) -> bool| -> Vec<(ElementId, [f64; 2], [f64; 2])> {
             near_items.iter().filter(|(o, c, _)| f(*c) && store.get(*o).is_some_and(|el| sel.selects_element(store, el))).copied().collect()
         };
+        let built = entries(store, &rec);
+        // The pool's own entries a selector counts, and of those the ones `primary` selects.
+        let own = |sel: &crate::rules::Selector| built.iter().filter(|b| {
+            let (class, name) = b.kind.counted_as();
+            sel.selects(class, None, Some(name))
+        }).count();
         let mut report = PoolReport { pool: id, name: e.name.clone().unwrap_or_default(), class, area: g.area, perimeter: g.perimeter, shallowest, deepest, entries: 0, accessible_entries: 0, drains: 0, loads: Vec::new() };
         for pack in &packs {
             for r in pack.pool.iter().filter(|r| r.pools.is_empty() || r.pools.contains(&class)) {
@@ -950,7 +1303,7 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                         let shallow = r.check == M::ShallowSlope;
                         for &(a, b, da, db, s) in &segments {
                             let part = if shallow { da.min(db) < BREAK - 1e-6 } else { da.max(db) > BREAK + 1e-6 };
-                            if part && s > max + 1e-9 {
+                            if part && s > max + 1e-6 {
                                 let side = if shallow { "shallower" } else { "deeper" };
                                 find(None, false, format!("the floor from {a:.2} m to {b:.2} m falls {} where the water is {side} than 5 ft; {} allows {}", ratio(s), pack.id, ratio(max)));
                             }
@@ -1047,7 +1400,7 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                     M::Entries => {
                         let Some(sel) = &r.counts else { continue };
                         let reach = r.near.unwrap_or(1.0);
-                        let n = selected(sel, &|c| crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach).len() as u32;
+                        let n = (selected(sel, &|c| crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach).len() + own(sel)) as u32;
                         report.entries = report.entries.max(n);
                         if let Some(min) = r.min
                             && f64::from(n) < min - 1e-9
@@ -1059,8 +1412,8 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                         let Some(sel) = &r.counts else { continue };
                         let reach = r.near.unwrap_or(1.5);
                         let found = selected(sel, &|c| crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach);
-                        let primary = r.primary.as_ref().map_or(found.len(), |ps| found.iter().filter(|(o, ..)| store.get(*o).is_some_and(|el| ps.selects_element(store, el))).count());
-                        let n = found.len() as u32;
+                        let primary = r.primary.as_ref().map_or(found.len() + own(sel), |ps| found.iter().filter(|(o, ..)| store.get(*o).is_some_and(|el| ps.selects_element(store, el))).count() + own(ps));
+                        let n = (found.len() + own(sel)) as u32;
                         report.accessible_entries = report.accessible_entries.max(n);
                         let need = match r.perimeter {
                             Some(p) if g.perimeter < p - 1e-6 => 1.0,
@@ -1097,6 +1450,52 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                                     let d = (a.1[0] - b.1[0]).hypot(a.1[1] - b.1[1]);
                                     if d < sp - 1e-6 {
                                         find(Some(b.0), false, format!("main drains {d:.2} m apart; at least {} ({sp:.2} m)", feet(sp)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    M::StairTread | M::StairRiser | M::StairWidth | M::SlopedEntrySlope | M::SlopedEntryDepth | M::BenchSeat => {
+                        let kind = match r.check {
+                            M::SlopedEntrySlope | M::SlopedEntryDepth => EntryKind::SlopedEntry,
+                            M::BenchSeat => EntryKind::Bench,
+                            _ => EntryKind::Stairs,
+                        };
+                        for b in built.iter().filter(|b| b.kind == kind) {
+                            let what = format!("{} {} (edge {})", match kind { EntryKind::Stairs => "stairs", EntryKind::SlopedEntry => "sloped entry", EntryKind::Bench => "bench" }, b.index, b.edge);
+                            match r.check {
+                                M::StairTread | M::StairRiser | M::StairWidth => {
+                                    let (name, v) = match r.check {
+                                        M::StairTread => ("its treads are", b.tread.unwrap_or(0.0)),
+                                        M::StairRiser => ("its risers are", b.riser.unwrap_or(0.0)),
+                                        _ => ("it is", b.width),
+                                    };
+                                    let wide = if r.check == M::StairWidth { " wide" } else { "" };
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what}: {name} {} ({:.0} mm){wide}; {}", inches(v), v * 1000.0, bounds(r.min, r.max, &inches)));
+                                    }
+                                }
+                                M::SlopedEntrySlope => {
+                                    let v = b.slope.unwrap_or(0.0);
+                                    if r.max.is_some_and(|m| v > m + 1e-6) {
+                                        find(None, false, format!("{what} falls {}; at most {}", ratio(v), ratio(r.max.unwrap_or(0.0))));
+                                    }
+                                }
+                                M::SlopedEntryDepth => {
+                                    let v = b.reaches.unwrap_or(0.0);
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what} reaches {} below the water; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                }
+                                _ => {
+                                    let v = b.seat.unwrap_or(0.0);
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what}: its seat is {} below the water; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                    if let Some(m) = r.water_depth_max
+                                        && b.water_depth > m + 1e-6
+                                    {
+                                        find(None, false, format!("{what} stands in {} of water; at most {}", feet(b.water_depth), feet(m)));
                                     }
                                 }
                             }

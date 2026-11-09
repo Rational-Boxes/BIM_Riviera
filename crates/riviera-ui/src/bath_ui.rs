@@ -984,6 +984,63 @@ impl Gui {
         self.swimming_pool_done(args);
     }
 
+    /// Architecture › Build › Pool Entry (ARC-POOL-003): stairs, a sloped entry or a bench built
+    /// into the selected pool (or the only one), against the edge clicked.
+    pub(crate) fn pool_entry(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return };
+        let pools: Vec<u64> = store.iter().filter(|e| riviera_core::pools::recipe(e).is_some()).map(|e| e.id().0).collect();
+        let selected: Vec<u64> = self.selection().into_iter().map(|id| id.0).filter(|id| pools.contains(id)).collect();
+        let pool = match (selected.as_slice(), pools.as_slice()) {
+            ([one], _) | ([], [one]) => *one,
+            ([], []) => return error(&frame, "No swimming pool: place one with Architecture › Build › Swimming Pool."),
+            _ => return error(&frame, "Select one swimming pool first."),
+        };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Entry");
+        let kinds = ["stairs", "sloped_entry", "bench"];
+        let kind = f.choice("Entry", &["Stairs".to_owned(), "Sloped entry (ADA)".to_owned(), "Underwater bench".to_owned()], 0);
+        let width = f.text("Width (m)", "", "Along the edge: 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench");
+        let tread = f.text("Tread (m)", "", "Stairs: default 0.305 (12 in)");
+        let riser = f.text("Highest riser (m)", "", "Stairs: default 0.25; the risers are made equal under it");
+        let slope = f.text("Slope 1:", "", "Sloped entry: default 12");
+        let reach = f.text("Reaches (m below water)", "", "Sloped entry: default 0.69 (27 in)");
+        let seat = f.text("Seat (m below water)", "", "Bench: default 0.45");
+        let ok = f.show("Then click by the pool's wall where the entry's middle goes: it runs from that edge into the pool.", "Pick the Edge");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v > 0.0);
+        let mut args = json!({ "pool_id": pool, "kind": kinds[kind.get_selection().unwrap_or(0) as usize] });
+        for (k, t) in [("width", &width), ("tread", &tread), ("riser", &riser), ("reach", &reach), ("seat", &seat)] {
+            if let Some(v) = num(t) {
+                args[k] = json!(v);
+            }
+        }
+        if let Some(n) = num(&slope) {
+            args["slope"] = json!(1.0 / n);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking("pool.add_entry", vec![json!({ "key": "point", "kind": "point", "prompt": "Pool Entry: click by the wall where its middle goes" })], args);
+    }
+
+    /// The entry's edge picked: built, and its numbers shown.
+    pub(crate) fn pool_entry_finish(&mut self, args: serde_json::Value) {
+        let frame = self.frame;
+        match self.run("pool.add_entry", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let n = |k: &str| v[k].as_f64().unwrap_or(0.0);
+                let text = match v["kind"].as_str() {
+                    Some("stairs") => format!("Stairs: {} risers of {:.0} mm on {:.0} mm treads", v["risers"], n("riser") * 1000.0, n("tread") * 1000.0),
+                    Some("sloped_entry") => format!("Sloped entry: 1:{:.1} over {:.2} m, reaching {:.0} mm below the water", 1.0 / n("slope").max(1e-9), n("run"), n("reaches") * 1000.0),
+                    _ => format!("Bench: its seat {:.0} mm below the water, in {:.2} m of water", n("seat") * 1000.0, n("water_depth")),
+                };
+                frame.set_status_text(&format!("{text}; Check Pools checks it"), 0);
+            }
+            Err(e) => error(&frame, &format!("The entry was not made:\n{e}")),
+        }
+    }
+
     fn swimming_pool_done(&mut self, args: serde_json::Value) {
         let frame = self.frame;
         match self.run("pool.create", args) {
