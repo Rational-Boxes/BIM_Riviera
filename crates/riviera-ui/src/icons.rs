@@ -1470,6 +1470,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "check_gym" => format!(
             r#"<path d="M2 4h28" {s}/><path d="M3 26l14-3M15 23l2-11h3" {s}/><circle cx="4" cy="26" r="1.5" fill="{a}"/><path d="M20 22l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#
         ),
+        // A pool in section, its floor falling to the deep end, with a tick.
+        "check_pools" => format!(
+            r#"<path d="M2 8h6v8l12 6v4h8V8" {s}/><path d="M8 11h20" stroke="{a}" stroke-width="2"/><path d="M14 9l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#
+        ),
         // A tally of lanes against a tick.
         "check_checkouts" => format!(
             r#"<rect x="3" y="6" width="4" height="20" fill="{f}" {s}/><rect x="9" y="6" width="4" height="20" fill="{a}" {s}/><rect x="15" y="6" width="4" height="20" fill="{f}" {s}/><path d="M21 17l3 4 6-9" stroke="{a}" stroke-width="2.5" fill="none"/>"#

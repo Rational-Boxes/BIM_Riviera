@@ -1,0 +1,152 @@
+{
+  "format": "riviera.rules-1",
+  "id": "us_mahc_2024",
+  "title": "CDC Model Aquatic Health Code, public pools",
+  "domain": "pool",
+  "jurisdiction": "US (where a state or county adopts it)",
+  "edition": "MAHC 2024, 5th edition (Code Language)",
+  "layer": "minimum",
+  "notes": "Chosen per project (POOLS_PLAN.md Question 3): the MAHC is a model code that states adopt unevenly. Values from research/23 Part A.",
+  "pool": [
+    {
+      "id": "MAHC 2024 4.5.2.1",
+      "description": "Floor slope where the water is shallower than 5 ft: 1 ft in 12 ft at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "shallow_slope",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ],
+      "max": 0.083333
+    },
+    {
+      "id": "MAHC 2024 4.5.2.2",
+      "description": "Floor slope where the water is 5 ft deep or more: 1 in 3 at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "deep_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.333333
+    },
+    {
+      "id": "MAHC 2024 4.5.12.5.3",
+      "description": "Wall–floor radius where the water is 3 ft deep or less: 6 in at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "cove_radius",
+      "max": 0.1524,
+      "depth_up_to": 0.9144
+    },
+    {
+      "id": "MAHC 2024 4.5.12.5.2",
+      "description": "Wall–floor radius where the water is 3–5 ft deep: 2 ft 3 in at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "cove_radius",
+      "max": 0.6858
+    },
+    {
+      "id": "MAHC 2024 4.5.14.4",
+      "description": "Coping overhang: 1–2 in",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "coping_overhang",
+      "min": 0.0254,
+      "max": 0.0508
+    },
+    {
+      "id": "MAHC 2024 4.5.14.5",
+      "description": "Coping thickness: 2.5 in at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "coping_thickness",
+      "max": 0.0635
+    },
+    {
+      "id": "MAHC 2024 4.8.1.5.1.1",
+      "description": "Perimeter deck: 4 ft unobstructed round the whole pool",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "deck_width",
+      "min": 1.2192
+    },
+    {
+      "id": "MAHC 2024 4.5.15",
+      "description": "Infinity (vanishing) edges: half the perimeter at most, unless a deck is provided",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "infinity_edge",
+      "max": 0.5
+    },
+    {
+      "id": "MAHC 2024 4.5.3.1",
+      "description": "At least two entries and exits: one within 10 ft of the shallowest end and one within 10 ft of the deepest",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "entries",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 2,
+      "counts": {
+        "object_types": [
+          "Pool Ladder",
+          "Pool Stairs",
+          "Recessed Steps",
+          "Sloped Entry"
+        ]
+      },
+      "near": 1.0
+    },
+    {
+      "id": "MAHC 2024 Glossary",
+      "description": "A wading pool is 2 ft deep at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "depth",
+      "pools": [
+        "wading"
+      ],
+      "max": 0.6096
+    },
+    {
+      "id": "MAHC 2024 4.7.1.6",
+      "description": "Suction outlets: at least two where blockable, one where unblockable (ANSI/APSP/ICC-16 2017)",
+      "source": "S2762 S2776",
+      "confidence": "verified",
+      "check": "drains",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 2,
+      "counts": {
+        "object_types": [
+          "Main Drain"
+        ]
+      },
+      "cover": [
+        0.4572,
+        0.5842
+      ]
+    },
+    {
+      "id": "MAHC 2024 4.1.2.3.5.3",
+      "description": "Theoretical peak occupancy of flat water: 20 ft² of water per bather",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "bather_load",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.8581
+    }
+  ]
+}

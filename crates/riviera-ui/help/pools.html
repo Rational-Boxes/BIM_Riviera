@@ -4,12 +4,15 @@
 <p class="lead">A swimming pool is one element. Give its outline or pick a template, then its
 depths: Riviera makes its <b>shell</b> (walls and a sloped base slab), its <b>coping</b> and its
 <b>water</b>, and cuts the floor round it, all kept up to date as you change it. The sample
-<a href="riviera:sample/pool_hall">A swimming pool hall</a> has a 25 m pool and a teaching pool.
+<a href="riviera:sample/pool_hall">A swimming pool hall</a> has a 25 m pool and a teaching pool;
+<a href="riviera:sample/pool_rules">A public pool checked against the codes</a> has ladders, a
+lift and drains, and passes its checks.
 Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bathrooms</a> page.</p>
 <nav class="toc">
   <a href="#place">Placing one</a>
   <a href="#depths">Depths and slopes</a>
   <a href="#edges">Edges, coping and shell</a>
+  <a href="#check">Checking a pool</a>
   <a href="#ifc">In IFC</a>
   <a href="#limits">Limits and what to check</a>
   <a href="#scripts">Scripts and agents</a>
@@ -33,7 +36,7 @@ each a distance and the depth below the water there. Between stations the floor 
 slope; beyond the first and last it is level. Type them as <code>0:1.0, 7:1.52, 10:2.0</code>.
 Without them a pool is 1.0 m deep at the shallow end, 5 ft (1.52 m, the break point where the
 codes' slope limits change) at 60 % of its length and 2.0 m at the deep end. Each segment's slope
-is given as 1:n; checking it against the codes is the next step.</p>
+is given as 1:n; <a href="#check">Check Pools</a> judges it against the codes.</p>
 
 <h2 id="edges">Edges, coping and shell</h2>
 <ul>
@@ -44,6 +47,29 @@ is given as 1:n; checking it against the codes is the next step.</p>
   under the floor. The floor on the pool's level is cut round it.</li>
 </ul>
 <p>The values are provisional (EXPERT_REVIEW.md E-116).</p>
+
+<h2 id="check">Checking a pool</h2>
+<p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
+Under the IBC these are the <b>ISPSC</b> and the <b>VGB Act</b>'s drain rules; with the ADA rule set,
+the <b>ADA's</b> §242 and §1009. The CDC's <b>Model Aquatic Health Code</b> is a project's choice:
+tick it in <b>Manage › Model Properties</b> under <i>Pool rules</i>. Each pack checks its own value, so where the codes
+disagree (1:12 or 1:10 above the break, a 4 ft or 6 ft deck) you see which pack a pool fails.</p>
+<ul>
+  <li><b>Class</b>: a pool is <i>public</i>, <i>competition</i>, <i>residential</i> or <i>wading</i>,
+  from its template or set with <code>pool.set</code>; each rule names the classes it applies to.</li>
+  <li><b>Slopes and depths</b>: each segment either side of the 5 ft break, the shallow end, the
+  deepest point, the cove and the coping.</li>
+  <li><b>Deck</b>: a floor that reaches the width along every edge, with nothing standing in it.</li>
+  <li><b>Entries</b>: <i>Pool ladder</i>, stairs and recessed steps within 1 m of the edge; the
+  <i>Pool lift</i>, sloped entries and transfer walls as accessible means of entry. A pool wall
+  under 300 ft needs one, a lift or sloped entry; longer, two. Load the ladder, lift and drains
+  with <b>Architecture › Build › Bathroom</b>.</li>
+  <li><b>Drains</b>: main drains in the pool, two at least 3 ft apart, or one with a cover larger
+  than 18 × 23 in (unblockable).</li>
+  <li><b>Bather loads</b>: the MAHC's 20 ft² of water a bather and the IBC's 50 ft² an occupant.</li>
+</ul>
+<p>Findings marked <i>secondary</i> came from a checklist or summary, not the code's own text
+(the ISPSC's public-pool values): check them against your adopted edition.</p>
 
 <h2 id="ifc">In IFC</h2>
 <p>A pool is an <code>IfcElementAssembly</code> (SWIMMINGPOOL) of an <code>IfcWall</code>, an
@@ -57,10 +83,12 @@ mapping.</p>
   <li>Freeform outlines are typed, not yet sketched; profiles are changed from a script.</li>
   <li>Gutters and infinity-edge basins are recorded but not drawn; the wall–floor cove is a value
   only; tiling and the membrane are not drawn.</li>
-  <li>Nothing is checked yet: slopes, entries, depth markings, decks, barriers, accessible entries
-  and drains come with <code>pool.check</code>.</li>
+  <li>Not checked yet: depth markings and NO DIVING markers, the break-point and float lines,
+  barriers and gates, where entries stand along the pool, stairs and handrails, and diving
+  envelopes.</li>
 </ul>
 
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
-<code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>.</p>
+<code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
+<code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>

@@ -1,0 +1,114 @@
+{
+  "format": "riviera.rules-1",
+  "id": "us_ispsc",
+  "title": "International Swimming Pool and Spa Code, with the IBC's occupant load",
+  "domain": "pool",
+  "jurisdiction": "US (ISPSC and IBC adoptions)",
+  "edition": "ISPSC 2021: public pools (Chapter 4) as a Texas DSHS checklist cites them, residential pools (Chapter 8) from ICC CodeNotes; IBC 2021 Table 1004.5",
+  "layer": "minimum",
+  "notes": "Follows the IBC code setting. ICC's free view refused automated reads, so the public-pool values are secondary: check them against the ISPSC text in a browser (research/23 A.18).",
+  "pool": [
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "Floor slope where the water is shallower than 5 ft: 1 ft in 10 ft at most (as the Texas checklist cites it)",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "shallow_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.1
+    },
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "Floor slope where the water is 5 ft deep or more: 1 in 3 at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "deep_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.333333
+    },
+    {
+      "id": "ISPSC 2021 807.1.1",
+      "description": "Residential: the floor from the shallow end to the transition point slopes 1 in 7 at most",
+      "source": "S2766",
+      "confidence": "verified",
+      "check": "shallow_slope",
+      "pools": [
+        "residential"
+      ],
+      "max": 0.142857
+    },
+    {
+      "id": "ISPSC 2021 (residential)",
+      "description": "Residential: the shallow end is 33 in to 4 ft deep",
+      "source": "S2766",
+      "confidence": "verified",
+      "check": "shallow_end_depth",
+      "pools": [
+        "residential"
+      ],
+      "min": 0.8382,
+      "max": 1.2192
+    },
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "Public pools: a deck 6 ft wide round the pool",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "deck_width",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.8288
+    },
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "Public pools: two entries and exits, one at each end; accessible-entry devices do not count",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "entries",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 2,
+      "counts": {
+        "object_types": [
+          "Pool Ladder",
+          "Pool Stairs",
+          "Recessed Steps"
+        ]
+      },
+      "near": 1.0
+    },
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "A wading pool is 18 in deep at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "depth",
+      "pools": [
+        "wading"
+      ],
+      "max": 0.4572
+    },
+    {
+      "id": "IBC 2021 Table 1004.5",
+      "description": "Occupant load of a swimming pool: 50 ft² gross of water per occupant (its deck 15 ft²)",
+      "source": "S2774",
+      "confidence": "verified",
+      "check": "bather_load",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 4.6452
+    }
+  ]
+}

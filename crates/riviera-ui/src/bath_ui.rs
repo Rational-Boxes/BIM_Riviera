@@ -790,6 +790,52 @@ impl Gui {
         }
     }
 
+    /// View › Coordination › Check Pools (ARC-POOL-002): each pool against the pool packs in use,
+    /// the finding picked selected and framed.
+    pub(crate) fn check_pools(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("pool.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        let pools = c["pools"].as_array().cloned().unwrap_or_default();
+        if pools.is_empty() {
+            return error(&frame, "No swimming pools: place one with Architecture › Build › Swimming Pool.");
+        }
+        let packs: Vec<&str> = c["packs"].as_array().map(|a| a.iter().filter_map(|p| p.as_str()).collect()).unwrap_or_default();
+        let mut head: Vec<String> = vec![format!("Packs: {}", if packs.is_empty() { "none (choose them in Rule Packs)".to_owned() } else { packs.join(", ") })];
+        for p in &pools {
+            let loads: Vec<String> = p["loads"].as_array().map(|a| a.iter().map(|l| format!("{} bathers ({})", l["bathers"], l["rule"].as_str().unwrap_or_default())).collect()).unwrap_or_default();
+            head.push(format!(
+                "{} ({}): {} entries, {} accessible, {} drains{}",
+                p["name"].as_str().unwrap_or_default(),
+                p["class"].as_str().unwrap_or_default(),
+                p["entries"],
+                p["accessible_entries"],
+                p["drains"],
+                if loads.is_empty() { String::new() } else { format!("; {}", loads.join(", ")) }
+            ));
+        }
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        if findings.is_empty() {
+            return self.report_message("Check Pools", &format!("{}\n\nEvery pool passes its packs.", head.join("\n")), "pool.check", json!({}));
+        }
+        let rows: Vec<String> = findings
+            .iter()
+            .map(|f| {
+                let secondary = if f["confidence"] == "secondary" { " (secondary source: check the code's text)" } else { "" };
+                format!("{} {} {}: {}{secondary}", if f["severity"] == "error" { "✗" } else { "•" }, f["pack"].as_str().unwrap_or_default(), f["rule"].as_str().unwrap_or_default(), f["message"].as_str().unwrap_or_default())
+            })
+            .collect();
+        if let Some(k) = self.pick_or_report("Check Pools", &head.join("\n"), &rows, "pool.check", json!({}))
+            && let Some(id) = findings[k]["element"].as_u64().or_else(|| findings[k]["pool"].as_u64())
+        {
+            let _ = self.run("selection.set", json!({ "ids": [id] }));
+            self.selection_changed();
+            self.zoom_to_fit();
+        }
+    }
+
     /// The one room selected, or an error shown.
     fn selected_room(&mut self) -> Option<u64> {
         let frame = self.frame;

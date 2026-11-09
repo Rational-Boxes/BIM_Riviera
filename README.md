@@ -699,10 +699,13 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
     infinity edge) and coping;
   - a generated shell of walls and a sloped base slab, cut into the floor;
   - its water as an IfcSpace (WATER) with area and volume.
-  Not built yet: sketched outlines, and drawn gutters and basins. Planned after it: `pool.check`
-  with the ISPSC, MAHC, ADA §242/§1009 and VGB packs, entries and a pool equipment library,
-  competition presets and diving envelopes, UK packs, then the hall's dehumidification, water
-  treatment, structural loads and bonding.
+  Pool checks are built too (ARC-POOL-002; View › Coordination › Check Pools; `pool.check`):
+  slopes either side of the break, depths, cove, coping, a clear deck, entries, accessible means of
+  entry (ADA §242) and main drains (VGB), against the ISPSC, MAHC, ADA and VGB packs, each citing
+  its own clause, with bather loads. Not built yet: sketched outlines, drawn gutters and basins,
+  depth markings, barriers. Planned next: entries and a pool equipment library, competition
+  presets and diving envelopes, UK packs, then the hall's dehumidification, water treatment,
+  structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

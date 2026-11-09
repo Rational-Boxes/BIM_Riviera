@@ -369,6 +369,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolSet),
         registry.add(PoolInfo),
         registry.add(PoolList),
+        registry.add(PoolCheck),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4469,6 +4470,22 @@ read_command!(
 );
 
 read_command!(
+    PoolCheck,
+    "pool.check",
+    "Check the swimming pools",
+    "Checks each swimming pool, or `pool_id`, against the pool rule packs in use (ARC-POOL-002): the floor's \
+     slopes above and below the 5 ft break, the shallow end's and the deepest depth, the wall–floor cove, the \
+     coping, a clear deck round the edge, vanishing edges, entries and exits, accessible means of entry by the \
+     pool wall's length (ADA §242), and main drains (VGB); and gives each pack's bather or occupant load. The \
+     ISPSC and VGB packs apply under the IBC and the ADA's pool rules with the ADA rule set; the MAHC is chosen \
+     with `rules.set_packs`. Each finding names its pack, clause, source and confidence: secondary values came \
+     from a checklist or summary, so check them against the code's text.",
+    Option<crate::pools::CheckParams>,
+    crate::pools::PoolCheck,
+    crate::pools::check
+);
+
+read_command!(
     RetailRuns,
     "retail.runs",
     "List the fixture runs",
@@ -7501,7 +7518,7 @@ edit_command!(
      those named: WCs (close-coupled, wall-hung, accessible height), a urinal, lavatories (wall-hung, pedestal, \
      hand-rinse, vanity), a bidet, baths, shower trays and a roll-in shower, a mirror, toilet roll holder, \
      soap and paper towel dispensers, a hand dryer, a baby changing unit, a sanitary bin, a coat hook, a \
-     folding shower seat and a heated towel rail; each at its usual size and mounting height, with its IFC \
+     folding shower seat and a heated towel rail; for pools a lift, a ladder and main drain covers; each at its usual size and mounting height, with its IFC \
      class and pipe or power connectors. A type of the same name already there is reused. Returns the types \
      by name.",
     "Bathroom Components",

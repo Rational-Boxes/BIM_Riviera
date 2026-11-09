@@ -98,6 +98,11 @@ impl App {
             }
         }
         crate::csg::apply(&open.csg, store, &mut out);
+        // Spaces are not solid: a pool's water holds its ladders and drains.
+        for b in &mut out {
+            b.parts.retain(|p| !p.class.starts_with("IfcSpace"));
+        }
+        out.retain(|b| !b.parts.is_empty());
         Ok(out)
     }
 }

@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 923 numbered requirements (320 P0 · 360 P1 · 236 P2 · 7 P3), 2,400 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 924 numbered requirements (320 P0 · 361 P1 · 236 P2 · 7 P3), 2,401 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,400 commands; 923 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,401 commands; 924 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15663,10 +15663,14 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
+| `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002) |
+| `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
 
-- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always. The practice packs are only chosen by name.
+- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always; for pools, `us_ispsc` and `us_vgb` under the IBC and `ada_2010_pools` with the ADA rule set (ARC-POOL-002). The practice packs are only chosen by name.
 - **One command family for every domain.**
   - `rules.packs` lists the packs of every domain, or of one: bathroom (ARC-BATH-001), vertical transport (ARC-VT-001) and the shared-format domains. Each has its domain, format, layer, jurisdiction and edition, its rule count, whether it is in use, and whether it ships.
   - `rules.set_packs`, `rules.add_pack` and `rules.remove_pack` choose, add and remove packs in any domain. A pack is routed by its `format`: a bathroom or vertical-transport pack goes to its domain's own store, so the `bath.*` and `vt.*` pack commands see the same packs.
@@ -16206,7 +16210,7 @@ Public and competition pools come first (Q6).
 - the recipe in RXD (`recipe.pool`);
 - Uniclass: SL_42_85_41 or SL_42_85_59 (indoor or outdoor), Ss_37_40_85 tiling (research/23 D.5.3).
 
-**Commands.** `pool.create(level, outline | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell?)` → id; `pool.set(pool_id, …)` (any of the same); `pool.info(pool_id, points?)` → `{area, perimeter, volume, depths, segments: [{from, to, slope}], deepest, shallowest, shell_volume}`; `pool.list()`.
+**Commands.** `pool.create(level, outline | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell?, class?)` → id; `pool.set(pool_id, …)` (any of the same); `pool.info(pool_id, points?)` → `{area, perimeter, volume, depths, segments: [{from, to, slope}], deepest, shallowest, shell_volume}`; `pool.list()`.
 
 **Acceptance criteria.**
 - [x] A 25 m × 6-lane competition template is 25.03 × 15.0 m (2.5 m lanes), constant 2.0 m deep, with a volume within 1 % of 25.03 × 15 × 2.0 m³.
@@ -16216,7 +16220,48 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
+
+### 3.9c.2 Pool checks and the US packs
+**ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
+
+**Purpose.** Check each pool against the codes the project adopted, each pack citing its own clause, so a designer sees where the pool falls short and where the codes disagree.
+
+**Behaviour & rules.**
+- **A pool's class** decides which rules apply: `public` (the default), `competition` (from a competition template), `residential` or `wading` (from the wading template). `pool.create` and `pool.set` take `class`.
+- **The `pool` rule kind** joins the shared format (ARC-RULE-001). Each rule names a `check`, the classes it applies to (`pools`, default all), and its bounds:
+  - `shallow_slope` and `deep_slope`: each profile segment inside the pool, against `max` (rise over run), where the water is shallower or deeper than the 5 ft break; a segment across the break is checked against both;
+  - `shallow_end_depth` (`min`, `max`) and `depth` (the deepest, `max`);
+  - `cove_radius` (`max`), only where the pool's shallowest is at most `depth_up_to`;
+  - `coping_overhang` and `coping_thickness`, where any edge has coping;
+  - `deck_width` (`min`): along each edge that is not vanishing, a floor on the pool's level reaching that far, and nothing standing in the strip 0.3 m above the deck except what the pool rules count;
+  - `infinity_edge` (`max`): the vanishing edges' share of the perimeter;
+  - `entries` (`min`): elements `counts` selects, inside the pool or within `near` (default 1 m) of its edge;
+  - `accessible_entries`: as `entries`, needing `min` where the pool wall is at least `perimeter` long and 1 below it, and at least one that `primary` selects (a lift or sloped entry);
+  - `drains`: suction outlets `counts` selects inside the pool; none modelled is a note. One whose plan size is at least `cover` (18 × 23 in, 16 CFR 1450) is unblockable and passes alone; otherwise at least `min`, each pair at least `spacing` apart;
+  - `bather_load`: the water's area per bather (`min`), reported per pool, not judged.
+- **Packs that ship** (domain `pool`), values from research/23 Part A:
+  - `us_mahc_2024` (minimum): 1:12 above the break and 1:3 below it; cove 6 in to 3 ft deep, 27 in deeper; coping overhang 1–2 in, at most 2.5 in thick; a 4 ft deck; half the edge vanishing at most; two entries; a wading pool 2 ft deep at most; two blockable drains or one unblockable; 20 ft² of flat water a bather.
+  - `us_ispsc` (minimum): public pools 1:10 and 1:3, a 6 ft deck, two entries (accessible devices not counted), a wading pool 18 in deep at most, all **secondary** (from a Texas checklist, as ICC's free view refused automated reads); residential 1:7 to the transition and a shallow end 33–48 in (ICC CodeNotes); the IBC's 50 ft² of pool an occupant.
+  - `ada_2010_pools` (accessible): §242.2 two means of entry, one a pool lift or sloped entry, or one (a lift or sloped entry) for a pool wall under 300 linear ft; §242.3 a wading pool's sloped entry.
+  - `us_vgb` (minimum): two main drains at least 3 ft apart unless one is unblockable.
+- **Choosing packs** (Q3): under the IBC, `us_ispsc` and `us_vgb`; with the ADA rule set, `ada_2010_pools`; the MAHC is chosen per project with `rules.set_packs`. Each pack checks its own value (Q4): with the MAHC and the ISPSC both chosen, a 1:11 shallow slope passes the ISPSC and fails the MAHC.
+- **Findings** name the pack, clause, source and confidence. A minimum or accessible pack's rule is an error; a recommended pack's, or an advisory rule's, a note. A secondary value says to check the code's own text.
+- **Entries and drains** are counted by type (ObjectType or the type's ElementType): *Pool Ladder*, *Pool Stairs*, *Recessed Steps*, *Sloped Entry*; *Pool Lift*, *Transfer Wall*, *Transfer System*, *Accessible Pool Stairs*; *Main Drain*. The bathroom components add a pool ladder and two main-drain covers (300 × 300 mm, and 610 × 760 mm unblockable) to the pool lift.
+- **Overlaps:** a pool's water is a space, not a solid, so the ladders and drains in it are not overlaps.
+
+**Data.** The packs are JSON in `schemas/rules/packs/`, the `pool` kind in `riviera.rules-1.schema.json` (MIT). The class is in the pool's recipe.
+
+**Commands.** `pool.check(pool_id?)` → `{packs, pools: [{pool, name, class, area, perimeter, shallowest, deepest, entries, accessible_entries, drains, loads: [{pack, rule, per, bathers}]}], findings: [{pack, rule, source, severity, confidence, pool, element?, message}]}`.
+
+**Acceptance criteria.**
+- [x] Under the IBC with the ADA rule set, a public pool's packs are the ISPSC, VGB and ADA packs; its 1:9.5 shallow slope is an ISPSC error marked secondary, it needs one accessible means of entry for 150 ft of wall, and no drains is a note.
+- [x] Two ladders, a lift and two drains 0.5 m apart leave only the VGB spacing finding; an unblockable drain clears it; a bench on the 6 ft deck is named.
+- [x] With the MAHC chosen, a 1:11.5 shallow slope fails it, and its bather load is 64 for 120 m² of water.
+- [x] A wading pool needs a sloped entry and is held to 18 in; a residential pool's 1:6 shallow slope fails the ISPSC's 1:7, and the public-pool rules do not apply to it.
+- [x] The sample *A public pool checked against the codes* passes the MAHC, VGB and ADA packs, with ladders and drains in the water and no overlaps.
+
+*Built (2026-11-09):* the `pool` rule kind, the four packs, `pool.check`, the pool ladder and drain components, View › Coordination › Check Pools. Defaults are E-117. Not yet: depth markings and NO DIVING markers, the break-point line and float line, barriers and gates (ISPSC §305, MAHC 4.8.6), where entries stand (within 10 ft of each end, on both sides of a pool over 30 ft wide, 75 ft apart), stairs and handrails, deck slopes and the IBC deck occupant load, the diving tables, a sloped entry's own geometry, and spas (the bathroom toolset's, ARC-BATH-013).
 
 ## 3.11 Massing and site
 
@@ -17454,6 +17499,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.set` | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `pool.info` | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
+| `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
 | `rules.packs` | domain? | [{domain, id, title, format, layer, jurisdiction, edition, rules, in_use, shipped}] | No (query) | ARC-RULE-001 |
@@ -30990,14 +31036,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 115 | 40 | 1 | 233 |
+| ARC | 77 | 116 | 40 | 1 | 234 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **360** | **236** | **7** | **923** |
+| **Total** | **320** | **361** | **236** | **7** | **924** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31211,7 +31257,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2400 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2401 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31508,7 +31554,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate` | 3 |
 | `plumbing_fixture` | 1 |
 | `pointcloud` | 1 |
-| `pool` | 4 |
+| `pool` | 5 |
 | `position` | 8 |
 | `precast` | 10 |
 | `precast_config` | 7 |
@@ -33051,6 +33097,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate.set` | 4 | plate_ids[], contour?, thickness?, justification?, material?, coating?, role? | — | Yes | STR-STL-005 |
 | `plumbing_fixture.place` | 4 | type_id, host_face_ref \ | work_plane, point, rotation | id | Yes |
 | `pointcloud.reindex` | 6 | link_id | job_id | No | COL-LNK-003 |
+| `pool.check` | 3 | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `pool.create` | 3 | level, outline \ | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell? | id | Yes |
 | `pool.info` | 3 | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.list` | 3 | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |

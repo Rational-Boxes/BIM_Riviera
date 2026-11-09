@@ -1,0 +1,58 @@
+{
+  "format": "riviera.rules-1",
+  "id": "ada_2010_pools",
+  "title": "2010 ADA Standards: swimming pools",
+  "domain": "pool",
+  "jurisdiction": "US",
+  "edition": "2010 ADA Standards for Accessible Design §242 and §1009",
+  "layer": "accessible",
+  "notes": "Applies with the ADA rule set. Pool lifts, sloped entries, transfer walls, transfer systems and accessible pool stairs count as means of entry; at least one must be a lift or sloped entry.",
+  "pool": [
+    {
+      "id": "ADA 2010 242.2",
+      "description": "Two accessible means of entry, one of them a pool lift or sloped entry; one (a lift or sloped entry) where the pool wall is under 300 linear ft",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "accessible_entries",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 2,
+      "perimeter": 91.44,
+      "counts": {
+        "object_types": [
+          "Pool Lift",
+          "Sloped Entry",
+          "Transfer Wall",
+          "Transfer System",
+          "Accessible Pool Stairs"
+        ]
+      },
+      "primary": {
+        "object_types": [
+          "Pool Lift",
+          "Sloped Entry"
+        ]
+      },
+      "near": 1.5
+    },
+    {
+      "id": "ADA 2010 242.3",
+      "description": "A wading pool has a sloped entry",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "accessible_entries",
+      "pools": [
+        "wading"
+      ],
+      "min": 1,
+      "counts": {
+        "object_types": [
+          "Sloped Entry"
+        ]
+      },
+      "near": 1.5
+    }
+  ]
+}

@@ -463,6 +463,48 @@ pub fn catalogue() -> Vec<Component> {
             shape: || Shape::default().cuboid([-0.08, 0.08], [0.2, 0.36], [0.0, 1.4]).cuboid([-0.23, 0.23], [-0.25, 0.2], [0.42, 0.46]),
             connectors: none,
         },
+        // Pool entries and drains, counted by the pool packs (ARC-POOL-002): a ladder hung on the
+        // wall, and main drain covers, one blockable and one larger than the 18 × 23 in that makes
+        // a drain unblockable (16 CFR 1450).
+        Component {
+            name: "Pool ladder",
+            category: C::Furniture,
+            predefined: "USERDEFINED",
+            element_type: Some("Pool Ladder"),
+            color: GREY,
+            // Two rails 530 mm (21 in) apart, 0.9 m over the deck, down 1.2 m into the water 75 mm
+            // off the wall (3–4 in), with treads 300 mm apart (7–12 in).
+            shape: || {
+                Shape::default()
+                    .cuboid([-0.29, -0.25], [-0.6, -0.56], [-1.2, 0.9])
+                    .cuboid([0.25, 0.29], [-0.6, -0.56], [-1.2, 0.9])
+                    .cuboid([-0.29, -0.25], [-0.6, 0.3], [0.86, 0.9])
+                    .cuboid([0.25, 0.29], [-0.6, 0.3], [0.86, 0.9])
+                    .cuboid([-0.25, 0.25], [-0.65, -0.56], [-0.32, -0.3])
+                    .cuboid([-0.25, 0.25], [-0.65, -0.56], [-0.62, -0.6])
+                    .cuboid([-0.25, 0.25], [-0.65, -0.56], [-0.92, -0.9])
+            },
+            connectors: none,
+        },
+        Component {
+            name: "Pool main drain, 300 × 300",
+            category: C::Furniture,
+            predefined: "USERDEFINED",
+            element_type: Some("Main Drain"),
+            color: WHITE,
+            shape: || Shape::default().cuboid([-0.15, 0.15], [-0.15, 0.15], [0.0, 0.03]),
+            connectors: none,
+        },
+        Component {
+            name: "Pool main drain, unblockable 610 × 760",
+            category: C::Furniture,
+            predefined: "USERDEFINED",
+            element_type: Some("Main Drain"),
+            color: WHITE,
+            // 24 × 30 in: larger than the 18 × 23 in blocking element.
+            shape: || Shape::default().cuboid([-0.305, 0.305], [-0.38, 0.38], [0.0, 0.03]),
+            connectors: none,
+        },
         // Accessories (IfcFurniture USERDEFINED, as research/13 E3 maps them).
         Component {
             name: "Mirror, 600 × 800",

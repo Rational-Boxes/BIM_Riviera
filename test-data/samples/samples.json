@@ -469,6 +469,19 @@
     ]
   },
   {
+    "name": "pool_rules",
+    "title": "A public pool checked against the codes",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "pool_rules.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

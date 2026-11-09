@@ -138,6 +138,21 @@ impl Default for Shell {
     }
 }
 
+/// What a pool is for, which decides the rules that apply to it (ARC-POOL-002).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum PoolClass {
+    /// Open to the public, or to members, guests or residents (the MAHC's and ISPSC's public pools).
+    #[default]
+    Public,
+    /// Marked for sanctioned competition.
+    Competition,
+    /// A dwelling's.
+    Residential,
+    /// Shallow, for young children.
+    Wading,
+}
+
 /// A profile station: its distance along the axis and the depth below the water there.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Station {
@@ -171,6 +186,20 @@ pub struct PoolRecipe {
     /// The template it was made from, if any.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub template: Option<String>,
+    /// What it is for; by default from its template, else public.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub class: Option<PoolClass>,
+}
+
+impl PoolRecipe {
+    /// Its class: as set, else competition or wading by its template, else public.
+    pub fn class(&self) -> PoolClass {
+        self.class.unwrap_or(match self.template.as_deref() {
+            Some(t) if t.starts_with("competition") => PoolClass::Competition,
+            Some("wading") => PoolClass::Wading,
+            _ => PoolClass::Public,
+        })
+    }
 }
 
 pub fn recipe(e: &Element) -> Option<PoolRecipe> {
@@ -472,6 +501,8 @@ pub struct CreateParams {
     pub edges: Option<Vec<Edge>>,
     pub coping: Option<Coping>,
     pub shell: Option<Shell>,
+    /// What it is for (default from the template, else public).
+    pub class: Option<PoolClass>,
     pub name: Option<String>,
 }
 
@@ -495,7 +526,7 @@ fn default_axis(r: &[[f64; 2]]) -> [[f64; 2]; 2] {
     [m, [m[0] + n[0] * reach.max(0.1), m[1] + n[1] * reach.max(0.1)]]
 }
 
-fn check(rec: &PoolRecipe) -> Result<()> {
+fn validate(rec: &PoolRecipe) -> Result<()> {
     if rec.outline.len() < 3 || crate::polygons::area(&rec.outline).abs() < 0.25 {
         return Err(bad("pool.bad_outline", "a pool's outline needs three corners and some area"));
     }
@@ -556,8 +587,9 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Eleme
         coping: p.coping.unwrap_or_default(),
         shell: p.shell.unwrap_or_default(),
         template: kind,
+        class: p.class,
     };
-    check(&rec)?;
+    validate(&rec)?;
     let id = txn.create(
         NewElement::new(CLASS)
             .name(p.name.unwrap_or_else(|| "Swimming pool".into()))
@@ -622,6 +654,7 @@ pub struct SetParams {
     pub edges: Option<Vec<Edge>>,
     pub coping: Option<Coping>,
     pub shell: Option<Shell>,
+    pub class: Option<PoolClass>,
 }
 
 /// Changes a pool (`pool.set`); its shell, water and openings follow.
@@ -665,7 +698,10 @@ pub(crate) fn set(txn: &mut Transaction<'_>, p: SetParams) -> Result<()> {
     if let Some(v) = p.shell {
         rec.shell = v;
     }
-    check(&rec)?;
+    if let Some(v) = p.class {
+        rec.class = Some(v);
+    }
+    validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");
     txn.modify(id, |e| {
         e.params.insert(RECIPE_KEY.into(), v);
@@ -758,4 +794,323 @@ pub(crate) fn list(store: &Store, _: Option<Value>) -> Result<Vec<Listed>> {
             Listed { id, name: e.name.clone().unwrap_or_default(), area: g.area, volume: g.volume, template: recipe(e).and_then(|r| r.template) }
         })
         .collect())
+}
+
+// ---- Checks (ARC-POOL-002) ----
+
+/// How far a plan point is from a ring's edge.
+fn edge_distance(p: [f64; 2], r: &[[f64; 2]]) -> f64 {
+    (0..r.len())
+        .map(|i| {
+            let (a, b) = (r[i], r[(i + 1) % r.len()]);
+            let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
+            let l2 = (dx * dx + dy * dy).max(1e-12);
+            let f = (((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2).clamp(0.0, 1.0);
+            (p[0] - a[0] - f * dx).hypot(p[1] - a[1] - f * dy)
+        })
+        .fold(f64::MAX, f64::min)
+}
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CheckParams {
+    /// One pool; every pool when omitted.
+    pub pool_id: Option<ElementRef>,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct PoolFinding {
+    pub pack: String,
+    pub rule: String,
+    pub source: String,
+    /// `error` (a minimum or accessible pack's verified or secondary rule) or `note`.
+    pub severity: String,
+    /// Where the value came from: `verified`, `secondary` (a summary or checklist: check the
+    /// code's own text) or `advisory`.
+    pub confidence: crate::rules::Confidence,
+    pub pool: ElementId,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub element: Option<ElementId>,
+    pub message: String,
+}
+
+/// A pack's bather or occupant load for a pool.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct Load {
+    pub pack: String,
+    pub rule: String,
+    /// Water area per bather (m²).
+    pub per: f64,
+    pub bathers: u32,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct PoolReport {
+    pub pool: ElementId,
+    pub name: String,
+    pub class: PoolClass,
+    pub area: f64,
+    pub perimeter: f64,
+    pub shallowest: f64,
+    pub deepest: f64,
+    pub entries: u32,
+    pub accessible_entries: u32,
+    pub drains: u32,
+    pub loads: Vec<Load>,
+}
+
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct PoolCheck {
+    /// The pool packs in use.
+    pub packs: Vec<String>,
+    pub pools: Vec<PoolReport>,
+    pub findings: Vec<PoolFinding>,
+}
+
+type Cuts = Vec<(ElementId, [[f64; 2]; 2])>;
+
+/// A placed element's plan point and plan size (its two extents, smaller first).
+fn placed(store: &Store, e: &Element) -> Option<([f64; 2], [f64; 2])> {
+    let it = crate::rules::item(store, e)?;
+    let (a, b) = (it.x[1] - it.x[0], it.back - it.front);
+    let o = it.frame.apply([(it.x[0] + it.x[1]) / 2.0, (it.front + it.back) / 2.0, 0.0]);
+    Some(([o[0], o[1]], [a.min(b), a.max(b)]))
+}
+
+impl PoolClass {
+    pub fn name(self) -> &'static str {
+        match self {
+            PoolClass::Public => "public",
+            PoolClass::Competition => "competition",
+            PoolClass::Residential => "residential",
+            PoolClass::Wading => "wading",
+        }
+    }
+}
+
+fn feet(m: f64) -> String {
+    let inches = (m / 0.0254).round() as i64;
+    if inches % 12 == 0 { format!("{} ft", inches / 12) } else { format!("{}′ {}″", inches / 12, inches % 12) }
+}
+
+/// Checks pools against the pool packs in use (`pool.check`).
+pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> {
+    use crate::rules::{Confidence, Layer, PoolMeasure as M};
+    let only = match p.and_then(|p| p.pool_id) {
+        Some(r) => Some(resolve(store, &r)?.0),
+        None => None,
+    };
+    let packs = crate::rules::active(store, "pool");
+    let mut out = PoolCheck { packs: packs.iter().map(|p| p.id.clone()).collect(), pools: Vec::new(), findings: Vec::new() };
+    // Elements the rules count stand on the deck by design: they do not block it.
+    let counted: Vec<&crate::rules::Selector> = packs.iter().flat_map(|p| p.pool.iter()).filter_map(|r| r.counts.as_ref()).collect();
+    let is_counted = |e: &Element| counted.iter().any(|s| s.selects_element(store, e));
+    // The deck's slice, at its height.
+    let mut cuts_at: Option<(f64, Cuts)> = None;
+    for (id, g) in all(store) {
+        if only.is_some_and(|o| o != id) {
+            continue;
+        }
+        let e = store.get(id).expect("listed");
+        let rec = recipe(e).expect("a pool");
+        let class = rec.class();
+        let ring = &rec.outline;
+        let ts: Vec<f64> = ring.iter().map(|q| rec.t(*q)).collect();
+        let (t0, t1) = ts.iter().fold((f64::MAX, f64::MIN), |(a, b), t| (a.min(*t), b.max(*t)));
+        let mut at: Vec<f64> = rec.profile.iter().map(|s| s.at).filter(|t| (t0..=t1).contains(t)).collect();
+        at.extend([t0, t1]);
+        let depths: Vec<f64> = at.iter().map(|t| rec.depth_at(*t)).collect();
+        let shallowest = depths.iter().copied().fold(f64::MAX, f64::min);
+        let deepest = depths.iter().copied().fold(f64::MIN, f64::max);
+        // Segments inside the pool: (from, to, depth from, depth to, slope).
+        let segments: Vec<(f64, f64, f64, f64, f64)> = rec
+            .profile
+            .windows(2)
+            .filter_map(|w| {
+                let (a, b) = (w[0].at.max(t0), w[1].at.min(t1));
+                (b > a + 1e-9).then(|| (a, b, rec.depth_at(a), rec.depth_at(b), (w[1].depth - w[0].depth).abs() / (w[1].at - w[0].at)))
+            })
+            .collect();
+        let near_items: Vec<(ElementId, [f64; 2], [f64; 2])> = store.iter().filter(|o| o.id() != id).filter_map(|o| placed(store, o).map(|(c, s)| (o.id(), c, s))).collect();
+        let selected = |sel: &crate::rules::Selector, f: &dyn Fn([f64; 2]) -> bool| -> Vec<(ElementId, [f64; 2], [f64; 2])> {
+            near_items.iter().filter(|(o, c, _)| f(*c) && store.get(*o).is_some_and(|el| sel.selects_element(store, el))).copied().collect()
+        };
+        let mut report = PoolReport { pool: id, name: e.name.clone().unwrap_or_default(), class, area: g.area, perimeter: g.perimeter, shallowest, deepest, entries: 0, accessible_entries: 0, drains: 0, loads: Vec::new() };
+        for pack in &packs {
+            for r in pack.pool.iter().filter(|r| r.pools.is_empty() || r.pools.contains(&class)) {
+                let severity = if pack.layer == Layer::Recommended || r.confidence == Confidence::Advisory { "note" } else { "error" };
+                let mut find = |element: Option<ElementId>, note: bool, message: String| {
+                    let severity = if note { "note" } else { severity };
+                    out.findings.push(PoolFinding { pack: pack.id.clone(), rule: r.id.clone(), source: r.source.clone(), severity: severity.into(), confidence: r.confidence, pool: id, element, message });
+                };
+                let ratio = |s: f64| if s < 1e-9 { "level".to_owned() } else { format!("1:{:.1}", 1.0 / s) };
+                match r.check {
+                    M::ShallowSlope | M::DeepSlope => {
+                        let Some(max) = r.max else { continue };
+                        let shallow = r.check == M::ShallowSlope;
+                        for &(a, b, da, db, s) in &segments {
+                            let part = if shallow { da.min(db) < BREAK - 1e-6 } else { da.max(db) > BREAK + 1e-6 };
+                            if part && s > max + 1e-9 {
+                                let side = if shallow { "shallower" } else { "deeper" };
+                                find(None, false, format!("the floor from {a:.2} m to {b:.2} m falls {} where the water is {side} than 5 ft; {} allows {}", ratio(s), pack.id, ratio(max)));
+                            }
+                        }
+                    }
+                    M::ShallowEndDepth => {
+                        if r.min.is_some_and(|m| shallowest < m - 1e-6) || r.max.is_some_and(|m| shallowest > m + 1e-6) {
+                            let range = match (r.min, r.max) {
+                                (Some(a), Some(b)) => format!("{}–{}", feet(a), feet(b)),
+                                (Some(a), None) => format!("at least {}", feet(a)),
+                                (None, Some(b)) => format!("at most {}", feet(b)),
+                                _ => continue,
+                            };
+                            find(None, false, format!("the shallow end is {shallowest:.2} m ({}) deep; it should be {range}", feet(shallowest)));
+                        }
+                    }
+                    M::Depth => {
+                        if let Some(max) = r.max
+                            && deepest > max + 1e-6
+                        {
+                            find(None, false, format!("the pool is {deepest:.2} m ({}) deep at its deepest; at most {} for a {} pool", feet(deepest), feet(max), class.name()));
+                        }
+                    }
+                    M::CoveRadius => {
+                        if r.depth_up_to.is_some_and(|d| shallowest > d + 1e-6) {
+                            continue;
+                        }
+                        if let Some(max) = r.max
+                            && rec.cove > max + 1e-6
+                        {
+                            let where_ = r.depth_up_to.map(|d| format!(" where the water is {} deep or less", feet(d))).unwrap_or_default();
+                            find(None, false, format!("the wall–floor cove's radius is {:.0} mm; at most {:.0} mm{where_}", rec.cove * 1000.0, max * 1000.0));
+                        }
+                    }
+                    M::CopingOverhang | M::CopingThickness => {
+                        if !rec.edges.iter().any(Edge::has_coping) {
+                            continue;
+                        }
+                        let (what, v) = if r.check == M::CopingOverhang { ("overhang", rec.coping.overhang) } else { ("thickness", rec.coping.thickness) };
+                        if r.min.is_some_and(|m| v < m - 1e-6) || r.max.is_some_and(|m| v > m + 1e-6) {
+                            let range = match (r.min, r.max) {
+                                (Some(a), Some(b)) => format!("{:.0}–{:.0} mm", a * 1000.0, b * 1000.0),
+                                (Some(a), None) => format!("at least {:.0} mm", a * 1000.0),
+                                (None, Some(b)) => format!("at most {:.0} mm", b * 1000.0),
+                                _ => continue,
+                            };
+                            find(None, false, format!("the coping's {what} is {:.0} mm; it should be {range}", v * 1000.0));
+                        }
+                    }
+                    M::DeckWidth => {
+                        let Some(w) = r.min else { continue };
+                        let h = g.deck_z + 0.3;
+                        if cuts_at.as_ref().is_none_or(|(z, _)| (z - h).abs() > 1e-6) {
+                            cuts_at = Some((h, crate::sco::slice(store, h)));
+                        }
+                        let cuts: Vec<_> = cuts_at.as_ref().expect("sliced").1.iter().filter(|(o, _)| *o != id && !store.get(*o).is_some_and(is_counted)).copied().collect();
+                        let floors: Vec<Vec<[f64; 2]>> = crate::floors::all(store)
+                            .into_iter()
+                            .filter(|(f, _)| store.get(*f).and_then(crate::floors::slab_recipe).is_some_and(|(_, fr)| fr.level == rec.level))
+                            .flat_map(|(_, f)| f.profiles.into_iter().map(|p| p.outer))
+                            .collect();
+                        for i in 0..ring.len() {
+                            if matches!(rec.edges[i], Edge::Infinity { .. }) {
+                                continue;
+                            }
+                            let (a, b) = (ring[i], ring[(i + 1) % ring.len()]);
+                            let l = (b[0] - a[0]).hypot(b[1] - a[1]).max(1e-12);
+                            // Outward of a counter-clockwise ring: to the right of the edge.
+                            let n = [(b[1] - a[1]) / l, -(b[0] - a[0]) / l];
+                            let off = |q: [f64; 2], d: f64| [q[0] + n[0] * d, q[1] + n[1] * d];
+                            let strip = [off(a, 0.01), off(b, 0.01), off(b, w), off(a, w)];
+                            let probes = [0.1, 0.5, 0.9].map(|f| off([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f], w - 0.05));
+                            if floors.is_empty() || probes.iter().any(|q| !floors.iter().any(|f| crate::sco::inside(*q, f))) {
+                                find(None, false, format!("edge {} has no deck {} ({w:.2} m) wide along it", i + 1, feet(w)));
+                            } else if let Some(by) = crate::sco::blocking(&cuts, &strip) {
+                                find(Some(by), false, format!("{} stands in the {} ({w:.2} m) deck along edge {}", crate::sco::name(store, by), feet(w), i + 1));
+                            }
+                        }
+                    }
+                    M::InfinityEdge => {
+                        let Some(max) = r.max else { continue };
+                        let vanishing: f64 = (0..ring.len())
+                            .filter(|i| matches!(rec.edges[*i], Edge::Infinity { .. }))
+                            .map(|i| {
+                                let (a, b) = (ring[i], ring[(i + 1) % ring.len()]);
+                                (b[0] - a[0]).hypot(b[1] - a[1])
+                            })
+                            .sum();
+                        let share = vanishing / g.perimeter.max(1e-9);
+                        if share > max + 1e-6 {
+                            find(None, false, format!("{:.0} % of the edge is vanishing; at most {:.0} %", share * 100.0, max * 100.0));
+                        }
+                    }
+                    M::Entries => {
+                        let Some(sel) = &r.counts else { continue };
+                        let reach = r.near.unwrap_or(1.0);
+                        let n = selected(sel, &|c| crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach).len() as u32;
+                        report.entries = report.entries.max(n);
+                        if let Some(min) = r.min
+                            && f64::from(n) < min - 1e-9
+                        {
+                            find(None, false, format!("{n} entries and exits (ladders, stairs, recessed steps) at the pool; at least {min:.0}"));
+                        }
+                    }
+                    M::AccessibleEntries => {
+                        let Some(sel) = &r.counts else { continue };
+                        let reach = r.near.unwrap_or(1.5);
+                        let found = selected(sel, &|c| crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach);
+                        let primary = r.primary.as_ref().map_or(found.len(), |ps| found.iter().filter(|(o, ..)| store.get(*o).is_some_and(|el| ps.selects_element(store, el))).count());
+                        let n = found.len() as u32;
+                        report.accessible_entries = report.accessible_entries.max(n);
+                        let need = match r.perimeter {
+                            Some(p) if g.perimeter < p - 1e-6 => 1.0,
+                            _ => r.min.unwrap_or(1.0),
+                        };
+                        let wall = format!("{:.0} ft of pool wall", g.perimeter / 0.3048);
+                        if f64::from(n) < need - 1e-9 {
+                            find(None, false, format!("{n} accessible means of entry; {wall} needs {need:.0}"));
+                        } else if primary == 0 {
+                            find(None, false, format!("{n} accessible means of entry, none of them a pool lift or sloped entry; at least one must be"));
+                        }
+                    }
+                    M::Drains => {
+                        let Some(sel) = &r.counts else { continue };
+                        let found = selected(sel, &|c| crate::sco::inside(c, ring));
+                        report.drains = report.drains.max(found.len() as u32);
+                        if found.is_empty() {
+                            find(None, true, "no main drains (suction outlets) are modelled; this rule applies to the ones the pool will have".into());
+                            continue;
+                        }
+                        let unblockable = |s: [f64; 2]| r.cover.is_some_and(|c| s[0] >= c[0].min(c[1]) - 1e-6 && s[1] >= c[0].max(c[1]) - 1e-6);
+                        if found.iter().any(|(.., s)| unblockable(*s)) {
+                            continue;
+                        }
+                        if let Some(min) = r.min
+                            && (found.len() as f64) < min - 1e-9
+                        {
+                            let cover = r.cover.map(|c| format!(", or a cover at least {:.0} × {:.0} in", c[0] / 0.0254, c[1] / 0.0254)).unwrap_or_default();
+                            find(Some(found[0].0), false, format!("{} blockable main drain; at least {min:.0}{cover}", found.len()));
+                        }
+                        if let Some(sp) = r.spacing {
+                            for (i, a) in found.iter().enumerate() {
+                                for b in &found[i + 1..] {
+                                    let d = (a.1[0] - b.1[0]).hypot(a.1[1] - b.1[1]);
+                                    if d < sp - 1e-6 {
+                                        find(Some(b.0), false, format!("main drains {d:.2} m apart; at least {} ({sp:.2} m)", feet(sp)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    M::BatherLoad => {
+                        let Some(per) = r.min.filter(|v| *v > 0.0) else { continue };
+                        report.loads.push(Load { pack: pack.id.clone(), rule: r.id.clone(), per, bathers: (g.area / per + 1e-9).floor() as u32 });
+                    }
+                }
+            }
+        }
+        out.pools.push(report);
+    }
+    out.findings.sort_by_key(|f| f.severity != "error");
+    Ok(out)
 }

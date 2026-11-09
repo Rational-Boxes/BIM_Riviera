@@ -4,8 +4,8 @@
 //! Manage › Model Properties (UN): the model-wide settings in one place (DM-CODE-001,
 //! DM-UNIT-001, ARC-MOD-031). Units (a preset, and the decimal and grouping symbols), the
 //! building code with its occupancy and the model's own stair headroom, the accessibility
-//! rule set, the bathroom rule packs (ARC-BATH-001) and the interiors and retail rule packs
-//! (ARC-RULE-001).
+//! rule set, the bathroom rule packs (ARC-BATH-001) and the interiors, gym, retail and pool rule
+//! packs (ARC-RULE-001, ARC-POOL-002).
 //! OK applies what changed through `units.set_preset`, `units.set_number_format`, `code.set`,
 //! `clearance.set_rule_set`, `bath.set_rule_packs` and `rules.set_packs`. Tools use these as their defaults; a tool may use
 //! another code for one operation (the stair opening offer).
@@ -204,6 +204,7 @@ impl Gui {
             ("interiors", "Interiors rules", "Choose from the accessibility rule set", "The ADA interiors pack with the ADA rule set", "Furniture's use zones show as virtual volumes; Check Rules reports what is in them."),
             ("gym", "Gym rules", "Always the equipment makers' clearances", "The equipment makers' clearances", "Treadmill, rower and dumbbell rack use zones show as virtual volumes; Check Rules reports what is in them."),
             ("retail", "Retail rules", "Choose from the building code", "The IBC Group M aisle pack under the IBC", "Aisles in front of gondolas and end caps show as virtual volumes; Check Rules reports what is in them."),
+            ("pool", "Pool rules", "Choose from the code and rule set", "The ISPSC and VGB packs under the IBC, the ADA's pool pack with the ADA rule set; tick the MAHC where it is adopted", "View › Coordination › Check Pools checks each pool against them."),
         ];
         let mut domain_picks: Vec<(&str, Option<Vec<String>>, Vec<String>, CheckBox, Vec<(String, CheckBox)>)> = Vec::new();
         for (domain, title, auto_label, auto_tip, note_text) in domains {

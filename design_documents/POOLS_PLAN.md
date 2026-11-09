@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-08 · the owner answered every question (§10); step 1 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–2 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -205,3 +205,10 @@ exposed to Lua and MCP.
   water, the floor openings, the read-outs, and the IFC assembly with its WATER space. Sketching
   outlines in the window, moving pools, and drawing the cove, gutters, basins, raised walls,
   tiling and membrane remain. Next: step 2, `pool.check` with the ISPSC, MAHC, ADA and VGB packs.
+- Step 2 is built (ARC-POOL-002, 2026-11-09): the `pool` rule kind in `riviera.rules-1`, the
+  `us_mahc_2024`, `us_ispsc`, `ada_2010_pools` and `us_vgb` packs, `pool.check` with each pool's
+  class, a pool ladder and main-drain covers beside the bathroom components' pool lift, View ›
+  Coordination › Check Pools, and the sample *A public pool checked against the codes*. Not yet:
+  depth markings, NO DIVING, the break-point and float lines, barriers and gates, where entries
+  stand, stairs and handrails, deck slopes, diving tables. Next: step 3, entries cut into the
+  shell and the *Riviera Pools* equipment library with use zones.

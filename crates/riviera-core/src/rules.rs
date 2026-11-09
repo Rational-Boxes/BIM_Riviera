@@ -46,6 +46,10 @@ const SHIPPED: &[&str] = &[
     include_str!("../../../schemas/rules/packs/us_ibc_mercantile.json"),
     include_str!("../../../schemas/rules/packs/practice_retail.json"),
     include_str!("../../../schemas/rules/packs/gym_equipment.json"),
+    include_str!("../../../schemas/rules/packs/us_mahc_2024.json"),
+    include_str!("../../../schemas/rules/packs/us_ispsc.json"),
+    include_str!("../../../schemas/rules/packs/ada_2010_pools.json"),
+    include_str!("../../../schemas/rules/packs/us_vgb.json"),
 ];
 /// A zone's height above the floor when its rule gives none (metres).
 pub const DEFAULT_HEIGHT: f64 = 1.0;
@@ -204,6 +208,56 @@ pub struct Surface {
     pub length_min: Option<f64>,
 }
 
+/// What a pool rule measures (ARC-POOL-002).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum PoolMeasure {
+    ShallowSlope,
+    DeepSlope,
+    ShallowEndDepth,
+    Depth,
+    CoveRadius,
+    CopingOverhang,
+    CopingThickness,
+    DeckWidth,
+    InfinityEdge,
+    Entries,
+    AccessibleEntries,
+    Drains,
+    BatherLoad,
+}
+
+/// A rule on a swimming pool, checked by `pool.check` (ARC-POOL-002).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct PoolRule {
+    pub id: String,
+    pub description: String,
+    pub source: String,
+    pub confidence: Confidence,
+    pub check: PoolMeasure,
+    /// The pool classes it applies to (default all).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pools: Vec<crate::pools::PoolClass>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub depth_up_to: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub counts: Option<Selector>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub primary: Option<Selector>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub perimeter: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub near: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spacing: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cover: Option<[f64; 2]>,
+}
+
 /// A shared-format rule pack.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Pack {
@@ -226,6 +280,8 @@ pub struct Pack {
     pub heights_over: Vec<HeightOver>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub surfaces: Vec<Surface>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub pool: Vec<PoolRule>,
 }
 
 fn validator() -> &'static jsonschema::Validator {
@@ -293,7 +349,8 @@ pub fn chosen(store: &Store, domain: &str) -> Option<Vec<String>> {
 
 /// The packs chosen for a domain the project names none for: for interiors, the ADA pack with
 /// the ADA rule set; for retail, the IBC mercantile pack under the IBC; for gyms, the equipment
-/// makers' clearances always.
+/// makers' clearances always; for pools, the ISPSC and the VGB Act under the IBC and the ADA's
+/// pool rules with the ADA rule set (the MAHC is chosen per project: `POOLS_PLAN.md` Question 3).
 pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     let mut out = Vec::new();
     if domain == "interiors" && crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
@@ -304,6 +361,14 @@ pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     }
     if domain == "gym" {
         out.push("gym_equipment".to_owned());
+    }
+    if domain == "pool" {
+        if crate::codes::settings(store).code == crate::codes::Code::Ibc {
+            out.extend(["us_ispsc".to_owned(), "us_vgb".to_owned()]);
+        }
+        if crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
+            out.push("ada_2010_pools".to_owned());
+        }
     }
     out
 }

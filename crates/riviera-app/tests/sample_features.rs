@@ -1580,3 +1580,16 @@ fn the_pool_hall_sample_has_its_two_pools() {
     let i = ok(&mut app, "pool.info", json!({ "pool_id": teach }));
     assert_eq!((i["segments"][0]["ratio"].as_str(), i["shallowest"].as_f64(), i["deepest"].as_f64()), (Some("1:40.0"), Some(0.6), Some(0.9)), "{i:#}");
 }
+
+#[test]
+fn the_pool_rules_sample_passes_its_packs() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "pool_rules");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]), "the ladders and drains stand in the water");
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert_eq!(c["packs"], json!(["us_mahc_2024", "us_vgb", "ada_2010_pools"]), "{c:#}");
+    let p = &c["pools"][0];
+    assert_eq!((p["entries"].as_u64(), p["accessible_entries"].as_u64(), p["drains"].as_u64()), (Some(4), Some(1), Some(2)), "{p:#}");
+    assert_eq!(p["loads"][0]["bathers"].as_u64(), Some(107), "{p:#}");
+    assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+}
