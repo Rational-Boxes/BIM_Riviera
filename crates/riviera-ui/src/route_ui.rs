@@ -325,6 +325,7 @@ impl Gui {
             Some("frontend.layout") => self.checkout_bank_finish(args),
             Some("sco.place_pod") => self.sco_pod_finish(args),
             Some("gym.mirror") => self.gym_mirror_finish(args),
+            Some("pool.create") => self.swimming_pool_finish(args),
             _ => {}
         }
     }

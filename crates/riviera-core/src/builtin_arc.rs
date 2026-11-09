@@ -365,6 +365,10 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(GymCheck),
         registry.add(GymLayout),
         registry.add(GymStudio),
+        registry.add(PoolCreate),
+        registry.add(PoolSet),
+        registry.add(PoolInfo),
+        registry.add(PoolList),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4409,6 +4413,59 @@ edit_command!(
     crate::gym::StudioParams,
     crate::gym::StudioResult,
     crate::gym::studio
+);
+
+edit_command!(
+    PoolCreate,
+    "pool.create",
+    "Make a swimming pool",
+    "Makes a swimming pool (ARC-POOL-001) on `level` from a closed `outline` (its first edge the shallow \
+     end) or a `template` (rectangle, lap, competition_25yd, competition_25m, competition_50m with lanes \
+     and lane width, teaching, wading) placed by its centre and rotation. The water is `water_level` below \
+     the `deck` (default 0.15 m; 0 with deck-level gutters); the floor follows the `profile`'s stations \
+     along the `axis` (depth below the water at each distance; default 1.0 m to 5 ft at 60 % to 2.0 m, \
+     or the template's). Its shell (walls and a base slab, default 0.3 m of cast concrete), coping (0.3 m \
+     wide, 40 mm over the water) and water are generated, and its outline is cut out of the level's \
+     floors. `edges`: skimmer, deck_level, infinity or raised, one for all or one per outline edge. \
+     Returns its id.",
+    "Swimming Pool",
+    crate::pools::CreateParams,
+    ElementId,
+    crate::pools::create
+);
+
+edit_command!(
+    PoolSet,
+    "pool.set",
+    "Change a swimming pool",
+    "Changes a swimming pool (ARC-POOL-001): its outline, deck, water level, axis, profile, cove, edges, \
+     coping or shell. Its shell, water and floor openings follow.",
+    "Edit Pool",
+    crate::pools::SetParams,
+    (),
+    crate::pools::set
+);
+
+read_command!(
+    PoolInfo,
+    "pool.info",
+    "A swimming pool's numbers",
+    "A swimming pool's water area, perimeter and volume, the depth below the water at `points`, each \
+     profile segment's slope (as 1:n), its deepest and shallowest depths, the shell's concrete volume and \
+     the water level (ARC-POOL-001).",
+    crate::pools::InfoParams,
+    crate::pools::Info,
+    crate::pools::info
+);
+
+read_command!(
+    PoolList,
+    "pool.list",
+    "List the swimming pools",
+    "Lists the model's swimming pools with their water area and volume (ARC-POOL-001).",
+    Option<serde_json::Value>,
+    Vec<crate::pools::Listed>,
+    crate::pools::list
 );
 
 read_command!(

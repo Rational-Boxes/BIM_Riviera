@@ -1,0 +1,66 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Copyright (C) 2026 Riviera contributors -->
+<h1>Swimming pools</h1>
+<p class="lead">A swimming pool is one element. Give its outline or pick a template, then its
+depths: Riviera makes its <b>shell</b> (walls and a sloped base slab), its <b>coping</b> and its
+<b>water</b>, and cuts the floor round it, all kept up to date as you change it. The sample
+<a href="riviera:sample/pool_hall">A swimming pool hall</a> has a 25 m pool and a teaching pool.
+Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bathrooms</a> page.</p>
+<nav class="toc">
+  <a href="#place">Placing one</a>
+  <a href="#depths">Depths and slopes</a>
+  <a href="#edges">Edges, coping and shell</a>
+  <a href="#ifc">In IFC</a>
+  <a href="#limits">Limits and what to check</a>
+  <a href="#scripts">Scripts and agents</a>
+</nav>
+
+<h2 id="place">Placing one</h2>
+<p>Choose <b>Architecture › Build › Swimming Pool</b> and a template:</p>
+<ul>
+  <li><b>Competition 25 m, 50 m and 25 yd</b>: 2.5 m lanes (six by default, eight for 50 m), 30 mm
+  longer for touch pads, 2.0 m deep throughout;</li>
+  <li><b>Teaching</b>: 12 × 7 m, 0.9 m deep (Sport England's teaching pool);</li>
+  <li><b>Lap pool</b>, <b>Rectangle</b> by their sizes, and a <b>Wading pool</b> 0.45 m deep.</li>
+</ul>
+<p>Click the pool's centre, then a point toward its deep end. Or type an outline as coordinates,
+starting with the shallow end's wall and going counter-clockwise. The status bar gives its water
+area, volume and depths.</p>
+
+<h2 id="depths">Depths and slopes</h2>
+<p>The floor follows <b>stations</b> along the pool's axis, from the shallow end to the deep end:
+each a distance and the depth below the water there. Between stations the floor is a straight
+slope; beyond the first and last it is level. Type them as <code>0:1.0, 7:1.52, 10:2.0</code>.
+Without them a pool is 1.0 m deep at the shallow end, 5 ft (1.52 m, the break point where the
+codes' slope limits change) at 60 % of its length and 2.0 m at the deep end. Each segment's slope
+is given as 1:n; checking it against the codes is the next step.</p>
+
+<h2 id="edges">Edges, coping and shell</h2>
+<ul>
+  <li><b>Edge</b>: skimmer pools have their water 0.15 m below the deck and a coping 0.3 m wide,
+  overhanging the water by 40 mm (the MAHC's 1–2 in) and 60 mm thick. Deck-level gutter pools
+  have their water at the deck and no coping.</li>
+  <li><b>Shell</b>: 0.3 m of cast concrete by default, walls outside the outline and a base slab
+  under the floor. The floor on the pool's level is cut round it.</li>
+</ul>
+<p>The values are provisional (EXPERT_REVIEW.md E-116).</p>
+
+<h2 id="ifc">In IFC</h2>
+<p>A pool is an <code>IfcElementAssembly</code> (SWIMMINGPOOL) of an <code>IfcWall</code>, an
+<code>IfcSlab</code> (BASESLAB) and an <code>IfcCovering</code> (COPING). Its water is an
+<code>IfcSpace</code> (WATER) under the level, with its area and volume in
+<code>Qto_SpaceBaseQuantities</code>. No IFC version has a pool class, so this is Riviera's
+mapping.</p>
+
+<h2 id="limits">Limits and what to check</h2>
+<ul>
+  <li>Freeform outlines are typed, not yet sketched; profiles are changed from a script.</li>
+  <li>Gutters and infinity-edge basins are recorded but not drawn; the wall–floor cove is a value
+  only; tiling and the membrane are not drawn.</li>
+  <li>Nothing is checked yet: slopes, entries, depth markings, decks, barriers, accessible entries
+  and drains come with <code>pool.check</code>.</li>
+</ul>
+
+<h2 id="scripts">Scripts and agents</h2>
+<p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
+<code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>.</p>

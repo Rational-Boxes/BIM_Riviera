@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-08 · the owner answered every question (§10); spec next
+**Status:** Draft 0.2 · 2026-11-08 · the owner answered every question (§10); step 1 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -197,3 +197,11 @@ exposed to Lua and MCP.
   verify against the current World Aquatics text.
 - **Q6, order:** public and competition pools first; residential presets follow.
 - **Q7, integration:** after the geometry and checks: steps 6–8 of §8 stay where they are.
+
+## 11. Progress
+
+- Step 1 is built (ARC-POOL-001, 2026-11-08): the pool element from a template or a typed
+  outline, its depth profile in planar strips, the generated shell walls and base slab, coping and
+  water, the floor openings, the read-outs, and the IFC assembly with its WATER space. Sketching
+  outlines in the window, moving pools, and drawing the cove, gutters, basins, raised walls,
+  tiling and membrane remain. Next: step 2, `pool.check` with the ISPSC, MAHC, ADA and VGB packs.

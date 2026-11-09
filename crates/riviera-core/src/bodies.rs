@@ -516,6 +516,23 @@ pub fn all(store: &Store) -> Vec<Body> {
             }
         }
     }
+    // Swimming pools (ARC-POOL-001): the shell's walls and base slab in concrete grey, the
+    // coping in stone, the water translucent blue and hidden in plan.
+    for (id, g) in crate::pools::all(store) {
+        let hex = crate::mesh_objects::color_hex;
+        for m in g.walls {
+            push(id, &format!("IfcWall:{}", hex([0.70, 0.70, 0.68, 1.0])), m, false);
+        }
+        for m in g.base {
+            push(id, &format!("IfcSlab:{}", hex([0.66, 0.66, 0.64, 1.0])), m, false);
+        }
+        for m in g.coping {
+            push(id, &format!("IfcCovering:{}", hex([0.85, 0.82, 0.75, 1.0])), m, false);
+        }
+        for m in g.water {
+            push(id, &format!("IfcSpace:{}", hex([0.35, 0.65, 0.90, 0.45])), m, true);
+        }
+    }
     // Geodesic domes (ARC-GLZ-006): glass panels on metal struts.
     for (id, panels, struts) in crate::geodesic::all(store) {
         for m in panels {

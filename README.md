@@ -692,15 +692,17 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   rows (`gym.layout`); Studio sizes a cycling, mat or HIIT studio and lays out a cycling studio's
   bikes facing the instructor (`gym.studio`). Check Gym gives each room's occupant load. Not built
   yet: zoning cardio and strength, the accessible route to accessible machines.
-- **Swimming pools** (ARC-POOL-001…, `POOLS_PLAN.md`, research/23). Specified, not built yet. A
-  pool element from an outline or a template (25 yd, 25 m and 50 m competition, teaching, lap):
+- **Swimming pools** (ARC-POOL-001…, `POOLS_PLAN.md`, research/23). The pool element is built
+  (Architecture › Build › Swimming Pool; `pool.create`, `pool.set`, `pool.info`, `pool.list`): a
+  pool from a typed outline or a template (25 yd, 25 m and 50 m competition, teaching, lap):
   - its depth profile with the 5 ft break point, its edge (skimmer, deck-level gutters or an
     infinity edge) and coping;
   - a generated shell of walls and a sloped base slab, cut into the floor;
   - its water as an IfcSpace (WATER) with area and volume.
-  Planned after it: `pool.check` with the ISPSC, MAHC, ADA §242/§1009 and VGB packs, entries and a
-  pool equipment library, competition presets and diving envelopes, UK packs, then the hall's
-  dehumidification, water treatment, structural loads and bonding.
+  Not built yet: sketched outlines, and drawn gutters and basins. Planned after it: `pool.check`
+  with the ISPSC, MAHC, ADA §242/§1009 and VGB packs, entries and a pool equipment library,
+  competition presets and diving envelopes, UK packs, then the hall's dehumidification, water
+  treatment, structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

@@ -16168,52 +16168,55 @@ Public and competition pools come first (Q6).
 - **`pool.create`** takes:
   - a level and the **deck** height above it (default 0, the level's floor);
   - an **outline**, sketched or typed (closed polyline, arcs allowed), or a **template** placed by an origin and a rotation.
-  - Templates are a rectangle, L and lap pool by their sizes, and the competition pools: 25 yd (22.86 m), 25 m and 50 m by lane count and width, each 0.03 m longer for touch pads (research/23 D.1.1). A teaching pool is 12 × 7 m, 0.6–0.9 m deep (Sport England, B.1). A wading pool is 0.6 m deep at most.
-- **The axis** runs from the shallow end to the deep end: the outline's first edge's middle to the opposite side, or two points given.
+  - Templates are a rectangle and a lap pool by their sizes, and the competition pools: 25 yd (22.86 m), 25 m and 50 m by lane count and width, each 0.03 m longer for touch pads (research/23 D.1.1). A teaching pool is 12 × 7 m, 0.6–0.9 m deep (Sport England, B.1). A wading pool is 0.45 m deep (the plan's 0.6 m at most).
+- **The axis** runs from the shallow end to the deep end: from the outline's first edge's middle, square to it, as far as the pool reaches; or two points given.
 - **The water level** is a depth below the deck (default 0.15 m for a skimmer pool, 0 for deck-level gutters).
 - **The depth profile** is a list of stations along the axis, each a distance and a depth below the water. The floor is linear between stations and constant across the axis.
   - A station may be named `break`: the **break point**, where depth reaches 5 ft (1.52 m) and the slope limits change (A.2).
   - The pool reports each segment's slope; `pool.check` (ARC-POOL-002) judges it.
-  - Default profiles: a public pool 1.0 m to 2.0 m with the break at 1.52 m; a competition pool a constant 2.0 m (2.5 m with the World Aquatics option, Q5); a teaching pool 0.9 m.
-- **The wall–floor cove** has a radius (default 150 mm, the MAHC's 6 in at depths to 3 ft, A.3), tangent to the wall.
+  - Default profiles: a public pool 1.0 m deep, 1.52 m at 60 % of its length and 2.0 m at the deep end; a competition pool a constant 2.0 m (2.5 m to come with the World Aquatics option, Q5); a teaching pool 0.9 m; a lap pool 1.2 m.
+  - Each part is cut into strips between stations, so each strip's floor is one plane.
+- **The wall–floor cove** has a radius (default 150 mm, the MAHC's 6 in at depths to 3 ft, A.3), kept for the checks. It is not drawn yet.
 - **The edge**, per outline edge:
   - `skimmer`;
   - `deck_level` (Finnish, Wiesbaden or Zurich, with its gutter width, default 0.3 m);
   - `infinity`, with its catch basin: its width (default 0.45 m) and its depth (default 0.6 m) are inputs, sized in step 7;
   - `raised`, with a height.
+  - Gutters, basins and raised walls are recorded, not yet drawn.
 - **The coping** follows the edges that are not deck-level or infinity. It is 0.3 m wide by default, overhangs 40 mm (the MAHC's 1–2 in) and is at most 2.5 in (64 mm) thick.
 - **The shell** (Q2) is generated from the outline and the profile:
   - walls the shell's thickness outside the outline (default 0.3 m of cast concrete), from the deck down to the floor;
   - a floor slab under the profile;
   - shotcrete, panel or one-piece shells by type, with their thicknesses as inputs;
-  - an optional tiling layer, its thickness given, and a waterproofing membrane.
-  - The pool cuts its outline, grown by the shell, out of any floor or deck slab on its level (as a vertical opening, ARC-OPEN-002), and regenerates when the outline, profile or shell changes.
+  - an optional tiling layer, its thickness given, and a waterproofing membrane; both are recorded, not yet drawn.
+  - The pool cuts its outline, grown by the shell or the coping (whichever is wider), out of any floor on its level (each a vertical opening, ARC-OPEN-002, tagged `rxd:pool_cut`). The openings are made again when the pool changes and are deleted with it.
 - **The water** is the volume under the water level inside the outline. Read-outs give:
   - the water area, perimeter and volume;
   - the depth at any plan point;
   - the deepest and shallowest points;
   - each segment's slope;
   - the shell's concrete volume.
-- Shell, coping, water and finishes are the pool's own parts. They are selected, moved and deleted with it, and each edit of the pool is one undo step.
+- Shell, coping and water are the pool's own parts: they are selected and deleted with it, and each edit of the pool is one undo step.
 
 **Data (IFC mapping)** (Q1):
 - the shell's walls as `IfcWall` (RETAININGWALL in IFC 4.3, SOLIDWALL in IFC4) and its floor as `IfcSlab` BASESLAB, aggregated under the pool (`IfcElementAssembly` USERDEFINED "SWIMMINGPOOL");
 - tiling as `IfcCovering` FLOORING and CLADDING, the membrane as MEMBRANE, coping as COPING in IFC 4.3 (USERDEFINED in IFC4);
-- the water as an `IfcSpace` USERDEFINED ("WATER") with `Qto_SpaceBaseQuantities` area and volume, contained in the space it is in;
+- the water as an `IfcSpace` USERDEFINED ("WATER"), aggregated under the level, with `Qto_SpaceBaseQuantities` NetFloorArea and NetVolume;
+- the parts and their aggregations are marked `rxd:pool`, so they are rewritten only when the pool changes and are not loaded as elements;
 - the recipe in RXD (`recipe.pool`);
 - Uniclass: SL_42_85_41 or SL_42_85_59 (indoor or outdoor), Ss_37_40_85 tiling (research/23 D.5.3).
 
 **Commands.** `pool.create(level, outline | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell?)` → id; `pool.set(pool_id, …)` (any of the same); `pool.info(pool_id, points?)` → `{area, perimeter, volume, depths, segments: [{from, to, slope}], deepest, shallowest, shell_volume}`; `pool.list()`.
 
 **Acceptance criteria.**
-- [ ] A 25 m × 6-lane competition template is 25.03 × 15.0 m (2.5 m lanes), constant 2.0 m deep, with a volume within 1 % of 25.03 × 15 × 2.0 m³.
-- [ ] A public pool profiled 1.0 m to 1.52 m over 7 m, then to 2.0 m over 3 m, reports slopes of about 1:13.5 and 1:6.3, and its depth at a point between.
-- [ ] The shell's walls and floor follow the outline and the profile. The floor slab of the level has an opening round the pool, and nothing overlaps.
-- [ ] Changing the profile regenerates the shell and the water, in one undo step.
-- [ ] Exported to IFC, the pool is an assembly of walls, a base slab and coverings, with a WATER space carrying its volume, and it reads back.
-- [ ] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool.
+- [x] A 25 m × 6-lane competition template is 25.03 × 15.0 m (2.5 m lanes), constant 2.0 m deep, with a volume within 1 % of 25.03 × 15 × 2.0 m³.
+- [x] A public pool profiled 1.0 m to 1.524 m over 7 m, then to 2.0 m over 3 m, reports slopes of 1:13.4 and 1:6.3, its depth at a point between, and its exact volume.
+- [x] The shell's walls and floor follow the outline and the profile. The floor of the level has an opening round the pool, deleted with it, and nothing overlaps.
+- [x] Changing the profile regenerates the shell and the water, in one undo step; a profile running backwards is refused.
+- [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
+- [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Specified (2026-11-08), not built.* Later steps: `pool.check` and the US packs (ARC-POOL-002), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002), entries and the *Riviera Pools* library (ARC-POOL-003), competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
 
 ## 3.11 Massing and site
 

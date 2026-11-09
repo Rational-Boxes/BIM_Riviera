@@ -1566,3 +1566,17 @@ fn the_gym_floor_sample_passes() {
     assert_eq!(rooms.len(), 3, "{c:#}");
     assert!(rooms.iter().any(|(n, p)| n == "Cycle studio" && *p >= 10) && rooms.iter().any(|(n, p)| n == "Circuit" && *p == 8), "{rooms:?}");
 }
+
+#[test]
+fn the_pool_hall_sample_has_its_two_pools() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "pool_hall");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let pools = ok(&mut app, "pool.list", json!({}));
+    let mut names: Vec<(String, String)> = pools.as_array().unwrap().iter().map(|p| (p["name"].as_str().unwrap().to_owned(), p["template"].as_str().unwrap_or_default().to_owned())).collect();
+    names.sort();
+    assert_eq!(names, vec![("Main pool".to_owned(), "competition_25m".to_owned()), ("Teaching pool".to_owned(), "teaching".to_owned())]);
+    let teach = pools.as_array().unwrap().iter().find(|p| p["name"] == "Teaching pool").unwrap()["id"].clone();
+    let i = ok(&mut app, "pool.info", json!({ "pool_id": teach }));
+    assert_eq!((i["segments"][0]["ratio"].as_str(), i["shallowest"].as_f64(), i["deepest"].as_f64()), (Some("1:40.0"), Some(0.6), Some(0.9)), "{i:#}");
+}

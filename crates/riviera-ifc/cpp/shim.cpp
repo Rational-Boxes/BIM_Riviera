@@ -539,7 +539,7 @@ rust::Vec<Mesh> Model::tessellate(std::uint32_t threads, rust::Slice<const std::
             auto d = e->get("Description");
             if (!d.isNull()) {
                 std::string text = d;
-                if (text == "rxd:curtain" || text == "rxd:path_array") return false;
+                if (text == "rxd:curtain" || text == "rxd:path_array" || text == "rxd:pool") return false;
             }
         }
         return true;

@@ -221,6 +221,7 @@ pub fn toolset_of(command: &str) -> String {
             | "checkout"
             | "sco"
             | "gym"
+            | "pool"
             | "cabinet"
             | "countertop"
             | "counter"

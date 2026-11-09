@@ -20,6 +20,7 @@ mod mep;
 mod mesh_objects;
 pub mod params;
 mod path_arrays;
+mod pools;
 mod psets;
 mod selection_sets;
 mod system_zones;

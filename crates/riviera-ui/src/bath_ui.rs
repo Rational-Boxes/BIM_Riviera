@@ -859,6 +859,97 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Swimming Pool (ARC-POOL-001): a template placed by its centre and the
+    /// direction of its deep end, or an outline typed as coordinates.
+    pub(crate) fn swimming_pool(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Swimming Pool");
+        let kinds = ["competition_25m", "competition_50m", "competition_25yd", "teaching", "lap", "rectangle", "wading"];
+        let labels = ["Competition 25 m", "Competition 50 m", "Competition 25 yd", "Teaching 12 × 7 m", "Lap pool", "Rectangle", "Wading pool"];
+        let kind = f.choice("Pool", &labels.map(str::to_owned), 0);
+        let lanes = f.text("Lanes", "", "Competition pools: default 6 (8 for 50 m), each 2.5 m");
+        let length = f.text("Length (m)", "", "Rectangle and lap pools");
+        let width = f.text("Width (m)", "", "");
+        let outline = f.text("Or an outline", "", "x,y; x,y; … from the shallow end's wall, counter-clockwise (metres)");
+        let depths = f.text("Depths (m)", "", "at:depth, … along the axis, e.g. 0:1.0, 7:1.52, 10:2.0; empty for the template's");
+        let edges = f.choice("Edge", &["Skimmer".to_owned(), "Deck-level gutter".to_owned()], 0);
+        let ok = f.show("Then click the pool's centre and a point toward its deep end (a typed outline places at once).", "Place");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let pairs = |s: &str, sep: char| -> Option<Vec<[f64; 2]>> {
+            let v: Option<Vec<[f64; 2]>> = s
+                .split(sep)
+                .filter(|p| !p.trim().is_empty())
+                .map(|p| {
+                    let mut it = p.split(if sep == ';' { ',' } else { ':' }).map(|x| x.trim().parse::<f64>().ok());
+                    Some([it.next()??, it.next()??])
+                })
+                .collect();
+            v.filter(|v| !v.is_empty())
+        };
+        let kind = kinds[kind.get_selection().unwrap_or(0) as usize];
+        let edge = if edges.get_selection().unwrap_or(0) == 1 { json!([{ "kind": "deck_level" }]) } else { json!([{ "kind": "skimmer" }]) };
+        let mut args = json!({ "edges": edge });
+        if let Some(d) = pairs(&depths.get_value(), ',') {
+            args["profile"] = json!(d.iter().map(|p| json!({ "at": p[0], "depth": p[1] })).collect::<Vec<_>>());
+        }
+        let typed = pairs(&outline.get_value(), ';');
+        let mut template = json!({ "kind": kind, "origin": [0.0, 0.0] });
+        if let Ok(n) = lanes.get_value().trim().parse::<u32>() {
+            template["lanes"] = json!(n);
+        }
+        if let Some(l) = num(&length) {
+            template["length"] = json!(l);
+        }
+        if let Some(w) = num(&width) {
+            template["width"] = json!(w);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        if let Some(o) = typed {
+            // A typed outline goes on the lowest level.
+            let Some(level) = self.levels().first().map(|l| l.id.0) else { return error(&frame, "The model has no level.") };
+            args["outline"] = json!(o);
+            args["level"] = json!(level);
+            return self.swimming_pool_done(args);
+        }
+        args["template"] = template;
+        self.start_picking(
+            "pool.create",
+            vec![
+                json!({ "key": "origin", "kind": "at", "prompt": "Swimming Pool: click the pool's centre" }),
+                json!({ "key": "toward", "kind": "point", "prompt": "Swimming Pool: click a point toward its deep end" }),
+            ],
+            args,
+        );
+    }
+
+    /// The pool picked: its template turned toward the deep end and placed.
+    pub(crate) fn swimming_pool_finish(&mut self, mut args: serde_json::Value) {
+        let origin = args["origin"].take();
+        let toward = args["toward"].take();
+        let (o, t) = (origin["point"].clone(), toward);
+        let (ox, oy) = (o[0].as_f64().unwrap_or(0.0), o[1].as_f64().unwrap_or(0.0));
+        let (tx, ty) = (t[0].as_f64().unwrap_or(ox + 1.0), t[1].as_f64().unwrap_or(oy));
+        args["template"]["origin"] = json!([ox, oy]);
+        args["template"]["rotation"] = json!((ty - oy).atan2(tx - ox));
+        args["level"] = origin["level"].clone();
+        self.swimming_pool_done(args);
+    }
+
+    fn swimming_pool_done(&mut self, args: serde_json::Value) {
+        let frame = self.frame;
+        match self.run("pool.create", args) {
+            Ok(id) => {
+                self.refresh_scene(&frame);
+                let i = self.run("pool.info", json!({ "pool_id": id })).unwrap_or_default();
+                frame.set_status_text(&format!("Pool: {:.1} m² of water, {:.1} m³, {:.2}–{:.2} m deep", i["area"].as_f64().unwrap_or(0.0), i["volume"].as_f64().unwrap_or(0.0), i["shallowest"].as_f64().unwrap_or(0.0), i["deepest"].as_f64().unwrap_or(0.0)), 0);
+            }
+            Err(e) => error(&frame, &format!("The pool was not made:\n{e}")),
+        }
+    }
+
     /// Architecture › Build › Counter (ARC-INT-004): a transaction, service, bar or work counter
     /// clicked from start to end along a wall, with an accessible portion if asked.
     pub(crate) fn counter_run(&mut self) {

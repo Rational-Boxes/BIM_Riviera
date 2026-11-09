@@ -1454,6 +1454,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "sco_pod" => format!(
             r#"<rect x="3" y="4" width="7" height="5" fill="{f}" {s}/><rect x="3" y="11" width="7" height="5" fill="{a}" {s}/><rect x="3" y="18" width="7" height="5" fill="{f}" {s}/><rect x="22" y="4" width="7" height="5" fill="{f}" {s}/><rect x="22" y="11" width="7" height="5" fill="{f}" {s}/><rect x="22" y="18" width="7" height="5" fill="{a}" {s}/><rect x="11" y="25" width="10" height="4" fill="{f}" {s}/>"#
         ),
+        // A pool in section: its deck, the water's surface and a floor falling to the deep end.
+        "swimming_pool" => format!(
+            r#"<path d="M2 9h5v6l9 4 9 6V9h5" {s}/><path d="M7 11h18v14l-9-6-9-4z" fill="{a}"/><path d="M8 13c2-1.5 4 1.5 6 0s4 1.5 6 0 3 1 4 0" stroke="{f}" stroke-width="1.5" fill="none"/>"#
+        ),
         // A room in plan with a row of treadmills along its head wall and a rack below.
         "gym_layout" => format!(
             r#"<rect x="3" y="3" width="26" height="26" fill="none" {s}/><rect x="6" y="5" width="4" height="9" fill="{f}" {s}/><rect x="14" y="5" width="4" height="9" fill="{f}" {s}/><rect x="22" y="5" width="4" height="9" fill="{f}" {s}/><rect x="10" y="19" width="12" height="6" fill="{a}" {s}/>"#

@@ -567,6 +567,7 @@ pub fn dependents_of(store: &crate::store::Store, id: ElementId) -> Vec<ElementI
                 || crate::constraints::data(e).is_some_and(|c| crate::constraints::uses(&c, &guid))
                 || crate::path_arrays::path_array_recipe(e)
                     .is_some_and(|r| crate::path_arrays::uses(&r, &guid))
+                || crate::pools::uses(e, &guid)
                 || crate::slab_openings::shaft_recipe(e).is_some_and(|r| r.extent.uses_level(&guid))
                 || crate::wall_openings::wall_opening_recipe(e)
                     .is_some_and(|r| r.host == guid || r.extent.uses_level(&guid))

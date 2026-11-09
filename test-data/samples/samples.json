@@ -456,6 +456,19 @@
     ]
   },
   {
+    "name": "pool_hall",
+    "title": "A swimming pool hall",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "pool_hall.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

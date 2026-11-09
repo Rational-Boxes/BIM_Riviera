@@ -54,6 +54,7 @@ pub const RESERVED_DOMAINS: &[&str] = &[
     "checkout",
     "sco",
     "gym",
+    "pool",
     "cabinet",
     "countertop",
     "counter",

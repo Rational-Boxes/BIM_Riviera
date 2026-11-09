@@ -606,6 +606,12 @@ impl LocalProject {
             ) {
                 crate::curves::remove(&mut self.ifc, step)?;
             }
+            if recipe_kind == Some(riviera_core::pools::RECIPE) {
+                let guid = self.ifc.attribute(step, "GlobalId")?;
+                if let AttrValue::String(g) = guid {
+                    crate::pools::remove_parts(&mut self.ifc, step, &g)?;
+                }
+            }
             if recipe_kind == Some(riviera_core::path_arrays::RECIPE) {
                 crate::path_arrays::remove_members(&mut self.ifc, step)?;
                 crate::mesh_objects::remove_copy_geometry(&mut self.ifc, step)?;
@@ -814,6 +820,7 @@ impl LocalProject {
                 owner_history,
                 self.length_scale,
             )?;
+            crate::pools::write_pools(&mut self.ifc, doc, &self.steps, owner_history, self.length_scale)?;
             crate::groups::write_groups(&mut self.ifc, doc, &self.steps, owner_history)?;
             crate::selection_sets::write_selection_sets(&mut self.ifc, doc, &self.steps, owner_history)?;
             crate::classification::write_classifications(&mut self.ifc, doc, &self.steps, owner_history)?;
@@ -4655,6 +4662,7 @@ fn is_derived(ifc: &IfcModel, id: StepId) -> bool {
         if d.starts_with(DERIVED_OPENING)
             || d == crate::curtains::PART_TAG
             || d == crate::path_arrays::PART_TAG
+            || d == crate::pools::PART_TAG
             || d == crate::stacked_walls::PART_TAG
             || d == REBAR_TYPE_TAG
             || d == REBAR_PART_TAG
