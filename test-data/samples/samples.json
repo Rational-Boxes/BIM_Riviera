@@ -482,6 +482,19 @@
     ]
   },
   {
+    "name": "backyard_pool",
+    "title": "A backyard pool",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "backyard_pool.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

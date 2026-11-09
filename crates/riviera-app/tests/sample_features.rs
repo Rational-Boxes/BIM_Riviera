@@ -1579,6 +1579,32 @@ fn the_pool_hall_sample_has_its_two_pools() {
     let teach = pools.as_array().unwrap().iter().find(|p| p["name"] == "Teaching pool").unwrap()["id"].clone();
     let i = ok(&mut app, "pool.info", json!({ "pool_id": teach }));
     assert_eq!((i["segments"][0]["ratio"].as_str(), i["shallowest"].as_f64(), i["deepest"].as_f64()), (Some("1:40.0"), Some(0.6), Some(0.9)), "{i:#}");
+    // Its stairs at each end and its sloped entry; the main pool's four ladders and two drains.
+    assert_eq!(i["entries"].as_array().unwrap().iter().map(|e| e["kind"].as_str().unwrap()).collect::<Vec<_>>(), vec!["stairs", "sloped_entry", "stairs"]);
+    let c = ok(&mut app, "pool.check", json!({}));
+    let report = |name: &str| c["pools"].as_array().unwrap().iter().find(|p| p["name"] == name).cloned().unwrap();
+    let (main, teaching) = (report("Main pool"), report("Teaching pool"));
+    assert_eq!((main["class"].as_str(), main["entries"].as_u64(), main["drains"].as_u64()), (Some("competition"), Some(4), Some(2)), "{c:#}");
+    assert_eq!(teaching["entries"].as_u64(), Some(2), "{c:#}");
+    assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+    // The six starting platforms, the lift and the lifeguard chair are typed library items.
+    let s = store(&app);
+    let kind = |k: &str| s.iter().filter(|e| riviera_core::mesh_objects::type_of(&s, e).and_then(|(t, _)| s.get(t)).and_then(|t| t.param("@ElementType")).and_then(Value::as_str) == Some(k)).count();
+    assert_eq!((kind("Starting Platform"), kind("Pool Lift"), kind("Lifeguard Chair")), (6, 1, 1));
+}
+
+#[test]
+fn the_backyard_pool_sample_is_a_residential_pool() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "backyard_pool");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert_eq!(c["pools"][0]["class"], "residential", "{c:#}");
+    assert_eq!(c["findings"], json!([]), "residential rules only, and it meets them");
+    let id = c["pools"][0]["pool"].clone();
+    let i = ok(&mut app, "pool.info", json!({ "pool_id": id }));
+    let e = i["entries"].as_array().unwrap();
+    assert_eq!((e[0]["kind"].as_str(), e[0]["risers"].as_u64(), e[1]["kind"].as_str()), (Some("stairs"), Some(5), Some("bench")), "{i:#}");
 }
 
 #[test]
