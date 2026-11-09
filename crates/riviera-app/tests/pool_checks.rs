@@ -26,8 +26,10 @@ fn has(c: &Value, pack: &str, rule: &str) -> bool {
     rules(c).iter().any(|(p, r)| p == pack && r == rule)
 }
 
-fn place(app: &mut App, ty: &Value, level: &Value, at: [f64; 2], offset: f64) -> Value {
-    ok(app, "bath.place_component", json!({ "type_id": ty, "point": at, "level": level, "offset": offset, "work_plane": true }))
+/// A *Riviera Pools* item (or a bathroom component) placed, turned by `turn` radians.
+fn place(app: &mut App, ty: &Value, level: &Value, at: [f64; 2], offset: f64, turn: f64) -> Value {
+    let r = ok(app, "mesh_object.place", json!({ "type_id": ty, "point": at, "level": level, "offset": offset, "rotation": turn }));
+    if r.is_array() { r[0].clone() } else { r }
 }
 
 #[test]
@@ -54,12 +56,14 @@ fn a_public_pool_is_checked() {
     assert_eq!((p["class"].as_str(), p["entries"].as_u64(), p["loads"][0]["bathers"].as_u64()), (Some("public"), Some(0), Some(25)), "{p:#}");
     // A gentler shallow slope, ladders at each end, a lift, and two drains too close together.
     ok(&mut app, "pool.set", json!({ "pool_id": pool, "profile": [{ "at": 0.0, "depth": 1.0 }, { "at": 6.0, "depth": 1.524 }, { "at": 8.0, "depth": 2.0 }] }));
-    let types = ok(&mut app, "bath.load_components", json!({ "names": ["Pool ladder", "Pool lift", "Pool main drain, 300 × 300", "Pool main drain, unblockable 610 × 760", "Steam room bench 600"] }));
-    place(&mut app, &types["Pool ladder"], &level, [1.0, 8.3], 0.0);
-    place(&mut app, &types["Pool ladder"], &level, [14.0, 8.3], 0.0);
-    place(&mut app, &types["Pool lift"], &level, [3.0, -0.6], 0.0);
-    let d1 = place(&mut app, &types["Pool main drain, 300 × 300"], &level, [11.0, 4.0], -2.15);
-    place(&mut app, &types["Pool main drain, 300 × 300"], &level, [11.5, 4.0], -2.15);
+    let types = ok(&mut app, "furnishing.load", json!({ "names": ["Pool ladder, 3 steps", "Pool lift, 300 lb", "Main drain cover 300 × 300", "Main drain cover, unblockable 610 × 760"] }));
+    let bench = ok(&mut app, "bath.load_components", json!({ "names": ["Steam room bench 600"] }))["Steam room bench 600"].clone();
+    // The ladders' insertion points are the north wall's face; the lift on the south deck faces north.
+    place(&mut app, &types["Pool ladder, 3 steps"], &level, [1.0, 8.0], 0.0, 0.0);
+    place(&mut app, &types["Pool ladder, 3 steps"], &level, [14.0, 8.0], 0.0, 0.0);
+    place(&mut app, &types["Pool lift, 300 lb"], &level, [3.0, -0.6], 0.0, std::f64::consts::PI);
+    let d1 = place(&mut app, &types["Main drain cover 300 × 300"], &level, [11.0, 4.0], -2.15, 0.0);
+    place(&mut app, &types["Main drain cover 300 × 300"], &level, [11.5, 4.0], -2.15, 0.0);
     let c = ok(&mut app, "pool.check", json!({}));
     let p = &c["pools"][0];
     assert_eq!((p["entries"].as_u64(), p["accessible_entries"].as_u64(), p["drains"].as_u64()), (Some(2), Some(1), Some(2)), "{c:#}");
@@ -67,9 +71,9 @@ fn a_public_pool_is_checked() {
     assert!(c["findings"][0]["message"].as_str().unwrap().contains("0.50 m apart"), "{c:#}");
     // One unblockable drain instead passes; a bench on the deck blocks it.
     ok(&mut app, "element.delete", json!({ "element_ids": [d1] }));
-    place(&mut app, &types["Pool main drain, unblockable 610 × 760"], &level, [11.0, 2.0], -2.15);
+    place(&mut app, &types["Main drain cover, unblockable 610 × 760"], &level, [11.0, 2.0], -2.15, 0.0);
     assert_eq!(rules(&ok(&mut app, "pool.check", json!({}))), Vec::<(String, String)>::new());
-    let bench = place(&mut app, &types["Steam room bench 600"], &level, [7.0, -1.0], 0.0);
+    let bench = place(&mut app, &bench, &level, [7.0, -1.0], 0.0, 0.0);
     let c = ok(&mut app, "pool.check", json!({}));
     assert_eq!(c["findings"][0]["element"], bench, "{c:#}");
     assert!(c["findings"][0]["message"].as_str().unwrap().contains("6 ft"), "{c:#}");
@@ -102,4 +106,33 @@ fn wading_and_residential_pools_have_their_own_rules() {
     let home = ok(&mut app, "pool.create", json!({ "level": level, "outline": [[12.0, 3.0], [12.0, -1.0], [22.0, -1.0], [22.0, 3.0]], "class": "residential", "profile": [{ "at": 0.0, "depth": 1.0 }, { "at": 3.0, "depth": 1.5 }] }));
     let c = ok(&mut app, "pool.check", json!({ "pool_id": home }));
     assert_eq!(rules(&c), vec![("us_ispsc".to_owned(), "ISPSC 2021 807.1.1".to_owned())], "{c:#}");
+}
+
+#[test]
+fn pool_equipment_keeps_its_deck_clear() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });
+    ok(&mut app, "file.new", json!({}));
+    ok(&mut app, "clearance.set_rule_set", json!({ "standard": "ada_2010" }));
+    ok(&mut app, "rules.set_packs", json!({ "domain": "pool", "packs": ["us_mahc_2024", "us_vgb", "ada_2010_pools"] }));
+    let level = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    ok(&mut app, "floor.create", json!({ "loops": [square([-6.0, -6.0], [21.0, 14.0])], "level_id": level }));
+    let profile = json!([{ "at": 0.0, "depth": 1.0 }, { "at": 7.0, "depth": 1.524 }, { "at": 9.0, "depth": 2.0 }]);
+    ok(&mut app, "pool.create", json!({ "level": level, "outline": [[0.0, 8.0], [0.0, 0.0], [15.0, 0.0], [15.0, 8.0]], "profile": profile }));
+    let types = ok(&mut app, "furnishing.load", json!({ "names": ["Pool lift, 300 lb", "Lifeguard chair 6 ft", "Starting platform 24 × 32 in"] }));
+    // A lift on the south deck facing the water, a lifeguard chair on the north deck, and a block
+    // at the deep end: on the 4 ft deck by design, so the deck stays clear.
+    let lift = place(&mut app, &types["Pool lift, 300 lb"], &level, [3.0, -0.6], 0.0, std::f64::consts::PI);
+    place(&mut app, &types["Lifeguard chair 6 ft"], &level, [7.0, 9.2], 0.0, 0.0);
+    place(&mut app, &types["Starting platform 24 × 32 in"], &level, [15.5, 4.0], 0.0, std::f64::consts::FRAC_PI_2);
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert!(!c["findings"].as_array().unwrap().iter().any(|f| f["message"].as_str().unwrap().contains("stands in")), "{c:#}");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]), "the zones are clear");
+    // A bench in the lift's clear deck: the ADA's 36 × 48 in, and the MAHC's 4 ft.
+    let bench = ok(&mut app, "bath.load_components", json!({ "names": ["Steam room bench 600"] }))["Steam room bench 600"].clone();
+    let b = place(&mut app, &bench, &level, [3.0, -1.6], 0.0, 0.0);
+    let r = ok(&mut app, "rules.check", json!({}));
+    let mut hits: Vec<(String, String)> = r.as_array().unwrap().iter().filter(|f| f["element"] == lift && f["other"] == b).map(|f| (f["pack"].as_str().unwrap().to_owned(), f["rule"].as_str().unwrap().to_owned())).collect();
+    hits.sort();
+    assert_eq!(hits, vec![("ada_2010_pools".to_owned(), "ADA 2010 1009.2.3".to_owned()), ("us_mahc_2024".to_owned(), "MAHC 2024 4.8.1.5 (ADA equipment)".to_owned())], "{r:#}");
 }

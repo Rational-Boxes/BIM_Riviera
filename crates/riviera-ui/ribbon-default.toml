@@ -1077,7 +1077,7 @@ help = "Lay out a whole bathroom from a template (full bath, shower room, powder
 id = "ui.place_bathroom_component"
 label = "Bathroom"
 icon = "bathroom"
-help = "Place generic bathroom fixtures and accessories (WCs, urinal, lavatories, bidet, baths, showers, mirror, dispensers, hand dryer, baby changing unit, shower seat, towel rail; a pool lift, ladder and main drains) on a wall face at their usual heights, to stand in until products are chosen (ARC-BATH-004)"
+help = "Place generic bathroom fixtures and accessories (WCs, urinal, lavatories, bidet, baths, showers, mirror, dispensers, hand dryer, baby changing unit, shower seat, towel rail) on a wall face at their usual heights, to stand in until products are chosen (ARC-BATH-004)"
 
 [[action]]
 id = "overlap.find"

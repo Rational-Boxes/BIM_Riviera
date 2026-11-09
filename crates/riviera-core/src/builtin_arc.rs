@@ -7549,7 +7549,7 @@ edit_command!(
      those named: WCs (close-coupled, wall-hung, accessible height), a urinal, lavatories (wall-hung, pedestal, \
      hand-rinse, vanity), a bidet, baths, shower trays and a roll-in shower, a mirror, toilet roll holder, \
      soap and paper towel dispensers, a hand dryer, a baby changing unit, a sanitary bin, a coat hook, a \
-     folding shower seat and a heated towel rail; for pools a lift, a ladder and main drain covers; each at its usual size and mounting height, with its IFC \
+     folding shower seat and a heated towel rail; each at its usual size and mounting height, with its IFC \
      class and pipe or power connectors. A type of the same name already there is reused. Returns the types \
      by name.",
     "Bathroom Components",

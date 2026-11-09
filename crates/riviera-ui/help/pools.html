@@ -13,6 +13,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#depths">Depths and slopes</a>
   <a href="#edges">Edges, coping and shell</a>
   <a href="#entries">Stairs, sloped entries and benches</a>
+  <a href="#equipment">Equipment</a>
   <a href="#check">Checking a pool</a>
   <a href="#ifc">In IFC</a>
   <a href="#limits">Limits and what to check</a>
@@ -64,6 +65,15 @@ as entries, a sloped entry as an accessible one, and measures treads, risers, wi
 slope and depth, and benches. From a script: <code>pool.add_entry</code>,
 <code>pool.remove_entry</code>, or <code>pool.set</code> with <code>entries</code>.</p>
 
+<h2 id="equipment">Equipment</h2>
+<p>The <b>Riviera Pools</b> library (<b>Insert › Component Libraries</b>) has a pool lift, a
+three-step ladder, a grab rail, a starting platform, a 1 m diving board, a lifeguard chair, main
+drain covers and an underwater light. Each faces the water at its front; a ladder's and a light's
+insertion point is the pool wall's face. Their clear decks show as virtual volumes and Check Rules
+reports what stands in them: the ADA's 36 × 48 in behind a lift, and the MAHC's 4 ft beside and
+behind diving boards, lifeguard chairs and lifts. Check Pools counts the ladders and lift as
+entries and the covers as drains, and does not count the equipment as blocking the deck.</p>
+
 <h2 id="check">Checking a pool</h2>
 <p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
 Under the IBC these are the <b>ISPSC</b> and the <b>VGB Act</b>'s drain rules; with the ADA rule set,
@@ -78,8 +88,8 @@ disagree (1:12 or 1:10 above the break, a 4 ft or 6 ft deck) you see which pack 
   <li><b>Deck</b>: a floor that reaches the width along every edge, with nothing standing in it.</li>
   <li><b>Entries</b>: <i>Pool ladder</i>, stairs and recessed steps within 1 m of the edge; the
   <i>Pool lift</i>, sloped entries and transfer walls as accessible means of entry. A pool wall
-  under 300 ft needs one, a lift or sloped entry; longer, two. Load the ladder, lift and drains
-  with <b>Architecture › Build › Bathroom</b>.</li>
+  under 300 ft needs one, a lift or sloped entry; longer, two. The ladder, lift and drains are in
+  the <a href="#equipment">Riviera Pools</a> library.</li>
   <li><b>Drains</b>: main drains in the pool, two at least 3 ft apart, or one with a cover larger
   than 18 × 23 in (unblockable).</li>
   <li><b>Bather loads</b>: the MAHC's 20 ft² of water a bather and the IBC's 50 ft² an occupant.</li>

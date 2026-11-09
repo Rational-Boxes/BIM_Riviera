@@ -7,6 +7,101 @@
   "edition": "MAHC 2024, 5th edition (Code Language)",
   "layer": "minimum",
   "notes": "Chosen per project (POOLS_PLAN.md Question 3): the MAHC is a model code that states adopt unevenly. Values from research/23 Part A.",
+  "zones": [
+    {
+      "id": "MAHC 2024 4.8.1.5 (diving)",
+      "description": "4 ft of deck clear beside and behind diving equipment",
+      "applies_to": {
+        "object_types": [
+          "Diving Board"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -1.2192
+        ],
+        [
+          "right",
+          1.2192
+        ]
+      ],
+      "out": [
+        [
+          "back",
+          -2.5
+        ],
+        [
+          "back",
+          1.2192
+        ]
+      ],
+      "source": "S2762",
+      "confidence": "verified"
+    },
+    {
+      "id": "MAHC 2024 4.8.1.5 (guard stands)",
+      "description": "4 ft of deck clear beside and behind a lifeguard chair",
+      "applies_to": {
+        "object_types": [
+          "Lifeguard Chair"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -1.2192
+        ],
+        [
+          "right",
+          1.2192
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "back",
+          1.2192
+        ]
+      ],
+      "source": "S2762",
+      "confidence": "verified"
+    },
+    {
+      "id": "MAHC 2024 4.8.1.5 (ADA equipment)",
+      "description": "4 ft of deck clear beside and behind a pool lift",
+      "applies_to": {
+        "object_types": [
+          "Pool Lift"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -1.2192
+        ],
+        [
+          "right",
+          1.2192
+        ]
+      ],
+      "out": [
+        [
+          "front",
+          0.0
+        ],
+        [
+          "back",
+          1.2192
+        ]
+      ],
+      "source": "S2762",
+      "confidence": "verified"
+    }
+  ],
   "pool": [
     {
       "id": "MAHC 2024 4.5.2.1",

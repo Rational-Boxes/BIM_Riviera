@@ -1593,4 +1593,5 @@ fn the_pool_rules_sample_passes_its_packs() {
     assert_eq!(p["entries"].as_u64(), Some(4), "two ladders, the stairs and the sloped entry");
     assert_eq!(p["loads"][0]["bathers"].as_u64(), Some(107), "{p:#}");
     assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]), "the lift's clear deck is clear");
 }

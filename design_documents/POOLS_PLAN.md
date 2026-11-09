@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–2 and the first half of step 3 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–3 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -218,3 +218,9 @@ exposed to Lua and MCP.
   counted and measured by `pool.check` (treads, risers, widths, the ramp's slope and depth,
   benches). Not yet: recessed steps, swimouts, beach entries, handrails. Next: the second half,
   the *Riviera Pools* equipment library with use zones.
+- Step 3, second half (ARC-POOL-004, 2026-11-09): the *Riviera Pools* bundled library (lift,
+  ladder, grab rail, starting platform, 1 m board, lifeguard chair, drain covers, underwater
+  light), with use zones in `ada_2010_pools` (the lift's 36 × 48 in), `us_mahc_2024` (4 ft round
+  diving equipment, guard stands and lifts) and `us_ispsc` (4 ft round diving structures); pool
+  equipment no longer counts as blocking the deck. The bathroom components' pool ladder and drain
+  covers moved here. Next: step 4, competition presets and diving envelopes (ARC-POOL-005).

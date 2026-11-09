@@ -7,6 +7,39 @@
   "edition": "ISPSC 2021: public pools (Chapter 4) as a Texas DSHS checklist cites them, residential pools (Chapter 8) from ICC CodeNotes; IBC 2021 Table 1004.5",
   "layer": "minimum",
   "notes": "Follows the IBC code setting. ICC's free view refused automated reads, so the public-pool values are secondary: check them against the ISPSC text in a browser (research/23 A.18).",
+  "zones": [
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "4 ft of deck clear beside and behind diving structures",
+      "applies_to": {
+        "object_types": [
+          "Diving Board"
+        ]
+      },
+      "across": [
+        [
+          "left",
+          -1.2192
+        ],
+        [
+          "right",
+          1.2192
+        ]
+      ],
+      "out": [
+        [
+          "back",
+          -2.5
+        ],
+        [
+          "back",
+          1.2192
+        ]
+      ],
+      "source": "S2768",
+      "confidence": "secondary"
+    }
+  ],
   "pool": [
     {
       "id": "ISPSC 2021 (public)",

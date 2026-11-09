@@ -30,17 +30,18 @@ local stairs = riviera.pool.add_entry{ pool_id = pool, kind = "stairs", point = 
 local ramp = riviera.pool.add_entry{ pool_id = pool, kind = "sloped_entry", point = { 6, 13 } }
 print(string.format("Stairs: %d risers of %.0f mm; sloped entry: %.2f m long to %.0f mm below the water", stairs.risers, stairs.riser * 1000, ramp.run, ramp.reaches * 1000))
 
--- Ladders on both long sides at the deep end (the pool is over 30 ft wide), and a lift.
-local t = riviera.bath.load_components{ names = { "Pool ladder", "Pool lift", "Pool main drain, 300 × 300" } }
+-- From the Riviera Pools library: ladders on both long sides at the deep end (the pool is over
+-- 30 ft wide), set on the walls' faces; a lift on the south deck facing the water.
+local t = riviera.furnishing.load{ names = { "Pool ladder, 3 steps", "Pool lift, 300 lb", "Main drain cover 300 × 300" } }
 local function place(ty, x, y, turn, offset)
-  return riviera.bath.place_component{ type_id = ty, point = { x, y }, level = l1, rotation = turn, offset = offset or 0, work_plane = true }
+  return riviera.mesh_object.place{ type_id = ty, point = { x, y }, level = l1, rotation = turn, offset = offset or 0 }
 end
-place(t["Pool ladder"], 24.5, 15.3, 0)
-place(t["Pool ladder"], 24.5, 4.7, math.pi)
-place(t["Pool lift"], 10, 4.4, math.pi)
+place(t["Pool ladder, 3 steps"], 24.5, 15, 0)
+place(t["Pool ladder, 3 steps"], 24.5, 5, math.pi)
+place(t["Pool lift, 300 lb"], 10, 4.4, math.pi)
 -- Two blockable main drains in the deep end, 2 m apart (the VGB Act's 3 ft at least).
-place(t["Pool main drain, 300 × 300"], 24, 9, 0, -2.65)
-place(t["Pool main drain, 300 × 300"], 24, 11, 0, -2.65)
+place(t["Main drain cover 300 × 300"], 24, 9, 0, -2.65)
+place(t["Main drain cover 300 × 300"], 24, 11, 0, -2.65)
 
 local c = riviera.pool.check{}
 for _, p in ipairs(c.pools) do

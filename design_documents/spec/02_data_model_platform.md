@@ -2078,17 +2078,18 @@ The Place Component tool is the UI over `component.place`.
 **Purpose.** Give every project generic furniture and equipment from the start, as ordinary Component Libraries that users can read, copy and extend. They also show what a library of model fragments looks like.
 
 **Behaviour & rules.**
-- **Three libraries ship with Riviera**, in `libraries/`. Each is a standard Component Library (DM-LIB-004), a folder with its manifest:
+- **Four libraries ship with Riviera**, in `libraries/`. Each is a standard Component Library (DM-LIB-004), a folder with its manifest:
   - *Riviera Interiors*: bedroom, living, dining and office furniture, and sets;
   - *Riviera Gym Equipment*: cardio, strength and free-weight equipment;
-  - *Riviera Retail and Checkout Fixtures*: shelving, apparel, showcases, carts and security, and checkouts.
+  - *Riviera Retail and Checkout Fixtures*: shelving, apparel, showcases, carts and security, and checkouts;
+  - *Riviera Pools*: pool access, competition and diving equipment, lifeguard chairs, drain covers and underwater lights (ARC-POOL-004).
 - **Every item is a model fragment** (DM-LIB-003): an IFC4 file written by Create Component from the generic catalogue (ARC-FURN-001). It holds one typed custom object, or a set of them: a dining set, a queen bedroom set, an office workstation. Placing an item brings in its type with its IFC class, predefined type or kind, and connectors. The rule packs therefore pick it up at once (ARC-RULE-002).
 - **Manifest entries** give each item its name, description, tags (its folder, kind or predefined type, and Uniclass 2015 code), and provenance: author, licence CC0-1.0, the generator, and the source IDs of its sizes. Each item keeps its GUID, so placed copies find their item after a rebuild (DM-LIB-001 updates).
 - **Where they are found:** `RIVIERA_LIBRARIES`, else beside the program (`libraries`, `../share/riviera/libraries`, macOS `../Resources/libraries`), else the source tree's `libraries`. The Component Library panel always lists them after the user's own libraries, and never saves their install path in the user's list. `library.bundled` lists them for scripts and agents.
 - **They are read-only where installed** (a Flatpak's `/app`, Program Files). To change an item, copy it into a library of your own.
 - **Rebuilding:** `RIVIERA_REGEN_LIBRARIES=1 cargo test -p riviera-app --test bundled_libraries` rewrites them from the catalogue, keeping each library's id and each item's GUID.
 
-**Data.** `libraries/<interiors|gym|retail>/` with `riviera-library.json` and one `.ifc` per item; packaged to `share/riviera/libraries` (Flatpak), `libraries\` beside `riviera.exe` (Windows) and `Contents/Resources/libraries` (macOS).
+**Data.** `libraries/<interiors|gym|retail|pools>/` with `riviera-library.json` and one `.ifc` per item; packaged to `share/riviera/libraries` (Flatpak), `libraries\` beside `riviera.exe` (Windows) and `Contents/Resources/libraries` (macOS).
 
 **Commands.** `library.bundled`; items are placed with `component.place_fragment`.
 

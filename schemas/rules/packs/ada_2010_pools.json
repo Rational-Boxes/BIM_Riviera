@@ -7,6 +7,39 @@
   "edition": "2010 ADA Standards for Accessible Design §242 and §1009",
   "layer": "accessible",
   "notes": "Applies with the ADA rule set. Pool lifts, sloped entries, transfer walls, transfer systems and accessible pool stairs count as means of entry; at least one must be a lift or sloped entry.",
+  "zones": [
+    {
+      "id": "ADA 2010 1009.2.3",
+      "description": "A pool lift's clear deck: 36 in wide and 48 in long behind its seat, on the side away from the water",
+      "applies_to": {
+        "object_types": [
+          "Pool Lift"
+        ]
+      },
+      "across": [
+        [
+          "centre",
+          -0.4572
+        ],
+        [
+          "centre",
+          0.4572
+        ]
+      ],
+      "out": [
+        [
+          "back",
+          0.0
+        ],
+        [
+          "back",
+          1.2192
+        ]
+      ],
+      "source": "S2773",
+      "confidence": "verified"
+    }
+  ],
   "pool": [
     {
       "id": "ADA 2010 242.2",

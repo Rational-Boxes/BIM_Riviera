@@ -704,9 +704,9 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   entry (ADA §242) and main drains (VGB), against the ISPSC, MAHC, ADA and VGB packs, each citing
   its own clause, with bather loads. Stairs, ADA sloped entries and underwater benches are built
   into the pool (ARC-POOL-003; Architecture › Build › Pool Entry; `pool.add_entry`), counted and
-  measured by the checks. Not built yet: sketched outlines, drawn gutters and basins, depth
-  markings, barriers, handrails, recessed steps and beach entries. Planned next: a pool equipment
-  library, competition
+  measured by the checks. The *Riviera Pools* library holds the equipment, each item keeping its
+  clear deck (ARC-POOL-004). Not built yet: sketched outlines, drawn gutters and basins, depth
+  markings, barriers, handrails, recessed steps and beach entries. Planned next: competition
   presets and diving envelopes, UK packs, then the hall's dehumidification, water treatment,
   structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
@@ -740,14 +740,16 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   - by `report.write` and `report.list` for scripts and agents.
 
   Not built yet: PDF reports.
-- **Bundled furniture and equipment libraries** (DM-LIB-006, ARC-FURN-001). Three Component
+- **Bundled furniture and equipment libraries** (DM-LIB-006, ARC-FURN-001). Four Component
   Libraries ship with Riviera in `libraries/`, each item a model fragment (IFC4) made by
   Riviera:
   - *Riviera Interiors*: beds in US and UK sizes, casegoods, seating, tables, desks, a reception
     desk, and sets;
   - *Riviera Gym Equipment*: cardio, strength and free-weight equipment;
   - *Riviera Retail and Checkout Fixtures*: gondolas, apparel racks, showcases, carts, checkstands
-    and self-checkouts.
+    and self-checkouts;
+  - *Riviera Pools*: a pool lift, ladder, grab rail, starting platform, diving board, lifeguard
+    chair, main drain covers and an underwater light, with their clear-deck zones (ARC-POOL-004).
 
   Each item is typed for IFC (BED, DESK, …, or USERDEFINED with its kind) and for the rule
   packs, at research sizes with their sources, and powered items carry connectors. The

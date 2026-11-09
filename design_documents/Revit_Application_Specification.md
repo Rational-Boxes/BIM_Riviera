@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 925 numbered requirements (320 P0 · 362 P1 · 236 P2 · 7 P3), 2,403 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 926 numbered requirements (320 P0 · 363 P1 · 236 P2 · 7 P3), 2,403 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,403 commands; 925 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,403 commands; 926 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -6172,17 +6172,18 @@ The Place Component tool is the UI over `component.place`.
 **Purpose.** Give every project generic furniture and equipment from the start, as ordinary Component Libraries that users can read, copy and extend. They also show what a library of model fragments looks like.
 
 **Behaviour & rules.**
-- **Three libraries ship with Riviera**, in `libraries/`. Each is a standard Component Library (DM-LIB-004), a folder with its manifest:
+- **Four libraries ship with Riviera**, in `libraries/`. Each is a standard Component Library (DM-LIB-004), a folder with its manifest:
   - *Riviera Interiors*: bedroom, living, dining and office furniture, and sets;
   - *Riviera Gym Equipment*: cardio, strength and free-weight equipment;
-  - *Riviera Retail and Checkout Fixtures*: shelving, apparel, showcases, carts and security, and checkouts.
+  - *Riviera Retail and Checkout Fixtures*: shelving, apparel, showcases, carts and security, and checkouts;
+  - *Riviera Pools*: pool access, competition and diving equipment, lifeguard chairs, drain covers and underwater lights (ARC-POOL-004).
 - **Every item is a model fragment** (DM-LIB-003): an IFC4 file written by Create Component from the generic catalogue (ARC-FURN-001). It holds one typed custom object, or a set of them: a dining set, a queen bedroom set, an office workstation. Placing an item brings in its type with its IFC class, predefined type or kind, and connectors. The rule packs therefore pick it up at once (ARC-RULE-002).
 - **Manifest entries** give each item its name, description, tags (its folder, kind or predefined type, and Uniclass 2015 code), and provenance: author, licence CC0-1.0, the generator, and the source IDs of its sizes. Each item keeps its GUID, so placed copies find their item after a rebuild (DM-LIB-001 updates).
 - **Where they are found:** `RIVIERA_LIBRARIES`, else beside the program (`libraries`, `../share/riviera/libraries`, macOS `../Resources/libraries`), else the source tree's `libraries`. The Component Library panel always lists them after the user's own libraries, and never saves their install path in the user's list. `library.bundled` lists them for scripts and agents.
 - **They are read-only where installed** (a Flatpak's `/app`, Program Files). To change an item, copy it into a library of your own.
 - **Rebuilding:** `RIVIERA_REGEN_LIBRARIES=1 cargo test -p riviera-app --test bundled_libraries` rewrites them from the catalogue, keeping each library's id and each item's GUID.
 
-**Data.** `libraries/<interiors|gym|retail>/` with `riviera-library.json` and one `.ifc` per item; packaged to `share/riviera/libraries` (Flatpak), `libraries\` beside `riviera.exe` (Windows) and `Contents/Resources/libraries` (macOS).
+**Data.** `libraries/<interiors|gym|retail|pools>/` with `riviera-library.json` and one `.ifc` per item; packaged to `share/riviera/libraries` (Flatpak), `libraries\` beside `riviera.exe` (Windows) and `Contents/Resources/libraries` (macOS).
 
 **Commands.** `library.bundled`; items are placed with `component.place_fragment`.
 
@@ -15663,9 +15664,9 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004) |
 | `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
-| `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002) |
+| `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
 | `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
@@ -16220,7 +16221,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built) and the *Riviera Pools* library, competition presets and diving envelopes (ARC-POOL-004), the UK packs (ARC-POOL-005), natatorium HVAC and heat balance (ARC-POOL-006), water treatment (ARC-POOL-007), structural loads and bonding (ARC-POOL-008), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition presets and diving envelopes (ARC-POOL-005), the UK packs (ARC-POOL-006), natatorium HVAC and heat balance (ARC-POOL-007), water treatment (ARC-POOL-008), structural loads and bonding (ARC-POOL-009), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16247,7 +16248,7 @@ Public and competition pools come first (Q6).
   - `us_vgb` (minimum): two main drains at least 3 ft apart unless one is unblockable.
 - **Choosing packs** (Q3): under the IBC, `us_ispsc` and `us_vgb`; with the ADA rule set, `ada_2010_pools`; the MAHC is chosen per project with `rules.set_packs`. Each pack checks its own value (Q4): with the MAHC and the ISPSC both chosen, a 1:11 shallow slope passes the ISPSC and fails the MAHC.
 - **Findings** name the pack, clause, source and confidence. A minimum or accessible pack's rule is an error; a recommended pack's, or an advisory rule's, a note. A secondary value says to check the code's own text.
-- **Entries and drains** are counted by type (ObjectType or the type's ElementType): *Pool Ladder*, *Pool Stairs*, *Recessed Steps*, *Sloped Entry*; *Pool Lift*, *Transfer Wall*, *Transfer System*, *Accessible Pool Stairs*; *Main Drain*. The bathroom components add a pool ladder and two main-drain covers (300 × 300 mm, and 610 × 760 mm unblockable) to the pool lift.
+- **Entries and drains** are counted by type (ObjectType or the type's ElementType): *Pool Ladder*, *Pool Stairs*, *Recessed Steps*, *Sloped Entry*; *Pool Lift*, *Transfer Wall*, *Transfer System*, *Accessible Pool Stairs*; *Main Drain*. The *Riviera Pools* library (ARC-POOL-004) has ladders, a lift and main-drain covers of these types.
 - **Overlaps:** a pool's water is a space, not a solid, so the ladders and drains in it are not overlaps.
 
 **Data.** The packs are JSON in `schemas/rules/packs/`, the `pool` kind in `riviera.rules-1.schema.json` (MIT). The class is in the pool's recipe.
@@ -16292,6 +16293,36 @@ Public and competition pools come first (Q6).
 - [x] The sample *A public pool checked against the codes* has stairs and a sloped entry at its shallow end and passes its packs.
 
 *Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: recessed steps and swimouts, beach (zero-depth) entries, a sloped entry along the wall with its landings, handrails and grab rails (the MAHC's 34–38 in and the ADA's 33–38 in apart), nosing stripes, transfer walls and systems as built entries, and the *Riviera Pools* equipment library with use zones (the rest of step 3).
+
+### 3.9c.4 The Riviera Pools library
+**ID:** ARC-POOL-004 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §4, §8 (step 3, second half); research/23 A.7, A.9, A.15.2, D.4, D.5.3 (S2762, S2768, S2773, S2775, S2776, S2791, S2836, S2837, S2840, S2841, S2855, S2856, S2861); DM-LIB-006 (bundled libraries), ARC-FURN-001 (the catalogue), ARC-RULE-002 (use zones)
+
+**Purpose.** Give pools their equipment as typed placeholders, at public sizes with their sources, each keeping the deck round it clear, until products are chosen.
+
+**Behaviour & rules.**
+- **A fourth bundled library**, *Riviera Pools* (`libraries/pools/`), made from the catalogue like the others. Each item's front, toward the water, is its −y side:
+  - *Access:* a pool lift (300 lb, its seat 23 in wide and 17 in over the deck; `IfcTransportElement`, kind *Pool Lift*); a three-step ladder (rails 21 in apart, treads 12 in apart 75 mm off the wall, its insertion point the wall's face; *Pool Ladder*); a 51 in grab rail (*Grab Rail*).
+  - *Competition and diving:* a starting platform with a 24 × 32 in top 0.6 m over the deck (*Starting Platform*); a 1 m springboard 16 ft × 20 in on its stand (*Diving Board*).
+  - *Safety:* a lifeguard chair, its seat 6 ft up on a 52 × 42 in footprint (*Lifeguard Chair*).
+  - *Fittings:* main drain covers 300 × 300 mm and, unblockable, 610 × 760 mm (*Main Drain*); an underwater light in a large wall niche, 12 V, with its power connector (*Underwater Light*).
+  - Each is tagged with its Uniclass 2015 code where there is one (Pr_65_80_47_64 poolside hoists, Pr_25_30_85_64 pool ladders, Pr_70_75_80_82 starting blocks, …).
+- **Use zones** in the pool packs, checked by Check Rules and shown as virtual volumes:
+  - `ada_2010_pools`: a pool lift's clear deck, 36 in wide and 48 in long behind its seat (§1009.2.3);
+  - `us_mahc_2024`: 4 ft of deck beside and behind diving equipment, lifeguard chairs and pool lifts (4.8.1.5);
+  - `us_ispsc`: 4 ft beside and behind diving structures (public, secondary).
+- **The deck check** (ARC-POOL-002) does not count pool equipment as an obstruction of the pool's deck: lifts, ladders, rails, platforms, boards, chairs, drains and lights stand there by design, and their own zones keep the deck round them clear.
+- The bathroom components keep their pool lift, for spas (ARC-BATH-016).
+
+**Data.** `libraries/pools/` (CC0-1.0), its items in `riviera_core::furnishings`; the zones in the pool packs.
+
+**Commands.** `furnishing.load(names)`, `mesh_object.place`, `component.place_fragment` (the bundled library); `rules.check` for the zones.
+
+**Acceptance criteria.**
+- [x] *Riviera Pools* is bundled and listed; each item places as one typed copy with its IFC class and kind.
+- [x] A lift, a lifeguard chair and a starting platform on a 6 ft deck leave `pool.check`'s deck clear and Check Rules empty; a bench 1 m behind the lift is in its ADA clear deck and the MAHC's 4 ft.
+- [x] Library ladders, a lift and drain covers count as the pool's entries, accessible entry and drains; the sample *A public pool checked against the codes* uses them and passes `pool.check` and Check Rules.
+
+*Built (2026-11-09):* the *Riviera Pools* library, its zones in three packs, the deck check's exemption. Defaults are E-119. Not yet: products' anchor setbacks (S.R. Smith 12.5–17 in, unverified), backstroke flags and false-start ropes, lane ropes and their anchors, slides, safety covers and reels, skimmers and return inlets, the balance tank, transfer walls and systems as library items, and placing items snapped to the pool's edge.
 
 ## 3.11 Massing and site
 
@@ -31068,14 +31099,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 117 | 40 | 1 | 235 |
+| ARC | 77 | 118 | 40 | 1 | 236 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **362** | **236** | **7** | **925** |
+| **Total** | **320** | **363** | **236** | **7** | **926** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 

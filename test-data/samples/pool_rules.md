@@ -18,10 +18,11 @@ Start with **File › New**.
    *Stairs*, then click by the shallow end's wall at (6, 8): five equal risers of 210 mm on 12 in
    treads. Again, *Sloped entry (ADA)*, at (6, 13): a 1:12 ramp 10 m long to 27 in below the
    water.
-5. **Ladders and a lift.** Load the *Pool ladder* and *Pool lift* with **Architecture › Build ›
-   Bathroom** and place them on the work plane, away from walls: ladders at (24.5, 15.3) and,
-   turned 180°, at (24.5, 4.7); the lift turned 180° at (10, 4.4).
-6. **Drains.** Place two *Pool main drain, 300 × 300* at (24, 9) and (24, 11), 2.65 m down (the
+5. **Ladders and a lift.** From the *Riviera Pools* library (**Insert › Component Libraries**),
+   place the *Pool ladder, 3 steps* on the north wall's face at (24.5, 15) and, turned 180°, on
+   the south wall's at (24.5, 5); and the *Pool lift, 300 lb* turned 180° at (10, 4.4), facing
+   the water.
+6. **Drains.** Place two *Main drain cover 300 × 300* from the library at (24, 9) and (24, 11), 2.65 m down (the
    floor of the deep end): two blockable drains, 2 m apart.
 7. **Check.** **Coordination › Check Pools** lists each pool's entries, accessible means of entry
    and drains, its bather loads (the MAHC's 20 ft² of water a bather: 107), and any findings by
@@ -31,7 +32,7 @@ Start with **File › New**.
 ## Gaps
 
 - **[gap]** Recessed steps, swimouts, beach entries and handrails are not built yet; ladders, lifts
-  and drains are placed as components, and the checks count them by type.
+  and drains are library items, and the checks count them by type.
 - **[gap]** Depth markings, NO DIVING markers, the break-point line and float line, barriers and
   gates, the diving envelopes and the MAHC's "within 10 ft of each end" placement of entries are
   not checked yet.

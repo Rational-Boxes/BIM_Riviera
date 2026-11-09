@@ -35,10 +35,11 @@ pub enum Library {
     Interiors,
     Gym,
     Retail,
+    Pools,
 }
 
 impl Library {
-    pub const ALL: [Library; 3] = [Library::Interiors, Library::Gym, Library::Retail];
+    pub const ALL: [Library; 4] = [Library::Interiors, Library::Gym, Library::Retail, Library::Pools];
 
     /// Its folder under `libraries/`.
     pub fn dir(self) -> &'static str {
@@ -46,6 +47,7 @@ impl Library {
             Library::Interiors => "interiors",
             Library::Gym => "gym",
             Library::Retail => "retail",
+            Library::Pools => "pools",
         }
     }
 
@@ -54,6 +56,7 @@ impl Library {
             Library::Interiors => "Riviera Interiors",
             Library::Gym => "Riviera Gym Equipment",
             Library::Retail => "Riviera Retail and Checkout Fixtures",
+            Library::Pools => "Riviera Pools",
         }
     }
 }
@@ -310,6 +313,55 @@ fn power(va: f64, voltage: f64, z: f64, back: f64) -> Connector {
     crate::mep::power("Power", [0.0, back, z], [0.0, 1.0, 0.0], D::In, voltage, 1, va, "Power")
 }
 
+// Pool equipment (ARC-POOL-004): its front, toward the water, at −y.
+
+/// A pool ladder hung on the wall at y = 0: two rails `gap` apart rising `up` over the deck and
+/// back to their anchors, down `down` into the water 75 mm off the wall, and `n` treads 12 in
+/// apart.
+fn pool_ladder(gap: f64, up: f64, down: f64, n: usize) -> Shape {
+    let (r, x) = (0.024, gap / 2.0);
+    let mut s = Shape::default();
+    for sx in [-1.0, 1.0] {
+        let x0 = sx * x;
+        s = s
+            .cuboid([x0 - r, x0 + r], [-0.075 - r, -0.075 + r], [-down, up])
+            .cuboid([x0 - r, x0 + r], [-0.075 - r, 0.3], [up - 2.0 * r, up])
+            .cuboid([x0 - r, x0 + r], [0.3 - 2.0 * r, 0.3], [0.0, up]);
+    }
+    for k in 1..=n {
+        let z = -(k as f64) * 12.0 * IN;
+        s = s.cuboid([-x + r, x - r], [-0.075 - 0.05, -0.075 + r], [z - 0.02, z]);
+    }
+    s
+}
+
+/// A pool lift on the deck: a post behind a seat `w` wide whose top is `h` over the deck.
+fn pool_lift(w: f64, h: f64) -> Shape {
+    Shape::default()
+        .cuboid([-0.08, 0.08], [0.3, 0.46], [0.0, 1.4])
+        .cuboid([-0.08, 0.08], [-0.05, 0.46], [1.3, 1.4])
+        .cuboid([-w / 2.0, w / 2.0], [-0.23, 0.23], [h - 0.04, h])
+        .cuboid([-w / 2.0, w / 2.0], [0.21, 0.23], [h, h + 0.6])
+}
+
+/// A lifeguard chair: four legs under a platform at `h`, a seat with a back, a footprint `w` × `d`.
+fn lifeguard_chair(w: f64, d: f64, h: f64) -> Shape {
+    let t = 0.05;
+    let mut s = Shape::default();
+    for (x, y) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+        let (cx, cy) = (x * (w / 2.0 - t), y * (d / 2.0 - t));
+        s = s.cuboid([cx - t, cx + t], [cy - t, cy + t], [0.0, h]);
+    }
+    s.cuboid([-0.35, 0.35], [-0.3, 0.3], [h, h + 0.05]).cuboid([-0.3, 0.3], [0.25, 0.3], [h + 0.05, h + 0.75])
+}
+
+/// A springboard `l` long and `w` wide at `h` over the deck, on a stand under its back part.
+fn diving_board(l: f64, w: f64, h: f64) -> Shape {
+    Shape::default()
+        .cuboid([-w / 2.0, w / 2.0], [-l / 2.0, l / 2.0], [h - 0.06, h])
+        .cuboid([-0.4, 0.4], [0.1 * l, 0.45 * l], [0.0, h - 0.06])
+}
+
 // ---- The catalogue ----
 
 macro_rules! item {
@@ -388,6 +440,18 @@ pub fn catalogue() -> Vec<Item> {
         item!(Gym, "Free weights", "Flat bench", Furniture, "USERDEFINED", Some("WeightBench"), None, BLACK, "About 1.3 × 0.6 m and 0.45 m high: no maker's sheet was found.", "", || table(0.6, 1.3, 0.45)),
         item!(Gym, "Free weights", "Plate tree", Furniture, "USERDEFINED", Some("PlateTree"), None, STEEL, "A 0.7 × 0.7 m base, 1.2 m high: no maker's sheet was found.", "", || block(0.7, 0.7, 0.05).cuboid([-0.04, 0.04], [-0.04, 0.04], [0.05, 1.2])),
         item!(Gym, "Free weights", "Lifting platform 8 × 8 ft", Furniture, "USERDEFINED", Some("LiftingPlatform"), None, RUBBER, "An 8 × 8 ft (2.44 m) lifting area in a 2.54 m square frame (Rogue 8 × 8 ft Oly), 50 mm high.", "S1363", || block(2.54, 2.54, 0.05)),
+        // ---- Pools: access (research/23 D.4, ARC-POOL-004) ----
+        item!(Pools, "Access", "Pool lift, 300 lb", Transport, "USERDEFINED", Some("Pool Lift"), Some("Pr_65_80_47_64"), STEEL, "A deck-anchored pool lift: a seat 23 in wide (S.R. Smith aXs2) its top 17 in over the deck (ADA 1009.2.5: 16–19 in), lifting 300 lb; the seat swings over the water at its front. Keep the ADA's 36 × 48 in clear deck behind it, and set it where the water is 48 in deep or less.", "S2773 S2836", || pool_lift(23.0 * IN, 17.0 * IN)),
+        item!(Pools, "Access", "Pool ladder, 3 steps", Furniture, "USERDEFINED", Some("Pool Ladder"), Some("Pr_25_30_85_64"), STEEL, "A three-step ladder of 1.90 in stainless rails 21 in apart (the MAHC's 17–24 in), 0.9 m over the deck, treads 12 in apart 75 mm off the wall (3–4 in) (S.R. Smith LF series). Its insertion point is the pool wall's face, the treads at its front in the water.", "S2840 S2762", || pool_ladder(21.0 * IN, 0.9, 1.0, 3)),
+        item!(Pools, "Access", "Grab rail 51 in", Furniture, "USERDEFINED", Some("Grab Rail"), Some("Pr_25_30_36_34"), STEEL, "A 51 in grab rail of 1.90 in tube (DMS-100) for recessed steps, set back 8 in on the deck and curving over the water at its front; one each side, 18–24 in apart (MAHC 4.5.6).", "S2841 S2762", || Shape::default().cuboid([-0.024, 0.024], [0.18, 0.23], [0.0, 0.85]).cuboid([-0.024, 0.024], [-0.2, 0.23], [0.8, 0.85]).cuboid([-0.024, 0.024], [-0.2, -0.15], [-0.4, 0.85])),
+        // ---- Pools: competition and diving ----
+        item!(Pools, "Competition", "Starting platform 24 × 32 in", Furniture, "USERDEFINED", Some("Starting Platform"), Some("Pr_70_75_80_82"), WHITE, "A starting platform with a 24 × 32 in top (Spectrum Record Breaker) 0.6 m over the deck: 0.75 m over the water with it 0.15 m down (FINA 0.50–0.75 m); its front edge at the water. Water 1.35 m deep at least under it (FINA), 6 ft for new pools (MAHC 4.8.3).", "S2837 S2791 S2762", || Shape::default().cuboid([-0.305, 0.305], [-0.406, 0.406], [0.56, 0.6]).cuboid([-0.1, 0.1], [-0.1, 0.35], [0.0, 0.56])),
+        item!(Pools, "Diving", "Diving board 1 m, on stand", Furniture, "USERDEFINED", Some("Diving Board"), Some("Pr_40_30_86_24"), WHITE, "A 1 m springboard 16 ft long and 20 in wide (MAHC Table 4.8.2.2) on a stand under its back half, its top 0.85 m over a deck 0.15 m above the water; about 1.8 m of it over the water (the MAHC's 6 ft from the plummet back to the wall). Its well needs 12 ft at the plummet (Table 4.8.2.3).", "S2762 S2791", || diving_board(16.0 * 12.0 * IN, 20.0 * IN, 0.85)),
+        item!(Pools, "Safety", "Lifeguard chair 6 ft", Furniture, "USERDEFINED", Some("Lifeguard Chair"), Some("Pr_40_30_29_31"), WHITE, "A portable lifeguard chair, its seat 6 ft up on a 52 × 42 in footprint (S.R. Smith Vista), facing the water at its front; the MAHC keeps 4 ft of deck clear round it.", "S2856 S2762", || lifeguard_chair(52.0 * IN, 42.0 * IN, 6.0 * 12.0 * IN)),
+        // ---- Pools: fittings ----
+        item!(Pools, "Fittings", "Main drain cover 300 × 300", Furniture, "USERDEFINED", Some("Main Drain"), Some("Pr_70_55_98_66"), WHITE, "A blockable main drain cover 300 × 300 mm, set in the pool floor: pairs at least 3 ft apart (VGB, WAC 246-260).", "S2775 S2861", || block(0.3, 0.3, 0.03)),
+        item!(Pools, "Fittings", "Main drain cover, unblockable 610 × 760", Furniture, "USERDEFINED", Some("Main Drain"), Some("Pr_70_55_98_66"), WHITE, "A main drain cover 24 × 30 in, larger than the 18 × 23 in blocking element, so the drain is unblockable on its own (16 CFR 1450).", "S2776", || block(0.61, 0.76, 0.03)),
+        item!(Pools, "Fittings", "Underwater light, large niche", LightingFixture, "USERDEFINED", Some("Underwater Light"), None, WHITE, "A pool light in a large wall niche, its face about 10 in across (Pentair), centred 0.6 m below the deck; 12 V through a transformer. Its insertion point is the wall's face, the light at its front.", "S2855", || Shape::default().cuboid([-0.127, 0.127], [-0.04, 0.0], [-0.727, -0.473]), || vec![power(300.0, 12.0, -0.6, 0.0)], || fixture("RECESSED", "WALL", 300.0)),
         // ---- Retail: shelving (research/15 B1–B7) ----
         item!(Retail, "Shelving", "Gondola, island 48 in × 72 in", Furniture, "SHELF", Some("Gondola"), Some("Pr_40_30_78_71"), WHITE, "A 48 in island section of two 16 in decks each side of a 2½ in upright (35¾ in overall with the 1¼ in allowance), 72 in high, four shelves a side.", "S1400", || gondola(48.0 * IN, 16.0 * IN, 72.0 * IN, 4, true)),
         item!(Retail, "Shelving", "Gondola, wall 48 in × 84 in", Furniture, "SHELF", Some("WallGondola"), Some("Pr_40_30_78_71"), WHITE, "A 48 in wall section, a 16 in deck, 84 in high, five shelves.", "S1400", || gondola(48.0 * IN, 16.0 * IN, 84.0 * IN, 5, false)),
@@ -538,7 +602,8 @@ mod tests {
                 assert!(register.contains(&format!("| {s} |")), "{}: {s} is not in SOURCE_REGISTER.md", i.name);
             }
             let s = i.shape();
-            assert!(!s.t.is_empty() && s.p.iter().all(|q| q[2] >= -1e-9), "{}: it stands on the floor", i.name);
+            // Pool equipment may reach down into the water from the deck (ladders, rails, lights).
+            assert!(!s.t.is_empty() && (i.library == Library::Pools || s.p.iter().all(|q| q[2] >= -1e-9)), "{}: it stands on the floor", i.name);
         }
         for l in Library::ALL {
             assert!(items.iter().any(|i| i.library == l));

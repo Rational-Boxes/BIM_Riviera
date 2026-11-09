@@ -1119,6 +1119,9 @@ pub(crate) fn list(store: &Store, _: Option<Value>) -> Result<Vec<Listed>> {
 
 // ---- Checks (ARC-POOL-002) ----
 
+/// The *Riviera Pools* library's kinds (ARC-POOL-004), which stand at the pool's edge.
+pub const EQUIPMENT: &[&str] = &["Pool Lift", "Pool Ladder", "Grab Rail", "Starting Platform", "Diving Board", "Lifeguard Chair", "Main Drain", "Underwater Light"];
+
 /// How far a plan point is from a ring's edge.
 fn edge_distance(p: [f64; 2], r: &[[f64; 2]]) -> f64 {
     (0..r.len())
@@ -1249,8 +1252,9 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
     };
     let packs = crate::rules::active(store, "pool");
     let mut out = PoolCheck { packs: packs.iter().map(|p| p.id.clone()).collect(), pools: Vec::new(), findings: Vec::new() };
-    // Elements the rules count stand on the deck by design: they do not block it.
-    let counted: Vec<&crate::rules::Selector> = packs.iter().flat_map(|p| p.pool.iter()).filter_map(|r| r.counts.as_ref()).collect();
+    // Pool equipment and what the rules count stand on the deck by design: they do not block it.
+    let equipment = crate::rules::Selector { object_types: EQUIPMENT.iter().map(|k| (*k).to_owned()).collect(), ..Default::default() };
+    let counted: Vec<&crate::rules::Selector> = packs.iter().flat_map(|p| p.pool.iter()).filter_map(|r| r.counts.as_ref()).chain([&equipment]).collect();
     let is_counted = |e: &Element| counted.iter().any(|s| s.selects_element(store, e));
     // The deck's slice, at its height.
     let mut cuts_at: Option<(f64, Cuts)> = None;

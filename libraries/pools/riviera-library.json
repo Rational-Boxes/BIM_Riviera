@@ -1,0 +1,164 @@
+{
+  "format": "riviera-library",
+  "version": 1,
+  "id": "60a29aa2-33bd-40f2-96eb-c4bf931ad667",
+  "name": "Riviera Pools",
+  "description": "Generic swimming pool equipment that ship with Riviera: placeholders at the sizes research note 23 gives, each a model fragment (IFC) with its IFC class and predefined type or kind, so the rule packs choose it. Generated from riviera_core::furnishings (ARC-FURN-001); regenerate with RIVIERA_REGEN_LIBRARIES=1.",
+  "author": "Riviera contributors",
+  "licence": "CC0-1.0",
+  "defaults": {},
+  "items": {
+    "Access/grab_rail_51_in.ifc": {
+      "guid": "ecef6f26-30c2-430e-9f91-d1eb424c0c6f",
+      "name": "Grab rail 51 in",
+      "description": "A 51 in grab rail of 1.90 in tube (DMS-100) for recessed steps, set back 8 in on the deck and curving over the water at its front; one each side, 18–24 in apart (MAHC 4.5.6).",
+      "tags": [
+        "access",
+        "Grab Rail",
+        "Uniclass Pr_25_30_36_34"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2841 S2762"
+      },
+      "sha256": "5c980bb1c586b20b6a095778f1730536eee9a4e5e2cfdde96af2334dee6c52e0"
+    },
+    "Access/pool_ladder_3_steps.ifc": {
+      "guid": "43021542-02ab-4fa5-92a5-f1b170f49cfb",
+      "name": "Pool ladder, 3 steps",
+      "description": "A three-step ladder of 1.90 in stainless rails 21 in apart (the MAHC's 17–24 in), 0.9 m over the deck, treads 12 in apart 75 mm off the wall (3–4 in) (S.R. Smith LF series). Its insertion point is the pool wall's face, the treads at its front in the water.",
+      "tags": [
+        "access",
+        "Pool Ladder",
+        "Uniclass Pr_25_30_85_64"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2840 S2762"
+      },
+      "sha256": "74efff47e7ed70a1b635f8adc82442f2e976781a6b81c597b87e2c7ca655541c"
+    },
+    "Access/pool_lift_300_lb.ifc": {
+      "guid": "24018e20-c24f-4154-b152-692129272d95",
+      "name": "Pool lift, 300 lb",
+      "description": "A deck-anchored pool lift: a seat 23 in wide (S.R. Smith aXs2) its top 17 in over the deck (ADA 1009.2.5: 16–19 in), lifting 300 lb; the seat swings over the water at its front. Keep the ADA's 36 × 48 in clear deck behind it, and set it where the water is 48 in deep or less.",
+      "tags": [
+        "access",
+        "Pool Lift",
+        "Uniclass Pr_65_80_47_64"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2773 S2836"
+      },
+      "sha256": "a90302670bdd3063c8d3c39d4b7e6e9e5d96c478c765d19f0381e44d19060e1a"
+    },
+    "Competition/starting_platform_24_x_32_in.ifc": {
+      "guid": "281b4b0a-9cca-4f92-8122-8e15b50b486b",
+      "name": "Starting platform 24 × 32 in",
+      "description": "A starting platform with a 24 × 32 in top (Spectrum Record Breaker) 0.6 m over the deck: 0.75 m over the water with it 0.15 m down (FINA 0.50–0.75 m); its front edge at the water. Water 1.35 m deep at least under it (FINA), 6 ft for new pools (MAHC 4.8.3).",
+      "tags": [
+        "competition",
+        "Starting Platform",
+        "Uniclass Pr_70_75_80_82"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2837 S2791 S2762"
+      },
+      "sha256": "d1d86e97879b32fb97b0b5fee83c2dd6888ebd14aa3806171661e947ad63b059"
+    },
+    "Diving/diving_board_1_m_on_stand.ifc": {
+      "guid": "e5e5ed77-7ba8-400e-8cf2-7e159e53c61d",
+      "name": "Diving board 1 m, on stand",
+      "description": "A 1 m springboard 16 ft long and 20 in wide (MAHC Table 4.8.2.2) on a stand under its back half, its top 0.85 m over a deck 0.15 m above the water; about 1.8 m of it over the water (the MAHC's 6 ft from the plummet back to the wall). Its well needs 12 ft at the plummet (Table 4.8.2.3).",
+      "tags": [
+        "diving",
+        "Diving Board",
+        "Uniclass Pr_40_30_86_24"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2762 S2791"
+      },
+      "sha256": "1d1f887f79eeb576021af76a5a6d531e640765e179c65780e4067f10f48eff29"
+    },
+    "Fittings/main_drain_cover_300_x_300.ifc": {
+      "guid": "24016f63-e1ce-4c82-b433-905201fa52c3",
+      "name": "Main drain cover 300 × 300",
+      "description": "A blockable main drain cover 300 × 300 mm, set in the pool floor: pairs at least 3 ft apart (VGB, WAC 246-260).",
+      "tags": [
+        "fittings",
+        "Main Drain",
+        "Uniclass Pr_70_55_98_66"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2775 S2861"
+      },
+      "sha256": "c4812f031c1ae2b4928d3f8c3938cc7341a0eac0161df8a958b53a287a20a08a"
+    },
+    "Fittings/main_drain_cover_unblockable_610_x_760.ifc": {
+      "guid": "e24e8f57-6b55-43aa-8fb2-96c15dd0e557",
+      "name": "Main drain cover, unblockable 610 × 760",
+      "description": "A main drain cover 24 × 30 in, larger than the 18 × 23 in blocking element, so the drain is unblockable on its own (16 CFR 1450).",
+      "tags": [
+        "fittings",
+        "Main Drain",
+        "Uniclass Pr_70_55_98_66"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2776"
+      },
+      "sha256": "dc5482ed11235fd5bcefe5ffb1d292c307409a6db1068049b57bae61b57b0aba"
+    },
+    "Fittings/underwater_light_large_niche.ifc": {
+      "guid": "e2b7dbe8-a92f-415d-b17b-307709511ad1",
+      "name": "Underwater light, large niche",
+      "description": "A pool light in a large wall niche, its face about 10 in across (Pentair), centred 0.6 m below the deck; 12 V through a transformer. Its insertion point is the wall's face, the light at its front.",
+      "tags": [
+        "fittings",
+        "Underwater Light"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2855"
+      },
+      "sha256": "94ff99114f2924f3d8301da32a0f5b604f1524daad9c732da26673abfb8715fc"
+    },
+    "Safety/lifeguard_chair_6_ft.ifc": {
+      "guid": "5d450cbc-2c93-43a1-8c9e-7bf979d2d082",
+      "name": "Lifeguard chair 6 ft",
+      "description": "A portable lifeguard chair, its seat 6 ft up on a 52 × 42 in footprint (S.R. Smith Vista), facing the water at its front; the MAHC keeps 4 ft of deck clear round it.",
+      "tags": [
+        "safety",
+        "Lifeguard Chair",
+        "Uniclass Pr_40_30_29_31"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2856 S2762"
+      },
+      "sha256": "1479a184b4c7278a0eccb0fda2735b65b6ffd044adb5cf01f835b042d3350145"
+    }
+  }
+}

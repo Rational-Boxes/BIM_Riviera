@@ -147,12 +147,14 @@ fn regenerate() {
             m.id = o.id.clone();
         }
         m.description = Some(format!(
-            "Generic {} that ship with Riviera: placeholders at the sizes research note 15 gives, each a model fragment (IFC) with its IFC class and predefined type or kind, so the rule packs choose it. Generated from riviera_core::furnishings (ARC-FURN-001); regenerate with RIVIERA_REGEN_LIBRARIES=1.",
+            "Generic {} that ship with Riviera: placeholders at the sizes research note {} gives, each a model fragment (IFC) with its IFC class and predefined type or kind, so the rule packs choose it. Generated from riviera_core::furnishings (ARC-FURN-001); regenerate with RIVIERA_REGEN_LIBRARIES=1.",
             match l {
                 Library::Interiors => "furniture",
                 Library::Gym => "gym equipment",
                 Library::Retail => "retail and checkout fixtures",
-            }
+                Library::Pools => "swimming pool equipment",
+            },
+            if l == Library::Pools { 23 } else { 15 }
         ));
         m.author = Some("Riviera contributors".into());
         m.licence = Some("CC0-1.0".into());
