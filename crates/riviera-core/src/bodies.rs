@@ -539,6 +539,10 @@ pub fn all(store: &Store) -> Vec<Body> {
         for m in g.benches {
             push(id, &format!("IfcBuildingElementProxy:{}", hex([0.92, 0.93, 0.94, 1.0])), m, false);
         }
+        // Lane markings (ARC-POOL-005), dark.
+        for m in g.markings {
+            push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);
+        }
         for m in g.water {
             push(id, &format!("IfcSpace:{}", hex([0.35, 0.65, 0.90, 0.45])), m, true);
         }

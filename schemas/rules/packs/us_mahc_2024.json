@@ -277,6 +277,46 @@
       "check": "bench_seat",
       "max": 0.508,
       "water_depth_max": 1.524
+    },
+    {
+      "id": "MAHC 2024 4.8.3.2",
+      "description": "Starting platforms only where the water is 6 ft deep at least (new construction; 4 ft otherwise), at the wall in front of them",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "platform_depth",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.8288,
+      "range": [
+        0.0,
+        1.0
+      ],
+      "counts": {
+        "object_types": [
+          "Starting Platform"
+        ]
+      },
+      "near": 1.0
+    },
+    {
+      "id": "MAHC 2024 4.8.3",
+      "description": "A starting platform's leading edge 30 in above the water at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "platform_height",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.762,
+      "counts": {
+        "object_types": [
+          "Starting Platform"
+        ]
+      },
+      "near": 1.0
     }
   ]
 }

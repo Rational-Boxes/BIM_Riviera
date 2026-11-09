@@ -11,6 +11,9 @@ Start with **File › New**.
 2. **The main pool.** Choose **Architecture › Build › Swimming Pool**, *Competition 25 m*, and
    leave the lanes empty for six. Click (16, 12) for its centre and a point east of it for its
    deep end. The pool is 25.03 × 15 m (2.5 m lanes and 30 mm for the touch pads) and 2.0 m deep.
+   Its six lanes come with it: the middle four 2.5 m, the outer two 2.4 m with 0.1 m gaps at the
+   side walls, their lines, T-ends, 15 m lines and end-wall targets drawn (**Pool Lanes** changes
+   them).
    Its shell walls and base slab (0.3 m of concrete), its 0.3 m coping and its water appear, and
    the deck is cut round it.
 3. **The teaching pool.** Choose **Swimming Pool** again, *Teaching 12 × 7 m*, and enter the depths
@@ -26,8 +29,8 @@ Start with **File › New**.
    wall's face at (5, 19.5) and (27, 19.5), and turned 180° on the south wall's at (5, 4.5) and
    (27, 4.5). Place the *Pool lift, 300 lb* turned 180° at (8, 3.6), and from *Safety* the
    *Lifeguard chair 6 ft* at (16, 21.6), both facing the water.
-7. **Drains.** From *Fittings*, place two *Main drain cover 300 × 300* at (16, 11) and (16, 13),
-   2.15 m down on the floor.
+7. **Drains.** From *Fittings*, place two *Main drain cover 300 × 300* at (15, 12) and (17, 12),
+   2.15 m down on the floor between the lines of lanes 3 and 4.
 8. **The teaching pool's entries.** Select the teaching pool and choose **Architecture › Build ›
    Pool Entry**: *Stairs*, clicking by its west wall at (30, 18.5), then *Sloped entry (ADA)* at
    (30, 21.5), and *Stairs* again by its east wall at (42, 20). The stairs step down in equal
@@ -35,8 +38,11 @@ Start with **File › New**.
    ISPSC wants an entry at each end and does not count accessible devices among them, hence the
    second stairs.
 9. **Check.** **View › Coordination › Check Pools** lists each pool's entries, accessible
-   entries and drains: the main pool has four ladders and the lift, the teaching pool its two sets
-   of stairs (and its sloped entry, an accessible one). Nothing overlaps (**Check Overlaps**).
+   entries and drains, and checks the main pool against World Aquatics: 25.010 m between the
+   touch pads (25.000–25.010 m), its lanes, 2.0 m of water under the starting platforms (1.35 m
+   at least) and their tops 0.75 m above the water (0.50–0.75 m). The main pool has four ladders
+   and the lift, the teaching pool its two sets of stairs (and its sloped entry, an accessible
+   one). Nothing overlaps (**Check Overlaps**).
 10. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
    `IfcSlab` (BASESLAB) and an `IfcCovering` (COPING), with the teaching pool's `IfcStair` and
    `IfcRamp`, and its water an `IfcSpace` (WATER) under the level carrying its area and volume.
@@ -47,8 +53,8 @@ Start with **File › New**.
 
 - **[gap]** The window places templates and typed outlines; sketching a freeform outline with the
   sketch tools, and editing a pool's profile in the window (`pool.set` from a script), come later.
-- **[gap]** Lane lines, T-ends, backstroke flags, the false-start rope and touch pads, and the
-  World Aquatics checks of a competition pool, are the next step; equipment is placed by
-  coordinates, not snapped to the pool's edge.
+- **[gap]** Backstroke flags, the false-start rope, lane ropes and touch pads as objects, and the
+  diving envelopes, are not built yet; equipment is placed by coordinates, not snapped to the
+  pool's edge.
 - **[gap]** Deck-level gutters and infinity-edge basins are recorded but not drawn, the wall–floor
   cove is a value only, and tiling and membrane layers are not drawn.

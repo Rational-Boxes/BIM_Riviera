@@ -224,3 +224,9 @@ exposed to Lua and MCP.
   diving equipment, guard stands and lifts) and `us_ispsc` (4 ft round diving structures); pool
   equipment no longer counts as blocking the deck. The bathroom components' pool ladder and drain
   covers moved here. Next: step 4, competition presets and diving envelopes (ARC-POOL-005).
+- Step 4, first part (ARC-POOL-005, 2026-11-09): competition lanes in the recipe (`pool.lanes`,
+  Architecture › Build › Pool Lanes; the competition templates have theirs), their markings
+  drawn as a LANEMARKING covering, and the `world_aquatics` pack (the course between the touch
+  pads, lane widths, depth, and the depth and height at starting platforms), each finding saying
+  to verify against the current text; the MAHC's and ISPSC's platform depths. Next: diving
+  envelopes checked with the overlap engine.

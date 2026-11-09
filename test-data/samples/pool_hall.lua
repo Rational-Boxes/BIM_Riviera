@@ -52,9 +52,10 @@ place("Pool ladder, 3 steps", 27, 4.5, math.pi)
 -- A pool lift on the south deck and a lifeguard chair on the north deck, both facing the pool.
 place("Pool lift, 300 lb", 8, 3.6, math.pi)
 place("Lifeguard chair 6 ft", 16, 21.6, 0)
--- Two main drains on the floor, 2 m apart (the VGB Act's 3 ft at least), 2.15 m down.
-place("Main drain cover 300 × 300", 16, 11, 0, -2.15)
-place("Main drain cover 300 × 300", 16, 13, 0, -2.15)
+-- Two main drains on the floor between the lines of lanes 3 and 4, 2 m apart (the VGB Act's
+-- 3 ft at least), 2.15 m down.
+place("Main drain cover 300 × 300", 15, 12, 0, -2.15)
+place("Main drain cover 300 × 300", 17, 12, 0, -2.15)
 
 -- The teaching pool's entries, built into its west wall (edge 1, from its north-west corner):
 -- stairs, and a sloped entry falling 1:12 to 27 in below the water; and stairs at its east end
@@ -64,6 +65,8 @@ local r = riviera.pool.add_entry{ pool_id = teach, kind = "sloped_entry", edge =
 riviera.pool.add_entry{ pool_id = teach, kind = "stairs", edge = 3, at = 3.5 }
 print(string.format("Teaching pool: stairs of %d risers of %.0f mm; a sloped entry %.2f m long", s.risers, s.riser * 1000, r.run))
 
+local lanes = riviera.pool.info{ pool_id = main }.lanes
+print(string.format("Main pool: %d lanes, %.3f m between the touch pads", #lanes.widths, lanes.course))
 for _, p in ipairs(riviera.pool.check{}.pools) do
   print(string.format("%s (%s): %d entries, %d accessible, %d drains", p.name, p.class, p.entries, p.accessible_entries, p.drains))
 end

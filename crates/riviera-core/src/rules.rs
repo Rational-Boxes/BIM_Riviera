@@ -50,6 +50,7 @@ const SHIPPED: &[&str] = &[
     include_str!("../../../schemas/rules/packs/us_ispsc.json"),
     include_str!("../../../schemas/rules/packs/ada_2010_pools.json"),
     include_str!("../../../schemas/rules/packs/us_vgb.json"),
+    include_str!("../../../schemas/rules/packs/world_aquatics.json"),
 ];
 /// A zone's height above the floor when its rule gives none (metres).
 pub const DEFAULT_HEIGHT: f64 = 1.0;
@@ -231,6 +232,10 @@ pub enum PoolMeasure {
     SlopedEntrySlope,
     SlopedEntryDepth,
     BenchSeat,
+    CourseLength,
+    LaneWidth,
+    PlatformDepth,
+    PlatformHeight,
 }
 
 /// A rule on a swimming pool, checked by `pool.check` (ARC-POOL-002).
@@ -265,6 +270,20 @@ pub struct PoolRule {
     /// A bench: the deepest water it may stand in.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub water_depth_max: Option<f64>,
+    /// A course length's nominal lengths (the nearest is checked).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lengths: Vec<f64>,
+    /// Lanes: the outer lanes' and the side gaps' least widths.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub outer_min: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gap_min: Option<f64>,
+    /// Starting platforms: the stretch out from the end wall the depth is checked over.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub range: Option<[f64; 2]>,
+    /// Said after each finding (World Aquatics: verify against its current text).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
 }
 
 /// A shared-format rule pack.
@@ -359,7 +378,8 @@ pub fn chosen(store: &Store, domain: &str) -> Option<Vec<String>> {
 /// The packs chosen for a domain the project names none for: for interiors, the ADA pack with
 /// the ADA rule set; for retail, the IBC mercantile pack under the IBC; for gyms, the equipment
 /// makers' clearances always; for pools, the ISPSC and the VGB Act under the IBC and the ADA's
-/// pool rules with the ADA rule set (the MAHC is chosen per project: `POOLS_PLAN.md` Question 3).
+/// pool rules with the ADA rule set, and World Aquatics' for competition pools always (the MAHC is
+/// chosen per project: `POOLS_PLAN.md` Question 3).
 pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     let mut out = Vec::new();
     if domain == "interiors" && crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
@@ -378,6 +398,8 @@ pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
         if crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
             out.push("ada_2010_pools".to_owned());
         }
+        // Only pools marked for competition are checked by it.
+        out.push("world_aquatics".to_owned());
     }
     out
 }

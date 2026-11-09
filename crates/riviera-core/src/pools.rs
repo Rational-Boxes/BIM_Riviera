@@ -224,6 +224,43 @@ pub struct Entry {
     pub depth: Option<f64>,
 }
 
+/// A competition pool's lanes (ARC-POOL-005): equal middle lanes, the two outer lanes taking
+/// what is left of the width after a gap at each side wall.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct Lanes {
+    pub count: u32,
+    /// The middle lanes' width (default 2.5 m).
+    #[serde(default = "lane_width")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub width: f64,
+    /// The space outside the first and last lanes (default 0.1 m, World Aquatics 2026).
+    #[serde(default = "lane_gap")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub gap: f64,
+    /// Ends with touch pads, 10 mm thick each (default 2).
+    #[serde(default = "two")]
+    pub pads: u32,
+    /// Lane lines, T-ends, 15 m cross lines and end-wall targets drawn (default true).
+    #[serde(default = "yes")]
+    pub markings: bool,
+}
+
+fn lane_width() -> f64 {
+    2.5
+}
+fn lane_gap() -> f64 {
+    0.1
+}
+fn two() -> u32 {
+    2
+}
+fn yes() -> bool {
+    true
+}
+
+/// A touch pad's thickness (World Aquatics: 0.01 m).
+pub const PAD: f64 = 0.01;
+
 /// A pool (`recipe.pool`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct PoolRecipe {
@@ -254,6 +291,9 @@ pub struct PoolRecipe {
     /// Stairs, sloped entries and benches built into it (ARC-POOL-003).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub entries: Vec<Entry>,
+    /// Competition lanes (ARC-POOL-005).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lanes: Option<Lanes>,
 }
 
 impl PoolRecipe {
@@ -294,6 +334,8 @@ pub struct PoolGeometry {
     pub stairs: Vec<Mesh>,
     pub ramps: Vec<Mesh>,
     pub benches: Vec<Mesh>,
+    /// Lane lines, T-ends, cross lines and end-wall targets (ARC-POOL-005).
+    pub markings: Vec<Mesh>,
     pub deck_z: f64,
     pub water_z: f64,
     pub area: f64,
@@ -525,6 +567,95 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
     Some((blocks, info))
 }
 
+/// A pool's lanes as laid out.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct LaneLayout {
+    /// Wall to wall along the axis, and between the touch pads.
+    pub length: f64,
+    pub course: f64,
+    /// Across the axis, wall to wall.
+    pub width: f64,
+    /// Each lane's width, first (on the axis's right) to last.
+    pub widths: Vec<f64>,
+    /// Each lane's centre, across the axis from the right-hand wall.
+    pub centres: Vec<f64>,
+    pub gap: f64,
+    #[serde(skip)]
+    ends: [f64; 2],
+    #[serde(skip)]
+    side: f64,
+}
+
+/// The pool's extent along its axis and across it, as `t` and `s` ranges.
+fn extents(rec: &PoolRecipe) -> ([f64; 2], [f64; 2]) {
+    let (a, u) = rec.axis_dir();
+    let v = [-u[1], u[0]];
+    let mut t = [f64::MAX, f64::MIN];
+    let mut s = [f64::MAX, f64::MIN];
+    for p in &rec.outline {
+        let (dt, ds) = ((p[0] - a[0]) * u[0] + (p[1] - a[1]) * u[1], (p[0] - a[0]) * v[0] + (p[1] - a[1]) * v[1]);
+        t = [t[0].min(dt), t[1].max(dt)];
+        s = [s[0].min(ds), s[1].max(ds)];
+    }
+    (t, s)
+}
+
+/// Its lanes, if it has them.
+pub fn lane_layout(rec: &PoolRecipe) -> Option<LaneLayout> {
+    let l = rec.lanes?;
+    if l.count == 0 {
+        return None;
+    }
+    let (t, s) = extents(rec);
+    let width = s[1] - s[0];
+    let n = l.count as usize;
+    let outer = if n == 1 { width - 2.0 * l.gap } else if n == 2 { (width - 2.0 * l.gap) / 2.0 } else { (width - 2.0 * l.gap - (n - 2) as f64 * l.width) / 2.0 };
+    let widths: Vec<f64> = (0..n).map(|k| if k == 0 || k == n - 1 { outer } else { l.width }).collect();
+    let mut centres = Vec::new();
+    let mut at = l.gap;
+    for w in &widths {
+        centres.push(at + w / 2.0);
+        at += w;
+    }
+    Some(LaneLayout { length: t[1] - t[0], course: t[1] - t[0] - f64::from(l.pads) * PAD, width, widths, centres, gap: l.gap, ends: t, side: s[0] })
+}
+
+/// The lanes' markings as plan rectangles, each with its bottom and top: lines on the floor
+/// 0.25 m wide ending 2.0 m from the end walls in 1.0 m cross lines, 0.5 m cross lines 15 m
+/// from each end, and on the end walls, targets from the coping to the floor with a 0.5 m cross
+/// line 0.3 m below the water (World Aquatics; research/23 B.7.1).
+fn lane_marks(rec: &PoolRecipe, water_z: f64, wall_top: f64) -> Vec<(Ring, Option<[f64; 2]>)> {
+    let Some(lay) = lane_layout(rec) else { return Vec::new() };
+    if !rec.lanes.is_some_and(|l| l.markings) {
+        return Vec::new();
+    }
+    let (a, u) = rec.axis_dir();
+    let v = [-u[1], u[0]];
+    let at = |t: f64, s: f64| [a[0] + u[0] * t + v[0] * s, a[1] + u[1] * t + v[1] * s];
+    let rect = |t0: f64, t1: f64, s0: f64, s1: f64| vec![at(t0, s0), at(t1, s0), at(t1, s1), at(t0, s1)];
+    let (w, [e0, e1]) = (0.25, lay.ends);
+    let mut out = Vec::new();
+    for c in &lay.centres {
+        let s = lay.side + c;
+        // On the floor (None: from the floor up 5 mm).
+        out.push((rect(e0 + 2.0, e1 - 2.0, s - w / 2.0, s + w / 2.0), None));
+        for t in [e0 + 2.0, e1 - 2.0 - w] {
+            out.push((rect(t, t + w, s - 0.5, s + 0.5), None));
+        }
+        if e1 - e0 > 16.0 {
+            for t in [e0 + 15.0 - w / 2.0, e1 - 15.0 - w / 2.0] {
+                out.push((rect(t, t + w, s - 0.25, s + 0.25), None));
+            }
+        }
+        // On each end wall, 5 mm proud of it.
+        for (t0, t1) in [(e0, e0 + 0.005), (e1 - 0.005, e1)] {
+            out.push((rect(t0, t1, s - w / 2.0, s + w / 2.0), Some([f64::NAN, wall_top])));
+            out.push((rect(t0, t1, s - 0.25, s + 0.25), Some([water_z - 0.3 - w / 2.0, water_z - 0.3 + w / 2.0])));
+        }
+    }
+    out
+}
+
 /// Each entry's numbers.
 pub fn entries(store: &Store, rec: &PoolRecipe) -> Vec<EntryInfo> {
     let deck_z = crate::levels::elevation_of(store, &rec.level).unwrap_or(0.0) + rec.deck;
@@ -595,6 +726,17 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
             }
         }
     }
+    let mut markings = Vec::new();
+    for (r, z) in lane_marks(&rec, water_z, wall_top) {
+        let inside = crate::polygons::intersection(std::slice::from_ref(&outline), &[Shape { outer: r, holes: Vec::new() }]);
+        for s in strips(&rec, &inside) {
+            markings.push(match z {
+                None => extrude(&s, &floor, &|p| floor(p) + 0.005),
+                Some([lo, hi]) if lo.is_nan() => extrude(&s, &floor, &|_| hi),
+                Some([lo, hi]) => extrude(&s, &|p| lo.max(floor(p)), &|p| hi.max(floor(p) + 0.001)),
+            });
+        }
+    }
     let area = crate::polygons::area(&rec.outline).abs();
     let n = rec.outline.len();
     let perimeter = (0..n).map(|i| {
@@ -603,7 +745,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }).sum();
     let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, markings, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -666,7 +808,7 @@ pub struct Template {
 /// Touch pads at one end: 0.03 m (research/23 D.1.1).
 const PADS: f64 = 0.03;
 
-fn template(t: &Template) -> Result<(Ring, Vec<Station>, f64)> {
+fn template(t: &Template) -> Result<(Ring, Vec<Station>, f64, Option<Lanes>)> {
     use TemplateKind::*;
     let lanes = |default: u32| f64::from(t.lanes.unwrap_or(default)) * t.lane_width.unwrap_or(2.5);
     let (l, w, profile): (f64, f64, Option<Vec<Station>>) = match t.kind {
@@ -685,7 +827,14 @@ fn template(t: &Template) -> Result<(Ring, Vec<Station>, f64)> {
     let at = |x: f64, y: f64| [t.origin[0] + x * c - y * s, t.origin[1] + x * s + y * c];
     // Counter-clockwise from the shallow end's wall (its first edge).
     let ring = vec![at(-l / 2.0, w / 2.0), at(-l / 2.0, -w / 2.0), at(l / 2.0, -w / 2.0), at(l / 2.0, w / 2.0)];
-    Ok((ring, profile.unwrap_or_else(|| default_profile(l)), l))
+    // Competition pools have their lanes, the outer two taking the 0.1 m gaps from their width.
+    let lanes = match t.kind {
+        Competition25yd | Competition25m => Some(6),
+        Competition50m => Some(8),
+        _ => None,
+    }
+    .map(|n| Lanes { count: t.lanes.unwrap_or(n), width: t.lane_width.unwrap_or(2.5), gap: lane_gap(), pads: 2, markings: true });
+    Ok((ring, profile.unwrap_or_else(|| default_profile(l)), l, lanes))
 }
 
 /// A public pool's: 1.0 m deep, to 5 ft at 60 % of its length, to 2.0 m at the deep end.
@@ -722,6 +871,8 @@ pub struct CreateParams {
     /// Stairs, sloped entries and benches (ARC-POOL-003).
     #[serde(default)]
     pub entries: Vec<Entry>,
+    /// Competition lanes (default the competition templates' own).
+    pub lanes: Option<Lanes>,
     pub name: Option<String>,
 }
 
@@ -770,6 +921,16 @@ fn validate(rec: &PoolRecipe) -> Result<()> {
             return Err(bad("pool.bad_entry", format!("entry {}: its middle must be on edge {} (0 to {l:.2} m) and its sizes above zero", k + 1, e.edge)));
         }
     }
+    if let Some(l) = rec.lanes
+        && !(l.width > 0.0 && l.gap >= 0.0 && l.pads <= 2)
+    {
+        return Err(bad("pool.bad_lanes", "lanes need a width, a gap of zero or more, and touch pads at no more than two ends"));
+    }
+    if let Some(lay) = lane_layout(rec)
+        && lay.widths.iter().any(|w| *w <= 0.0)
+    {
+        return Err(bad("pool.bad_lanes", format!("{} lanes of {:.2} m do not fit {:.2} m", rec.lanes.map_or(0, |l| l.count), rec.lanes.map_or(0.0, |l| l.width), lay.width)));
+    }
     if rec.shell.thickness.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) || rec.water_level.partial_cmp(&0.0).is_none_or(std::cmp::Ordering::is_lt) {
         return Err(bad("pool.bad_shell", "the shell needs a thickness, and the water must be at or below the deck"));
     }
@@ -788,10 +949,12 @@ fn edges_for(n: usize, edges: Option<Vec<Edge>>) -> Vec<Edge> {
 pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<ElementId> {
     let store = txn.store().clone();
     let level = level_guid(&store, &p.level)?;
+    let mut template_lanes = None;
     let (mut outline, tprofile, kind) = match (&p.outline, &p.template) {
         (Some(o), None) => (o.clone(), None, None),
         (None, Some(t)) => {
-            let (r, prof, _) = template(t)?;
+            let (r, prof, _, lanes) = template(t)?;
+            template_lanes = lanes;
             (r, Some(prof), Some(serde_json::to_value(t.kind).ok().and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default()))
         }
         _ => return Err(bad("pool.outline_or_template", "give an outline or a template")),
@@ -820,6 +983,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Eleme
         template: kind,
         class: p.class,
         entries: p.entries,
+        lanes: p.lanes.or(template_lanes),
     };
     validate(&rec)?;
     let id = txn.create(
@@ -978,6 +1142,8 @@ pub struct Info {
     pub shell_volume: f64,
     pub water_level: f64,
     pub entries: Vec<EntryInfo>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lanes: Option<LaneLayout>,
 }
 
 /// A pool's numbers (`pool.info`).
@@ -1011,6 +1177,7 @@ pub(crate) fn info(store: &Store, p: InfoParams) -> Result<Info> {
         shell_volume: g.shell_volume,
         water_level: g.water_z,
         entries: entries(store, &rec),
+        lanes: lane_layout(&rec),
     })
 }
 
@@ -1072,6 +1239,39 @@ pub(crate) fn add_entry(txn: &mut Transaction<'_>, p: AddEntryParams) -> Result<
         e.params.insert(RECIPE_KEY.into(), v);
     })?;
     entries(txn.store(), &rec).pop().ok_or_else(|| bad("pool.bad_entry", "the entry was not made"))
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct LanesParams {
+    pub pool_id: ElementRef,
+    /// How many lanes; 0 takes them away.
+    pub count: u32,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub width: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub gap: Option<f64>,
+    pub pads: Option<u32>,
+    pub markings: Option<bool>,
+}
+
+/// Sets a pool's lanes (`pool.lanes`); their layout back.
+pub(crate) fn set_lanes(txn: &mut Transaction<'_>, p: LanesParams) -> Result<Option<LaneLayout>> {
+    let (id, mut rec) = resolve(txn.store(), &p.pool_id)?;
+    let old = rec.lanes;
+    rec.lanes = (p.count > 0).then(|| Lanes {
+        count: p.count,
+        width: p.width.or(old.map(|l| l.width)).unwrap_or(2.5),
+        gap: p.gap.or(old.map(|l| l.gap)).unwrap_or(lane_gap()),
+        pads: p.pads.or(old.map(|l| l.pads)).unwrap_or(2),
+        markings: p.markings.or(old.map(|l| l.markings)).unwrap_or(true),
+    });
+    validate(&rec)?;
+    let v = serde_json::to_value(&rec).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })?;
+    Ok(lane_layout(&rec))
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -1298,6 +1498,10 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                 let severity = if pack.layer == Layer::Recommended || r.confidence == Confidence::Advisory { "note" } else { "error" };
                 let mut find = |element: Option<ElementId>, note: bool, message: String| {
                     let severity = if note { "note" } else { severity };
+                    let message = match &r.note {
+                        Some(n) => format!("{message}; {n}"),
+                        None => message,
+                    };
                     out.findings.push(PoolFinding { pack: pack.id.clone(), rule: r.id.clone(), source: r.source.clone(), severity: severity.into(), confidence: r.confidence, pool: id, element, message });
                 };
                 let ratio = |s: f64| if s < 1e-9 { "level".to_owned() } else { format!("1:{:.1}", 1.0 / s) };
@@ -1502,6 +1706,72 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                                         find(None, false, format!("{what} stands in {} of water; at most {}", feet(b.water_depth), feet(m)));
                                     }
                                 }
+                            }
+                        }
+                    }
+                    M::CourseLength => {
+                        let Some(lay) = lane_layout(&rec) else {
+                            find(None, true, "no lanes are set, so the course length between the touch pads is unknown (pool.lanes)".into());
+                            continue;
+                        };
+                        let Some(&nominal) = r.lengths.iter().filter(|n| (lay.course - **n).abs() < 0.5).min_by(|a, b| (lay.course - **a).abs().total_cmp(&(lay.course - **b).abs())) else {
+                            find(None, true, format!("{:.3} m between the touch pads is not a course of {}", lay.course, r.lengths.iter().map(|l| format!("{l} m")).collect::<Vec<_>>().join(" or ")));
+                            continue;
+                        };
+                        let (lo, hi) = (nominal + r.min.unwrap_or(0.0), nominal + r.max.unwrap_or(0.0));
+                        if lay.course < lo - 1e-6 || lay.course > hi + 1e-6 {
+                            let pads = rec.lanes.map_or(0, |l| l.pads);
+                            find(None, false, format!("{:.3} m between the touch pads ({:.3} m wall to wall, pads at {pads} end{}); a {nominal} m course is {lo:.3}–{hi:.3} m", lay.course, lay.length, if pads == 1 { "" } else { "s" }));
+                        }
+                    }
+                    M::LaneWidth => {
+                        let Some(lay) = lane_layout(&rec) else {
+                            find(None, false, "no lanes are set (pool.lanes)".into());
+                            continue;
+                        };
+                        let n = lay.widths.len();
+                        for (k, w) in lay.widths.iter().enumerate() {
+                            let outer = k == 0 || k == n - 1;
+                            let need = if outer { r.outer_min.or(r.min) } else { r.min };
+                            if let Some(m) = need
+                                && *w < m - 1e-6
+                            {
+                                find(None, false, format!("lane {} is {w:.2} m wide; {} lanes at least {m:.2} m", k + 1, if outer { "the outer" } else { "the" }));
+                            }
+                        }
+                        if let Some(m) = r.gap_min
+                            && lay.gap < m - 1e-6
+                        {
+                            find(None, false, format!("{:.2} m outside the outer lanes; at least {m:.2} m", lay.gap));
+                        }
+                    }
+                    M::PlatformDepth | M::PlatformHeight => {
+                        let Some(sel) = &r.counts else { continue };
+                        let reach = r.near.unwrap_or(1.0);
+                        let ends = extents(&rec).0;
+                        for o in store.iter().filter(|o| o.id() != id && sel.selects_element(store, o)) {
+                            let Some(it) = crate::rules::item(store, o) else { continue };
+                            let c = it.frame.apply([(it.x[0] + it.x[1]) / 2.0, (it.front + it.back) / 2.0, 0.0]);
+                            let c = [c[0], c[1]];
+                            if !(crate::sco::inside(c, ring) || edge_distance(c, ring) <= reach) {
+                                continue;
+                            }
+                            if r.check == M::PlatformHeight {
+                                let h = it.z[1] - g.water_z;
+                                if outside(h, r.min, r.max) {
+                                    find(Some(o.id()), false, format!("{} is {h:.2} m above the water; {}", crate::sco::name(store, o.id()), bounds(r.min, r.max, &|v| format!("{v:.2} m"))));
+                                }
+                                continue;
+                            }
+                            let Some(min) = r.min else { continue };
+                            let [d0, d1] = r.range.unwrap_or([0.0, 1.0]);
+                            let tc = rec.t(c);
+                            let (lo, hi) = if (tc - ends[0]).abs() <= (tc - ends[1]).abs() { (ends[0] + d0, ends[0] + d1) } else { (ends[1] - d1, ends[1] - d0) };
+                            let mut ts = vec![lo, hi];
+                            ts.extend(rec.profile.iter().map(|s| s.at).filter(|t| (lo..=hi).contains(t)));
+                            let shallowest = ts.iter().map(|t| rec.depth_at(*t)).fold(f64::MAX, f64::min);
+                            if shallowest < min - 1e-6 {
+                                find(Some(o.id()), false, format!("the water is {shallowest:.2} m deep {d0:.1}–{d1:.1} m out from the wall at {}; at least {min:.2} m", crate::sco::name(store, o.id())));
                             }
                         }
                     }

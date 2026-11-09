@@ -988,14 +988,7 @@ impl Gui {
     /// into the selected pool (or the only one), against the edge clicked.
     pub(crate) fn pool_entry(&mut self) {
         let frame = self.frame;
-        let Some(store) = self.store_now() else { return };
-        let pools: Vec<u64> = store.iter().filter(|e| riviera_core::pools::recipe(e).is_some()).map(|e| e.id().0).collect();
-        let selected: Vec<u64> = self.selection().into_iter().map(|id| id.0).filter(|id| pools.contains(id)).collect();
-        let pool = match (selected.as_slice(), pools.as_slice()) {
-            ([one], _) | ([], [one]) => *one,
-            ([], []) => return error(&frame, "No swimming pool: place one with Architecture › Build › Swimming Pool."),
-            _ => return error(&frame, "Select one swimming pool first."),
-        };
+        let Some(pool) = self.selected_pool() else { return };
         let f = super::reinforcement_ui::Form::new(&frame, "Pool Entry");
         let kinds = ["stairs", "sloped_entry", "bench"];
         let kind = f.choice("Entry", &["Stairs".to_owned(), "Sloped entry (ADA)".to_owned(), "Underwater bench".to_owned()], 0);
@@ -1021,6 +1014,67 @@ impl Gui {
             return;
         }
         self.start_picking("pool.add_entry", vec![json!({ "key": "point", "kind": "point", "prompt": "Pool Entry: click by the wall where its middle goes" })], args);
+    }
+
+    /// The selected pool, or the model's only one; else an error shown.
+    fn selected_pool(&mut self) -> Option<u64> {
+        let frame = self.frame;
+        let store = self.store_now()?;
+        let pools: Vec<u64> = store.iter().filter(|e| riviera_core::pools::recipe(e).is_some()).map(|e| e.id().0).collect();
+        let selected: Vec<u64> = self.selection().into_iter().map(|id| id.0).filter(|id| pools.contains(id)).collect();
+        match (selected.as_slice(), pools.as_slice()) {
+            ([one], _) | ([], [one]) => Some(*one),
+            ([], []) => {
+                error(&frame, "No swimming pool: place one with Architecture › Build › Swimming Pool.");
+                None
+            }
+            _ => {
+                error(&frame, "Select one swimming pool first.");
+                None
+            }
+        }
+    }
+
+    /// Architecture › Build › Pool Lanes (ARC-POOL-005): the selected pool's competition lanes and
+    /// markings.
+    pub(crate) fn pool_lanes(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let now = self.run("pool.info", json!({ "pool_id": pool })).unwrap_or_default();
+        let lanes = &now["lanes"];
+        let count = lanes["widths"].as_array().map_or(0, Vec::len);
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Lanes");
+        let n = f.text("Lanes", &count.to_string(), "0 takes them away");
+        let width = f.text("Lane width (m)", "", "The middle lanes; default 2.5");
+        let gap = f.text("Side gaps (m)", "", "Outside the first and last lanes; default 0.1 (World Aquatics 2026)");
+        let pads = f.choice("Touch pads", &["At both ends".to_owned(), "At one end".to_owned(), "None".to_owned()], 0);
+        let marks = f.check("Markings", "Draw the lane lines, T-ends, 15 m lines and end-wall targets", true);
+        let ok = f.show("The outer lanes take what is left of the pool's width. Check Pools checks them against World Aquatics where the pool is marked for competition.", "Set Lanes");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let mut args = json!({ "pool_id": pool, "count": n.get_value().trim().parse::<u32>().unwrap_or(0), "pads": 2 - pads.get_selection().unwrap_or(0).min(2), "markings": marks.get_value() });
+        if let Some(v) = num(&width) {
+            args["width"] = json!(v);
+        }
+        if let Some(v) = num(&gap) {
+            args["gap"] = json!(v);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("pool.lanes", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let text = if v.is_null() {
+                    "Lanes taken away".to_owned()
+                } else {
+                    let w: Vec<String> = v["widths"].as_array().map(|a| a.iter().map(|w| format!("{:.2}", w.as_f64().unwrap_or(0.0))).collect()).unwrap_or_default();
+                    format!("{} lanes ({} m); {:.3} m between the touch pads", w.len(), w.join(", "), v["course"].as_f64().unwrap_or(0.0))
+                };
+                frame.set_status_text(&text, 0);
+            }
+            Err(e) => error(&frame, &format!("The lanes were not set:\n{e}")),
+        }
     }
 
     /// The entry's edge picked: built, and its numbers shown.

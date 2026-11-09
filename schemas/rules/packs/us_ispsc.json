@@ -201,6 +201,28 @@
         "residential"
       ],
       "min": 0.254
+    },
+    {
+      "id": "ISPSC 2021 (public)",
+      "description": "Starting platforms only where the water is 5 ft deep at least (as the Texas checklist cites it)",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "platform_depth",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.524,
+      "range": [
+        0.0,
+        1.0
+      ],
+      "counts": {
+        "object_types": [
+          "Starting Platform"
+        ]
+      },
+      "near": 1.0
     }
   ]
 }

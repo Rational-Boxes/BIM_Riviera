@@ -17,6 +17,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#depths">Depths and slopes</a>
   <a href="#edges">Edges, coping and shell</a>
   <a href="#entries">Stairs, sloped entries and benches</a>
+  <a href="#lanes">Competition lanes</a>
   <a href="#equipment">Equipment</a>
   <a href="#check">Checking a pool</a>
   <a href="#ifc">In IFC</a>
@@ -68,6 +69,18 @@ where the entry's middle goes. It runs from that edge into the pool and becomes 
 as entries, a sloped entry as an accessible one, and measures treads, risers, widths, the ramp's
 slope and depth, and benches. From a script: <code>pool.add_entry</code>,
 <code>pool.remove_entry</code>, or <code>pool.set</code> with <code>entries</code>.</p>
+
+<h2 id="lanes">Competition lanes</h2>
+<p>The competition templates come with their lanes: six (eight for 50 m), the middle ones 2.5 m
+and the outer two taking what is left after 0.1 m at each side wall. <b>Architecture › Build ›
+Pool Lanes</b> changes their number and width, the side gaps, the touch pads (10 mm at each end
+that has them) and whether the markings are drawn: a line down each lane ending 2.0 m from the
+end walls in a 1.0 m cross, 0.5 m crosses 15 m from each end, and targets on the end walls.</p>
+<p>For a pool marked for competition, Check Pools applies <b>World Aquatics</b>: 50.000 or
+25.000 m between the touch pads (+10 mm), lanes of 2.5 m (2.4 m outside), 1.0 m of water,
+1.35 m from 1 to 6 m out where starting platforms stand, and their tops 0.50–0.75 m above the
+water. Its values are FINA's 2017–2021 rules with the 2026 checklist's changes, and each finding
+says to verify against the current World Aquatics text.</p>
 
 <h2 id="equipment">Equipment</h2>
 <p>The <b>Riviera Pools</b> library (<b>Insert › Component Libraries</b>) has a pool lift, a
@@ -121,4 +134,4 @@ mapping.</p>
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>

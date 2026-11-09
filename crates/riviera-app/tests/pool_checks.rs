@@ -43,9 +43,10 @@ fn a_public_pool_is_checked() {
     // 15 × 8 m: 1.0 m to 5 ft over 5 m (1:9.5), then to 2.0 m over 2 m.
     let profile = json!([{ "at": 0.0, "depth": 1.0 }, { "at": 5.0, "depth": 1.524 }, { "at": 7.0, "depth": 2.0 }]);
     let pool = ok(&mut app, "pool.create", json!({ "level": level, "outline": [[0.0, 8.0], [0.0, 0.0], [15.0, 0.0], [15.0, 8.0]], "profile": profile }));
-    // Under the IBC with the ADA rule set: the ISPSC, the VGB Act and the ADA's pool rules.
+    // Under the IBC with the ADA rule set: the ISPSC, the VGB Act and the ADA's pool rules, and
+    // World Aquatics' (for competition pools) always.
     let c = ok(&mut app, "pool.check", json!({}));
-    assert_eq!(c["packs"], json!(["us_ispsc", "us_vgb", "ada_2010_pools"]), "{c:#}");
+    assert_eq!(c["packs"], json!(["us_ispsc", "us_vgb", "ada_2010_pools", "world_aquatics"]), "{c:#}");
     assert!(has(&c, "us_ispsc", "ISPSC 2021 (public)"), "{c:#}");
     let slope = c["findings"].as_array().unwrap().iter().find(|f| f["message"].as_str().unwrap().contains("1:9.5")).expect("the shallow slope");
     assert_eq!((slope["severity"].as_str(), slope["confidence"].as_str()), (Some("error"), Some("secondary")));

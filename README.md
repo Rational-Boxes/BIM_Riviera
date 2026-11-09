@@ -705,8 +705,10 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   its own clause, with bather loads. Stairs, ADA sloped entries and underwater benches are built
   into the pool (ARC-POOL-003; Architecture › Build › Pool Entry; `pool.add_entry`), counted and
   measured by the checks. The *Riviera Pools* library holds the equipment, each item keeping its
-  clear deck (ARC-POOL-004). Not built yet: sketched outlines, drawn gutters and basins, depth
-  markings, barriers, handrails, recessed steps and beach entries. Planned next: competition
+  clear deck (ARC-POOL-004). Competition pools have their lanes and markings (Pool Lanes;
+  `pool.lanes`), checked against World Aquatics: the course between the touch pads, lane widths,
+  and the depth and height at starting platforms (ARC-POOL-005). Not built yet: sketched outlines, drawn gutters and basins, depth
+  markings, barriers, handrails, recessed steps and beach entries. Planned next: diving envelopes, competition
   presets and diving envelopes, UK packs, then the hall's dehumidification, water treatment,
   structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the

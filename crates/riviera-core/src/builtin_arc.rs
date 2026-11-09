@@ -372,6 +372,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolCheck),
         registry.add(PoolAddEntry),
         registry.add(PoolRemoveEntry),
+        registry.add(PoolLanes),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4487,6 +4488,23 @@ edit_command!(
     crate::pools::AddEntryParams,
     crate::pools::EntryInfo,
     crate::pools::add_entry
+);
+
+edit_command!(
+    PoolLanes,
+    "pool.lanes",
+    "Set a pool's competition lanes",
+    "Sets a swimming pool's competition lanes (ARC-POOL-005): `count` lanes, the middle ones `width` wide \
+     (default 2.5 m), the outer two taking what is left after a `gap` at each side wall (default 0.1 m, World \
+     Aquatics 2026), with touch pads at `pads` ends (default 2, 10 mm each). With `markings` (default true) \
+     the lane lines, their 1.0 m T-ends 2.0 m from the end walls, the 0.5 m cross lines 15 m from each end and \
+     the end-wall targets are drawn into the pool. `count` 0 takes them away. The competition templates have \
+     their lanes already. Returns the layout: wall-to-wall and course lengths, the width, each lane's width \
+     and centre.",
+    "Pool Lanes",
+    crate::pools::LanesParams,
+    Option<crate::pools::LaneLayout>,
+    crate::pools::set_lanes
 );
 
 edit_command!(

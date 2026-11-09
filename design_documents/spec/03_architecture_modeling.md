@@ -5410,11 +5410,12 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004) |
 | `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
+| `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005) |
 | `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
 
-- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always; for pools, `us_ispsc` and `us_vgb` under the IBC and `ada_2010_pools` with the ADA rule set (ARC-POOL-002). The practice packs are only chosen by name.
+- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always; for pools, `us_ispsc` and `us_vgb` under the IBC, `ada_2010_pools` with the ADA rule set (ARC-POOL-002) and `world_aquatics` always (ARC-POOL-005). The practice packs are only chosen by name.
 - **One command family for every domain.**
   - `rules.packs` lists the packs of every domain, or of one: bathroom (ARC-BATH-001), vertical transport (ARC-VT-001) and the shared-format domains. Each has its domain, format, layer, jurisdiction and edition, its rule count, whether it is in use, and whether it ships.
   - `rules.set_packs`, `rules.add_pack` and `rules.remove_pack` choose, add and remove packs in any domain. A pack is routed by its `format`: a bathroom or vertical-transport pack goes to its domain's own store, so the `bath.*` and `vt.*` pack commands see the same packs.
@@ -5964,7 +5965,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition presets and diving envelopes (ARC-POOL-005), the UK packs (ARC-POOL-006), natatorium HVAC and heat balance (ARC-POOL-007), water treatment (ARC-POOL-008), structural loads and bonding (ARC-POOL-009), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes, the UK packs (ARC-POOL-006), natatorium HVAC and heat balance (ARC-POOL-007), water treatment (ARC-POOL-008), structural loads and bonding (ARC-POOL-009), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6066,6 +6067,40 @@ Public and competition pools come first (Q6).
 - [x] Library ladders, a lift and drain covers count as the pool's entries, accessible entry and drains; the sample *A public pool checked against the codes* uses them and passes `pool.check` and Check Rules.
 
 *Built (2026-11-09):* the *Riviera Pools* library, its zones in three packs, the deck check's exemption. Defaults are E-119. Not yet: products' anchor setbacks (S.R. Smith 12.5–17 in, unverified), backstroke flags and false-start ropes, lane ropes and their anchors, slides, safety covers and reels, skimmers and return inlets, the balance tank, transfer walls and systems as library items, and placing items snapped to the pool's edge.
+
+### 3.9c.5 Competition lanes and the World Aquatics pack
+**ID:** ARC-POOL-005 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §3, §5, §8 (step 4, first part; the owner's answer to Q5, 2026-11-08); research/23 B.7.1, A.6, D.4 (S2762, S2768, S2791, S2792); ARC-POOL-001 (the pool), ARC-POOL-002 (the checks), ARC-POOL-004 (starting platforms)
+
+**Purpose.** Lay out a competition pool's lanes, draw its markings, and check its course, lanes and starting depths against World Aquatics, each finding saying to verify against the current text.
+
+**Behaviour & rules.**
+- **Lanes** (`pool.lanes`, Architecture › Build › Pool Lanes): `count` lanes across the pool, the middle ones `width` wide (default 2.5 m), the outer two taking what is left after a `gap` at each side wall (default 0.1 m, the 2026 checklist's), and touch pads at `pads` ends (default 2, 10 mm each). The competition templates have their lanes: six (eight for 50 m), so a 15 m wide 25 m pool has four 2.5 m lanes and two of 2.4 m. Lanes that do not fit are refused. `count` 0 takes them away.
+- **The course** is the length between the touch pads: wall to wall along the axis less 10 mm a pad. `pool.info` reports it with each lane's width and centre.
+- **Markings** (unless `markings` is false), 0.25 m wide (0.2–0.3 m), dark, 5 mm proud:
+  - a line on the floor down each lane's centre, ending 2.0 m from each end wall in a 1.0 m cross line;
+  - 0.5 m cross lines 15 m from each end;
+  - on each end wall, a target from the coping to the floor with a 0.5 m cross line 0.3 m below the water.
+- **The `world_aquatics` pack** (minimum), chosen always, checks only pools marked for competition:
+  - `course_length`: 50.000 or 25.000 m between the pads, +0.010 / −0.000 m;
+  - `lane_width`: lanes at least 2.5 m, the first and last at least 2.4 m with 0.1 m outside them;
+  - depth at least 1.0 m (`shallow_end_depth`);
+  - `platform_depth`: at least 1.35 m from 1.0 to 6.0 m out from the end wall where a starting platform stands;
+  - `platform_height`: a platform's top 0.50–0.75 m above the water.
+  Every finding ends "verify against the current World Aquatics text" (rule `note`). A course of neither length (25 yd) is a note.
+- **The US packs** gain the starting platforms: the MAHC's 6 ft of water for new pools and a leading edge 30 in above the water at most (4.8.3); the ISPSC's 5 ft (secondary).
+- Starting platforms are found by type (*Starting Platform*) within 1 m of the pool's edge, and measured from the end wall nearer to them.
+
+**Data (IFC mapping).** The lanes are in the recipe. The markings are one more part, `IfcCovering` USERDEFINED ("LANEMARKING"; IFC 4.3's `IfcSurfaceFeature` LINEMARKING), marked `rxd:pool`.
+
+**Commands.** `pool.lanes(pool_id, count, width?, gap?, pads?, markings?)` → `{length, course, width, widths, centres, gap}` or null; `pool.create(…, lanes?)`; `pool.info` gives `lanes`.
+
+**Acceptance criteria.**
+- [x] A 50 m template has eight lanes, 2.4 m outside and 2.5 m between, 50.010 m between its pads, passes World Aquatics, and saves its LANEMARKING covering; without markings it saves none and holds the same water.
+- [x] A starting platform at a 1.2 m deep end fails World Aquatics' 1.35 m (with its note) and the ISPSC's 5 ft; eight 2.4 m lanes in 15 m fail its lane widths; ten lanes do not fit and are refused.
+- [x] A 25.000 m rectangle with pads at both ends is 24.980 m between them, short of the course; without pads it passes; without lanes the course is unknown; a 25 yd pool is a note.
+- [x] The sample *A swimming pool hall* has its main pool's lanes and markings, passes World Aquatics with its starting platforms, and nothing overlaps.
+
+*Built (2026-11-09):* lanes and markings in `riviera_core::pools` and its IFC writer, the `world_aquatics` pack and the platform rules, Architecture › Build › Pool Lanes. Defaults are E-120. Not yet: diving envelopes checked with the overlap engine (the rest of step 4), the Olympic and World Championship options (2.5 m deep, 25 m wide, ten lanes), backstroke flags, the false-start rope, lane ropes and anchors, touch pads as objects, water polo and artistic swimming, end-wall verticality and orthogonality, and gutters at the end walls.
 
 ## 3.11 Massing and site
 
@@ -7305,6 +7340,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
 | `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes | ARC-POOL-003 |
 | `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
+| `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |

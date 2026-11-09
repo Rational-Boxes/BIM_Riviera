@@ -1,0 +1,96 @@
+{
+  "format": "riviera.rules-1",
+  "id": "world_aquatics",
+  "title": "World Aquatics competition pools",
+  "domain": "pool",
+  "jurisdiction": "International (World Aquatics competitions)",
+  "edition": "FINA Facilities Rules 2017–2021 (FR 2) with the World Aquatics swimming pool certification checklist of 2026-03-11 (Part 2)",
+  "layer": "minimum",
+  "notes": "Applies to pools marked for competition (the competition templates, or class competition), chosen always. The owner's answer to POOLS_PLAN.md Question 5: ship FINA 2017–2021 with the 2026 checklist's changes, each finding saying to verify against the current World Aquatics text. Olympic and World Championship pools need more (2.5 m deep, 25 m wide, 10 lanes): not checked yet.",
+  "pool": [
+    {
+      "id": "WA 2026 Part 2: length",
+      "description": "Between the touch pads, 50.000 m or 25.000 m, +0.010 / −0.000 m (wall to wall 50.020–50.030 m with pads at both ends)",
+      "source": "S2792 S2791",
+      "confidence": "verified",
+      "check": "course_length",
+      "pools": [
+        "competition"
+      ],
+      "lengths": [
+        50.0,
+        25.0
+      ],
+      "min": 0.0,
+      "max": 0.01,
+      "note": "verify against the current World Aquatics text"
+    },
+    {
+      "id": "WA 2026 Part 2: lanes",
+      "description": "Lanes at least 2.5 m wide; the first and last at least 2.4 m with at least 0.1 m outside them (FR 2017: 2.5 m and 0.2 m)",
+      "source": "S2792 S2791",
+      "confidence": "verified",
+      "check": "lane_width",
+      "pools": [
+        "competition"
+      ],
+      "min": 2.5,
+      "outer_min": 2.4,
+      "gap_min": 0.1,
+      "note": "verify against the current World Aquatics text"
+    },
+    {
+      "id": "WA 2026 Part 2: depth",
+      "description": "At least 1.0 m deep everywhere for competitions other than the Olympic Games and World Championships",
+      "source": "S2792 S2791",
+      "confidence": "verified",
+      "check": "shallow_end_depth",
+      "pools": [
+        "competition"
+      ],
+      "min": 1.0,
+      "note": "verify against the current World Aquatics text"
+    },
+    {
+      "id": "WA 2026 Part 2: starting platforms",
+      "description": "At least 1.35 m deep from 1.0 m to 6.0 m out from the end wall where starting platforms are used",
+      "source": "S2792 S2791",
+      "confidence": "verified",
+      "check": "platform_depth",
+      "pools": [
+        "competition"
+      ],
+      "min": 1.35,
+      "range": [
+        1.0,
+        6.0
+      ],
+      "counts": {
+        "object_types": [
+          "Starting Platform"
+        ]
+      },
+      "near": 1.0,
+      "note": "verify against the current World Aquatics text"
+    },
+    {
+      "id": "FR 2.7: starting platforms",
+      "description": "A starting platform's top 0.50–0.75 m above the water",
+      "source": "S2791 S2792",
+      "confidence": "verified",
+      "check": "platform_height",
+      "pools": [
+        "competition"
+      ],
+      "min": 0.5,
+      "max": 0.75,
+      "counts": {
+        "object_types": [
+          "Starting Platform"
+        ]
+      },
+      "near": 1.0,
+      "note": "verify against the current World Aquatics text"
+    }
+  ]
+}
