@@ -464,9 +464,10 @@
             "course_length",
             "lane_width",
             "platform_depth",
-            "platform_height"
+            "platform_height",
+            "diving"
           ],
-          "description": "shallow_slope and deep_slope: each profile segment's slope above or below the 5 ft break (max); shallow_end_depth: the shallowest depth (min, max); depth: the deepest (max); cove_radius: the wall–floor radius (max), where the pool's shallowest is at most depth_up_to; coping_overhang and coping_thickness (min, max); deck_width: clear deck round the whole edge (min); infinity_edge: the share of the edge that is vanishing (max); entries: elements counts selects within near of the water's edge (min); accessible_entries: as entries, with min where the pool wall is at least perimeter long and 1 below it, and at least one primary; drains: suction outlets counts selects inside the pool, at least min unless one has a cover at least cover in size, spacing apart; bather_load: the water's area per bather (min, reported). The pool's own entries (ARC-POOL-003): stair_tread, stair_riser and stair_width (min, max) for each set of stairs; sloped_entry_slope (max) and sloped_entry_depth (min, max: how far below the water it reaches) for each sloped entry; bench_seat (min, max: the seat below the water), with water_depth_max the deepest water a bench may stand in. Stairs count as `Pool Stairs` and a sloped entry as `Sloped Entry` where entries and accessible_entries select them. Competition (ARC-POOL-005): course_length, the length between the touch pads against the nearest of lengths, from min to max over it; lane_width, the middle lanes at least min, the outer ones outer_min and the side gaps gap_min; platform_depth, the shallowest water over range (metres out from the end wall) at each starting platform counts selects within near of the edge, at least min; platform_height, a platform's top above the water (min, max)."
+          "description": "shallow_slope and deep_slope: each profile segment's slope above or below the 5 ft break (max); shallow_end_depth: the shallowest depth (min, max); depth: the deepest (max); cove_radius: the wall–floor radius (max), where the pool's shallowest is at most depth_up_to; coping_overhang and coping_thickness (min, max); deck_width: clear deck round the whole edge (min); infinity_edge: the share of the edge that is vanishing (max); entries: elements counts selects within near of the water's edge (min); accessible_entries: as entries, with min where the pool wall is at least perimeter long and 1 below it, and at least one primary; drains: suction outlets counts selects inside the pool, at least min unless one has a cover at least cover in size, spacing apart; bather_load: the water's area per bather (min, reported). The pool's own entries (ARC-POOL-003): stair_tread, stair_riser and stair_width (min, max) for each set of stairs; sloped_entry_slope (max) and sloped_entry_depth (min, max: how far below the water it reaches) for each sloped entry; bench_seat (min, max: the seat below the water), with water_depth_max the deepest water a bench may stand in. Stairs count as `Pool Stairs` and a sloped entry as `Sloped Entry` where entries and accessible_entries select them. Competition (ARC-POOL-005): course_length, the length between the touch pads against the nearest of lengths, from min to max over it; lane_width, the middle lanes at least min, the outer ones outer_min and the side gaps gap_min; platform_depth, the shallowest water over range (metres out from the end wall) at each starting platform counts selects within near of the edge, at least min; platform_height, a platform's top above the water (min, max). Diving (ARC-POOL-006): for each diving board counts selects within near of the edge, the diving column nearest its height above the water (within 0.15 m): A back from its plummet to the wall, B to the side walls, C to the next plummet, D to the wall ahead, E clear overhead, H the depth at the plummet, K at J ahead and M at L to each side, and the pool's entries standing up into the envelope from A behind to J ahead and L each side."
         },
         "pools": {
           "type": "array",
@@ -551,6 +552,67 @@
           "type": "string",
           "minLength": 1,
           "description": "Said after each finding."
+        },
+        "diving": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/diving_row"
+          }
+        }
+      }
+    },
+    "diving_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "height"
+      ],
+      "description": "One column of a diving table, metres: a board or platform this high above the water.",
+      "properties": {
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "a": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "b": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "c": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "d": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "e": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "h": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "j": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "k": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "l": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "m": {
+          "type": "number",
+          "exclusiveMinimum": 0
         }
       }
     }

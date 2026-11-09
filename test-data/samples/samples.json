@@ -495,6 +495,19 @@
     ]
   },
   {
+    "name": "diving_well",
+    "title": "A diving well",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "diving_well.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

@@ -1598,6 +1598,22 @@ fn the_pool_hall_sample_has_its_two_pools() {
 }
 
 #[test]
+fn the_diving_well_sample_meets_its_table() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "diving_well");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+    assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]), "4 ft of deck beside and behind each board");
+    // Shallower: the table's depths fail at both boards.
+    let id = c["pools"][0]["pool"].clone();
+    ok(&mut app, "pool.set", json!({ "pool_id": id, "profile": [{ "at": 0.0, "depth": 3.0 }] }));
+    let c = ok(&mut app, "pool.check", json!({}));
+    let h = c["findings"].as_array().unwrap().iter().filter(|f| f["rule"] == "MAHC 2024 Table 4.8.2.3" && f["message"].as_str().unwrap().contains("H (the depth at the plummet)")).count();
+    assert_eq!(h, 2, "{c:#}");
+}
+
+#[test]
 fn the_backyard_pool_sample_is_a_residential_pool() {
     let work = tempfile::tempdir().unwrap();
     let mut app = open(work.path(), "backyard_pool");

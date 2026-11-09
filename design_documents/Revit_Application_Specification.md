@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 927 numbered requirements (320 P0 · 364 P1 · 236 P2 · 7 P3), 2,404 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 928 numbered requirements (320 P0 · 365 P1 · 236 P2 · 7 P3), 2,404 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,404 commands; 927 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,404 commands; 928 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15664,10 +15664,10 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006) |
 | `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
-| `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005) |
+| `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
@@ -16222,7 +16222,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes, the UK packs (ARC-POOL-006), natatorium HVAC and heat balance (ARC-POOL-007), water treatment (ARC-POOL-008), structural loads and bonding (ARC-POOL-009), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007), natatorium HVAC and heat balance (ARC-POOL-008), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16358,6 +16358,36 @@ Public and competition pools come first (Q6).
 - [x] The sample *A swimming pool hall* has its main pool's lanes and markings, passes World Aquatics with its starting platforms, and nothing overlaps.
 
 *Built (2026-11-09):* lanes and markings in `riviera_core::pools` and its IFC writer, the `world_aquatics` pack and the platform rules, Architecture › Build › Pool Lanes. Defaults are E-120. Not yet: diving envelopes checked with the overlap engine (the rest of step 4), the Olympic and World Championship options (2.5 m deep, 25 m wide, ten lanes), backstroke flags, the false-start rope, lane ropes and anchors, touch pads as objects, water polo and artistic swimming, end-wall verticality and orthogonality, and gutters at the end walls.
+
+### 3.9c.6 Diving envelopes
+**ID:** ARC-POOL-006 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5, §8 (step 4, second part); research/23 A.6.1, B.7.2 (S2762, S2791, S2793); ARC-POOL-002 (the checks), ARC-POOL-003 (entries), ARC-POOL-004 (the diving board)
+
+**Purpose.** Check each diving board against its table: the distances round its plummet, the depths under it, the clear space over it, and the pool's own entries in its envelope.
+
+**Behaviour & rules.**
+- **The `diving` rule kind** holds a table, one column per board height above the water, in the tables' letters (metres): A back to the wall, B to the side walls, C to an adjacent plummet, D to the wall ahead, E clear overhead, H the depth at the plummet, K the depth J ahead, M the depth L to each side.
+- **Each diving board** (type *Diving Board*, within 1 m of the pool's edge) has a **plummet**: the middle of its tip, from its placed frame. It points the way its front faces, and its height is its top above the water. The column nearest that height (within 0.15 m) is used; a board with none is a note, and a tip not over the water an error.
+- **Measured from the plummet:**
+  - A, B and D along the board's line and square to it, to the pool's edge;
+  - C to each other board's plummet;
+  - E up to the lowest thing over the plummet (a floor, a beam, a fitting);
+  - H, K and M from the pool's profile, at the plummet, J ahead and L to each side (inside the pool).
+- **The envelope:** the pool's stairs, sloped entries and benches (ARC-POOL-003) are reported where they stand up into the rectangle from A behind the plummet to J ahead and L to each side, above the shallowest depth the column needs.
+- **Packs:**
+  - `us_mahc_2024`: Table 4.8.2.3, non-competitive diving wells for 0.5, 0.75, 1.0 and 3.0 m boards, for public pools (competitive diving follows its sanctioning body);
+  - `world_aquatics`: FR 2017–2021 Annex 1.2, the 1 m and 3 m springboards on stands (A 1.50 m), for competition pools, each finding saying to verify against the current text.
+
+**Data.** The tables are in the packs (`diving`, MIT schema). Nothing new is stored on the pool.
+
+**Commands.** `pool.check` (no new command).
+
+**Acceptance criteria.**
+- [x] A 1 m board 1.9 m out over a 15 × 8 m well 3.7 m deep meets the MAHC's column; at 3.0 m deep it fails H, K and M, H saying 3.00 m (9′ 10″) against 3.66 m (12 ft).
+- [x] A bench 2 m deep along the side wall is in the envelope; a board 2 m from the side wall fails B; a floor 4 m up fails E and names the floor.
+- [x] Marked for competition, a 3.3 m deep well fails World Aquatics' 3.40 m at the plummet, with its note.
+- [x] The sample *A diving well* has two 1 m boards 2.8 m apart that pass the MAHC's table and keep their 4 ft of deck; made 3.0 m deep, both fail H.
+
+*Built (2026-11-09):* the `diving` rule kind and the two tables, in `pool.check`. Defaults are E-121. Not yet: 3 m boards and platforms with their towers and the platform columns, the clear spaces F and G and the 30° slope N, stacked platforms' set-backs, the residential diving envelopes (ISPSC Table 804.1), and showing the envelope as a virtual volume.
 
 ## 3.11 Massing and site
 
@@ -31135,14 +31165,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 119 | 40 | 1 | 237 |
+| ARC | 77 | 120 | 40 | 1 | 238 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **364** | **236** | **7** | **927** |
+| **Total** | **320** | **365** | **236** | **7** | **928** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 

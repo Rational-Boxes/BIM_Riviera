@@ -91,6 +91,51 @@
       },
       "near": 1.0,
       "note": "verify against the current World Aquatics text"
+    },
+    {
+      "id": "FR 2017–2021 Annex 1.2: springboards",
+      "description": "Springboards at 1 m and 3 m on stands: distances from the plummet, clear overhead and depths, the minimums (A for pedestals and metal stands)",
+      "source": "S2791 S2793",
+      "confidence": "verified",
+      "check": "diving",
+      "pools": [
+        "competition"
+      ],
+      "counts": {
+        "object_types": [
+          "Diving Board"
+        ]
+      },
+      "near": 1.0,
+      "diving": [
+        {
+          "height": 1.0,
+          "a": 1.5,
+          "b": 2.5,
+          "c": 2.0,
+          "d": 9.0,
+          "e": 5.0,
+          "h": 3.4,
+          "j": 5.0,
+          "k": 3.3,
+          "l": 1.5,
+          "m": 3.3
+        },
+        {
+          "height": 3.0,
+          "a": 1.5,
+          "b": 3.5,
+          "c": 2.2,
+          "d": 10.25,
+          "e": 5.0,
+          "h": 3.7,
+          "j": 6.0,
+          "k": 3.6,
+          "l": 2.0,
+          "m": 3.6
+        }
+      ],
+      "note": "verify against the current World Aquatics text"
     }
   ]
 }

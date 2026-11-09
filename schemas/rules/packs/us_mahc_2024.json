@@ -317,6 +317,76 @@
         ]
       },
       "near": 1.0
+    },
+    {
+      "id": "MAHC 2024 Table 4.8.2.3",
+      "description": "Non-competitive diving wells for 0.5, 0.75, 1.0 and 3.0 m boards: distances from the plummet, clear overhead and depths (competitive diving follows its sanctioning body, 4.8.2.1.1)",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "diving",
+      "pools": [
+        "public"
+      ],
+      "counts": {
+        "object_types": [
+          "Diving Board"
+        ]
+      },
+      "near": 1.0,
+      "diving": [
+        {
+          "height": 0.5,
+          "a": 0.9144,
+          "b": 3.048,
+          "c": 2.6914,
+          "d": 7.9248,
+          "e": 4.8768,
+          "h": 2.8956,
+          "j": 3.6576,
+          "k": 2.667,
+          "l": 2.4384,
+          "m": 2.7676
+        },
+        {
+          "height": 0.75,
+          "a": 1.3716,
+          "b": 3.048,
+          "c": 2.6914,
+          "d": 8.4826,
+          "e": 4.8768,
+          "h": 3.2766,
+          "j": 4.3434,
+          "k": 3.048,
+          "l": 2.478,
+          "m": 3.1486
+        },
+        {
+          "height": 1.0,
+          "a": 1.8288,
+          "b": 3.048,
+          "c": 2.6914,
+          "d": 9.016,
+          "e": 4.8768,
+          "h": 3.6576,
+          "j": 5.0292,
+          "k": 3.4381,
+          "l": 2.5146,
+          "m": 3.5448
+        },
+        {
+          "height": 3.0,
+          "a": 1.8288,
+          "b": 3.5052,
+          "c": 2.603,
+          "d": 10.2626,
+          "e": 4.8768,
+          "h": 3.81,
+          "j": 6.0198,
+          "k": 3.7094,
+          "l": 3.0236,
+          "m": 3.7094
+        }
+      ]
     }
   ]
 }

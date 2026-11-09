@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–3 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–4 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -230,3 +230,8 @@ exposed to Lua and MCP.
   pads, lane widths, depth, and the depth and height at starting platforms), each finding saying
   to verify against the current text; the MAHC's and ISPSC's platform depths. Next: diving
   envelopes checked with the overlap engine.
+- Step 4, second part (ARC-POOL-006, 2026-11-09): diving envelopes. A `diving` rule kind with the
+  MAHC's Table 4.8.2.3 and World Aquatics' springboard table, checked from each board's plummet
+  (A–E, H, K, M) and against the pool's entries in the envelope; the sample *A diving well*. Not
+  yet: 3 m boards, platforms and towers, F, G and N, residential envelopes. Next: step 5, the UK
+  packs (Sport England, HSG179) (ARC-POOL-007).

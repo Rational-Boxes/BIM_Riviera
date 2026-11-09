@@ -236,6 +236,38 @@ pub enum PoolMeasure {
     LaneWidth,
     PlatformDepth,
     PlatformHeight,
+    Diving,
+}
+
+/// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
+/// water, the least distances from its plummet (the tip's middle) and the depths, in the
+/// tables' letters.
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct DivingRow {
+    pub height: f64,
+    /// Back to the wall behind, to each side wall, to an adjacent plummet, to the wall ahead.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub a: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub b: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub c: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub d: Option<f64>,
+    /// Clear from the board up to anything over the plummet.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub e: Option<f64>,
+    /// The depth at the plummet; `k` at `j` ahead; `m` at `l` each side.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub h: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub j: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub k: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub l: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub m: Option<f64>,
 }
 
 /// A rule on a swimming pool, checked by `pool.check` (ARC-POOL-002).
@@ -284,6 +316,9 @@ pub struct PoolRule {
     /// Said after each finding (World Aquatics: verify against its current text).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
+    /// A diving table, one column per board height (ARC-POOL-006).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub diving: Vec<DivingRow>,
 }
 
 /// A shared-format rule pack.

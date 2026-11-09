@@ -1322,6 +1322,36 @@ pub(crate) fn list(store: &Store, _: Option<Value>) -> Result<Vec<Listed>> {
 /// The *Riviera Pools* library's kinds (ARC-POOL-004), which stand at the pool's edge.
 pub const EQUIPMENT: &[&str] = &["Pool Lift", "Pool Ladder", "Grab Rail", "Starting Platform", "Diving Board", "Lifeguard Chair", "Main Drain", "Underwater Light"];
 
+/// How far from `p`, inside a ring, its edge is along `dir` (a unit vector).
+fn ray(r: &[[f64; 2]], p: [f64; 2], dir: [f64; 2]) -> f64 {
+    let n = r.len();
+    (0..n)
+        .filter_map(|i| {
+            let (a, b) = (r[i], r[(i + 1) % n]);
+            let e = [b[0] - a[0], b[1] - a[1]];
+            let den = dir[0] * e[1] - dir[1] * e[0];
+            if den.abs() < 1e-12 {
+                return None;
+            }
+            let w = [a[0] - p[0], a[1] - p[1]];
+            let t = (w[0] * e[1] - w[1] * e[0]) / den;
+            let s = (w[0] * dir[1] - w[1] * dir[0]) / den;
+            (t > 1e-9 && (-1e-9..=1.0 + 1e-9).contains(&s)).then_some(t)
+        })
+        .fold(f64::MAX, f64::min)
+}
+
+/// A diving board's plummet (its tip's middle), the way it points, and its top's height.
+fn plummet(store: &Store, e: &Element) -> Option<([f64; 2], [f64; 2], f64)> {
+    let it = crate::rules::item(store, e)?;
+    let cx = (it.x[0] + it.x[1]) / 2.0;
+    let p = it.frame.apply([cx, it.front, 0.0]);
+    let q = it.frame.apply([cx, it.front - 1.0, 0.0]);
+    let (dx, dy) = (q[0] - p[0], q[1] - p[1]);
+    let l = dx.hypot(dy).max(1e-12);
+    Some(([p[0], p[1]], [dx / l, dy / l], it.z[1]))
+}
+
 /// How far a plan point is from a ring's edge.
 fn edge_distance(p: [f64; 2], r: &[[f64; 2]]) -> f64 {
     (0..r.len())
@@ -1772,6 +1802,104 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             let shallowest = ts.iter().map(|t| rec.depth_at(*t)).fold(f64::MAX, f64::min);
                             if shallowest < min - 1e-6 {
                                 find(Some(o.id()), false, format!("the water is {shallowest:.2} m deep {d0:.1}–{d1:.1} m out from the wall at {}; at least {min:.2} m", crate::sco::name(store, o.id())));
+                            }
+                        }
+                    }
+                    M::Diving => {
+                        let Some(sel) = &r.counts else { continue };
+                        let reach = r.near.unwrap_or(1.0);
+                        let boards: Vec<(ElementId, [f64; 2], [f64; 2], f64)> = store
+                            .iter()
+                            .filter(|o| o.id() != id && sel.selects_element(store, o))
+                            .filter_map(|o| plummet(store, o).map(|(p, d, z)| (o.id(), p, d, z)))
+                            .filter(|(_, p, ..)| crate::sco::inside(*p, ring) || edge_distance(*p, ring) <= reach)
+                            .collect();
+                        let m_ = |v: f64| format!("{v:.2} m ({})", feet(v));
+                        for &(board, p, ahead, top) in &boards {
+                            let name = crate::sco::name(store, board);
+                            let height = top - g.water_z;
+                            let Some(row) = r.diving.iter().filter(|w| (w.height - height).abs() <= 0.15).min_by(|a, b| (a.height - height).abs().total_cmp(&(b.height - height).abs())) else {
+                                find(Some(board), true, format!("{name} is {height:.2} m above the water: the table has no column for it"));
+                                continue;
+                            };
+                            if !crate::sco::inside(p, ring) {
+                                find(Some(board), false, format!("{name}'s tip is not over the water"));
+                                continue;
+                            }
+                            let side = [-ahead[1], ahead[0]];
+                            let back = [-ahead[0], -ahead[1]];
+                            let short = |letter: &str, what: &str, have: f64, need: Option<f64>| -> Option<String> {
+                                need.filter(|need| have < need - 1e-6).map(|need| format!("{name}, {letter} ({what}): {}; at least {}", m_(have), m_(need)))
+                            };
+                            let mut shorts = Vec::new();
+                            shorts.extend(short("A", "from the plummet back to the wall", ray(ring, p, back), row.a));
+                            shorts.extend(short("B", "to the side walls", ray(ring, p, side).min(ray(ring, p, [-side[0], -side[1]])), row.b));
+                            shorts.extend(short("D", "to the wall ahead", ray(ring, p, ahead), row.d));
+                            if let Some(c) = row.c {
+                                for &(other, q, ..) in boards.iter().filter(|b| b.0 > board) {
+                                    let d = (q[0] - p[0]).hypot(q[1] - p[1]);
+                                    if d < c - 1e-6 {
+                                        find(Some(other), false, format!("{name}, C (to the next plummet, {}): {}; at least {}", crate::sco::name(store, other), m_(d), m_(c)));
+                                    }
+                                }
+                            }
+                            let depth = |q: [f64; 2]| crate::sco::inside(q, ring).then(|| rec.depth_at(rec.t(q)));
+                            let at = |d: [f64; 2], k: f64| [p[0] + d[0] * k, p[1] + d[1] * k];
+                            shorts.extend(short("H", "the depth at the plummet", rec.depth_at(rec.t(p)), row.h));
+                            if let (Some(j), Some(k)) = (row.j, row.k)
+                                && let Some(v) = depth(at(ahead, j))
+                            {
+                                shorts.extend(short("K", &format!("the depth {j:.2} m ahead"), v, Some(k)));
+                            }
+                            if let (Some(l), Some(mm)) = (row.l, row.m) {
+                                let v = [depth(at(side, l)), depth(at([-side[0], -side[1]], l))].into_iter().flatten().fold(f64::MAX, f64::min);
+                                if v < f64::MAX {
+                                    shorts.extend(short("M", &format!("the depth {l:.2} m to each side"), v, Some(mm)));
+                                }
+                            }
+                            for m in shorts {
+                                find(Some(board), false, m);
+                            }
+                            // Clear overhead: anything above the board over its plummet.
+                            if let Some(e) = row.e {
+                                let over = crate::bodies::all(store)
+                                    .into_iter()
+                                    .filter(|b| b.element != board && b.element != id)
+                                    .filter_map(|b| {
+                                        let (lo, hi) = b.bounds()?;
+                                        (lo[2] > top && p[0] >= lo[0] && p[0] <= hi[0] && p[1] >= lo[1] && p[1] <= hi[1]).then_some((b.element, lo[2] - top))
+                                    })
+                                    .min_by(|a, b| a.1.total_cmp(&b.1));
+                                if let Some((by, h)) = over
+                                    && h < e - 1e-6
+                                {
+                                    find(Some(by), false, format!("{name}, E (clear over the board at the plummet): {} to {}; at least {}", m_(h), crate::sco::name(store, by), m_(e)));
+                                }
+                            }
+                            // The envelope: the pool's own entries standing up into it, from A behind
+                            // the plummet to J ahead and L each side, above the shallowest depth it
+                            // needs there.
+                            let (lb, la, ls) = (row.a.unwrap_or(0.0), row.j.unwrap_or(0.0), row.l.unwrap_or(0.0));
+                            let need = [row.k, row.m, row.h].into_iter().flatten().fold(f64::MAX, f64::min);
+                            if need < f64::MAX && la + lb > 0.0 && ls > 0.0 {
+                                let q = |f: f64, s_: f64| [p[0] + ahead[0] * f + side[0] * s_, p[1] + ahead[1] * f + side[1] * s_];
+                                let env = Shape { outer: vec![q(-lb, -ls), q(la, -ls), q(la, ls), q(-lb, ls)], holes: Vec::new() };
+                                let env = if crate::polygons::area(&env.outer) < 0.0 { Shape { outer: env.outer.iter().rev().copied().collect(), holes: Vec::new() } } else { env };
+                                for (k, en) in rec.entries.iter().enumerate() {
+                                    let Some((blocks, info)) = entry_layout(&rec, k + 1, en, g.deck_z) else { continue };
+                                    let hit = blocks.iter().any(|(b, top)| {
+                                        let cut = crate::polygons::intersection(std::slice::from_ref(&env), &[Shape { outer: b.clone(), holes: Vec::new() }]);
+                                        cut.iter().flat_map(|c| c.outer.iter()).any(|v| top.at(*v) > g.water_z - need + 1e-6)
+                                    });
+                                    if hit {
+                                        let kind = match info.kind {
+                                            EntryKind::Stairs => "stairs",
+                                            EntryKind::SlopedEntry => "sloped entry",
+                                            EntryKind::Bench => "bench",
+                                        };
+                                        find(Some(board), false, format!("{kind} {} (edge {}) stands up into {name}'s diving envelope, where the water must be {} deep", info.index, info.edge, m_(need)));
+                                    }
+                                }
                             }
                         }
                     }
