@@ -24,9 +24,15 @@ Start with **File › New**.
    33–48 in shallow end, 1:7 at most to the transition, and 10 in stair treads. It passes; the
    public-pool rules (a 6 ft deck, two entries, the VGB Act's drains) do not apply to it.
 
+6. **Electrics.** Place a *Receptacle* (**Systems › Electrical › Device**) standing free at
+   (8, 11), 0.45 m up: 2.5 m (8.2 ft) from the pool, the receptacle a dwelling's pool needs
+   6–20 ft from its inside wall (NEC 680.22(A)(1)). **View › Coordination › Pool Electrical
+   Zones** asks for GFCI on it, finds the light 18 in under the water and on 12 V, and lists
+   the ladder and the light for the bonding grid under the 3 ft perimeter surface.
+
 ## Gaps
 
 - **[gap]** A pool's class is set from a script; the Swimming Pool dialog has no field for it.
 - **[gap]** The ISPSC's barrier (a 48 in fence, self-closing gates, §305), the residential
-  diving envelope (Table 804.1) and the NEC's bonding are not checked yet.
+  diving envelope (Table 804.1) are not checked yet.
 - **[gap]** Equipment is placed by coordinates, not snapped to the pool's edge.

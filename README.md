@@ -713,9 +713,13 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   and HSE's HSG179 are checked as notes (ARC-POOL-007). Pool Hall Air works out the hall's
   evaporation, latent load, outdoor air and dew point and the water's heat losses, and the
   design loads take the pool's latent load (ARC-POOL-008). Pool Water Treatment sizes the
-  turnover, filters, balance tank, pipes and plant room (ARC-POOL-009). Not built yet: sketched outlines, drawn
-  gutters and basins, depth markings, barriers, handrails, recessed steps and beach entries.
-  Planned next: structural loads and bonding.
+  turnover, filters, balance tank, pipes and plant room (ARC-POOL-009). Pool Structure weighs the
+  pool full and empty, checks the water table's uplift on the empty shell, and puts an elevated
+  pool's weight on its slab's analytical panel; Pool Electrical Zones checks the receptacles,
+  switches, luminaires and switchgear round it against NEC Article 680 or IEC 60364-7-702's
+  zones, and sizes the bonding grid (ARC-POOL-010). Not built yet: sketched outlines, drawn
+  gutters and basins, depth markings, barriers, handrails, recessed steps and beach entries,
+  the treatment plant as equipment, and the zones drawn in the views.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

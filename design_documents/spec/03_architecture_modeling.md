@@ -5967,7 +5967,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6252,6 +6252,70 @@ Public and competition pools come first (Q6).
 - checking a modelled plant room's area;
 - leisure-water depth bands beyond wading pools;
 - spa turnovers.
+
+### 3.9c.10 Pool structure and electrical bonding
+**ID:** ARC-POOL-010 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §6, §8 (step 8); research/23 C.4, C.5, A.16 (S2779, S2810, S2826, S2827, S2828, S2829); ARC-POOL-004 (equipment); STR-LOAD-001 (area loads); MEP-ELEC-001 (devices, luminaires, equipment)
+
+**Purpose.** Give the structural engineer a pool's loads, full and empty, early, and put an elevated pool's weight on its slab. Check the electrics round a pool against the zone rules of its jurisdiction, and list what the bonding grid must reach.
+
+**Behaviour & rules: structure.**
+- **Weights:**
+  - water at γw = 9.81 kN/m³ over its volume;
+  - the shell at its kind's unit weight: cast concrete, shotcrete and panel pools 24.5 kN/m³ (a panel pool's walls are lighter, a note), a one-piece shell 18 kN/m³;
+  - tiling at 1.25 kN/m² (screed and tiles, 1.0–1.5) over the floor and the walls' faces, when the shell is tiled.
+- **Full:** the total over the shell's footprint (outside its walls) on average; on the floor at its deepest (water, base and tiles), the walls bearing as a line load (kN/m along their centreline).
+- **Walls** as cantilevers of water at the deepest wall: base pressure γw·h, shear γw·h²/2 and moment γw·h³/6 a metre.
+- **Empty, uplift:** with `groundwater`, the water table's height above the pool's level, the uplift γw·hw is summed over the shell's underside on a 0.2 m grid. It is checked against the shell's and finishes' weight by `factor` (default 1.1; EN 1997's UPL check, 0.9·G ≥ 1.0·U, gives 1.11). Short of it is a note naming the remedies; a hydrostatic relief valve is no substitute. The groundwater's pressure on the empty walls' base is given. Without a water table, a pool on the ground has a note that uplift was not checked.
+- **Point loads:** the Riviera Pools equipment inside the pool or within 2 m of its edge, at advisory values for the anchorage: diving board 6.0 kN, pool lift 4.0, lifeguard chair 2.5, starting platform 2.0, ladder 1.5, grab rail 1.0. The maker's data governs.
+- **Elevated** (`elevated`; by default, when a level is more than 0.5 m below the pool's): the slab's deflection limit, the short span over 360, and the rooftop notes (support it evenly; membrane and drainage falling 2 %; about 100 mm of structural geofoam; no plumbing cast into the shell; a flood test, ASTM D5957, or an electronic one, ASTM D7877).
+- **The deck's live load** is a note: ASCE 7's assembly 100 psf (4.79 kN/m²) or EN 1991-1-1 C3's 5.0 kN/m².
+- **On the slab:** `pool.apply_loads` puts two uniform area loads (STR-LOAD-001) on the analytical panel under the pool: the shell and finishes in `dead_case_id`, the water in `water_case_id`, each its total spread over the panel. A panel smaller than half the pool's footprint is refused.
+
+**Behaviour & rules: electrical.** Both bases come from public summaries of the codes, so their findings are secondary: errors the user checks against the edition in force.
+- **Basis:** IEC 60364-7-702 (BS 7671 Section 702) under the UK, German or Australian code setting, else NEC Article 680; or `basis`.
+- **What is checked:** placed luminaires, devices (receptacles, switches, alarms, detectors), electrical equipment, pumps, fans and appliances, by their plan distance from the water's edge (0 over the water) and their lowest point's height over the water and the deck. Receptacles are outlets whose type is POWEROUTLET or has a power connector. Underwater luminaires are the library's *Underwater Light* or a luminaire under the water.
+- **NEC Article 680:**
+  - receptacles at least 6 ft (1.83 m) from the inside wall (680.22(A)(3)), and a note for GFCI within 20 ft (6.1 m) (680.22(A)(4));
+  - a dwelling's pool needs a receptacle 6–20 ft from the inside wall (680.22(A)(1)); none is a note;
+  - switches (680.22(C)) and switchgear and disconnects (680.13) at least 5 ft (1.52 m) away;
+  - luminaires over the pool or within 5 ft at least 12 ft (3.66 m) over the water outdoors; indoors, 7 ft 6 in (2.29 m) with GFCI, under 12 ft a note (680.22(B)); 5–10 ft away and under 5 ft up, a note for GFCI (680.22(B)(4));
+  - underwater lenses' tops at least 18 in (457 mm) below the water (680.23(A)(5)), and a note for GFCI over the 15 V low-voltage contact limit (680.23(A)(3));
+  - pump motors: a note for GFCI and a 12 AWG insulated copper grounding conductor (680.21).
+  - **The bonding grid** (680.26): the perimeter surface 3 ft (0.91 m) wide and its area, 8 AWG copper for a 12 in grid under it both ways, the unpaved option's ring 21 in out, four ties to the shell's steel evenly round the pool, and 5800 mm² (9 in²) in contact with the water.
+  - **To bond:** the pool equipment (but drains) within 5 ft, and electrical equipment and motors within 5 ft.
+  - Indoors is decided by a space or room holding the pool (ARC-POOL-008).
+- **IEC 60364-7-702:**
+  - zone 0 the water; zone 1 2.0 m from the rim, up to 2.5 m over the deck; zone 2 a further 1.5 m (3.5 m), as high;
+  - receptacles and switches in zones 0 and 1 are errors (the 1.25 m allowance where there is no zone 2 is in the message); in zone 2, a note for a 30 mA RCD, SELV or separation;
+  - switchgear in zones 0–2 is an error;
+  - other equipment in zone 0 over 12 V is an error (SELV at 12 V a.c., its source outside the zones); under it, a note for IPX8; zones 1 and 2, notes for their protection and IP ratings;
+  - **to bond:** the extraneous-conductive parts in zones 0–2 (702.415.2).
+- Each basis returns its zones' outlines for drawing.
+- **The window:** View › Coordination › Pool Structure and Pool Electrical Zones. The results can be saved as reports.
+
+**Data.** Nothing is stored; the results come from the pool, its level's neighbours and the placed elements. `pool.apply_loads` makes ordinary area loads.
+
+**Commands.**
+- `pool.structure(pool_id?, groundwater?, factor?, elevated?)` → `[{pool, shell, thickness, area, footprint, water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, floor_pressure, wall {depth, pressure, shear, moment}, uplift? {groundwater, head, force, resisting, ratio, factor, ok, wall_pressure}, point_loads, elevated, deflection_limit?, notes}]`.
+- `pool.apply_loads(pool_id, panel_id, dead_case_id, water_case_id)` → `{dead, water, dead_pressure, water_pressure, panel_area, footprint}`.
+- `pool.bonding(pool_id?, basis?)` → `[{pool, basis, indoor, zones, grid?, bond, devices [{kind, distance, above_water, above_deck, voltage?, zone?}], findings, notes}]`.
+
+**Acceptance criteria.**
+- [x] A 10 × 5 m pool 1.5 m deep with a 0.3 m shell weighs 9.81 kN/m³ of its 75 m³ and 24.5 kN/m³ of its shell over a 59.36 m² footprint, its walls at 14.7 kPa and γw·h³/6. With the water table at its level, the uplift of 1.95 m of head under the whole footprint exceeds the shell's weight, a note; 3 m down, none. A pool lift by it carries 4.0 kN.
+- [x] A tiled 8 × 4 m pool on a roof level 12 m up is elevated, its slab's deflection limit 11 mm, with the rooftop notes; its weight goes on a 10 × 6 m panel as two area loads of its totals over 60 m², and a 2 × 2 m panel is refused.
+- [x] Round an outdoor pool under the NEC, a receptacle 1 m away, a switch 1 m away, a luminaire 3 m over the deck above the water and an underwater lens 273 mm down are errors; a receptacle 3 m away is a GFCI note; the library's light passes. The grid's perimeter surface and four ties are given, and the lights are to bond.
+- [x] Under the UK code the same elements fall in IEC zones 1, 2 and 0; the near receptacle and the switch are errors, the far one a zone 2 note, the light a zone 0 note, and the luminaire 3 m up is outside the zones.
+
+*Built (2026-11-09):* `riviera_core::pool_structure`, `riviera_core::pool_bonding`, View › Coordination › Pool Structure and Pool Electrical Zones, and the sample *A rooftop pool*; the *Underwater light, large niche* now sits 0.75 m down, so its lens is 18 in under a skimmer pool's water. Defaults are E-125. Not yet:
+- drawing the zones in the views;
+- `pool.apply_loads` in the window;
+- placing the floor's and walls' loads separately (as area and line loads) instead of spread over the panel;
+- earth pressure on the empty walls;
+- the makers' point loads;
+- the NEC's overhead conductors and communications cables as checks;
+- IEC's partitions bounding the zones;
+- glazing near the water (IRC safety glazing);
+- the pool's own bonding conductors as modelled elements.
 
 ## 3.11 Massing and site
 
@@ -7494,6 +7558,9 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
 | `pool.treatment` | pool_id?, basis?, turnover?, filter_rate?, filters? | [{turnover, flow, filter_area, backwash_volume, surge_volume, skimmers?, gutter_capacity?, suction, discharge, flow_per_drain, plant_room, notes}] | No (query) | ARC-POOL-009 |
+| `pool.structure` | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |
+| `pool.apply_loads` | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
+| `pool.bonding` | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
 | `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |

@@ -1014,6 +1014,18 @@ icon = "pool_water_treatment"
 help = "A pool's water treatment, sized on the MAHC's basis or Sport England's and PWTAG's: turnover, filtered flow, filter area and backwash, the surge or balance tank, skimmers or gutters, pipe sizes, the flow each main drain carries, and the plant room's area (ARC-POOL-009)"
 
 [[action]]
+id = "ui.pool_structure"
+label = "Pool Structure..."
+icon = "pool_structure"
+help = "A pool's structural loads: the water's, shell's and finishes' weight full and empty, the walls' hydrostatic pressure, shear and moment, the water table's uplift on the empty shell, the equipment's point loads, and an elevated pool's slab deflection limit (ARC-POOL-010)"
+
+[[action]]
+id = "ui.pool_bonding"
+label = "Pool Electrical Zones..."
+icon = "pool_bonding"
+help = "The receptacles, switches, luminaires and switchgear round a pool checked against NEC Article 680's distances or IEC 60364-7-702's zones 0, 1 and 2, the NEC bonding grid, and the metal parts to bond (ARC-POOL-010)"
+
+[[action]]
 id = "ui.check_pools"
 label = "Check Pools..."
 icon = "check_pools"
@@ -4515,6 +4527,8 @@ tools = [
   { action = "ui.check_pools", size = "small" },
   { action = "ui.pool_hall_air", size = "small" },
   { action = "ui.pool_water_treatment", size = "small" },
+  { action = "ui.pool_structure", size = "small" },
+  { action = "ui.pool_bonding", size = "small" },
   { action = "geometry.remove_boolean", size = "small" },
   { action = "view.set_virtual_volumes", size = "large" },
   { action = "clearance.set_rule_set" },
@@ -5075,7 +5089,7 @@ items = [
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
   "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "-",
+  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",

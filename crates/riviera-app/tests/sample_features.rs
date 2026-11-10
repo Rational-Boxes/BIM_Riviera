@@ -1644,6 +1644,31 @@ fn the_backyard_pool_sample_is_a_residential_pool() {
     let i = ok(&mut app, "pool.info", json!({ "pool_id": id }));
     let e = i["entries"].as_array().unwrap();
     assert_eq!((e[0]["kind"].as_str(), e[0]["risers"].as_u64(), e[1]["kind"].as_str()), (Some("stairs"), Some(5), Some("bench")), "{i:#}");
+    // NEC 680: the patio receptacle on GFCI, the light deep enough, a dwelling's receptacle there.
+    let b = ok(&mut app, "pool.bonding", json!({}))[0].clone();
+    let rules: Vec<&str> = b["findings"].as_array().unwrap().iter().map(|f| f["rule"].as_str().unwrap()).collect();
+    assert_eq!(rules, vec!["receptacle_gfci"], "{b:#}");
+    assert!(!b["notes"].as_array().unwrap().iter().any(|n| n.as_str().unwrap().contains("none is modelled")), "{b:#}");
+}
+
+#[test]
+fn the_rooftop_pool_sample_weighs_its_pool_and_checks_its_electrics() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "rooftop_pool");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let s = ok(&mut app, "pool.structure", json!({}))[0].clone();
+    assert!(s["elevated"] == true && s["finishes"].as_f64().unwrap() > 0.0 && s["wall_line_load"].as_f64().unwrap() > 0.0, "{s:#}");
+    let p = s["point_loads"].as_array().unwrap();
+    assert!(p.iter().any(|x| x["object_type"] == "Pool Lift") && p.iter().any(|x| x["object_type"] == "Pool Ladder"), "{s:#}");
+    // The script put two area loads on the panel.
+    assert_eq!(store(&app).iter().filter(|e| e.class == "IfcStructuralPlanarAction").count(), 2);
+    let b = ok(&mut app, "pool.bonding", json!({}))[0].clone();
+    assert_eq!(b["basis"], "nec");
+    let rules: Vec<&str> = b["findings"].as_array().unwrap().iter().map(|f| f["rule"].as_str().unwrap()).collect();
+    assert_eq!(rules.iter().filter(|r| **r == "receptacle_gfci").count(), 2, "{b:#}");
+    assert!(b["findings"].as_array().unwrap().iter().all(|f| f["severity"] == "note"), "{b:#}");
+    let what: Vec<&str> = b["bond"].as_array().unwrap().iter().map(|x| x["what"].as_str().unwrap()).collect();
+    assert!(what.contains(&"Pool Lift") && what.contains(&"Pool Ladder") && what.iter().filter(|w| **w == "Underwater Light").count() == 2, "{b:#}");
 }
 
 #[test]

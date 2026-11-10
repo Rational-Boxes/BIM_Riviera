@@ -372,6 +372,9 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolCheck),
         registry.add(PoolNatatorium),
         registry.add(PoolTreatment),
+        registry.add(PoolStructure),
+        registry.add(PoolApplyLoads),
+        registry.add(PoolBonding),
         registry.add(PoolAddEntry),
         registry.add(PoolRemoveEntry),
         registry.add(PoolLanes),
@@ -4555,6 +4558,53 @@ read_command!(
     Option<crate::pool_treatment::TreatmentParams>,
     Vec<crate::pool_treatment::Treatment>,
     crate::pool_treatment::treatment
+);
+
+read_command!(
+    PoolStructure,
+    "pool.structure",
+    "Work out a pool's structural loads",
+    "Works out each swimming pool's structural loads, or `pool_id`'s (ARC-POOL-010): the water's weight \
+     (9.81 kN/m³), the shell's (24.5 kN/m³ concrete, 18 a one-piece shell) and tiling's (1.25 kN/m²), as kN \
+     and as kN/m² over its footprint full and empty, and under its deepest point; the walls' base pressure, \
+     shear and moment a metre as cantilevers of water; with the water table `groundwater` m above its level, \
+     the uplift on the empty shell against its weight by `factor` (default 1.1); advisory point loads of the \
+     pool equipment by it; and, for a pool on a structure (`elevated`, by default when a level is below its \
+     own), the slab's span/360 deflection limit and the rooftop notes.",
+    Option<crate::pool_structure::StructureParams>,
+    Vec<crate::pool_structure::Structure>,
+    crate::pool_structure::structure
+);
+
+edit_command!(
+    PoolApplyLoads,
+    "pool.apply_loads",
+    "Put a pool's weight on a slab",
+    "Puts a pool's weight on the analytical panel of the slab under it (ARC-POOL-010): two uniform area \
+     loads, the shell and finishes in `dead_case_id` and the water in `water_case_id`, each its total spread \
+     over the panel. A panel under half the pool's footprint is refused. Returns the loads and pressures.",
+    "Pool Loads",
+    crate::pool_structure::ApplyParams,
+    crate::pool_structure::Applied,
+    crate::pool_structure::apply
+);
+
+read_command!(
+    PoolBonding,
+    "pool.bonding",
+    "Check a pool's electrical zones and bonding",
+    "Checks the electrical devices, luminaires, switchgear and motors round each swimming pool, or \
+     `pool_id`'s (ARC-POOL-010), under NEC Article 680 or IEC 60364-7-702 (`basis`; IEC by default under the \
+     UK, German or Australian code setting), from public summaries: NEC receptacles 6 ft from the inside \
+     wall and GFCI within 20 ft, switches and disconnects 5 ft, luminaires within 5 ft 12 ft over the water \
+     (7 ft 6 in indoors with GFCI), underwater lenses 18 in down and GFCI over 15 V; IEC zones 0, 1 (2.0 m, \
+     2.5 m up) and 2 (3.5 m), no sockets or switches in zones 0 and 1, no switchgear in 0–2, SELV 12 V in \
+     zone 0. Returns the zones' outlines, the NEC bonding grid (perimeter surface, conductor, ring, four \
+     ties, water contact), the metal parts and equipment to bond, each device's distance, height and zone, \
+     and findings.",
+    Option<crate::pool_bonding::BondingParams>,
+    Vec<crate::pool_bonding::Bonding>,
+    crate::pool_bonding::bonding
 );
 
 read_command!(

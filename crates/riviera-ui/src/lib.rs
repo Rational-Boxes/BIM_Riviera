@@ -4836,6 +4836,8 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.check_pools" => with(gui, Gui::check_pools),
         "ui.pool_hall_air" => with(gui, Gui::pool_hall_air),
         "ui.pool_water_treatment" => with(gui, Gui::pool_water_treatment),
+        "ui.pool_structure" => with(gui, Gui::pool_structure),
+        "ui.pool_bonding" => with(gui, Gui::pool_bonding),
         "ui.gym_layout" => with(gui, Gui::gym_layout),
         "ui.gym_studio" => with(gui, Gui::gym_studio),
         "ui.swimming_pool" => with(gui, |g| {

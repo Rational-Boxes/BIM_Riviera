@@ -250,3 +250,11 @@ exposed to Lua and MCP.
   pipes, main drains, plant room, bathers an hour, dilution) and View › Coordination › Pool
   Water Treatment. Not yet: the plant as equipment, pumps, secondary treatment, dosing. Next:
   step 8, structural loads and electrical bonding (ARC-POOL-010).
+- Step 8 (ARC-POOL-010, 2026-11-09): `pool.structure` (the water's, shell's and tiles' weight full
+  and empty, the walls' hydrostatic pressure, the water table's uplift on the empty shell,
+  advisory equipment point loads, an elevated pool's deflection limit and rooftop notes),
+  `pool.apply_loads` onto the slab's analytical panel, and `pool.bonding` (NEC Article 680's
+  distances and heights with the 680.26 bonding grid, or IEC 60364-7-702's zones 0–2), with View
+  › Coordination › Pool Structure and Pool Electrical Zones and the sample *A rooftop pool*. Not
+  yet: drawing the zones, earth pressure, separate floor and wall loads, the makers' point loads.
+  The plan's eight steps are built; what is left is in each spec section's *Not yet*.

@@ -521,6 +521,19 @@
     ]
   },
   {
+    "name": "rooftop_pool",
+    "title": "A rooftop pool",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "rooftop_pool.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

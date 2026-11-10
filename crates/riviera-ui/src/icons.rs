@@ -1462,6 +1462,14 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_water_treatment" => format!(
             r#"<path d="M2 26h14v-6H2z" fill="{a}"/><rect x="21" y="8" width="8" height="18" rx="4" {s}/><path d="M16 22h5M25 8V4H9v16" {s}/><path d="M22 14h6" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // A pool's shell in section with the water's pressure on its wall and uplift beneath.
+        "pool_structure" => format!(
+            r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
+        ),
+        // A pool's edge with the electrical zones' rings round it and a bolt.
+        "pool_bonding" => format!(
+            r#"<rect x="10" y="10" width="12" height="12" fill="{a}" {s}/><rect x="6" y="6" width="20" height="20" fill="none" stroke-dasharray="2 2" {s}/><rect x="2" y="2" width="28" height="28" fill="none" stroke-dasharray="2 3" {s}/><path d="M17 12l-3 5h4l-3 5" stroke="{f}" stroke-width="1.5" fill="none"/>"#
+        ),
         // Vapour rising from a pool's water toward a fan.
         "pool_hall_air" => format!(
             r#"<path d="M2 26h28" {s}/><path d="M4 22h24v4H4z" fill="{a}"/><path d="M10 19c-2-3 2-4 0-7M16 19c-2-3 2-4 0-7M22 19c-2-3 2-4 0-7" stroke="{f}" stroke-width="1.5" fill="none"/><circle cx="16" cy="5" r="3" {s}/>"#

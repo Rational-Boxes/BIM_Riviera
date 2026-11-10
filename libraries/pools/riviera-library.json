@@ -23,7 +23,7 @@
         "licence": "CC0-1.0",
         "sources": "S2841 S2762"
       },
-      "sha256": "5c980bb1c586b20b6a095778f1730536eee9a4e5e2cfdde96af2334dee6c52e0"
+      "sha256": "855ab3cf0a36861af6ffd6572375eef143ccd7d94f43a35062b19f9e1bd700dc"
     },
     "Access/pool_ladder_3_steps.ifc": {
       "guid": "43021542-02ab-4fa5-92a5-f1b170f49cfb",
@@ -40,7 +40,7 @@
         "licence": "CC0-1.0",
         "sources": "S2840 S2762"
       },
-      "sha256": "74efff47e7ed70a1b635f8adc82442f2e976781a6b81c597b87e2c7ca655541c"
+      "sha256": "2ba657dbf8f74b697a31d9543303112cc1a79f53af8ba035aec15ff6bbe1d61f"
     },
     "Access/pool_lift_300_lb.ifc": {
       "guid": "24018e20-c24f-4154-b152-692129272d95",
@@ -57,7 +57,7 @@
         "licence": "CC0-1.0",
         "sources": "S2773 S2836"
       },
-      "sha256": "a90302670bdd3063c8d3c39d4b7e6e9e5d96c478c765d19f0381e44d19060e1a"
+      "sha256": "a790f815c827aacd16268398bfac81458771bc2b124ace9cbd2ea88ef2173613"
     },
     "Competition/starting_platform_24_x_32_in.ifc": {
       "guid": "281b4b0a-9cca-4f92-8122-8e15b50b486b",
@@ -74,7 +74,7 @@
         "licence": "CC0-1.0",
         "sources": "S2837 S2791 S2762"
       },
-      "sha256": "d1d86e97879b32fb97b0b5fee83c2dd6888ebd14aa3806171661e947ad63b059"
+      "sha256": "fa6e2489e8c4826073cc6a6de19c81bbb0cb71beaa1f46d37ffd63545f427037"
     },
     "Diving/diving_board_1_m_on_stand.ifc": {
       "guid": "e5e5ed77-7ba8-400e-8cf2-7e159e53c61d",
@@ -91,7 +91,7 @@
         "licence": "CC0-1.0",
         "sources": "S2762 S2791"
       },
-      "sha256": "1d1f887f79eeb576021af76a5a6d531e640765e179c65780e4067f10f48eff29"
+      "sha256": "9eab2efac6f0b01436720a7b6165987c4528e8757af5a0c495743895bc388d52"
     },
     "Fittings/main_drain_cover_300_x_300.ifc": {
       "guid": "24016f63-e1ce-4c82-b433-905201fa52c3",
@@ -108,7 +108,7 @@
         "licence": "CC0-1.0",
         "sources": "S2775 S2861"
       },
-      "sha256": "c4812f031c1ae2b4928d3f8c3938cc7341a0eac0161df8a958b53a287a20a08a"
+      "sha256": "bdedc88dd8fb81e59bbe8ccacf443a027fc66fd76eb574d7a73e22f6cc704685"
     },
     "Fittings/main_drain_cover_unblockable_610_x_760.ifc": {
       "guid": "e24e8f57-6b55-43aa-8fb2-96c15dd0e557",
@@ -125,12 +125,12 @@
         "licence": "CC0-1.0",
         "sources": "S2776"
       },
-      "sha256": "dc5482ed11235fd5bcefe5ffb1d292c307409a6db1068049b57bae61b57b0aba"
+      "sha256": "df52acb7bd2280c261835b3ebad451f110038686916c4effb3bb349e983716be"
     },
     "Fittings/underwater_light_large_niche.ifc": {
       "guid": "e2b7dbe8-a92f-415d-b17b-307709511ad1",
       "name": "Underwater light, large niche",
-      "description": "A pool light in a large wall niche, its face about 10 in across (Pentair), centred 0.6 m below the deck; 12 V through a transformer. Its insertion point is the wall's face, the light at its front.",
+      "description": "A pool light in a large wall niche, its face about 10 in across (Pentair), centred 0.75 m below the deck so its lens top is 18 in (457 mm) under water 150 mm below the deck (NEC 680.23(A)(5)); 12 V through a transformer. Its insertion point is the wall's face, the light at its front.",
       "tags": [
         "fittings",
         "Underwater Light"
@@ -139,9 +139,9 @@
         "author": "Riviera contributors",
         "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
         "licence": "CC0-1.0",
-        "sources": "S2855"
+        "sources": "S2855 S2779"
       },
-      "sha256": "94ff99114f2924f3d8301da32a0f5b604f1524daad9c732da26673abfb8715fc"
+      "sha256": "a37dcb43b560912008ca9d03b69cfade84a1562aa9b381a0f380ae953df22c3b"
     },
     "Safety/lifeguard_chair_6_ft.ifc": {
       "guid": "5d450cbc-2c93-43a1-8c9e-7bf979d2d082",
@@ -158,7 +158,7 @@
         "licence": "CC0-1.0",
         "sources": "S2856 S2762"
       },
-      "sha256": "1479a184b4c7278a0eccb0fda2735b65b6ffd044adb5cf01f835b042d3350145"
+      "sha256": "3d7498a591582149d9b5819283d2c9d5430337044a5d06adc77ff4d211179a82"
     }
   }
 }

@@ -1167,6 +1167,118 @@ impl Gui {
         self.report_message("Pool Water Treatment", &text, "pool.treatment", args);
     }
 
+    /// View › Coordination › Pool Structure (ARC-POOL-010): the selected pool's loads, full and
+    /// empty, with the water table's uplift.
+    pub(crate) fn pool_structure(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Structure");
+        let gw = f.text("Water table (m)", "", "Its height above the pool's level (negative below); empty skips the uplift check");
+        let factor = f.text("Uplift factor", "1.1", "The empty pool's weight over the uplift");
+        let on = f.choice("Stands on", &["As the levels say".to_owned(), "The ground".to_owned(), "A structure".to_owned()], 0);
+        let ok = f.show("Works out the water's and the shell's weight, the walls' pressure and the uplift on the empty pool.", "Work Out");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let mut args = json!({ "pool_id": pool });
+        if let Some(v) = num(&gw) {
+            args["groundwater"] = json!(v);
+        }
+        if let Some(v) = num(&factor) {
+            args["factor"] = json!(v);
+        }
+        match on.get_selection().unwrap_or(0) {
+            1 => args["elevated"] = json!(false),
+            2 => args["elevated"] = json!(true),
+            _ => {}
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        let s = match self.run("pool.structure", args.clone()) {
+            Ok(v) => v[0].clone(),
+            Err(e) => return error(&frame, &e),
+        };
+        let g = |k: &str| s[k].as_f64().unwrap_or(0.0);
+        let w = |k: &str| s["wall"][k].as_f64().unwrap_or(0.0);
+        let mut text = format!(
+            "{}: {:.0} m² of water on a {:.0} m² footprint, its shell {:.0} mm\nWater {:.0} kN, shell {:.0} kN, finishes {:.0} kN\nFull {:.1} kN/m² over the footprint on average ({:.1} on the floor at its deepest, the walls {:.1} kN/m); empty {:.1} kN/m²\nWalls {:.2} m deep: {:.1} kPa at the base, {:.1} kN/m shear, {:.1} kN·m/m moment",
+            s["name"].as_str().unwrap_or_default(),
+            g("area"),
+            g("footprint"),
+            g("thickness") * 1000.0,
+            g("water_weight"),
+            g("shell_weight"),
+            g("finishes"),
+            g("full"),
+            g("peak"),
+            g("wall_line_load"),
+            g("empty"),
+            w("depth"),
+            w("pressure"),
+            w("shear"),
+            w("moment"),
+        );
+        let u = &s["uplift"];
+        if u.is_object() {
+            let h = |k: &str| u[k].as_f64().unwrap_or(0.0);
+            text.push_str(&format!("\nUplift empty: {:.0} kN against {:.0} kN of weight ({:.2}, {} the {:.2} asked)", h("force"), h("resisting"), h("ratio"), if u["ok"] == true { "meeting" } else { "under" }, h("factor")));
+        }
+        for p in s["point_loads"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n{} ({}): {:.1} kN at its anchorage (advisory)", p["name"].as_str().unwrap_or_default(), p["object_type"].as_str().unwrap_or_default(), p["load"].as_f64().unwrap_or(0.0)));
+        }
+        for n in s["notes"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n• {}", n.as_str().unwrap_or_default()));
+        }
+        self.report_message("Pool Structure", &text, "pool.structure", args);
+    }
+
+    /// View › Coordination › Pool Electrical Zones (ARC-POOL-010): the devices round the selected
+    /// pool against NEC 680 or IEC 60364-7-702, and its bonding.
+    pub(crate) fn pool_bonding(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Electrical Zones");
+        let basis = f.choice("Basis", &["From the building code".to_owned(), "US: NEC Article 680".to_owned(), "IEC 60364-7-702 (BS 7671 702)".to_owned()], 0);
+        let ok = f.show("Checks the receptacles, switches, luminaires and switchgear round the pool, and lists what to bond.", "Check");
+        let mut args = json!({ "pool_id": pool });
+        match basis.get_selection().unwrap_or(0) {
+            1 => args["basis"] = json!("nec"),
+            2 => args["basis"] = json!("iec"),
+            _ => {}
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        let b = match self.run("pool.bonding", args.clone()) {
+            Ok(v) => v[0].clone(),
+            Err(e) => return error(&frame, &e),
+        };
+        let mut text = format!(
+            "{} ({}, {}): {} electrical elements within reach, {} to bond",
+            b["name"].as_str().unwrap_or_default(),
+            if b["basis"] == "iec" { "IEC 60364-7-702" } else { "NEC Article 680" },
+            if b["indoor"] == true { "indoors" } else { "outdoors" },
+            b["devices"].as_array().map_or(0, Vec::len),
+            b["bond"].as_array().map_or(0, Vec::len),
+        );
+        let grid = &b["grid"];
+        if grid.is_object() {
+            let h = |k: &str| grid[k].as_f64().unwrap_or(0.0);
+            text.push_str(&format!("\nBonding grid: {:.1} m² of perimeter surface, {:.0} m of 8 AWG copper on a 12 in grid (or a {:.1} m ring 18–24 in out), tied at four points; {:.0} mm² touching the water", h("perimeter_surface"), h("grid_conductor"), h("ring_length"), h("water_contact")));
+        }
+        for x in b["findings"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n{} [{}] {}", x["severity"].as_str().unwrap_or_default(), x["source"].as_str().unwrap_or_default(), x["message"].as_str().unwrap_or_default()));
+        }
+        for x in b["bond"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\nBond: {} ({}), {:.2} m from the water", x["name"].as_str().unwrap_or_default(), x["what"].as_str().unwrap_or_default(), x["distance"].as_f64().unwrap_or(0.0)));
+        }
+        for n in b["notes"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n• {}", n.as_str().unwrap_or_default()));
+        }
+        self.report_message("Pool Electrical Zones", &text, "pool.bonding", args);
+    }
+
     /// The selected pool, or the model's only one; else an error shown.
     fn selected_pool(&mut self) -> Option<u64> {
         let frame = self.frame;

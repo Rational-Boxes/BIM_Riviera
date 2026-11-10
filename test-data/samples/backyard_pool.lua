@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: A backyard pool
--- description: A 10 × 5 m residential pool in a 16 × 12 m patio: 1.0 m deep at its shallow end, falling 1:10 to 1.4 m, 1:8 to 5 ft and then to 2.0 m, with corner stairs, an underwater bench, a ladder at the deep end, two main drains and an underwater light; checked against the ISPSC's residential rules.
+-- description: A 10 × 5 m residential pool in a 16 × 12 m patio: 1.0 m deep at its shallow end, falling 1:10 to 1.4 m, 1:8 to 5 ft and then to 2.0 m, with corner stairs, an underwater bench, a ladder at the deep end, two main drains, an underwater light and a patio receptacle; checked against the ISPSC's residential rules and NEC Article 680.
 --
 -- Riviera sample model (test-data/samples): a residential pool (ARC-POOL-001…004). A pool's class
 -- decides its rules: a residential pool is held to the ISPSC's residential chapter (a 33–48 in
@@ -41,9 +41,20 @@ place("Main drain cover 300 × 300", 11.5, 5.25, 0, -2.15)
 place("Main drain cover 300 × 300", 11.5, 6.75, 0, -2.15)
 place("Underwater light, large niche", 13, 6, -math.pi / 2)
 
+-- The receptacle a dwelling's pool needs (NEC 680.22(A)(1)): on a post on the patio 2.5 m
+-- (8.2 ft) from the north wall, within 6–20 ft and on GFCI.
+local m = riviera.mep_type.load_starters{ names = { "Receptacle" } }
+riviera.device.place{ type_id = m["Receptacle"], point = { 8, 11 }, level = l1, offset = 0.45, work_plane = true }
+
 local i = riviera.pool.info{ pool_id = pool }
 print(string.format("%.1f m² of water, %.1f m³ (less the stairs and bench), %.2f–%.2f m deep", i.area, i.volume, i.shallowest, i.deepest))
 local c = riviera.pool.check{}
 for _, f in ipairs(c.findings) do print(f.severity, f.rule, f.message) end
 for _, f in ipairs(c.findings) do assert(f.severity ~= "error", f.rule .. ": " .. f.message) end
 assert(#riviera.overlap.find{}.overlaps == 0, "nothing overlaps")
+
+-- Its electrical zones and bonding under NEC Article 680.
+local bd = riviera.pool.bonding{}[1]
+for _, f in ipairs(bd.findings) do print(f.severity, f.source, f.message) end
+for _, f in ipairs(bd.findings) do assert(f.severity ~= "error", f.rule .. ": " .. f.message) end
+print(string.format("Bonding: %.1f m² of perimeter surface over the grid, %d parts to bond", bd.grid.perimeter_surface, #bd.bond))
