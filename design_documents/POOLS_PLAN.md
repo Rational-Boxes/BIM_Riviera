@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–4 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–5 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -235,3 +235,7 @@ exposed to Lua and MCP.
   (A–E, H, K, M) and against the pool's entries in the envelope; the sample *A diving well*. Not
   yet: 3 m boards, platforms and towers, F, G and N, residential envelopes. Next: step 5, the UK
   packs (Sport England, HSG179) (ARC-POOL-007).
+- Step 5 (ARC-POOL-007, 2026-11-09): the `floor_slope` rule kind and the `uk_sport_england` and
+  `uk_hsg179` packs (recommended), chosen in England; a pool without lanes is held to lane widths
+  only when marked for competition. Next: step 6, natatorium HVAC and the water heat balance
+  (ARC-POOL-008).

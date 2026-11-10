@@ -1614,6 +1614,19 @@ fn the_diving_well_sample_meets_its_table() {
 }
 
 #[test]
+fn the_community_pool_sample_meets_the_uk_guidance() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "community_pool");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert_eq!(c["packs"], json!(["uk_sport_england", "uk_hsg179", "world_aquatics"]), "{c:#}");
+    assert_eq!(c["findings"], json!([]), "{c:#}");
+    let id = c["pools"][0]["pool"].clone();
+    let i = ok(&mut app, "pool.info", json!({ "pool_id": id }));
+    assert_eq!((i["lanes"]["widths"].as_array().unwrap().len(), i["entries"][0]["risers"].as_u64()), (6, Some(9)), "{i:#}");
+}
+
+#[test]
 fn the_backyard_pool_sample_is_a_residential_pool() {
     let work = tempfile::tempdir().unwrap();
     let mut app = open(work.path(), "backyard_pool");

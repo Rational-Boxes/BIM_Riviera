@@ -1739,6 +1739,14 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             }
                         }
                     }
+                    M::FloorSlope => {
+                        let (Some(max), Some([lo, hi])) = (r.max, r.band) else { continue };
+                        for &(a, b, da, db, s) in &segments {
+                            if da.min(db) < hi - 1e-6 && da.max(db) > lo + 1e-6 && s > max + 1e-6 {
+                                find(None, false, format!("the floor from {a:.2} m to {b:.2} m falls {} where the water is {lo:.2}–{hi:.2} m deep; at most {}", ratio(s), ratio(max)));
+                            }
+                        }
+                    }
                     M::CourseLength => {
                         let Some(lay) = lane_layout(&rec) else {
                             find(None, true, "no lanes are set, so the course length between the touch pads is unknown (pool.lanes)".into());
@@ -1755,8 +1763,11 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                         }
                     }
                     M::LaneWidth => {
+                        // A competition pool needs its lanes; another is checked only if it has them.
                         let Some(lay) = lane_layout(&rec) else {
-                            find(None, false, "no lanes are set (pool.lanes)".into());
+                            if class == PoolClass::Competition {
+                                find(None, false, "no lanes are set (pool.lanes)".into());
+                            }
                             continue;
                         };
                         let n = lay.widths.len();

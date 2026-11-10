@@ -709,10 +709,10 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   `pool.lanes`), checked against World Aquatics: the course between the touch pads, lane widths,
   and the depth and height at starting platforms (ARC-POOL-005). Diving boards are checked
   against the MAHC's and World Aquatics' diving tables from their plummets: distances, depths,
-  clear overhead and entries in the envelope (ARC-POOL-006). Not built yet: sketched outlines, drawn gutters and basins, depth
-  markings, barriers, handrails, recessed steps and beach entries. Planned next: competition
-  presets and diving envelopes, UK packs, then the hall's dehumidification, water treatment,
-  structural loads and bonding.
+  clear overhead and entries in the envelope (ARC-POOL-006). In England, Sport England's guidance
+  and HSE's HSG179 are checked as notes (ARC-POOL-007). Not built yet: sketched outlines, drawn
+  gutters and basins, depth markings, barriers, handrails, recessed steps and beach entries.
+  Planned next: the hall's dehumidification, water treatment, structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

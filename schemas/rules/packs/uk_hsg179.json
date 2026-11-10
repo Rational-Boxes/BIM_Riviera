@@ -1,0 +1,24 @@
+{
+  "format": "riviera.rules-1",
+  "id": "uk_hsg179",
+  "title": "HSE HSG179 Health and safety in swimming pools",
+  "domain": "pool",
+  "jurisdiction": "Great Britain",
+  "edition": "HSG179, 4th edition (2018)",
+  "layer": "recommended",
+  "notes": "Guidance, so its findings are notes. Chosen in England (the UK Approved Document K code setting). Lifeguard numbers, the scan rule, depth signs and the 1.35 m non-swimmer boundary need markings and staffing Riviera does not model yet.",
+  "pool": [
+    {
+      "id": "HSG179 (bathing load)",
+      "description": "A starting point for the maximum bathing load: 3 m² of water a bather",
+      "source": "S2797",
+      "confidence": "verified",
+      "check": "bather_load",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 3.0
+    }
+  ]
+}

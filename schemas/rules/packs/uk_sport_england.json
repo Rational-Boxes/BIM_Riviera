@@ -1,0 +1,115 @@
+{
+  "format": "riviera.rules-1",
+  "id": "uk_sport_england",
+  "title": "Sport England swimming pool design guidance",
+  "domain": "pool",
+  "jurisdiction": "England (UK)",
+  "edition": "Swimming Pools: Updated Guidance for 2013 (DGN Rev 004) and its Appendix 1; Accessible Sports Facilities 2010 (section 15)",
+  "layer": "recommended",
+  "notes": "Guidance, so its findings are notes. Chosen in England (the UK Approved Document K code setting). Its gradients are EN 15288-1's preferred ones, as Sport England adopted them; its EN 15288-1:2008 clearances are second-hand and not used.",
+  "pool": [
+    {
+      "id": "SE 2013 App. 1 (gradients)",
+      "description": "Floor gradient 1 in 20 at most where the water is under 0.8 m deep",
+      "source": "S2783",
+      "confidence": "verified",
+      "check": "floor_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "band": [
+        0.0,
+        0.8
+      ],
+      "max": 0.05
+    },
+    {
+      "id": "SE 2013 App. 1 (gradients)",
+      "description": "Floor gradient 1 in 17 at most where the water is 0.8–1.35 m deep",
+      "source": "S2783",
+      "confidence": "verified",
+      "check": "floor_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "band": [
+        0.8,
+        1.35
+      ],
+      "max": 0.058824
+    },
+    {
+      "id": "SE 2013 (shallow end)",
+      "description": "A community pool's shallow end at least 0.9 m deep (1.0 m with a learner pool)",
+      "source": "S2782 S2783",
+      "confidence": "verified",
+      "check": "shallow_end_depth",
+      "pools": [
+        "public"
+      ],
+      "min": 0.9
+    },
+    {
+      "id": "SE 2013 App. 1 (lanes)",
+      "description": "Community pool lanes at least 2.0 m wide",
+      "source": "S2783",
+      "confidence": "verified",
+      "check": "lane_width",
+      "pools": [
+        "public"
+      ],
+      "min": 2.0,
+      "outer_min": 2.0
+    },
+    {
+      "id": "SE 2013 Table 1 (surrounds)",
+      "description": "A surround at least 2 m wide at the sides of a 25 m community pool (3 m at the start end, 2 m at the turn)",
+      "source": "S2782",
+      "confidence": "verified",
+      "check": "deck_width",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 2.0
+    },
+    {
+      "id": "SE Accessible 2010 15 (steps)",
+      "description": "Fixed steps with risers 0.14 m at most",
+      "source": "S2788",
+      "confidence": "verified",
+      "check": "stair_riser",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.14
+    },
+    {
+      "id": "SE Accessible 2010 15 (steps)",
+      "description": "Fixed steps with a going of 0.30 m at least",
+      "source": "S2788",
+      "confidence": "verified",
+      "check": "stair_tread",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.3
+    },
+    {
+      "id": "SE Accessible 2010 15 (ramps)",
+      "description": "A ramp or sloping floor for access 1 in 15 at most",
+      "source": "S2788",
+      "confidence": "verified",
+      "check": "sloped_entry_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.066667
+    }
+  ]
+}

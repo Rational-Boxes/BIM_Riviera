@@ -51,6 +51,8 @@ const SHIPPED: &[&str] = &[
     include_str!("../../../schemas/rules/packs/ada_2010_pools.json"),
     include_str!("../../../schemas/rules/packs/us_vgb.json"),
     include_str!("../../../schemas/rules/packs/world_aquatics.json"),
+    include_str!("../../../schemas/rules/packs/uk_sport_england.json"),
+    include_str!("../../../schemas/rules/packs/uk_hsg179.json"),
 ];
 /// A zone's height above the floor when its rule gives none (metres).
 pub const DEFAULT_HEIGHT: f64 = 1.0;
@@ -237,6 +239,7 @@ pub enum PoolMeasure {
     PlatformDepth,
     PlatformHeight,
     Diving,
+    FloorSlope,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
@@ -316,6 +319,9 @@ pub struct PoolRule {
     /// Said after each finding (World Aquatics: verify against its current text).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub note: Option<String>,
+    /// A floor slope's band of water depth, from and to (ARC-POOL-007).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub band: Option<[f64; 2]>,
     /// A diving table, one column per board height (ARC-POOL-006).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub diving: Vec<DivingRow>,
@@ -413,8 +419,9 @@ pub fn chosen(store: &Store, domain: &str) -> Option<Vec<String>> {
 /// The packs chosen for a domain the project names none for: for interiors, the ADA pack with
 /// the ADA rule set; for retail, the IBC mercantile pack under the IBC; for gyms, the equipment
 /// makers' clearances always; for pools, the ISPSC and the VGB Act under the IBC and the ADA's
-/// pool rules with the ADA rule set, and World Aquatics' for competition pools always (the MAHC is
-/// chosen per project: `POOLS_PLAN.md` Question 3).
+/// pool rules with the ADA rule set, Sport England's and HSE's guidance in England, and World
+/// Aquatics' for competition pools always (the MAHC is chosen per project: `POOLS_PLAN.md`
+/// Question 3).
 pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
     let mut out = Vec::new();
     if domain == "interiors" && crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
@@ -432,6 +439,9 @@ pub fn automatic(store: &Store, domain: &str) -> Vec<String> {
         }
         if crate::clearances::rule_set(store) == crate::clearances::RuleSet::Ada2010 {
             out.push("ada_2010_pools".to_owned());
+        }
+        if crate::codes::settings(store).code == crate::codes::Code::UkAdk {
+            out.extend(["uk_sport_england".to_owned(), "uk_hsg179".to_owned()]);
         }
         // Only pools marked for competition are checked by it.
         out.push("world_aquatics".to_owned());

@@ -508,6 +508,19 @@
     ]
   },
   {
+    "name": "community_pool",
+    "title": "A community pool in England",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "community_pool.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

@@ -5411,11 +5411,13 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
+| `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
+| `uk_hsg179` | recommended | Domain `pool`, in England: HSE's 3 m² a bather (ARC-POOL-007) |
 | `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
 
-- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always; for pools, `us_ispsc` and `us_vgb` under the IBC, `ada_2010_pools` with the ADA rule set (ARC-POOL-002) and `world_aquatics` always (ARC-POOL-005). The practice packs are only chosen by name.
+- **Choosing packs.** A project uses the packs it names for a domain (`rules.set_packs`), or packs chosen automatically: for interiors, `ada_2010_interiors` when the accessibility rule set (ARC-MOD-031) is the ADA; for retail, `us_ibc_mercantile` when the building code is the IBC; for gyms, `gym_equipment` always; for pools, `us_ispsc` and `us_vgb` under the IBC, `ada_2010_pools` with the ADA rule set (ARC-POOL-002), `uk_sport_england` and `uk_hsg179` in England (ARC-POOL-007), and `world_aquatics` always (ARC-POOL-005). The practice packs are only chosen by name.
 - **One command family for every domain.**
   - `rules.packs` lists the packs of every domain, or of one: bathroom (ARC-BATH-001), vertical transport (ARC-VT-001) and the shared-format domains. Each has its domain, format, layer, jurisdiction and edition, its rule count, whether it is in use, and whether it ships.
   - `rules.set_packs`, `rules.add_pack` and `rules.remove_pack` choose, add and remove packs in any domain. A pack is routed by its `format`: a bathroom or vertical-transport pack goes to its domain's own store, so the `bath.*` and `vt.*` pack commands see the same packs.
@@ -5965,7 +5967,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007), natatorium HVAC and heat balance (ARC-POOL-008), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium HVAC and heat balance (ARC-POOL-008), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6131,6 +6133,35 @@ Public and competition pools come first (Q6).
 - [x] The sample *A diving well* has two 1 m boards 2.8 m apart that pass the MAHC's table and keep their 4 ft of deck; made 3.0 m deep, both fail H.
 
 *Built (2026-11-09):* the `diving` rule kind and the two tables, in `pool.check`. Defaults are E-121. Not yet: 3 m boards and platforms with their towers and the platform columns, the clear spaces F and G and the 30° slope N, stacked platforms' set-backs, the residential diving envelopes (ISPSC Table 804.1), and showing the envelope as a virtual volume.
+
+### 3.9c.7 The UK pool packs
+**ID:** ARC-POOL-007 · **Priority:** P2 · **Ref:** `POOLS_PLAN.md` §5, §8 (step 5); research/23 B.2, B.3, B.6, B.10, B.12 checkable rules (S2782, S2783, S2788, S2797); ARC-POOL-002 (the checks)
+
+**Purpose.** Check pools in England against Sport England's design guidance and HSE's HSG179, as notes, beside the US and World Aquatics packs.
+
+**Behaviour & rules.**
+- **A `floor_slope` rule kind:** each profile segment's slope against `max` where its water depth overlaps `band` (EN 15288-1's preferred gradients as Sport England adopted them).
+- **`uk_sport_england`** (recommended), for public and competition pools:
+  - floor gradients 1 in 20 under 0.8 m and 1 in 17 from 0.8 to 1.35 m deep;
+  - a community pool's shallow end 0.9 m deep at least;
+  - community lanes 2.0 m wide at least, where a pool has lanes;
+  - a 2 m surround at the sides (the ASA's widths for a 25 m community pool);
+  - fixed steps with risers of 0.14 m at most and a going of 0.30 m at least;
+  - a ramp or sloping floor 1 in 15 at most.
+- **`uk_hsg179`** (recommended): a bathing load starting at 3 m² of water a bather.
+- **Choosing packs:** both are chosen in England (the UK Approved Document K code setting), with World Aquatics for competition pools. Their findings are notes.
+- A pool without lanes is held to lane widths only when it is marked for competition.
+
+**Data.** The packs are JSON in `schemas/rules/packs/` (MIT).
+
+**Commands.** `pool.check` (no new command).
+
+**Acceptance criteria.**
+- [x] In England, a 25 × 12.5 m community pool on Sport England's typical profile with a 2 m surround passes both packs, which are its only packs with World Aquatics; HSG179 gives it 104 bathers.
+- [x] A 1:8.9 floor between 0.9 and 1.35 m, stairs with 0.25 m risers, a 1:12 ramp and 1.9 m lanes are each a Sport England note.
+- [x] The sample *A community pool in England* passes both packs.
+
+*Built (2026-11-09):* the `floor_slope` kind and the two packs. Defaults are E-122. Not yet: the start- and turn-end surround widths (3 m, 2 m; 4 m and 7 m for competition pools), learner pools (0.6–0.8 m, 13 × 7 m), the 1.35 m non-swimmer line and rope, depth signs, poolside diving depths, lifeguard numbers and the scan rule, PWTAG's bathing loads and turnover (step 7), and EN 15288-1:2024's changes.
 
 ## 3.11 Massing and site
 
