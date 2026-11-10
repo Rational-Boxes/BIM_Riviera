@@ -22,6 +22,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#equipment">Equipment</a>
   <a href="#check">Checking a pool</a>
   <a href="#air">The hall's air</a>
+  <a href="#treatment">Water treatment</a>
   <a href="#ifc">In IFC</a>
   <a href="#limits">Limits and what to check</a>
   <a href="#scripts">Scripts and agents</a>
@@ -149,6 +150,14 @@ ask:</p>
 <p>The values are kept on the pool. The design loads give the space that holds it the pool's
 latent load.</p>
 
+<h2 id="treatment">Water treatment</h2>
+<p><b>View › Coordination › Pool Water Treatment</b> sizes the plant from the pool's volume and
+type, on the MAHC's basis or (under the UK code) Sport England's and PWTAG's: the turnover (the
+MAHC's 6 h for most pools, 1 h for wading and 8 h for diving pools; Sport England's 2.5–4 h for
+swimming pools), the filtered flow, the filter area and its backwash, the surge or balance tank,
+the skimmers or gutters, the suction and discharge pipes' sizes, the flow each main drain carries,
+and the plant room's 15–30 % of the water area.</p>
+
 <h2 id="ifc">In IFC</h2>
 <p>A pool is an <code>IfcElementAssembly</code> (SWIMMINGPOOL) of an <code>IfcWall</code>, an
 <code>IfcSlab</code> (BASESLAB) and an <code>IfcCovering</code> (COPING). Its water is an
@@ -169,4 +178,4 @@ mapping.</p>
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>, <code>pool.natatorium</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>; packs are chosen with <code>rules.set_packs</code>.</p>

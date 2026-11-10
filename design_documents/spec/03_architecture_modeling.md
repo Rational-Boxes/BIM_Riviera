@@ -5967,7 +5967,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6210,6 +6210,48 @@ Public and competition pools come first (Q6).
 - condensation on the hall's actual surfaces (their temperatures at the winter design condition);
 - outdoor pools' radiation and wind;
 - spas and hot tubs (the bathroom toolset's).
+
+### 3.9c.9 Pool water treatment
+**ID:** ARC-POOL-009 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §6, §8 (step 7); research/23 C.3 (S2762, S2798, S2800, S2808, S2809, S2821); ARC-POOL-004 (main drains, diving boards)
+
+**Purpose.** Size a pool's treatment plant early: the flow its turnover needs, the filters and their backwash, the surge or balance tank, the pipes and drains, and the plant room it takes.
+
+**Behaviour & rules.**
+- **Basis:** US (the MAHC) or UK (Sport England and PWTAG), by default the UK under the UK code setting.
+- **Turnover** for the pool's type, or `turnover`. A longer one than the table's is a note.
+  - **US** (the MAHC's maximum, Table 4.7.1.10): wading pools 1 h, diving pools (a diving board at the pool) 8 h, other pools 6 h. It is taken over the pool's water and its surge.
+  - **UK** (Sport England's Table 3, after PWTAG), its upper bound: swimming pools 2.5–4 h, learner and teaching pools (1.5 m deep or less) 0.5–1.5 h, diving pools 4–8 h, wading pools 0.17–0.75 h.
+- **Flow** = volume ÷ turnover.
+- **Filters:** the flow over `filter_rate`, shared by `filters` (default 2). The rate is 36.7 m/h for US high-rate media (15 gpm/ft²) and 25 m/h for UK medium-rate sand. Each filter backwashes at 36.7 m/h (US) or 30 m/h (UK) for 7 minutes.
+- **Surge or balance tank:**
+  - US: 40.7 L/m² (1 gal/ft²) of water surface;
+  - UK: half the bathing load (3 m² a bather) at 80 L each, plus a backwash.
+- **Skimmers or gutters:** a skimmer pool needs one skimmer per 46 m² (500 ft²), and over 9.1 m (30 ft) wide is a note (US). A deck-level pool's gutters take 125 % of the flow.
+- **Pipes:** the least inside diameter at 1.8 m/s suction and 2.4 m/s discharge (US; MAHC 4.7.1.7.2), or 1.5 and 2.0 m/s (UK).
+- **Main drains:** those counted at the pool each carry the whole flow with two, or the flow over one fewer with three or more (MAHC 4.7.1.6). None is a note.
+- **Plant room** 15–30 % of the water area (Sport England).
+- **Bathers an hour:** the flow over 1.7 m³ (PWTAG).
+- **Dilution:** 15 L (MAHC) or 30 L (PWTAG) a bather a day, at the maximum bathing load once.
+- **Notes:** secondary disinfection for wading pools (MAHC), and chemical stores' separate exhaust 20 ft from intakes (MAHC 4.9.2.5–6) or acid and chlorine stored apart (Sport England).
+- **The window:** View › Coordination › Pool Water Treatment. The results can be saved as a report.
+
+**Data.** Nothing is stored; the results come from the pool.
+
+**Commands.** `pool.treatment(pool_id?, basis?, turnover?, filter_rate?, filters?)` → `[{pool, basis, kind, water_volume, surge_volume, turnover, turnover_range, flow, filter_rate, filter_area, filters, filter_area_each, backwash_flow, backwash_volume, skimmers?, gutter_capacity?, suction, discharge, main_drains, flow_per_drain, plant_room, bathers_per_hour, dilution_per_day, notes}]`.
+
+**Acceptance criteria.**
+- [x] A 25 × 12.5 m skimmer pool on the US basis turns over its water and 12.7 m³ of surge in 6 h, filtered at 36.7 m/h over two filters, with seven skimmers, a note that it is too wide for skimmers, the suction pipe's diameter from 1.8 m/s, and a plant room of 47–94 m²; with three main drains each carries half the flow.
+- [x] Under the UK code, the same pool turns over in 4 h at 25 m/h, its balance tank half of 104 bathers at 80 L plus a backwash at 30 m/h for 7 minutes, and it treats the flow over 1.7 m³ bathers an hour.
+- [x] A wading pool turns over in 1 h and needs secondary disinfection. A deck-level diving pool with a board turns over in 8 h with gutters for 125 % of its flow, and a 10 h turnover is a note.
+
+*Built (2026-11-09):* `riviera_core::pool_treatment`, View › Coordination › Pool Water Treatment. Defaults are E-124. Not yet:
+- the plant as equipment (filters, pumps, the balance tank as objects in a plant room, with their pipes);
+- pump power and heads;
+- the MAHC's secondary-treatment flow;
+- disinfectant dosing;
+- checking a modelled plant room's area;
+- leisure-water depth bands beyond wading pools;
+- spa turnovers.
 
 ## 3.11 Massing and site
 
@@ -7451,6 +7493,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
+| `pool.treatment` | pool_id?, basis?, turnover?, filter_rate?, filters? | [{turnover, flow, filter_area, backwash_volume, surge_volume, skimmers?, gutter_capacity?, suction, discharge, flow_per_drain, plant_room, notes}] | No (query) | ARC-POOL-009 |
 | `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |

@@ -48,7 +48,11 @@ Start with **File › New**.
    equation (competition pools' activity factor 0.65), its latent load, the water's heat losses,
    the MAHC's outdoor air for the water, the wet deck and the spectators, and the hall air's dew
    point. Do the same for the teaching pool at 30 °C under a cover (0.1).
-11. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
+11. **Water treatment.** **View › Coordination › Pool Water Treatment** sizes each pool's plant
+   on the MAHC's basis: a 6 h turnover over the water and its surge, the flow, two filters at
+   36.7 m/h and their backwash, the skimmers, the suction and discharge pipes, the flow each of
+   the main pool's two drains carries, and a plant room of 15–30 % of the water area.
+12. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
    `IfcSlab` (BASESLAB) and an `IfcCovering` (COPING), with the teaching pool's `IfcStair` and
    `IfcRamp`, and its water an `IfcSpace` (WATER) under the level carrying its area and volume.
    The equipment is ordinary typed objects: the lift an `IfcTransportElement`, the rest

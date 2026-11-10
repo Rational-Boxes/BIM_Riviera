@@ -1594,6 +1594,8 @@ fn the_pool_hall_sample_has_its_two_pools() {
     let n = ok(&mut app, "pool.natatorium", json!({ "pool_id": main_id }))[0].clone();
     assert_eq!((n["conditions"]["water"].as_f64(), n["conditions"]["spectators"].as_u64(), n["conditions"]["activity"].as_f64()), (Some(27.0), Some(200), Some(0.65)), "{n:#}");
     assert!(n["outdoor_air"].as_f64().unwrap() > 3.8 * 200.0, "{n:#}");
+    let t = ok(&mut app, "pool.treatment", json!({ "pool_id": main_id }))[0].clone();
+    assert_eq!((t["turnover"].as_f64(), t["main_drains"].as_u64()), (Some(6.0), Some(2)), "{t:#}");
     assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
     // The six starting platforms, the lift and the lifeguard chair are typed library items.
     let s = store(&app);

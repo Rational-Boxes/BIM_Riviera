@@ -82,3 +82,9 @@ for _, n in ipairs(riviera.pool.natatorium{}) do
   total = total + n.outdoor_air
 end
 print(string.format("The hall's outdoor air: %.0f L/s at least", total))
+
+-- The water treatment (ARC-POOL-009), on the MAHC's basis: turnover, filters, balance tank, pipes.
+for _, t in ipairs(riviera.pool.treatment{}) do
+  print(string.format("%s: %.1f h turnover, %.0f m³/h, %.1f m² of filters, %.1f m³ of surge, %.0f mm suction, plant room %.0f–%.0f m²",
+    t.name, t.turnover, t.flow, t.filter_area, t.surge_volume, t.suction.diameter, t.plant_room[1], t.plant_room[2]))
+end

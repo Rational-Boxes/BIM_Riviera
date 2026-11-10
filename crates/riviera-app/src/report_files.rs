@@ -31,6 +31,7 @@ pub const REPORTS: &[(&str, &str)] = &[
     ("sco.check", "Self-checkout pods"),
     ("pool.check", "Swimming pools"),
     ("pool.natatorium", "Pool hall air and water heat"),
+    ("pool.treatment", "Pool water treatment"),
     ("elevator.check", "Elevators"),
     ("elevator.check_lobbies", "Evacuation elevator lobbies"),
     ("escalator.check", "Escalators and moving walks"),

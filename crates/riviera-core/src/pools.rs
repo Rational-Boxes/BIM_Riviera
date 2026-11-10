@@ -1364,7 +1364,7 @@ fn plummet(store: &Store, e: &Element) -> Option<([f64; 2], [f64; 2], f64)> {
 }
 
 /// How far a plan point is from a ring's edge.
-fn edge_distance(p: [f64; 2], r: &[[f64; 2]]) -> f64 {
+pub(crate) fn edge_distance(p: [f64; 2], r: &[[f64; 2]]) -> f64 {
     (0..r.len())
         .map(|i| {
             let (a, b) = (r[i], r[(i + 1) % r.len()]);

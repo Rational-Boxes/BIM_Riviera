@@ -1,6 +1,6 @@
 # Swimming Pools — Plan
 
-**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–6 built (§11)
+**Status:** Draft 0.2 · 2026-11-09 · the owner answered every question (§10); steps 1–7 built (§11)
 **Research:** `research/23_swimming_pools.md` (sources S2762–S2868)
 **Related:** the bathroom toolset's hot tubs, saunas, steam rooms, spa access and whirlpool baths
 (ARC-BATH-013…017); the shared rule packs (ARC-RULE-001/002); the gym toolset (ARC-GYM-001/002).
@@ -245,3 +245,8 @@ exposed to Lua and MCP.
   pool's latent load in the design loads of the space that holds it. Not yet: the annual energy
   model's pool, dehumidifier sizing, surface condensation. Next: step 7, water treatment
   (ARC-POOL-009).
+- Step 7 (ARC-POOL-009, 2026-11-09): `pool.treatment` on the MAHC's basis or Sport England's and
+  PWTAG's (turnover, flow, filters and backwash, surge or balance tank, skimmers or gutters,
+  pipes, main drains, plant room, bathers an hour, dilution) and View › Coordination › Pool
+  Water Treatment. Not yet: the plant as equipment, pumps, secondary treatment, dosing. Next:
+  step 8, structural loads and electrical bonding (ARC-POOL-010).

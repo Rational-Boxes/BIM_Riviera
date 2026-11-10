@@ -371,6 +371,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolList),
         registry.add(PoolCheck),
         registry.add(PoolNatatorium),
+        registry.add(PoolTreatment),
         registry.add(PoolAddEntry),
         registry.add(PoolRemoveEntry),
         registry.add(PoolLanes),
@@ -4536,6 +4537,24 @@ read_command!(
     Option<crate::natatorium::NatatoriumParams>,
     Vec<crate::natatorium::Natatorium>,
     crate::natatorium::natatorium
+);
+
+read_command!(
+    PoolTreatment,
+    "pool.treatment",
+    "Size a pool's water treatment",
+    "Sizes each swimming pool's water treatment, or `pool_id`'s (ARC-POOL-009), on the US basis (the MAHC) \
+     or the UK's (Sport England and PWTAG; default under the UK code setting): the turnover for its type \
+     (MAHC Table 4.7.1.10's maximum: wading 1 h, diving 8 h, others 6 h; Sport England's: swimming 2.5–4 h, \
+     learner 0.5–1.5 h, diving 4–8 h) or `turnover`; the filtered flow over the pool's water and surge; the \
+     filter area at `filter_rate` (36.7 m/h US, 25 m/h UK) over `filters` (default 2); the backwash flow and \
+     volume; the surge or balance tank (40.7 L/m² US; half the bathing load at 80 L plus a backwash UK); \
+     skimmers (one per 46 m²) or the gutters' 125 %; the suction and discharge pipes' least diameters \
+     (1.8 and 2.4 m/s US, 1.5 and 2.0 m/s UK); the flow each counted main drain carries; the plant room's \
+     15–30 % of the water area; PWTAG's bathers an hour; and the daily dilution.",
+    Option<crate::pool_treatment::TreatmentParams>,
+    Vec<crate::pool_treatment::Treatment>,
+    crate::pool_treatment::treatment
 );
 
 read_command!(

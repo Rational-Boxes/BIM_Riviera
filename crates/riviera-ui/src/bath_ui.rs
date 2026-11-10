@@ -1094,6 +1094,79 @@ impl Gui {
         self.report_message("Pool Hall Air", &text, "pool.natatorium", args);
     }
 
+    /// View › Coordination › Pool Water Treatment (ARC-POOL-009): the selected pool's turnover,
+    /// filters, balance tank, pipes and plant room.
+    pub(crate) fn pool_water_treatment(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Water Treatment");
+        let basis = f.choice("Basis", &["From the building code".to_owned(), "US: the MAHC".to_owned(), "UK: Sport England and PWTAG".to_owned()], 0);
+        let turnover = f.text("Turnover (h)", "", "Empty for the basis's for the pool's type");
+        let rate = f.text("Filtration rate (m/h)", "", "Empty for 36.7 (US high-rate media) or 25 (UK medium-rate sand)");
+        let filters = f.text("Filters", "2", "How many share the flow");
+        let ok = f.show("Sizes the plant from the pool's volume and type.", "Size It");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let mut args = json!({ "pool_id": pool });
+        match basis.get_selection().unwrap_or(0) {
+            1 => args["basis"] = json!("us"),
+            2 => args["basis"] = json!("uk"),
+            _ => {}
+        }
+        if let Some(v) = num(&turnover) {
+            args["turnover"] = json!(v);
+        }
+        if let Some(v) = num(&rate) {
+            args["filter_rate"] = json!(v);
+        }
+        if let Ok(n) = filters.get_value().trim().parse::<u32>() {
+            args["filters"] = json!(n);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        let t = match self.run("pool.treatment", args.clone()) {
+            Ok(v) => v[0].clone(),
+            Err(e) => return error(&frame, &e),
+        };
+        let g = |k: &str| t[k].as_f64().unwrap_or(0.0);
+        let mut text = format!(
+            "{} ({}): {:.0} m³ of water and {:.1} m³ of surge or balance tank\nTurnover {:.1} h ({}) → {:.1} m³/h filtered\nFilters: {:.2} m² at {:.1} m/h, {} of {:.2} m²; backwash {:.0} m³/h, {:.1} m³ each time\n{}\nPipes: suction {:.0} mm at {:.1} m/s, discharge {:.0} mm at {:.1} m/s\nMain drains: {} counted, each for {:.1} m³/h\nPlant room {:.0}–{:.0} m²; {:.0} bathers an hour; {:.0} L a day of dilution",
+            t["name"].as_str().unwrap_or_default(),
+            t["basis"].as_str().unwrap_or_default().to_uppercase(),
+            g("water_volume"),
+            g("surge_volume"),
+            g("turnover"),
+            t["kind"].as_str().unwrap_or_default(),
+            g("flow"),
+            g("filter_area"),
+            g("filter_rate"),
+            t["filters"],
+            g("filter_area_each"),
+            g("backwash_flow"),
+            g("backwash_volume"),
+            match (t["skimmers"].as_u64(), t["gutter_capacity"].as_f64()) {
+                (Some(n), _) => format!("{n} skimmers (one per 46 m²)"),
+                (_, Some(c)) => format!("Gutters for {c:.0} m³/h (125 %)"),
+                _ => String::new(),
+            },
+            t["suction"]["diameter"].as_f64().unwrap_or(0.0),
+            t["suction"]["velocity"].as_f64().unwrap_or(0.0),
+            t["discharge"]["diameter"].as_f64().unwrap_or(0.0),
+            t["discharge"]["velocity"].as_f64().unwrap_or(0.0),
+            t["main_drains"],
+            g("flow_per_drain"),
+            t["plant_room"][0].as_f64().unwrap_or(0.0),
+            t["plant_room"][1].as_f64().unwrap_or(0.0),
+            g("bathers_per_hour"),
+            g("dilution_per_day"),
+        );
+        for n in t["notes"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n• {}", n.as_str().unwrap_or_default()));
+        }
+        self.report_message("Pool Water Treatment", &text, "pool.treatment", args);
+    }
+
     /// The selected pool, or the model's only one; else an error shown.
     fn selected_pool(&mut self) -> Option<u64> {
         let frame = self.frame;

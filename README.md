@@ -712,9 +712,10 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   clear overhead and entries in the envelope (ARC-POOL-006). In England, Sport England's guidance
   and HSE's HSG179 are checked as notes (ARC-POOL-007). Pool Hall Air works out the hall's
   evaporation, latent load, outdoor air and dew point and the water's heat losses, and the
-  design loads take the pool's latent load (ARC-POOL-008). Not built yet: sketched outlines, drawn
+  design loads take the pool's latent load (ARC-POOL-008). Pool Water Treatment sizes the
+  turnover, filters, balance tank, pipes and plant room (ARC-POOL-009). Not built yet: sketched outlines, drawn
   gutters and basins, depth markings, barriers, handrails, recessed steps and beach entries.
-  Planned next: water treatment, structural loads and bonding.
+  Planned next: structural loads and bonding.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;
