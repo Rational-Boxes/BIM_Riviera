@@ -43,7 +43,12 @@ Start with **File › New**.
    at least) and their tops 0.75 m above the water (0.50–0.75 m). The main pool has four ladders
    and the lift, the teaching pool its two sets of stairs (and its sloped entry, an accessible
    one). Nothing overlaps (**Check Overlaps**).
-10. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
+10. **The hall's air.** Select the main pool and choose **View › Coordination › Pool Hall Air**:
+   water 27 °C, air 28 °C, 55 % RH, 200 spectators. It gives the evaporation by ASHRAE's
+   equation (competition pools' activity factor 0.65), its latent load, the water's heat losses,
+   the MAHC's outdoor air for the water, the wet deck and the spectators, and the hall air's dew
+   point. Do the same for the teaching pool at 30 °C under a cover (0.1).
+11. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
    `IfcSlab` (BASESLAB) and an `IfcCovering` (COPING), with the teaching pool's `IfcStair` and
    `IfcRamp`, and its water an `IfcSpace` (WATER) under the level carrying its area and volume.
    The equipment is ordinary typed objects: the lift an `IfcTransportElement`, the rest

@@ -1016,6 +1016,84 @@ impl Gui {
         self.start_picking("pool.add_entry", vec![json!({ "key": "point", "kind": "point", "prompt": "Pool Entry: click by the wall where its middle goes" })], args);
     }
 
+    /// View › Coordination › Pool Hall Air (ARC-POOL-008): the selected pool's hall conditions set,
+    /// and its evaporation, latent load, water heat and outdoor air shown.
+    pub(crate) fn pool_hall_air(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let now = self.run("pool.natatorium", json!({ "pool_id": pool })).unwrap_or_default();
+        let c = &now[0]["conditions"];
+        let v = |k: &str| c[k].as_f64().map(|x| format!("{x}")).unwrap_or_default();
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Hall Air");
+        let water = f.text("Water (°C)", &v("water"), "PWTAG and ASHRAE: 27–29 °C for swimming, 31 °C for children");
+        let air = f.text("Air (°C)", &v("air"), "1–2 K warmer than the water, to about 30 °C");
+        let rh = f.text("Relative humidity (%)", &c["rh"].as_f64().map(|x| format!("{:.0}", x * 100.0)).unwrap_or_default(), "ASHRAE 50–60 %; Sport England 60 % ± 10 %");
+        let af = f.text("Activity factor", &v("activity"), "ASHRAE: public and schools 1.0, hotels 0.8, competition 0.65, residential 0.5");
+        let cover = f.text("Cover (fraction let through)", &v("cover"), "Empty for no cover; a sealed cover about 0.1, a slatted movable floor about 0.3");
+        let spectators = f.text("Spectators", &c["spectators"].as_u64().map(|x| x.to_string()).unwrap_or_default(), "Each needs 3.8 L/s of outdoor air");
+        let dew = f.text("Outdoor design dew point (°C)", "", "Optional: the outdoor air the evaporation alone would need");
+        let ok = f.show("The values are kept on the pool and feed the design loads of the space that holds it.", "Work It Out");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let mut hall = json!({});
+        for (k, t) in [("water", &water), ("air", &air), ("activity", &af), ("cover", &cover)] {
+            if let Some(x) = num(t) {
+                hall[k] = json!(x);
+            }
+        }
+        if let Some(x) = num(&rh) {
+            hall["rh"] = json!(x / 100.0);
+        }
+        if let Ok(n) = spectators.get_value().trim().parse::<u32>() {
+            hall["spectators"] = json!(n);
+        }
+        let mut args = json!({ "pool_id": pool });
+        if let Some(d) = num(&dew) {
+            args["outdoor_dew_point"] = json!(d);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        if let Err(e) = self.run("pool.set", json!({ "pool_id": pool, "hall": hall })) {
+            return error(&frame, &format!("The conditions were not kept:\n{e}"));
+        }
+        let n = match self.run("pool.natatorium", args.clone()) {
+            Ok(v) => v[0].clone(),
+            Err(e) => return error(&frame, &e),
+        };
+        let g = |k: &str| n[k].as_f64().unwrap_or(0.0);
+        let mut text = format!(
+            "{}: {:.0} m² of water, {:.0} m² of wet deck\nEvaporation {:.1} kg/h in use, {:.1} unoccupied{}\nLatent load {:.1} kW; the water loses {:.1} kW (evaporation {:.1}, convection {:.1}, make-up {:.1})\nWater lost {:.0} L a day\nOutdoor air {:.0} L/s (purge {:.0}, exhaust {:.0} to keep the hall negative)\nHall air dew point {:.1} °C",
+            n["name"].as_str().unwrap_or_default(),
+            g("water_area"),
+            g("wet_deck_area"),
+            g("evaporation"),
+            g("evaporation_unoccupied"),
+            n["evaporation_covered"].as_f64().map(|x| format!(", {x:.1} covered")).unwrap_or_default(),
+            g("latent_load") / 1000.0,
+            n["water_heat"]["total"].as_f64().unwrap_or(0.0) / 1000.0,
+            n["water_heat"]["evaporation"].as_f64().unwrap_or(0.0) / 1000.0,
+            n["water_heat"]["convection"].as_f64().unwrap_or(0.0) / 1000.0,
+            n["water_heat"]["make_up"].as_f64().unwrap_or(0.0) / 1000.0,
+            g("water_per_day"),
+            g("outdoor_air"),
+            g("purge"),
+            g("exhaust"),
+            g("dew_point"),
+        );
+        if let Some(a) = n["air_changes"].as_f64() {
+            text.push_str(&format!("\nThe hall: {:.0} m³, {a:.1} outdoor air changes an hour", g("hall_volume")));
+        }
+        if let Some(a) = n["outdoor_air_for_moisture"].as_f64() {
+            text.push_str(&format!("\nOutdoor air to remove the evaporation alone: {a:.0} L/s"));
+        }
+        for t in n["notes"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\n• {}", t.as_str().unwrap_or_default()));
+        }
+        self.refresh_scene(&frame);
+        self.report_message("Pool Hall Air", &text, "pool.natatorium", args);
+    }
+
     /// The selected pool, or the model's only one; else an error shown.
     fn selected_pool(&mut self) -> Option<u64> {
         let frame = self.frame;

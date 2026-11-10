@@ -370,6 +370,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolInfo),
         registry.add(PoolList),
         registry.add(PoolCheck),
+        registry.add(PoolNatatorium),
         registry.add(PoolAddEntry),
         registry.add(PoolRemoveEntry),
         registry.add(PoolLanes),
@@ -4516,6 +4517,25 @@ edit_command!(
     crate::pools::RemoveEntryParams,
     (),
     crate::pools::remove_entry
+);
+
+read_command!(
+    PoolNatatorium,
+    "pool.natatorium",
+    "Work out a pool hall's air and water heat",
+    "Works out each swimming pool's hall air and water heat balance, or `pool_id`'s (ARC-POOL-008), from its \
+     hall conditions (`pool.set(hall)`, or `hall` to try others; defaults by class: water 29 °C public, 27 °C \
+     competition, 28 °C residential, 31 °C wading, air a degree warmer to 30 °C, 55 % RH, ASHRAE's activity \
+     factors 1.0, 0.65 and 0.5). Gives the evaporation by ASHRAE's equation (kg/h in use, unoccupied and \
+     covered), its latent load, the water's heat losses (evaporation, convection, make-up water), the water \
+     lost a day, the outdoor air (ASHRAE 62.1's 0.48 cfm/ft² of water and wet deck plus 7.5 cfm a spectator, \
+     as the MAHC adopts them), the purge (twice that) and the exhaust that keeps the hall negative (5 % more), \
+     the hall air's dew point, the hall room's volume and air changes, and, with `outdoor_dew_point`, the \
+     outdoor air that would remove the evaporation alone. The design loads (`analysis.loads`) take each \
+     pool's latent load into the space that holds it.",
+    Option<crate::natatorium::NatatoriumParams>,
+    Vec<crate::natatorium::Natatorium>,
+    crate::natatorium::natatorium
 );
 
 read_command!(

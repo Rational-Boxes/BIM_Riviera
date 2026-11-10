@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 929 numbered requirements (320 P0 · 365 P1 · 237 P2 · 7 P3), 2,404 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 930 numbered requirements (320 P0 · 366 P1 · 237 P2 · 7 P3), 2,405 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,404 commands; 929 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,405 commands; 930 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -16224,7 +16224,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium HVAC and heat balance (ARC-POOL-008), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009), structural loads and bonding (ARC-POOL-010), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16419,6 +16419,54 @@ Public and competition pools come first (Q6).
 - [x] The sample *A community pool in England* passes both packs.
 
 *Built (2026-11-09):* the `floor_slope` kind and the two packs. Defaults are E-122. Not yet: the start- and turn-end surround widths (3 m, 2 m; 4 m and 7 m for competition pools), learner pools (0.6–0.8 m, 13 × 7 m), the 1.35 m non-swimmer line and rope, depth signs, poolside diving depths, lifeguard numbers and the scan rule, PWTAG's bathing loads and turnover (step 7), and EN 15288-1:2024's changes.
+
+### 3.9c.8 The pool hall's air and the water's heat
+**ID:** ARC-POOL-008 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §6, §8 (step 6; the owner's answer to Q7); research/23 C.1, C.2 (S2762, S2809, S2812, S2813, S2814, S2820); ANA-HCL-001 (design loads)
+
+**Purpose.** Say what a pool asks of its hall's air and heating: how much water it evaporates, the latent load and outdoor air that follow, the water's heat losses, and the dew point the envelope must stay above.
+
+**Behaviour & rules.**
+- **Hall conditions on the pool** (`pool.set(hall)`, `pool.create(hall)`): water and air temperatures, relative humidity, ASHRAE's activity factor, a cover's fraction, spectators, and the make-up water's temperature. Each omitted value is the class's:
+  - water 29 °C public, 27 °C competition, 28 °C residential, 31 °C wading (PWTAG and ASHRAE);
+  - air a degree warmer, to 30 °C unless the water is warmer;
+  - 55 % RH (the middle of ASHRAE's 50–60 %);
+  - activity 1.0 public and wading, 0.65 competition, 0.5 residential;
+  - make-up water at 10 °C.
+- **Evaporation** by ASHRAE's equation: ṁ = 4.0 × 10⁻⁵ · A · AF · (p_w − p_a) kg/s, A in m², pressures in kPa (Magnus saturation pressures). Unoccupied, AF 0.5. Covered, that times the cover's fraction.
+- **Latent load:** ṁ · 2.43 MJ/kg.
+- **The water's heat losses:** evaporation; convection by EnergyPlus's h = 0.22 · |ΔT|^⅓ W/m²K (a gain when the air is warmer); and heating the make-up water for what evaporates. The water lost a day is the evaporation in use for 24 hours.
+- **Outdoor air** as the MAHC adopts ASHRAE 62.1 (4.6.2.7.4):
+  - 0.48 cfm/ft² (2.44 L/s·m²) of water and wet deck (1.5 m round the edge);
+  - plus 7.5 cfm (3.8 L/s) a spectator.
+  - The purge is twice that (4.6.2.7.12). The exhaust is 5 % more, to keep the hall negative (4.6.2.7.8).
+- **The hall:** the MEP space (else the room) holding the pool's middle on its level; its volume and the outdoor air changes an hour.
+- **With an outdoor design dew point:** the outdoor air that would remove the evaporation alone. Where that is more than the minimum, a note says to dehumidify mechanically.
+- **Notes:**
+  - the dew point and the MAHC's 0.2 perm vapour retarder (4.2.2.2);
+  - 0.15 m/s over the water;
+  - low exhaust for chloramines;
+  - air cooler than the water;
+  - RH over 60 %.
+- **Design loads** (ANA-HCL-001): each pool's latent load goes into the space that holds it, the in-use value in occupied hours and the unoccupied (covered) one otherwise.
+- **The window:** View › Coordination › Pool Hall Air sets the conditions and shows the results. The results can be saved as a report.
+
+**Data.** The conditions are in the pool's recipe (`hall`); the loads input's spaces carry `pool_latent` (W, in use and out of hours).
+
+**Commands.** `pool.natatorium(pool_id?, hall?, outdoor_dew_point?)` → `[{pool, conditions, water_area, wet_deck_area, dew_point, evaporation, evaporation_unoccupied, evaporation_covered?, latent_load, water_heat: {evaporation, convection, make_up, total}, water_per_day, outdoor_air, purge, exhaust, outdoor_air_for_moisture?, hall?, hall_volume?, air_changes?, notes}]`.
+
+**Acceptance criteria.**
+- [x] A 25 × 12.5 m pool at 28 °C water and 29 °C air, 55 % RH, evaporates about 71 kg/h (research/23's worked check), half that unoccupied and a tenth of that under a 0.1 cover. Its dew point is 19.0 °C.
+- [x] Its outdoor air is 2.44 L/s a m² over 434 m² of water and wet deck plus 3.8 L/s for each of 50 spectators, the purge twice that and the exhaust 5 % more. The water gains by convection from the warmer air, and heating its make-up water takes ṁ · c · 18 K.
+- [x] At an 18 °C outdoor dew point, outdoor air alone would need over 10,000 L/s, with the note.
+- [x] The hall's MEP space is found, with its air changes. The design loads give that space the pool's latent load, in use and out of hours.
+- [x] A competition pool's defaults are 27 °C water, 28 °C air and an activity factor of 0.65. The sample *A swimming pool hall* keeps its pools' conditions.
+
+*Built (2026-11-09):* `riviera_core::natatorium`, the latent loads in the design loads, View › Coordination › Pool Hall Air. Defaults are E-123. Not yet:
+- the annual energy model's pool (EnergyPlus's indoor swimming pool object, the water heater's annual energy, covers by schedule);
+- a dehumidifier sized from the latent load;
+- condensation on the hall's actual surfaces (their temperatures at the winter design condition);
+- outdoor pools' radiation and wind;
+- spas and hot tubs (the bathroom toolset's).
 
 ## 3.11 Massing and site
 
@@ -17659,6 +17707,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes | ARC-POOL-003 |
 | `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
+| `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
 | `pool.check` | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `furnishing.catalogue` | library? | [{library, folder, name, predefined_type, kind, uniclass, description, source, size}] | No (query) | ARC-FURN-001 |
 | `furnishing.load` | names? | {name: type_id} | Yes | ARC-FURN-001 |
@@ -31196,14 +31245,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 120 | 41 | 1 | 239 |
+| ARC | 77 | 121 | 41 | 1 | 240 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **365** | **237** | **7** | **929** |
+| **Total** | **320** | **366** | **237** | **7** | **930** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31417,7 +31466,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2404 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2405 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31714,7 +31763,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate` | 3 |
 | `plumbing_fixture` | 1 |
 | `pointcloud` | 1 |
-| `pool` | 8 |
+| `pool` | 9 |
 | `position` | 8 |
 | `precast` | 10 |
 | `precast_config` | 7 |
@@ -33263,6 +33312,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `pool.info` | 3 | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.lanes` | 3 | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \ | null | Yes |
 | `pool.list` | 3 | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
+| `pool.natatorium` | 3 | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
 | `pool.remove_entry` | 3 | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.set` | 3 | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `position.assign` | 5 | view_ids[], position_id? | () | Yes | DOC-SHT-005 |

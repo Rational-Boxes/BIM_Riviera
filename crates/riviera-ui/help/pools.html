@@ -21,6 +21,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#diving">Diving boards</a>
   <a href="#equipment">Equipment</a>
   <a href="#check">Checking a pool</a>
+  <a href="#air">The hall's air</a>
   <a href="#ifc">In IFC</a>
   <a href="#limits">Limits and what to check</a>
   <a href="#scripts">Scripts and agents</a>
@@ -131,6 +132,23 @@ them.</p>
 <p>Findings marked <i>secondary</i> came from a checklist or summary, not the code's own text
 (the ISPSC's public-pool values): check them against your adopted edition.</p>
 
+<h2 id="air">The hall's air</h2>
+<p><b>View › Coordination › Pool Hall Air</b> sets a pool's hall conditions (water and air
+temperatures, humidity, ASHRAE's activity factor, a cover, spectators) and works out what they
+ask:</p>
+<ul>
+  <li>the water evaporating, by ASHRAE's equation, in use, unoccupied and covered, and its
+  latent load;</li>
+  <li>the water's heat losses: evaporation, convection and heating the make-up water;</li>
+  <li>outdoor air of 0.48 cfm/ft² of water and wet deck plus 7.5 cfm a spectator (ASHRAE 62.1,
+  as the MAHC adopts it), a purge of twice that, and 5 % more exhaust to keep the hall
+  negative;</li>
+  <li>the hall air's dew point (surfaces colder than it condense) and, with the outdoor design
+  dew point, the outdoor air that would remove the evaporation alone.</li>
+</ul>
+<p>The values are kept on the pool. The design loads give the space that holds it the pool's
+latent load.</p>
+
 <h2 id="ifc">In IFC</h2>
 <p>A pool is an <code>IfcElementAssembly</code> (SWIMMINGPOOL) of an <code>IfcWall</code>, an
 <code>IfcSlab</code> (BASESLAB) and an <code>IfcCovering</code> (COPING). Its water is an
@@ -151,4 +169,4 @@ mapping.</p>
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>, <code>pool.natatorium</code>; packs are chosen with <code>rules.set_packs</code>.</p>

@@ -71,3 +71,14 @@ for _, p in ipairs(riviera.pool.check{}.pools) do
   print(string.format("%s (%s): %d entries, %d accessible, %d drains", p.name, p.class, p.entries, p.accessible_entries, p.drains))
 end
 assert(#riviera.overlap.find{}.overlaps == 0, "the equipment stands clear of the pools' shells")
+
+-- The hall's air (ARC-POOL-008): the main pool at 27 °C with 200 spectators, the teaching pool at
+-- 30 °C under a cover, the air 28 °C at 55 %.
+riviera.pool.set{ pool_id = main, hall = { water = 27, air = 28, rh = 0.55, spectators = 200 } }
+riviera.pool.set{ pool_id = teach, hall = { water = 30, air = 30, rh = 0.55, cover = 0.1 } }
+local total = 0
+for _, n in ipairs(riviera.pool.natatorium{}) do
+  print(string.format("%s: %.0f kg/h evaporating (%.1f kW latent), %.0f L/s of outdoor air, dew point %.1f °C", n.name, n.evaporation, n.latent_load / 1000, n.outdoor_air, n.dew_point))
+  total = total + n.outdoor_air
+end
+print(string.format("The hall's outdoor air: %.0f L/s at least", total))

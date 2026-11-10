@@ -105,6 +105,9 @@ pub struct LoadSpace {
     pub cooling_set_point: f64,
     /// Occupied hours (start, end), local.
     pub open: [f64; 2],
+    /// The latent load of the pools in it (W), in use and out of hours (ARC-POOL-008).
+    #[serde(default)]
+    pub pool_latent: [f64; 2],
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -281,6 +284,7 @@ pub fn run(input: &LoadsInput) -> std::result::Result<LoadsResults, String> {
                 c.equipment = s.equipment * s.area;
                 latent += s.people * s.latent_per_person;
             }
+            latent += if occupied { s.pool_latent[0] } else { s.pool_latent[1] };
             let sensible = c.sum();
             let total = sensible + latent;
             building[(*t as usize).clamp(1, 24) - 1] += total;
@@ -341,6 +345,19 @@ fn hours_of(s: &str) -> Option<f64> {
     Some(h.parse::<f64>().ok()? + m.parse::<f64>().ok()? / 60.0)
 }
 
+/// The latent load of the pools standing in a room (W), in use and out of hours.
+fn pool_latent(store: &Store, space: ElementId) -> [f64; 2] {
+    let mut out = [0.0, 0.0];
+    for (id, g) in crate::pools::all(store) {
+        let Some(rec) = store.get(id).and_then(crate::pools::recipe) else { continue };
+        if crate::natatorium::hall_of(store, &rec).is_some_and(|r| r.0 == space) {
+            let (on, off) = crate::natatorium::latent_loads(&rec, g.area);
+            out = [out[0] + on, out[1] + off];
+        }
+    }
+    out
+}
+
 /// The distillation's spaces, keyed by opaque keys (`s1`…), with the key → GlobalId map.
 pub fn spaces(store: &Store) -> (Vec<LoadSpace>, BTreeMap<String, String>) {
     let m = energy_model::build(store);
@@ -377,6 +394,7 @@ pub fn spaces(store: &Store) -> (Vec<LoadSpace>, BTreeMap<String, String>) {
             heating_set_point: v.heating_set_point,
             cooling_set_point: v.cooling_set_point,
             open: [hours_of(&v.opening_time).unwrap_or(8.0), hours_of(&v.closing_time).unwrap_or(18.0)],
+            pool_latent: pool_latent(store, a.space),
         });
     }
     (out, map)
@@ -549,6 +567,7 @@ mod tests {
                 heating_set_point: 20.0,
                 cooling_set_point: 24.0,
                 open: [8.0, 18.0],
+                pool_latent: [0.0; 2],
             }],
             heating_dry_bulb: -10.0,
             cooling_dry_bulb: 30.0,

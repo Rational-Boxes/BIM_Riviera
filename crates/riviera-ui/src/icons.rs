@@ -1458,6 +1458,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "swimming_pool" => format!(
             r#"<path d="M2 9h5v6l9 4 9 6V9h5" {s}/><path d="M7 11h18v14l-9-6-9-4z" fill="{a}"/><path d="M8 13c2-1.5 4 1.5 6 0s4 1.5 6 0 3 1 4 0" stroke="{f}" stroke-width="1.5" fill="none"/>"#
         ),
+        // Vapour rising from a pool's water toward a fan.
+        "pool_hall_air" => format!(
+            r#"<path d="M2 26h28" {s}/><path d="M4 22h24v4H4z" fill="{a}"/><path d="M10 19c-2-3 2-4 0-7M16 19c-2-3 2-4 0-7M22 19c-2-3 2-4 0-7" stroke="{f}" stroke-width="1.5" fill="none"/><circle cx="16" cy="5" r="3" {s}/>"#
+        ),
         // A pool in plan with lane lines ending in T's.
         "pool_lanes" => format!(
             r#"<rect x="3" y="5" width="26" height="22" fill="{a}" {s}/><path d="M7 11h18M7 16h18M7 21h18M7 9v4M25 9v4M7 14v4M25 14v4M7 19v4M25 19v4" stroke="{f}" stroke-width="1.5"/>"#

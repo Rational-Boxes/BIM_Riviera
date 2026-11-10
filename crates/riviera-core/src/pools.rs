@@ -294,6 +294,9 @@ pub struct PoolRecipe {
     /// Competition lanes (ARC-POOL-005).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lanes: Option<Lanes>,
+    /// The hall's design conditions (ARC-POOL-008).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hall: Option<crate::natatorium::Hall>,
 }
 
 impl PoolRecipe {
@@ -873,6 +876,8 @@ pub struct CreateParams {
     pub entries: Vec<Entry>,
     /// Competition lanes (default the competition templates' own).
     pub lanes: Option<Lanes>,
+    /// The hall's design conditions (default the class's).
+    pub hall: Option<crate::natatorium::Hall>,
     pub name: Option<String>,
 }
 
@@ -984,6 +989,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Eleme
         class: p.class,
         entries: p.entries,
         lanes: p.lanes.or(template_lanes),
+        hall: p.hall,
     };
     validate(&rec)?;
     let id = txn.create(
@@ -1053,6 +1059,8 @@ pub struct SetParams {
     pub class: Option<PoolClass>,
     /// Replaces its entries.
     pub entries: Option<Vec<Entry>>,
+    /// The hall's design conditions (ARC-POOL-008).
+    pub hall: Option<crate::natatorium::Hall>,
 }
 
 /// Changes a pool (`pool.set`); its shell, water and openings follow.
@@ -1101,6 +1109,9 @@ pub(crate) fn set(txn: &mut Transaction<'_>, p: SetParams) -> Result<()> {
     }
     if let Some(v) = p.entries {
         rec.entries = v;
+    }
+    if let Some(v) = p.hall {
+        rec.hall = Some(v);
     }
     validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");

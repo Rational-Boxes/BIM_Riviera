@@ -607,6 +607,7 @@ mod tests {
             heating_set_point: 20.0,
             cooling_set_point: 26.0,
             open: [8.0, 18.0],
+            pool_latent: [0.0; 2],
         }
     }
 
