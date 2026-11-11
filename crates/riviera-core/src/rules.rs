@@ -240,6 +240,12 @@ pub enum PoolMeasure {
     PlatformHeight,
     Diving,
     FloorSlope,
+    /// Depth markings (ARC-POOL-011): `spacing` the most apart, `max` the greatest depth
+    /// increment, `depth_up_to` the depth NO DIVING is marked to, `min` the deepest a pool may be
+    /// without them, `units` those allowed.
+    DepthMarkers,
+    /// The break-point band and float line in pools deeper than `min`.
+    BreakLine,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
@@ -325,6 +331,9 @@ pub struct PoolRule {
     /// A diving table, one column per board height (ARC-POOL-006).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub diving: Vec<DivingRow>,
+    /// Depth markings: the units allowed (`feet`, `metres`, `both`; default any).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub units: Vec<String>,
 }
 
 /// A shared-format rule pack.

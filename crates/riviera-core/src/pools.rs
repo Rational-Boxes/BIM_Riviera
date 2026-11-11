@@ -297,6 +297,9 @@ pub struct PoolRecipe {
     /// The hall's design conditions (ARC-POOL-008).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hall: Option<crate::natatorium::Hall>,
+    /// Depth markings, NO DIVING markers and the break-point line (ARC-POOL-011).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub depth_markings: Option<crate::pool_markings::DepthMarkings>,
 }
 
 impl PoolRecipe {
@@ -339,6 +342,8 @@ pub struct PoolGeometry {
     pub benches: Vec<Mesh>,
     /// Lane lines, T-ends, cross lines and end-wall targets (ARC-POOL-005).
     pub markings: Vec<Mesh>,
+    /// Depth and NO DIVING markers and the break-point band (ARC-POOL-011).
+    pub depth_marks: Vec<Mesh>,
     pub deck_z: f64,
     pub water_z: f64,
     pub area: f64,
@@ -740,6 +745,13 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
             });
         }
     }
+    let (mut depth_marks, band) = crate::pool_markings::solids(store, &rec, deck_z, water_z, wall_top);
+    for r in band {
+        let inside = crate::polygons::intersection(std::slice::from_ref(&outline), &[Shape { outer: r, holes: Vec::new() }]);
+        for s in strips(&rec, &inside) {
+            depth_marks.push(extrude(&s, &floor, &|p| floor(p) + 0.005));
+        }
+    }
     let area = crate::polygons::area(&rec.outline).abs();
     let n = rec.outline.len();
     let perimeter = (0..n).map(|i| {
@@ -748,7 +760,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }).sum();
     let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, markings, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -990,6 +1002,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Eleme
         entries: p.entries,
         lanes: p.lanes.or(template_lanes),
         hall: p.hall,
+        depth_markings: None,
     };
     validate(&rec)?;
     let id = txn.create(
@@ -1155,6 +1168,11 @@ pub struct Info {
     pub entries: Vec<EntryInfo>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lanes: Option<LaneLayout>,
+    /// Its depth and NO DIVING markers, and the break-point band (ARC-POOL-011).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub markers: Vec<crate::pool_markings::Marker>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub depth_lines: Option<crate::pool_markings::Lines>,
 }
 
 /// A pool's numbers (`pool.info`).
@@ -1189,6 +1207,8 @@ pub(crate) fn info(store: &Store, p: InfoParams) -> Result<Info> {
         water_level: g.water_z,
         entries: entries(store, &rec),
         lanes: lane_layout(&rec),
+        markers: crate::pool_markings::markers(store, &rec),
+        depth_lines: crate::pool_markings::lines(&rec),
     })
 }
 
@@ -1756,6 +1776,48 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             if da.min(db) < hi - 1e-6 && da.max(db) > lo + 1e-6 && s > max + 1e-6 {
                                 find(None, false, format!("the floor from {a:.2} m to {b:.2} m falls {} where the water is {lo:.2}–{hi:.2} m deep; at most {}", ratio(s), ratio(max)));
                             }
+                        }
+                    }
+                    M::DepthMarkers => {
+                        if r.min.is_some_and(|m| deepest <= m + 1e-6) {
+                            continue;
+                        }
+                        let Some(dm) = rec.depth_markings else {
+                            find(None, false, "the pool has no depth markings (pool.depth_markings)".into());
+                            continue;
+                        };
+                        if !r.units.is_empty() && !r.units.iter().any(|u| u == dm.units.name()) {
+                            find(None, false, format!("its depth markings are in {}; {} asks for {}", dm.units.name(), pack.id, r.units.join(" or ")));
+                        }
+                        if let Some(m) = r.max
+                            && dm.increment > m + 1e-6
+                        {
+                            find(None, false, format!("its depth markings step every {:.2} m ({}) of depth; at most every {}", dm.increment, feet(dm.increment), feet(m)));
+                        }
+                        let marks = crate::pool_markings::markers(store, &rec);
+                        if let Some(sp) = r.spacing {
+                            let along: Vec<f64> = marks.iter().map(|m| m.along).collect();
+                            for k in 0..along.len() {
+                                let gap = if k + 1 < along.len() { along[k + 1] - along[k] } else { along[0] + g.perimeter - along[k] };
+                                if gap > sp + 1e-6 {
+                                    find(None, false, format!("depth markers {:.1} m ({}) apart round the perimeter after marker {}; at most {}", gap, feet(gap), k + 1, feet(sp)));
+                                }
+                            }
+                        }
+                        if let Some(d) = r.depth_up_to
+                            && !dm.no_diving
+                            && marks.iter().any(|m| m.depth <= d + 1e-6)
+                        {
+                            find(None, false, format!("no NO DIVING markers where the water is {} deep or less", feet(d)));
+                        }
+                    }
+                    M::BreakLine => {
+                        // Only where the floor passes the break: shallower and deeper than it.
+                        if r.min.is_some_and(|m| deepest <= m + 1e-6 || shallowest >= m - 1e-6) {
+                            continue;
+                        }
+                        if crate::pool_markings::lines(&rec).is_none() {
+                            find(None, false, format!("the pool is {} deep at its deepest but has no break-point band and float line at the 5 ft break (pool.depth_markings)", feet(deepest)));
                         }
                     }
                     M::CourseLength => {

@@ -1474,6 +1474,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_hall_air" => format!(
             r#"<path d="M2 26h28" {s}/><path d="M4 22h24v4H4z" fill="{a}"/><path d="M10 19c-2-3 2-4 0-7M16 19c-2-3 2-4 0-7M22 19c-2-3 2-4 0-7" stroke="{f}" stroke-width="1.5" fill="none"/><circle cx="16" cy="5" r="3" {s}/>"#
         ),
+        // A pool's edge with a depth marker on the deck and the break line on the floor.
+        "pool_depth_markings" => format!(
+            r#"<path d="M2 8h28" {s}/><path d="M4 10h24v18H4z" fill="{a}"/><rect x="6" y="3" width="9" height="4" fill="{f}"/><rect x="18" y="3" width="4" height="4" fill="{f}"/><path d="M16 10v18" stroke="{f}" stroke-width="2"/>"#
+        ),
         // A pool in plan with lane lines ending in T's.
         "pool_lanes" => format!(
             r#"<rect x="3" y="5" width="26" height="22" fill="{a}" {s}/><path d="M7 11h18M7 16h18M7 21h18M7 9v4M25 9v4M7 14v4M25 14v4M7 19v4M25 19v4" stroke="{f}" stroke-width="1.5"/>"#

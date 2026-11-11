@@ -717,9 +717,11 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   pool full and empty, checks the water table's uplift on the empty shell, and puts an elevated
   pool's weight on its slab's analytical panel; Pool Electrical Zones checks the receptacles,
   switches, luminaires and switchgear round it against NEC Article 680 or IEC 60364-7-702's
-  zones, and sizes the bonding grid (ARC-POOL-010). Not built yet: sketched outlines, drawn
-  gutters and basins, depth markings, barriers, handrails, recessed steps and beach entries,
-  the treatment plant as equipment, and the zones drawn in the views.
+  zones, and sizes the bonding grid (ARC-POOL-010). Pool Depth Markings puts depth and NO DIVING
+  markers round the deck and walls where the MAHC and ISPSC ask, clear of the equipment, with the
+  break-point band, and Check Pools checks them (ARC-POOL-011). Not built yet: sketched outlines,
+  drawn gutters and basins, the markers' text, barriers, handrails, recessed steps and beach
+  entries, the treatment plant as equipment, and the zones drawn in the views.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

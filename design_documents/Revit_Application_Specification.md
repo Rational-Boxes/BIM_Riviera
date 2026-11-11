@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 932 numbered requirements (320 P0 · 368 P1 · 237 P2 · 7 P3), 2,409 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 933 numbered requirements (320 P0 · 369 P1 · 237 P2 · 7 P3), 2,410 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,409 commands; 932 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,410 commands; 933 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15664,12 +15664,12 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006) |
-| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
-| `uk_hsg179` | recommended | Domain `pool`, in England: HSE's 3 m² a bather (ARC-POOL-007) |
+| `uk_hsg179` | recommended | Domain `pool`, in England: HSE's 3 m² a bather (ARC-POOL-007); depth signs in metres (ARC-POOL-011) |
 | `us_vgb` | minimum | Domain `pool`: the VGB Act's main drains, two at least 3 ft apart unless unblockable (ARC-POOL-002) |
 | `practice_retail` | recommended | Domain `retail`: a 6 ft cart aisle along gondolas (ARC-RETAIL-001) and a checkstand's queue 3 m beyond its in-feed (ARC-RETAIL-003), as notes |
 | `practice_interiors` | recommended | Practice, as notes: 36 in round a dining table's edge, where its chairs may stand; 30 in in front of a dresser (36 in preferred); 24 in at the foot of a bed (research/15 D2, S1478 and S1479, [guide]); a chandelier's bottom 30–34 in and a pendant's 30–36 in over the table or counter under it (D4, S1471, S1472); a ceiling fan's blades 7 ft (2.13 m) up at least, the lower of two makers' figures (S1474, ARC-GYM-001) |
@@ -16224,7 +16224,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16573,6 +16573,61 @@ Public and competition pools come first (Q6).
 - IEC's partitions bounding the zones;
 - glazing near the water (IRC safety glazing);
 - the pool's own bonding conductors as modelled elements.
+
+### 3.9c.11 Pool depth markings
+**ID:** ARC-POOL-011 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5; research/23 A.5, A.17 (25–31), B.10 (S2762, S2768, S2772, S2782, S2797); ARC-POOL-002 (`pool.check`), ARC-POOL-004 (equipment)
+
+**Purpose.** Mark a pool's depths, NO DIVING and its break point as the health codes ask, drawn on its deck, walls and floor, and check them.
+
+**Behaviour & rules.**
+- **Setting** (`depth_markings` on the pool): `units` (feet and inches, metres, or both; metres by default under the UK code setting, else feet), `increment` (default 1 ft, the MAHC's; 0.5 m in metres), `spacing` (default 25 ft), `no_diving` and `break_line` (both on by default).
+- **Where the markers go**, round the perimeter:
+  - each edge's least and greatest depth, so both sides and each end (one marker where an edge is level);
+  - every profile station (a slope change) and the 5 ft break;
+  - every `increment` of depth change up to 5 ft;
+  - more, evenly, wherever two are more than `spacing` apart.
+  - Markers stay 0.4 m from the corners and merge within 0.6 m.
+- **Clear of equipment:** a marker whose wall, deck or NO DIVING tile would touch a placed object at the edge (a ladder, a platform, a lift) moves along its edge to the nearest clear place within 3 m. Filling repeats while a moved marker leaves a gap longer than `spacing`.
+- **What each says:** the water's depth 3 ft (0.91 m) out from the wall (MAHC 4.5.19.1.3):
+  - in feet to the nearest 3 in ("4 FT 6 IN": the MAHC forbids the ' and " symbols);
+  - in metres to 0.1 m ("1.4 M");
+  - or both.
+  - NO DIVING beside each marker where the water is 5 ft deep or less.
+- **Drawn** (an `IfcCovering` USERDEFINED "DEPTHMARKING" part of the pool):
+  - a deck tile 0.6 × 0.2 m centred 0.25 m out from the water's edge (within the MAHC's 18 in);
+  - a 0.3 m NO DIVING tile beside it;
+  - a wall tile 0.6 × 0.115 m under the coping (the ISPSC's top 4.5 in).
+- **Break-point band:** in pools whose floor passes 5 ft, a 4 in band on the floor at the shallow side of the break (the ISPSC's least, inside the MAHC's 2–6 in), up the walls to the water. The float line sits 1 ft shallower; it is reported, not drawn.
+- **Checks** (`pool.check`, two pool rule kinds):
+  - `depth_markers`: markings present on a pool deeper than `min`, in one of `units`, stepping at most `max`, at most `spacing` apart, and NO DIVING to `depth_up_to`;
+  - `break_line`: the band and float line on a pool whose floor passes `min`.
+- **Packs:**
+  - the MAHC: 25 ft, 1 ft, NO DIVING to 5 ft, none needed 6 in deep or less, feet or both; the band;
+  - the ISPSC: 25 ft, 2 ft, NO DIVING to 5 ft, any units; the band;
+  - HSG179: markings in metres or both, as notes.
+- **The window:** Architecture › Build › Pool Depth Markings. The markers and lines are also in `pool.info`.
+
+**Data.** `depth_markings` on the pool's recipe; the markers and lines follow from it, the pool's profile and the objects by its edge.
+
+**Commands.** `pool.depth_markings(pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove?)` → `{markers [{edge_point, at, edge, along, depth, label, no_diving, reason}], lines? {band, float_line}}`.
+
+**Acceptance criteria.**
+- [x] Labels round to 3 in ("3 FT 3 IN") or 0.1 m, or both ("3 FT 3 IN / 1.0 M").
+- [x] A 25 × 12.5 m public pool, 1.0 m to 5 ft at 12 m and 2.5 m, unmarked, has the ISPSC's errors for its markings and break line. Marked, its markers are never more than 25 ft apart round its 75 m perimeter, include each kind (least, greatest, slope change, increment), mark 5 ft on both sides, read the shallow end's depth 3 ft out ("3 FT 3 IN"), carry NO DIVING exactly where the water is 5 ft or less, and stand 0.25 m out on the deck. The band is at 12 m and 4 in shallower, the float line 1 ft further. Nothing overlaps, and the check passes.
+- [x] A ladder where a marker stood moves it along the wall, clear, still within 25 ft.
+- [x] Steps of 1 m are too coarse for the ISPSC; metres only, and NO DIVING off, are MAHC errors; markers 40 ft apart are MAHC errors. Taken away, nothing is listed.
+- [x] Under the UK code a 0.9–1.2 m learner pool's markings are in metres with NO DIVING everywhere and no band; HSG179's note goes once they are there.
+- [x] A diving well deeper than 5 ft throughout needs no band.
+
+*Built (2026-11-10):* `riviera_core::pool_markings`, Architecture › Build › Pool Depth Markings, the pool samples marked. Defaults are E-126. Not yet:
+- the labels drawn as text on the tiles and in plan views;
+- the international NO DIVING symbol;
+- markers on spas (at least two);
+- the float line as a rope with its anchors;
+- the 3 ft float line at a zero-depth entry's toddler area;
+- markers on permanent structures within 5 ft (ISPSC);
+- Sport England's deep and shallow warnings (over 1.2 m, under 0.9 m);
+- letter heights.
 
 ## 3.11 Massing and site
 
@@ -17815,6 +17870,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
 | `pool.treatment` | pool_id?, basis?, turnover?, filter_rate?, filters? | [{turnover, flow, filter_area, backwash_volume, surge_volume, skimmers?, gutter_capacity?, suction, discharge, flow_per_drain, plant_room, notes}] | No (query) | ARC-POOL-009 |
+| `pool.depth_markings` | pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove? | {markers: [{at, edge, along, depth, label, no_diving, reason}], lines?} | Yes | ARC-POOL-011 |
 | `pool.structure` | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |
 | `pool.apply_loads` | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
 | `pool.bonding` | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
@@ -31355,14 +31411,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 123 | 41 | 1 | 242 |
+| ARC | 77 | 124 | 41 | 1 | 243 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **368** | **237** | **7** | **932** |
+| **Total** | **320** | **369** | **237** | **7** | **933** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31576,7 +31632,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2409 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2410 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31873,7 +31929,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate` | 3 |
 | `plumbing_fixture` | 1 |
 | `pointcloud` | 1 |
-| `pool` | 13 |
+| `pool` | 14 |
 | `position` | 8 |
 | `precast` | 10 |
 | `precast_config` | 7 |
@@ -33421,6 +33477,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `pool.bonding` | 3 | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
 | `pool.check` | 3 | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `pool.create` | 3 | level, outline \ | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell? | id | Yes |
+| `pool.depth_markings` | 3 | pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove? | {markers: [{at, edge, along, depth, label, no_diving, reason}], lines?} | Yes | ARC-POOL-011 |
 | `pool.info` | 3 | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.lanes` | 3 | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \ | null | Yes |
 | `pool.list` | 3 | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |

@@ -378,6 +378,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolAddEntry),
         registry.add(PoolRemoveEntry),
         registry.add(PoolLanes),
+        registry.add(PoolDepthMarkings),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4558,6 +4559,24 @@ read_command!(
     Option<crate::pool_treatment::TreatmentParams>,
     Vec<crate::pool_treatment::Treatment>,
     crate::pool_treatment::treatment
+);
+
+edit_command!(
+    PoolDepthMarkings,
+    "pool.depth_markings",
+    "Mark a pool's depths",
+    "Sets a swimming pool's depth markings (ARC-POOL-011): markers at each edge's least and greatest \
+     depth, every slope change, the 5 ft break and every `increment` of depth up to 5 ft (default 1 ft, \
+     the MAHC's; 0.5 m in metres), more wherever two are over `spacing` apart round the perimeter \
+     (default 25 ft); each the depth 3 ft out from the wall in `units` (feet, metres or both; metres by \
+     default under the UK code), with NO DIVING where the water is 5 ft deep or less (`no_diving`). Drawn \
+     as deck tiles within 18 in of the edge, wall tiles under the coping and NO DIVING tiles; in pools \
+     deeper than 5 ft, the 4 in break-point band on the floor and up the walls, the float line 1 ft \
+     shallower (`break_line`). `remove` takes them away. Returns the markers and lines.",
+    "Pool Depth Markings",
+    crate::pool_markings::MarkingsParams,
+    crate::pool_markings::Markings,
+    crate::pool_markings::set
 );
 
 read_command!(

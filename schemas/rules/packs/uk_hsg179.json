@@ -19,6 +19,21 @@
         "competition"
       ],
       "min": 3.0
+    },
+    {
+      "id": "HSG179 (depth signs)",
+      "description": "Depth markings showing the actual depth, especially at the shallow and deep ends and sudden changes, readable from the surround and the water, in metres",
+      "source": "S2797 S2782",
+      "confidence": "verified",
+      "check": "depth_markers",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "units": [
+        "metres",
+        "both"
+      ]
     }
   ]
 }

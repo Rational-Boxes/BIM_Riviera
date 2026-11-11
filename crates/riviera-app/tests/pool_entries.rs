@@ -37,6 +37,7 @@ fn stairs_a_sloped_entry_and_a_bench() {
     // 15 × 8 m, its shallow end the west wall (edge 1): 1.0 m to 5 ft over 7 m, to 2.0 m at 9 m.
     let profile = json!([{ "at": 0.0, "depth": 1.0 }, { "at": 7.0, "depth": 1.524 }, { "at": 9.0, "depth": 2.0 }]);
     let pool = ok(&mut app, "pool.create", json!({ "level": level, "outline": [[0.0, 8.0], [0.0, 0.0], [15.0, 0.0], [15.0, 8.0]], "profile": profile }));
+    ok(&mut app, "pool.depth_markings", json!({ "pool_id": pool }));
     let before = ok(&mut app, "pool.info", json!({ "pool_id": pool }))["volume"].as_f64().unwrap();
     // Stairs by the west wall at y = 2: 1.15 m from deck to floor in five 0.23 m risers.
     let s = ok(&mut app, "pool.add_entry", json!({ "pool_id": pool, "kind": "stairs", "point": [0.1, 2.0] }));

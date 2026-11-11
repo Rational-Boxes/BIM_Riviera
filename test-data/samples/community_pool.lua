@@ -26,6 +26,9 @@ local pool = riviera.pool.create{ level = l1, name = "Community pool", outline =
   profile = { { at = 0, depth = 1.0 }, { at = 6, depth = 1.35 }, { at = 15, depth = 1.8 }, { at = 25, depth = 2.0 } } }
 -- Six 2.0 m lanes with 0.25 m at the side walls; no touch pads.
 local lanes = riviera.pool.lanes{ pool_id = pool, count = 6, width = 2.0, gap = 0.25, pads = 0 }
+-- Depth markings in metres (the UK code setting's default), readable from the surround and the
+-- water (HSG179).
+riviera.pool.depth_markings{ pool_id = pool }
 -- Steps at the shallow end: Sport England's 0.14 m risers and 0.30 m goings.
 local s = riviera.pool.add_entry{ pool_id = pool, kind = "stairs", edge = 1, at = 2, riser = 0.14, tread = 0.3 }
 print(string.format("%d lanes; steps of %d risers of %.0f mm", #lanes.widths, s.risers, s.riser * 1000))

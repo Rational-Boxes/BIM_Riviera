@@ -15,14 +15,17 @@ Start with **File › New**.
    typical 25 m profile, 1 in 17 to the 1.35 m non-swimmer depth.
 4. **Lanes.** Select the pool and choose **Architecture › Build › Pool Lanes**: six lanes 2.0 m
    wide, 0.25 m side gaps, no touch pads.
-5. **Steps.** **Architecture › Build › Pool Entry**, *Stairs*, with a tread of 0.30 m and the
+5. **Depth markings.** **Architecture › Build › Pool Depth Markings**: under the UK code setting
+   they read in metres, every 0.5 m of depth and at most 7.6 m apart, as HSG179 asks (the actual
+   depth, readable from the surround and the water).
+6. **Steps.** **Architecture › Build › Pool Entry**, *Stairs*, with a tread of 0.30 m and the
    highest riser 0.14 m, clicking by the west wall at (0, 10.5): nine risers of 128 mm.
-6. **Hoist, ladders and drains.** From **Insert › Component Libraries › Riviera Pools**, place
+7. **Hoist, ladders and drains.** From **Insert › Component Libraries › Riviera Pools**, place
    the *Pool lift, 300 lb* turned 180° at (3, −0.6); a *Pool ladder, 3 steps* on the north wall's
    face at (24, 12.5) and, turned 180°, on the south wall's at (24, 0); and two *Main drain cover
    300 × 300* at (21, 6.25) and (23, 6.25), 2.065 m and 2.105 m down: 5 mm above the sloping floor at
    their middles, so their edges clear it.
-7. **Check.** **View › Coordination › Check Pools**: no notes. HSG179's 3 m² a bather gives a
+8. **Check.** **View › Coordination › Check Pools**: no notes. HSG179's 3 m² a bather gives a
    starting bathing load of 104. Make the floor steeper than 1 in 17 above 1.35 m, or the risers
    higher than 0.14 m, and Sport England's guidance says so as a note.
 

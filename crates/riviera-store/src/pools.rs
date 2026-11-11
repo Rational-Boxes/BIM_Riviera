@@ -30,7 +30,7 @@ fn r(id: StepId) -> AttrValue {
 
 fn signature(g: &PoolGeometry, scale: f64) -> String {
     let mut h = std::collections::hash_map::DefaultHasher::new();
-    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.markings] {
+    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.markings, &g.depth_marks] {
         set.len().hash(&mut h);
         for (p, i) in set {
             for q in p {
@@ -183,6 +183,8 @@ pub(crate) fn write_pools(ifc: &mut IfcModel, doc: &Document, steps: &HashMap<El
             ("IfcBuildingElementProxy", "benches", "USERDEFINED", Some("POOLBENCH"), &g.benches),
             // Lane markings (ARC-POOL-005): IFC 4.3's LINEMARKING surface feature, a covering in IFC4.
             ("IfcCovering", "lane markings", "USERDEFINED", Some("LANEMARKING"), &g.markings),
+            // Depth and NO DIVING markers and the break-point band (ARC-POOL-011).
+            ("IfcCovering", "depth markings", "USERDEFINED", Some("DEPTHMARKING"), &g.depth_marks),
         ] {
             if meshes.is_empty() {
                 continue;

@@ -25,6 +25,9 @@ local main = riviera.pool.create{ level = l1, name = "Main pool", template = { k
 -- A teaching pool to the east, 0.6 m deep at its west end falling to 0.9 m.
 local teach = riviera.pool.create{ level = l1, name = "Teaching pool", template = { kind = "teaching", origin = { 36, 20 } },
   profile = { { at = 0, depth = 0.6 }, { at = 12, depth = 0.9 } } }
+-- Depth markings round both (ARC-POOL-011): deck and wall markers at least every 25 ft, NO DIVING
+-- where the water is 5 ft deep or less, and the main pool's break-point band.
+for _, p in ipairs({ main, teach }) do riviera.pool.depth_markings{ pool_id = p } end
 
 for _, p in ipairs(riviera.pool.list{}) do
   local i = riviera.pool.info{ pool_id = p.id }

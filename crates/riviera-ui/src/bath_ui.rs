@@ -1340,6 +1340,49 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Pool Depth Markings (ARC-POOL-011): the selected pool's depth and
+    /// NO DIVING markers and its break-point band.
+    pub(crate) fn pool_depth_markings(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Depth Markings");
+        let units = f.choice("Units", &["From the building code".to_owned(), "Feet and inches".to_owned(), "Metres".to_owned(), "Both".to_owned()], 0);
+        let increment = f.text("Every (m of depth)", "", "Markers at each step of depth to 5 ft; default 1 ft (0.3048), 0.5 in metres");
+        let spacing = f.text("At most apart (m)", "", "Round the perimeter; default 25 ft (7.62)");
+        let no_diving = f.check("NO DIVING", "Where the water is 5 ft deep or less", true);
+        let band = f.check("Break line", "The 4 in band at the 5 ft break and the float line 1 ft shallower", true);
+        let remove = f.check("Remove", "Take the markings away", false);
+        let ok = f.show("Markers go at each end's and side's least and greatest depth, every slope change and step of depth, and wherever two would be too far apart; each reads the depth 3 ft out from the wall.", "Mark Depths");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let mut args = json!({ "pool_id": pool, "no_diving": no_diving.get_value(), "break_line": band.get_value(), "remove": remove.get_value() });
+        match units.get_selection().unwrap_or(0) {
+            1 => args["units"] = json!("feet"),
+            2 => args["units"] = json!("metres"),
+            3 => args["units"] = json!("both"),
+            _ => {}
+        }
+        if let Some(v) = num(&increment) {
+            args["increment"] = json!(v);
+        }
+        if let Some(v) = num(&spacing) {
+            args["spacing"] = json!(v);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("pool.depth_markings", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let n = v["markers"].as_array().map_or(0, Vec::len);
+                let dive = v["markers"].as_array().map_or(0, |a| a.iter().filter(|m| m["no_diving"] == true).count());
+                let text = if n == 0 { "Depth markings taken away".to_owned() } else { format!("{n} depth markers, {dive} with NO DIVING{}", if v["lines"].is_object() { "; the break-point band and float line" } else { "" }) };
+                frame.set_status_text(&text, 0);
+            }
+            Err(e) => error(&frame, &format!("The markings were not set:\n{e}")),
+        }
+    }
+
     /// The entry's edge picked: built, and its numbers shown.
     pub(crate) fn pool_entry_finish(&mut self, args: serde_json::Value) {
         let frame = self.frame;

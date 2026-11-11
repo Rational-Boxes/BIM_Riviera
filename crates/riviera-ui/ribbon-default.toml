@@ -972,6 +972,12 @@ icon = "pool_lanes"
 help = "A swimming pool's competition lanes: their count and width, the side gaps and touch pads, and the lane lines, T-ends, 15 m lines and end-wall targets drawn into it; Check Pools checks them against World Aquatics (ARC-POOL-005)"
 
 [[action]]
+id = "ui.pool_depth_markings"
+label = "Pool Depth Markings"
+icon = "pool_depth_markings"
+help = "Depth markers round the selected pool on its deck and walls (at the least and greatest depths, slope changes, every foot of depth and at most 25 ft apart), NO DIVING where it is 5 ft deep or less, and the break-point band and float line (ARC-POOL-011)"
+
+[[action]]
 id = "ui.swimming_pool"
 label = "Swimming Pool"
 icon = "swimming_pool"
@@ -3814,6 +3820,7 @@ tools = [
   { action = "ui.swimming_pool", size = "small" },
   { action = "ui.pool_entry", size = "small" },
   { action = "ui.pool_lanes", size = "small" },
+  { action = "ui.pool_depth_markings", size = "small" },
   { action = "ui.gym_layout", size = "small" },
   { action = "ui.gym_studio", size = "small" },
   { action = "ui.gym_mirror", size = "small" },
@@ -5089,7 +5096,7 @@ items = [
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
   "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "-",
+  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",

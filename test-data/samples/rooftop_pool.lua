@@ -31,6 +31,7 @@ local pool = riviera.pool.create{ level = roof, name = "Rooftop pool",
   outline = { { 4, 8 }, { 4, 4 }, { 14, 4 }, { 14, 8 } },
   profile = { { at = 0, depth = 1.2 }, { at = 10, depth = 1.2 } } }
 riviera.pool.set{ pool_id = pool, shell = { kind = "cast_concrete", thickness = 0.25, tile = 0.012, membrane = true } }
+riviera.pool.depth_markings{ pool_id = pool }
 
 -- From the Riviera Pools library: a lift on the north deck, a ladder at the east end and two
 -- underwater lights in the south wall, their lenses 18 in under the water.

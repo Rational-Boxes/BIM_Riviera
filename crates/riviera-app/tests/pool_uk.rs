@@ -36,6 +36,7 @@ fn a_community_pool_in_england() {
     ok(&mut app, "floor.create", json!({ "loops": [square([-2.0, -2.0], [27.0, 14.5])], "level_id": level }));
     let profile = json!([{ "at": 0.0, "depth": 1.0 }, { "at": 6.0, "depth": 1.35 }, { "at": 15.0, "depth": 1.8 }, { "at": 25.0, "depth": 2.0 }]);
     let pool = ok(&mut app, "pool.create", json!({ "level": level, "outline": [[0.0, 12.5], [0.0, 0.0], [25.0, 0.0], [25.0, 12.5]], "profile": profile }));
+    ok(&mut app, "pool.depth_markings", json!({ "pool_id": pool }));
     let c = ok(&mut app, "pool.check", json!({}));
     assert_eq!(c["packs"], json!(["uk_sport_england", "uk_hsg179", "world_aquatics"]), "{c:#}");
     assert!(messages(&c, "uk_sport_england").is_empty() && messages(&c, "uk_hsg179").is_empty(), "{c:#}");

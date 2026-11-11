@@ -387,6 +387,38 @@
           "m": 3.7094
         }
       ]
+    },
+    {
+      "id": "MAHC 2024 4.5.19",
+      "description": "Depth markers at the least and greatest depths, both sides and each end, the slope break and every 1 ft of depth below 5 ft, at most 25 ft apart, in feet and inches (metres only in addition), with NO DIVING where the water is 5 ft deep or less; none needed where the pool is 6 in deep or less",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "depth_markers",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ],
+      "spacing": 7.62,
+      "max": 0.3048,
+      "depth_up_to": 1.524,
+      "min": 0.1524,
+      "units": [
+        "feet",
+        "both"
+      ]
+    },
+    {
+      "id": "MAHC 2024 4.5.19.5",
+      "description": "In pools deeper than 5 ft, a 2–6 in contrasting band on the floor at the shallow side of the break, running up the walls, and a float line 1 ft shallower",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "break_line",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.524
     }
   ]
 }

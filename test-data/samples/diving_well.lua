@@ -23,6 +23,7 @@ riviera.floor.create{ loops = { rect(-6, -5, 20, 15) }, level_id = l1 }
 -- 14 × 10 m, its west wall (edge 1) under the boards: 3.8 m deep to 8 m out, rising to 2.5 m.
 local pool = riviera.pool.create{ level = l1, name = "Diving well", outline = { { 0, 10 }, { 0, 0 }, { 14, 0 }, { 14, 10 } },
   profile = { { at = 0, depth = 3.8 }, { at = 8, depth = 3.8 }, { at = 14, depth = 2.5 } } }
+riviera.pool.depth_markings{ pool_id = pool }
 
 local t = riviera.furnishing.load{ names = { "Diving board 1 m, on stand", "Pool ladder, 3 steps", "Main drain cover 300 × 300" } }
 local function place(name, x, y, turn, offset)

@@ -543,6 +543,10 @@ pub fn all(store: &Store) -> Vec<Body> {
         for m in g.markings {
             push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);
         }
+        // Depth and NO DIVING markers and the break-point band (ARC-POOL-011), dark.
+        for m in g.depth_marks {
+            push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);
+        }
         for m in g.water {
             push(id, &format!("IfcSpace:{}", hex([0.35, 0.65, 0.90, 0.45])), m, true);
         }

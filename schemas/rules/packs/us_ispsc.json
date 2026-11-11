@@ -223,6 +223,32 @@
         ]
       },
       "near": 1.0
+    },
+    {
+      "id": "ISPSC 2021 409 (public)",
+      "description": "Depth markers at the least and greatest depths, both sides and ends, every slope change and every 2 ft of depth, at most 25 ft apart, in feet or metres, with NO DIVING where the water is 5 ft deep or less (as the Texas checklist cites it)",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "depth_markers",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "spacing": 7.62,
+      "max": 0.6096,
+      "depth_up_to": 1.524
+    },
+    {
+      "id": "ISPSC 2021 605 (public)",
+      "description": "A contrasting band at least 4 in wide at the shallow-to-deep transition, and a float line 1–2 ft before the 5 ft point (as the Texas checklist cites it)",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "break_line",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 1.524
     }
   ]
 }

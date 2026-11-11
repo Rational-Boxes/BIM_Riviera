@@ -63,6 +63,8 @@ fn a_public_pool_is_checked() {
     place(&mut app, &types["Pool ladder, 3 steps"], &level, [1.0, 8.0], 0.0, 0.0);
     place(&mut app, &types["Pool ladder, 3 steps"], &level, [14.0, 8.0], 0.0, 0.0);
     place(&mut app, &types["Pool lift, 300 lb"], &level, [3.0, -0.6], 0.0, std::f64::consts::PI);
+    // Depth markings and the break line (ARC-POOL-011).
+    ok(&mut app, "pool.depth_markings", json!({ "pool_id": pool }));
     let d1 = place(&mut app, &types["Main drain cover 300 × 300"], &level, [11.0, 4.0], -2.15, 0.0);
     place(&mut app, &types["Main drain cover 300 × 300"], &level, [11.5, 4.0], -2.15, 0.0);
     let c = ok(&mut app, "pool.check", json!({}));

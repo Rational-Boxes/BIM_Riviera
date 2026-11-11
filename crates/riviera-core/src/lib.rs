@@ -197,6 +197,7 @@ pub mod gym;
 pub mod pools;
 pub mod natatorium;
 pub mod pool_bonding;
+pub mod pool_markings;
 pub mod pool_structure;
 pub mod pool_treatment;
 pub mod interior_layouts;

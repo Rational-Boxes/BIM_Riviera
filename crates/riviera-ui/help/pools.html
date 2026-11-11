@@ -22,6 +22,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#lanes">Competition lanes</a>
   <a href="#diving">Diving boards</a>
   <a href="#equipment">Equipment</a>
+  <a href="#markings">Depth markings</a>
   <a href="#check">Checking a pool</a>
   <a href="#air">The hall's air</a>
   <a href="#treatment">Water treatment</a>
@@ -107,6 +108,19 @@ insertion point is the pool wall's face. Their clear decks show as virtual volum
 reports what stands in them: the ADA's 36 × 48 in behind a lift, and the MAHC's 4 ft beside and
 behind diving boards, lifeguard chairs and lifts. Check Pools counts the ladders and lift as
 entries and the covers as drains, and does not count the equipment as blocking the deck.</p>
+
+<h2 id="markings">Depth markings</h2>
+<p>Select a pool and choose <b>Architecture › Build › Pool Depth Markings</b>. Markers go round
+its edge where the codes ask: at each end's and each side's least and greatest depth, at every
+slope change and at the 5 ft break, at every foot of depth up to 5 ft (the MAHC's step; set 2 ft
+for the ISPSC's, or 0.5 m), and more wherever two would be over 25 ft apart. Each reads the
+water's depth 3 ft out from the wall, to the nearest 3 in ("4 FT 6 IN") or to 0.1 m, or both;
+under the UK code they are in metres. Each has a tile on the deck within 18 in of the water and
+one on the wall just under the coping. Where the water is 5 ft deep or less, a NO DIVING tile
+stands beside it. A marker steps along the edge, clear of a ladder, platform or lift standing
+where it would go. In a pool whose floor passes 5 ft, a 4 in band marks the break on the floor
+and up the walls; the float line is placed 1 ft shallower. Check Pools checks the markings
+against the MAHC, the ISPSC and HSG179.</p>
 
 <h2 id="check">Checking a pool</h2>
 <p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
@@ -199,12 +213,14 @@ mapping.</p>
   <li>Freeform outlines are typed, not yet sketched; profiles are changed from a script.</li>
   <li>Gutters and infinity-edge basins are recorded but not drawn; the wall–floor cove is a value
   only; tiling and the membrane are not drawn.</li>
-  <li>Not checked yet: depth markings and NO DIVING markers, the break-point and float lines,
-  barriers and gates, where entries stand along the pool, handrails, 3 m boards and platforms.
+  <li>Depth markers are tiles: their labels are listed, not yet drawn as text, and the NO DIVING
+  symbol is a plain tile. The float line is placed but not drawn.</li>
+  <li>Not checked yet: barriers and gates, where entries stand along the pool, handrails, 3 m
+  boards and platforms.
   Recessed steps, swimouts and beach entries are not built yet.</li>
 </ul>
 
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>

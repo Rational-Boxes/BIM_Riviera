@@ -258,3 +258,9 @@ exposed to Lua and MCP.
   › Coordination › Pool Structure and Pool Electrical Zones and the sample *A rooftop pool*. Not
   yet: drawing the zones, earth pressure, separate floor and wall loads, the makers' point loads.
   The plan's eight steps are built; what is left is in each spec section's *Not yet*.
+- After the plan (ARC-POOL-011, 2026-11-10): depth markings. `pool.depth_markings` puts markers
+  where the MAHC and ISPSC ask (least and greatest depths, slope changes, the break, every
+  increment, at most 25 ft apart), moved clear of the equipment at the edge, with NO DIVING and
+  the break-point band; the `depth_markers` and `break_line` rule kinds in the MAHC, ISPSC and
+  HSG179 packs; Architecture › Build › Pool Depth Markings; the pool samples marked. Next:
+  barriers and gates (ISPSC §305, MAHC 4.8.6) over the railings (ARC-POOL-012).

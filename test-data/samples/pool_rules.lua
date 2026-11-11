@@ -23,6 +23,10 @@ riviera.floor.create{ loops = { rect(0, 0, 32, 20) }, level_id = l1 }
 -- 20 × 10 m, its shallow end at x = 6: 0.9 m, to 5 ft over 8 m, to 2.5 m over 3 m more.
 local pool = riviera.pool.create{ level = l1, name = "Pool", outline = { { 6, 15 }, { 6, 5 }, { 26, 5 }, { 26, 15 } },
   profile = { { at = 0, depth = 0.9 }, { at = 8, depth = 1.524 }, { at = 11, depth = 2.5 } } }
+-- Depth markings (ARC-POOL-011): every 1 ft of depth to 5 ft, at most 25 ft apart, NO DIVING to
+-- 5 ft, and the break-point band with the float line 1 ft shallower.
+local marks = riviera.pool.depth_markings{ pool_id = pool }
+print(string.format("%d depth markers; the break-point band at %.2f m along the pool, the float line at %.2f m", #marks.markers, marks.lines.band[1], marks.lines.float_line))
 
 -- Entries built into the shallow end's wall (ARC-POOL-003): stairs, and a sloped entry falling
 -- 1:12 to 27 in below the water (ADA 1009.3).
