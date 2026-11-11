@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: A resort pool with a beach entry
--- description: A 25 × 12 m public pool, 0.9 m deep to 14 m and then down to 2.0 m at the deep end, entered by a 6 m zero-depth beach at its shallow end, 4.5 m stairs with three handrails, an ADA sloped entry with its two handrails, and recessed steps with grab rails in the deep end's wall; checked against the MAHC, the ISPSC, the VGB Act and the ADA.
+-- description: A 25 × 12 m public pool, 0.9 m deep to 14 m and then down to 2.0 m at the deep end, entered by a 6 m zero-depth beach at its shallow end, 4.5 m stairs with three handrails, an ADA sloped entry with its two handrails, recessed steps with grab rails in the deep end's wall, and a swimout seat in an alcove off the south wall; checked against the MAHC, the ISPSC, the VGB Act and the ADA.
 --
 -- Riviera sample model (test-data/samples): handrails, recessed steps and beach entries
 -- (ARC-POOL-013). Every entry built into a pool carries its handrails (or, for recessed steps,
@@ -51,6 +51,12 @@ print(string.format("Sloped entry: %.2f m to %.0f mm below the water, handrails 
 -- top one 10 in below the deck, with a grab rail each side 21 in apart.
 local steps = riviera.pool.add_entry{ pool_id = pool, kind = "recessed_steps", edge = 3, at = 6 }
 print(string.format("Recessed steps: %d treads %.0f mm apart, grab rails %.0f mm apart clear and %.0f mm above the deck", steps.risers, steps.riser * 1000, steps.handrail_gap * 1000, steps.handrail_height * 1000))
+
+-- A swimout on the south wall, out of the swimming lanes: a 1.5 m seat 18 in under the water in
+-- an alcove 24 in out behind the wall, a contrasting stripe on its leading edge (ISPSC 411.5.1);
+-- the stairs' treads carry the same 1½ in stripes (MAHC 4.5.4.2).
+local swim = riviera.pool.add_entry{ pool_id = pool, kind = "swimout", edge = 2, at = 17 }
+print(string.format("Swimout: a %.2f m² seat %.0f mm under the water, %.2f m out behind the wall, its stripe %.0f mm", swim.area, swim.seat * 1000, swim.recess, swim.nosing * 1000))
 
 -- Two main drains on the level deep floor, 2 m apart (VGB).
 local t = riviera.furnishing.load{ names = { "Main drain cover 300 × 300" } }

@@ -31,7 +31,7 @@ fn r(id: StepId) -> AttrValue {
 
 fn signature(g: &PoolGeometry, scale: f64) -> String {
     let mut h = std::collections::hash_map::DefaultHasher::new();
-    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.rails, &g.markings, &g.depth_marks] {
+    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.rails, &g.nosings, &g.markings, &g.depth_marks] {
         set.len().hash(&mut h);
         for (p, i) in set {
             for q in p {
@@ -184,6 +184,8 @@ pub(crate) fn write_pools(ifc: &mut IfcModel, doc: &Document, steps: &HashMap<El
             ("IfcBuildingElementProxy", "benches", "USERDEFINED", Some("POOLBENCH"), &g.benches),
             // Handrails and grab rails (ARC-POOL-013).
             ("IfcRailing", "handrails", "HANDRAIL", None, &g.rails),
+            // Nosing stripes (ARC-POOL-015).
+            ("IfcCovering", "nosing stripes", "USERDEFINED", Some("NOSING"), &g.nosings),
             // Lane markings (ARC-POOL-005): IFC 4.3's LINEMARKING surface feature, a covering in IFC4.
             ("IfcCovering", "lane markings", "USERDEFINED", Some("LANEMARKING"), &g.markings),
             // Depth and NO DIVING markers and the break-point band (ARC-POOL-011).

@@ -725,9 +725,10 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   their handrails, and recessed steps with grab rails and zero-depth beach entries are built
   into the pool, checked against the MAHC, the ISPSC and the ADA (ARC-POOL-013). Pool Plant puts
   the treatment plant in the plant room: balance tank, pumps, filters and chemical tanks, sized
-  and set out, with the room's area checked (ARC-POOL-014). Not built yet: sketched outlines,
-  drawn gutters and basins, the markers' text, gate hardware, swimouts and nosing stripes, the
-  plant's pipes, and the zones drawn in the views.
+  and set out, with the room's area checked (ARC-POOL-014). Swimouts and contrasting
+  nosing stripes on treads and seats are built and checked (ARC-POOL-015). Not built yet:
+  sketched outlines, drawn gutters and basins, the markers' text, gate hardware, the plant's
+  pipes, and the zones drawn in the views.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
   - a chandelier is sized from its room and table and hung 32 in over the table;

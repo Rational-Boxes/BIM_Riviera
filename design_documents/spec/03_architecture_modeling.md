@@ -5407,8 +5407,8 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012); stair handrails, recessed steps and their grab rails, 1:12 beaches (ARC-POOL-013) |
-| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012); stair handrails, recessed steps and 1:10 beaches, secondary (ARC-POOL-013) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012); stair handrails, recessed steps and their grab rails, 1:12 beaches (ARC-POOL-013); stair nosing stripes (ARC-POOL-015) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012); stair handrails, recessed steps and 1:10 beaches, secondary (ARC-POOL-013); stair nosing stripes and swimouts, secondary (ARC-POOL-015) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004); a sloped entry's handrails (ARC-POOL-013) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
@@ -5967,7 +5967,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6038,7 +6038,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the entries are an `IfcStair` and a POOLBENCH proxy in the pool's assembly; reopened, the pool has its two entries and the same volume, and they are not loaded as elements.
 - [x] The sample *A public pool checked against the codes* has stairs and a sloped entry at its shallow end and passes its packs.
 
-*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: swimouts, a sloped entry along the wall with its landings, nosing stripes and transfer walls and systems as built entries (recessed steps, beach entries and handrails are ARC-POOL-013, built; the *Riviera Pools* library is ARC-POOL-004, built).
+*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: a sloped entry along the wall with its landings and transfer walls and systems as built entries (recessed steps, beach entries and handrails are ARC-POOL-013, built; swimouts and nosing stripes ARC-POOL-015, built; the *Riviera Pools* library is ARC-POOL-004, built).
 
 ### 3.9c.4 The Riviera Pools library
 **ID:** ARC-POOL-004 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §4, §8 (step 3, second half); research/23 A.7, A.9, A.15.2, D.4, D.5.3 (S2762, S2768, S2773, S2775, S2776, S2791, S2836, S2837, S2840, S2841, S2855, S2856, S2861); DM-LIB-006 (bundled libraries), ARC-FURN-001 (the catalogue), ARC-RULE-002 (use zones)
@@ -6462,10 +6462,8 @@ Public and competition pools come first (Q6).
 - [x] Saved, the handrails are an `IfcRailing` HANDRAIL in the pool's assembly; reopened, the pool has its entries and volume, and the handrails are not loaded as railings.
 - [x] The sample *A resort pool with a beach entry* passes its packs with a beach, wide stairs with three handrails, a sloped entry and recessed steps.
 
-*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the eight rule checks, Architecture › Build › Pool Entry. Defaults are E-128. Not yet:
-- swimouts;
+*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the eight rule checks, Architecture › Build › Pool Entry. Defaults are E-128. Swimouts and nosing stripes are ARC-POOL-015 (built). Not yet:
 - a sloped entry along the wall with its landings;
-- nosing stripes;
 - the beach's trench drain at the waterline;
 - the MAHC's recessed stairs where the water is over 5 ft deep;
 - the ADA's 20–24 in between pool stairs' handrails, with stairs counted as an accessible means of entry;
@@ -6513,6 +6511,44 @@ Public and competition pools come first (Q6).
 - the chemical stores as rooms of their own, with their exhaust;
 - horizontal filters and filter batteries;
 - connectors on the items for the MEP tools.
+
+### 3.9c.15 Swimouts and nosing stripes
+**ID:** ARC-POOL-015 · **Priority:** P2 · **Ref:** `POOLS_PLAN.md` §3; research/23 A.4.2, A.4.4, A.15 (S2762, S2768); ARC-POOL-003, ARC-POOL-013 (entries)
+
+**Purpose.** Build swimouts (seats in alcoves behind the pool's wall) and mark treads and seats with contrasting nosing stripes, as the codes ask.
+
+**Behaviour & rules.**
+- **A swimout** (`pool.add_entry` kind `swimout`):
+  - a seat `seat` below the water (default 0.45 m, 18 in), `width` wide (default 1.5 m), in an alcove `depth` out behind the wall (default 0.6 m, 24 in), its leading edge on the wall's line;
+  - the shell is cut away above the seat, and a slab under the seat and walls round the alcove, the shell's thickness, are built from under the seat to the wall's top;
+  - the water fills the alcove over the seat, adding to the pool's volume;
+  - the deck's opening round the pool takes in the alcove and its walls; it is made again whenever the entries change.
+- **Nosing stripes** (`nosing`): a contrasting strip 5 mm proud along each tread's front edge (stairs), a bench's front edge, or a swimout seat's leading edge:
+  - default 1.5 in (38 mm) on stairs and swimouts, none on benches; 0 removes them;
+  - drawn dark.
+- **Checks** (`pool.check`):
+  - `nosing_stripe`: each entry of `kinds` (default stairs) has stripes `min` to `max` wide;
+  - `swimout_depth`, `swimout_area` (the seat, m²) and `swimout_seat` (below the water) (min, max).
+- **Packs:**
+  - the MAHC: stair nosing stripes 1–2 in (4.5.4.2);
+  - the ISPSC (public, secondary): stair stripes 1–2 in (411.2); swimouts at least 11 in deep, 240 in² of seat, the seat 20 in below the waterline at most, a ¾–2 in stripe on its leading edge (411.5.1).
+- **The window:** Architecture › Build › Pool Entry offers *Swimout* and the nosing stripe's width.
+
+**Data (IFC mapping).** The stripes are one more `IfcCovering` (USERDEFINED, NOSING) part in the pool's assembly. A swimout's seat is a POOLBENCH proxy part, and its alcove walls are part of the shell's `IfcWall`.
+
+**Commands.** `pool.add_entry` takes kind `swimout` and `nosing`; it returns `nosing`, and for a swimout `seat`, `recess` (its depth behind the wall) and `area`.
+
+**Acceptance criteria.**
+- [x] Stairs get 1.5 in stripes and pass the MAHC and the ISPSC. Without stripes both fail; 2.4 in stripes fail the MAHC's 1–2 in.
+- [x] A swimout on a public pool's side wall: a 0.9 m² seat 0.45 m under the water, 0.6 m out. The water gains 1.5 × 0.6 × 0.45 m³, nothing overlaps the deck, and it passes. At 0.5 m wide and 0.25 m out, its seat 0.6 m down and its stripe 15 mm, the ISPSC's four swimout rules fail.
+- [x] Saved, the stripes are a NOSING covering in the pool's assembly.
+- [x] The sample *A resort pool with a beach entry* has a swimout and striped stairs and passes its packs.
+
+*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the four rule checks, Architecture › Build › Pool Entry. Defaults are E-130. Not yet:
+- the coping round a swimout's alcove;
+- swimouts' "outside water currents" (MAHC) and their place relative to the lanes;
+- stripes on the riser faces;
+- the stripes' colour as a material.
 
 ## 3.11 Massing and site
 
@@ -7750,7 +7786,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.set` | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `pool.info` | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
-| `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth?, top?, handrails?, handrail_height?, handrail_gap? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?, recess?, top?, waterline?, handrails?, handrail_height?, handrail_gap?, handrail_spacing?} | Yes | ARC-POOL-003, ARC-POOL-013 |
+| `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth?, top?, handrails?, handrail_height?, handrail_gap?, nosing? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?, recess?, top?, waterline?, handrails?, handrail_height?, handrail_gap?, handrail_spacing?, nosing?, area?} | Yes | ARC-POOL-003, ARC-POOL-013, ARC-POOL-015 |
 | `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |

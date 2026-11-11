@@ -281,3 +281,6 @@ exposed to Lua and MCP.
   with the room's area and fit checked; new *Tank* and *Filter* object categories (`IfcTank`,
   `IfcFilter`); Architecture › Build › Pool Plant; the pool hall sample's plant room. Not yet:
   the pipes, heaters and secondary treatment, pump heads from the pipework.
+- ARC-POOL-015 (2026-11-11): swimouts (a seat in an alcove behind the wall, the shell and deck
+  cut round it) and nosing stripes on treads and seats; the `nosing_stripe` and `swimout_*` rule
+  kinds in the MAHC and ISPSC packs; the resort sample's swimout.

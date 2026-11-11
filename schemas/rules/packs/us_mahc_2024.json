@@ -374,6 +374,15 @@
       "max": 0.083333
     },
     {
+      "id": "MAHC 2024 4.5.4.2",
+      "description": "Pool stairs: a contrasting, slip-resistant nosing stripe 1–2 in wide on each tread",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "nosing_stripe",
+      "min": 0.0254,
+      "max": 0.0508
+    },
+    {
       "id": "MAHC 2024 4.8.3.2",
       "description": "Starting platforms only where the water is 6 ft deep at least (new construction; 4 ft otherwise), at the wall in front of them",
       "source": "S2762",

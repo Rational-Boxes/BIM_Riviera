@@ -1688,7 +1688,7 @@ fn the_resort_pool_sample_has_handrails_recessed_steps_and_a_beach() {
     let id = c["pools"][0]["pool"].clone();
     let i = ok(&mut app, "pool.info", json!({ "pool_id": id }));
     let kinds: Vec<&str> = i["entries"].as_array().unwrap().iter().map(|e| e["kind"].as_str().unwrap()).collect();
-    assert_eq!(kinds, vec!["beach", "stairs", "sloped_entry", "recessed_steps"], "{i:#}");
+    assert_eq!(kinds, vec!["beach", "stairs", "sloped_entry", "recessed_steps", "swimout"], "{i:#}");
     let e = &i["entries"];
     assert!(e[0]["waterline"].as_f64().is_some_and(|w| (w - 1.8).abs() < 1e-9) && e[1]["handrails"] == 3 && e[3]["risers"] == 4 && e[3]["handrails"] == 2, "{i:#}");
     // The handrails are the pool's parts in the file: the enclosure is the only railing element.

@@ -267,6 +267,14 @@ pub enum PoolMeasure {
     RecessedStepTop,
     /// A beach (zero-depth) entry's slope, at most `max`.
     BeachSlope,
+    /// Entries of `kinds` (default stairs) have contrasting nosing stripes `min` to `max` wide
+    /// (ARC-POOL-015).
+    NosingStripe,
+    /// A swimout: at least `min` deep out from the wall, at least `min` in seat area, its seat at
+    /// most `max` below the water.
+    SwimoutDepth,
+    SwimoutArea,
+    SwimoutSeat,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
@@ -363,8 +371,8 @@ pub struct PoolRule {
     pub opening: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub close: Option<[f64; 2]>,
-    /// Handrails: the entries they are checked on (default stairs), and the width over which
-    /// they are needed on both sides (ARC-POOL-013).
+    /// Handrails and nosing stripes: the entries they are checked on (default stairs), and the
+    /// width over which handrails are needed on both sides (ARC-POOL-013, ARC-POOL-015).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub kinds: Vec<crate::pools::EntryKind>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

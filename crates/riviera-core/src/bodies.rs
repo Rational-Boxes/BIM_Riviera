@@ -543,6 +543,10 @@ pub fn all(store: &Store) -> Vec<Body> {
         for m in g.rails {
             push(id, &format!("IfcRailing:{}", hex([0.78, 0.80, 0.82, 1.0])), m, false);
         }
+        // Nosing stripes (ARC-POOL-015), dark.
+        for m in g.nosings {
+            push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);
+        }
         // Lane markings (ARC-POOL-005), dark.
         for m in g.markings {
             push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);

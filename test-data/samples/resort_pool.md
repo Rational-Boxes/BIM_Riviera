@@ -34,10 +34,15 @@ Start with **File › New**.
    wall at (29.5, 11). There are four 18 in treads, each cut 5½ in into the wall. They are
    10 in apart, the top one 10 in below the deck. A grab rail each side stands 0.85 m above
    the deck, the two 21 in apart, curving over the coping into the water.
-9. **The drains.** From **Insert › Component Libraries › Riviera Pools**, place two *Main drain
+9. **The swimout.** **Pool Entry**: *Swimout (a seat in an alcove)*, then click the south wall
+   at (21.5, 5). Its seat is 1.5 m wide and 0.45 m (18 in) under the water, in an alcove 0.6 m
+   (24 in) out behind the wall. The shell wraps round it and the deck is cut round it. A 1½ in
+   contrasting stripe marks the seat's leading edge, as one does each stair tread.
+10. **The drains.** From **Insert › Component Libraries › Riviera Pools**, place two *Main drain
    cover 300 × 300* on the deep floor at (29, 10) and (29, 12), offset −2.15 m.
-10. **Check it.** **Analyze › Check Pools**. The beach, the stairs and the recessed steps are
-    entries, and the sloped entry is the accessible one. The handrails, grab rails, treads and
+11. **Check it.** **Analyze › Check Pools**. The beach, the stairs and the recessed steps are
+    entries, and the sloped entry is the accessible one. The swimout's depth, seat and stripe pass
+    the ISPSC (411.5.1), and the treads' stripes the MAHC (4.5.4.2). The handrails, grab rails, treads and
     the beach's slope pass the MAHC, the ISPSC and the ADA. Try a 1:9 beach (both the MAHC's
     1:12 and the ISPSC's 1:10 fail) or one handrail on the stairs (the MAHC asks for both
     sides over 5 ft).
@@ -49,4 +54,4 @@ Start with **File › New**.
 - **[gap]** The entries cannot be edited in the view once built. Change them with `pool.set`
   (its `entries`) or remove one with `pool.remove_entry` and build it again.
 - **[gap]** The beach's trench drain at the waterline (MAHC 4.5.9) is not modelled.
-- **[gap]** Nosing stripes on the treads are not drawn.
+- **[gap]** The coping does not run round a swimout's alcove.

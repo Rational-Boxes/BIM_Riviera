@@ -282,6 +282,71 @@
       "max": 0.1
     },
     {
+      "id": "ISPSC 2021 411.2 (public)",
+      "description": "Pool stairs: a contrasting nosing stripe 1–2 in wide on each tread",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "nosing_stripe",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.0254,
+      "max": 0.0508
+    },
+    {
+      "id": "ISPSC 2021 411.5.1 (public)",
+      "description": "Swimouts: at least 11 in deep out from the wall",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "swimout_depth",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.2794
+    },
+    {
+      "id": "ISPSC 2021 411.5.1 (public)",
+      "description": "Swimouts: a seat of 240 in² at least",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "swimout_area",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.154838
+    },
+    {
+      "id": "ISPSC 2021 411.5.1 (public)",
+      "description": "Swimouts: the seat 20 in below the waterline at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "swimout_seat",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.508
+    },
+    {
+      "id": "ISPSC 2021 411.5.1 (public)",
+      "description": "Swimouts: a stripe ¾–2 in wide on the seat's leading edge",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "nosing_stripe",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "kinds": [
+        "swimout"
+      ],
+      "min": 0.01905,
+      "max": 0.0508
+    },
+    {
       "id": "ISPSC 2021 809.5",
       "description": "Residential stairs: treads at least 10 in deep",
       "source": "S2767",

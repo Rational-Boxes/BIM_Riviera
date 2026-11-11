@@ -176,6 +176,8 @@ pub enum EntryKind {
     RecessedSteps,
     /// A zero-depth (beach) entry: the floor rising from the pool to the deck (ARC-POOL-013).
     Beach,
+    /// A seat in an alcove out of the pool's wall, outside the swimming area (ARC-POOL-015).
+    Swimout,
 }
 
 impl EntryKind {
@@ -187,6 +189,7 @@ impl EntryKind {
             EntryKind::Bench => ("IfcBuildingElementProxy", "Pool Bench"),
             EntryKind::RecessedSteps => ("IfcBuildingElementProxy", "Recessed Steps"),
             EntryKind::Beach => ("IfcRamp", "Beach Entry"),
+            EntryKind::Swimout => ("IfcBuildingElementProxy", "Swimout"),
         }
     }
 
@@ -198,6 +201,7 @@ impl EntryKind {
             EntryKind::Bench => "bench",
             EntryKind::RecessedSteps => "recessed steps",
             EntryKind::Beach => "beach entry",
+            EntryKind::Swimout => "swimout",
         }
     }
 }
@@ -213,7 +217,8 @@ pub struct Entry {
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub at: f64,
     /// Along the edge (default 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench,
-    /// 0.457 m (18 in) for recessed treads, the whole edge for a beach entry).
+    /// 0.457 m (18 in) for recessed treads, the whole edge for a beach entry, 1.5 m for a
+    /// swimout).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub width: Option<f64>,
@@ -233,12 +238,12 @@ pub struct Entry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub reach: Option<f64>,
-    /// A bench's seat below the water (default 0.45 m).
+    /// A bench's or swimout's seat below the water (default 0.45 m).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub seat: Option<f64>,
     /// A bench's depth out from the wall (default 0.45 m); recessed treads' depth into the wall
-    /// (default 0.14 m, 5½ in).
+    /// (default 0.14 m, 5½ in); a swimout's depth out behind the wall (default 0.6 m, 24 in).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub depth: Option<f64>,
@@ -261,6 +266,11 @@ pub struct Entry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub handrail_gap: Option<f64>,
+    /// A contrasting nosing stripe along each tread's or seat's front edge, this wide (ARC-POOL-015):
+    /// default 1.5 in (38 mm) on stairs and swimouts, none on the rest; 0 for none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub nosing: Option<f64>,
 }
 
 /// A competition pool's lanes (ARC-POOL-005): equal middle lanes, the two outer lanes taking
@@ -381,6 +391,8 @@ pub struct PoolGeometry {
     pub benches: Vec<Mesh>,
     /// The entries' handrails and grab rails (ARC-POOL-013).
     pub rails: Vec<Mesh>,
+    /// Contrasting nosing stripes on treads and seats (ARC-POOL-015).
+    pub nosings: Vec<Mesh>,
     /// Lane lines, T-ends, cross lines and end-wall targets (ARC-POOL-005).
     pub markings: Vec<Mesh>,
     /// Depth and NO DIVING markers and the break-point band (ARC-POOL-011).
@@ -545,6 +557,12 @@ pub struct EntryInfo {
     pub handrail_gap: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub handrail_spacing: Option<f64>,
+    /// Its nosing stripes' width, where it has them.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nosing: Option<f64>,
+    /// A swimout's seat area.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub area: Option<f64>,
 }
 
 /// The top of an entry's block: level, or a ramp falling from the wall.
@@ -597,6 +615,10 @@ struct Layout {
     blocks: Vec<(Ring, Top)>,
     rails: Vec<Vec<[f64; 3]>>,
     recesses: Vec<(Ring, Vec<[f64; 2]>)>,
+    /// Swimouts: each alcove's plan and its seat's top.
+    alcoves: Vec<(Ring, f64)>,
+    /// Nosing stripes: each one's plan and the top it lies on.
+    stripes: Vec<(Ring, f64)>,
     info: EntryInfo,
 }
 
@@ -619,6 +641,7 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
         EntryKind::Bench => 2.0,
         EntryKind::RecessedSteps => 0.457,
         EntryKind::Beach => l,
+        EntryKind::Swimout => 1.5,
     });
     let rect = |d0: f64, d1: f64| -> Ring {
         let q = |s: f64, d: f64| [c[0] + u[0] * s + nin[0] * d, c[1] + u[1] * s + nin[1] * d];
@@ -648,8 +671,11 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
         handrail_height: None,
         handrail_gap: None,
         handrail_spacing: None,
+        nosing: None,
+        area: None,
     };
-    let (mut blocks, mut recesses) = (Vec::new(), Vec::new());
+    let (mut blocks, mut recesses, mut alcoves, mut stripes) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    let nosing = e.nosing.unwrap_or(if matches!(e.kind, EntryKind::Stairs | EntryKind::Swimout) { 0.0381 } else { 0.0 });
     // Each handrail's profile: (distance in from the wall, height) points.
     let mut profile: Vec<[f64; 2]> = Vec::new();
     let rail_h = e.handrail_height.unwrap_or(if e.kind == EntryKind::RecessedSteps { 0.85 } else { 0.9144 });
@@ -660,7 +686,11 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
             let risers = (h / max - 1e-9).ceil().max(1.0) as u32;
             let r = h / f64::from(risers);
             for k in 1..risers {
-                blocks.push((rect(f64::from(k - 1) * tread, f64::from(k) * tread), Top::Flat(deck_z - f64::from(k) * r)));
+                let (d1, top) = (f64::from(k) * tread, deck_z - f64::from(k) * r);
+                blocks.push((rect(d1 - tread, d1), Top::Flat(top)));
+                if nosing > 0.0 {
+                    stripes.push((rect(d1 - nosing.min(tread), d1), top));
+                }
             }
             (info.risers, info.riser, info.tread) = (Some(risers), Some(r), Some(tread));
             // Up from the deck a tread behind the wall, down the nosings' line, to the floor at
@@ -711,9 +741,24 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
             profile = vec![[-0.3, deck_z], [-0.3, deck_z + rail_h], [0.0, deck_z + rail_h], [run, foot + rail_h], [run, foot]];
         }
         EntryKind::Bench => {
-            let seat = e.seat.unwrap_or(0.45);
-            blocks.push((rect(0.0, e.depth.unwrap_or(0.45)), Top::Flat(deck_z - rec.water_level - seat)));
+            let (seat, depth) = (e.seat.unwrap_or(0.45), e.depth.unwrap_or(0.45));
+            let top = deck_z - rec.water_level - seat;
+            blocks.push((rect(0.0, depth), Top::Flat(top)));
+            if nosing > 0.0 {
+                stripes.push((rect(depth - nosing.min(depth), depth), top));
+            }
             info.seat = Some(seat);
+        }
+        EntryKind::Swimout => {
+            // Out behind the wall: the seat's leading edge on the wall's line.
+            let (seat, depth) = (e.seat.unwrap_or(0.45), e.depth.unwrap_or(0.6));
+            let top = water_z - seat;
+            alcoves.push((rect(-depth, 0.0), top));
+            recesses.push((rect(-depth, 0.0), vec![[top, f64::INFINITY]]));
+            if nosing > 0.0 {
+                stripes.push((rect(-nosing.min(depth), 0.0), top));
+            }
+            (info.seat, info.recess, info.area) = (Some(seat), Some(depth), Some(w * depth));
         }
         EntryKind::RecessedSteps => {
             let (spacing, recess, top) = (e.riser.unwrap_or(0.254), e.depth.unwrap_or(0.14), e.top.unwrap_or(0.254));
@@ -737,7 +782,7 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
     }
     let count = e.handrails.unwrap_or(match e.kind {
         EntryKind::Stairs | EntryKind::SlopedEntry | EntryKind::RecessedSteps => 2,
-        EntryKind::Bench | EntryKind::Beach => 0,
+        EntryKind::Bench | EntryKind::Beach | EntryKind::Swimout => 0,
     });
     let mut rails = Vec::new();
     if count > 0 && !profile.is_empty() {
@@ -759,10 +804,13 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
     } else {
         info.handrails = Some(0);
     }
-    if e.kind == EntryKind::Bench {
+    if matches!(e.kind, EntryKind::Bench | EntryKind::Swimout) {
         info.handrails = None;
     }
-    Some(Layout { blocks, rails, recesses, info })
+    if !stripes.is_empty() {
+        info.nosing = Some(nosing);
+    }
+    Some(Layout { blocks, rails, recesses, alcoves, stripes, info })
 }
 
 /// A pool's lanes as laid out.
@@ -895,7 +943,26 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
                 recessed += crate::polygons::area(&s.outer).abs() * (hi.min(water_z) - lo).max(0.0);
                 below = Some(*hi);
             }
-            walls.push(extrude(&s, &|_| below.unwrap_or(wall_top), &|_| wall_top));
+            if below.is_none_or(|z| z < wall_top) {
+                walls.push(extrude(&s, &|_| below.unwrap_or(wall_top), &|_| wall_top));
+            }
+        }
+    }
+    // Swimouts (ARC-POOL-015): beyond the shell, the alcove's seat slab and its walls round it,
+    // from under the seat to the wall's top.
+    let shell_outer = offset(&rec.outline, t);
+    for (r, seat) in layouts.iter().flat_map(|(_, l)| &l.alcoves) {
+        let (seat, below) = (*seat, *seat - t);
+        let out = crate::polygons::difference(&[Shape { outer: r.clone(), holes: Vec::new() }], std::slice::from_ref(&shell_outer));
+        for s in &out {
+            walls.push(extrude(s, &|_| below, &|_| seat));
+            recessed += crate::polygons::area(&s.outer).abs() * (water_z - seat).max(0.0);
+        }
+        let grown = crate::polygons::union(&[offset(r, t)]);
+        let round = crate::polygons::difference(&grown, &[r.clone(), shell_outer.clone()]);
+        let round = crate::polygons::difference(&round, std::slice::from_ref(&rec.outline));
+        for s in &round {
+            walls.push(extrude(s, &|_| below, &|_| wall_top));
         }
     }
     let mut coping = Vec::new();
@@ -925,9 +992,17 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }
     // Entries: blocks from the floor up to their tops, inside the outline; the water they
     // displace comes off its volume.
-    let (mut stairs, mut ramps, mut benches, mut rails) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    let (mut stairs, mut ramps, mut benches, mut rails, mut nosings) = (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
     let mut displaced = -recessed;
     for (kind, lay) in &layouts {
+        // Nosing stripes, 5 mm proud; inside the pool, clipped to it.
+        for (r, z) in &lay.stripes {
+            let shape = Shape { outer: r.clone(), holes: Vec::new() };
+            let pieces = if *kind == EntryKind::Swimout { vec![shape] } else { crate::polygons::intersection(std::slice::from_ref(&outline), &[shape]) };
+            for s in &pieces {
+                nosings.push(extrude(s, &|_| *z, &|_| *z + 0.005));
+            }
+        }
         for line in &lay.rails {
             let tubes = line.windows(2).filter(|w| (w[1][0] - w[0][0]).hypot(w[1][1] - w[0][1]).hypot(w[1][2] - w[0][2]) > 1e-6).map(|w| crate::steel_fab::cylinder(w[0], w[1], RAIL_OD / 2.0, 8)).collect();
             rails.push(crate::steel_fab::join(tubes));
@@ -945,7 +1020,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
                 match kind {
                     EntryKind::Stairs => stairs.push(m),
                     EntryKind::SlopedEntry | EntryKind::Beach => ramps.push(m),
-                    EntryKind::Bench | EntryKind::RecessedSteps => benches.push(m),
+                    EntryKind::Bench | EntryKind::RecessedSteps | EntryKind::Swimout => benches.push(m),
                 }
             }
         }
@@ -976,7 +1051,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }).sum();
     let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, rails, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, rails, nosings, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -1153,6 +1228,9 @@ fn validate(rec: &PoolRecipe) -> Result<()> {
         if !(0.0..=l).contains(&e.at) || !positive {
             return Err(bad("pool.bad_entry", format!("entry {}: its middle must be on edge {} (0 to {l:.2} m) and its sizes above zero", k + 1, e.edge)));
         }
+        if e.nosing.is_some_and(|v| v < 0.0) {
+            return Err(bad("pool.bad_entry", format!("entry {}: a nosing stripe's width is zero or more", k + 1)));
+        }
         if e.kind == EntryKind::RecessedSteps
             && e.depth.unwrap_or(0.14) > rec.shell.thickness - 0.05 + 1e-9
         {
@@ -1247,7 +1325,16 @@ fn cut(txn: &mut Transaction<'_>, id: ElementId) -> Result<()> {
         txn.delete(old)?;
     }
     let grow = rec.shell.thickness.max(if rec.edges.iter().any(Edge::has_coping) { rec.coping.width } else { 0.0 });
-    let hole = offset(&rec.outline, grow);
+    // Round the outline, and round each swimout's alcove and its walls (ARC-POOL-015).
+    let deck_z = crate::levels::elevation_of(&store, &rec.level).unwrap_or(0.0) + rec.deck;
+    let mut rings = vec![offset(&rec.outline, grow)];
+    for (k, en) in rec.entries.iter().enumerate() {
+        if let Some(l) = entry_layout(&rec, k + 1, en, deck_z) {
+            rings.extend(l.alcoves.iter().map(|(r, _)| offset(r, rec.shell.thickness)));
+        }
+    }
+    let joined = crate::polygons::union(&rings);
+    let hole = joined.into_iter().next().map_or_else(|| offset(&rec.outline, grow), |s| s.outer);
     let hole_shape = [Shape { outer: hole.clone(), holes: Vec::new() }];
     for (fid, f) in crate::floors::all(&store) {
         let Some(fe) = store.get(fid) else { continue };
@@ -1464,6 +1551,8 @@ pub struct AddEntryParams {
     pub handrail_height: Option<f64>,
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub handrail_gap: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub nosing: Option<f64>,
 }
 
 /// The nearest edge to a plan point (from 1) and the distance along it.
@@ -1491,12 +1580,14 @@ pub(crate) fn add_entry(txn: &mut Transaction<'_>, p: AddEntryParams) -> Result<
         (None, Some(e), Some(a)) => (e, a),
         _ => return Err(bad("pool.bad_entry", "give a point by the wall, or an edge and a distance along it")),
     };
-    rec.entries.push(Entry { kind: p.kind, edge, at, width: p.width, tread: p.tread, riser: p.riser, slope: p.slope, reach: p.reach, seat: p.seat, depth: p.depth, top: p.top, handrails: p.handrails, handrail_height: p.handrail_height, handrail_gap: p.handrail_gap });
+    rec.entries.push(Entry { kind: p.kind, edge, at, width: p.width, tread: p.tread, riser: p.riser, slope: p.slope, reach: p.reach, seat: p.seat, depth: p.depth, top: p.top, handrails: p.handrails, handrail_height: p.handrail_height, handrail_gap: p.handrail_gap, nosing: p.nosing });
     validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");
     txn.modify(id, |e| {
         e.params.insert(RECIPE_KEY.into(), v);
     })?;
+    // A swimout's alcove reaches out under the deck.
+    cut(txn, id)?;
     entries(txn.store(), &rec).pop().ok_or_else(|| bad("pool.bad_entry", "the entry was not made"))
 }
 
@@ -1552,7 +1643,7 @@ pub(crate) fn remove_entry(txn: &mut Transaction<'_>, p: RemoveEntryParams) -> R
     txn.modify(id, |e| {
         e.params.insert(RECIPE_KEY.into(), v);
     })?;
-    Ok(())
+    cut(txn, id)
 }
 
 #[derive(Debug, Serialize, JsonSchema)]
@@ -2061,6 +2152,43 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             };
                             if outside(v, r.min, r.max) {
                                 find(None, false, format!("{what}: {name} {}{tail}; {}", inches(v), bounds(r.min, r.max, &inches)));
+                            }
+                        }
+                    }
+                    M::NosingStripe => {
+                        let kinds: &[EntryKind] = if r.kinds.is_empty() { &[EntryKind::Stairs] } else { &r.kinds };
+                        for b in built.iter().filter(|b| kinds.contains(&b.kind)) {
+                            let what = format!("{} {} (edge {})", b.kind.label(), b.index, b.edge);
+                            match b.nosing {
+                                None => find(None, false, format!("{what} has no contrasting nosing stripes; {}", bounds(r.min, r.max, &inches))),
+                                Some(v) if outside(v, r.min, r.max) => find(None, false, format!("{what}: its nosing stripes are {} wide; {}", inches(v), bounds(r.min, r.max, &inches))),
+                                _ => {}
+                            }
+                        }
+                    }
+                    M::SwimoutDepth | M::SwimoutArea | M::SwimoutSeat => {
+                        for b in built.iter().filter(|b| b.kind == EntryKind::Swimout) {
+                            let what = format!("swimout {} (edge {})", b.index, b.edge);
+                            match r.check {
+                                M::SwimoutDepth => {
+                                    let v = b.recess.unwrap_or(0.0);
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what} is {} deep; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                }
+                                M::SwimoutArea => {
+                                    let v = b.area.unwrap_or(0.0);
+                                    let sq = |m: f64| format!("{:.0} in²", m / (0.0254 * 0.0254));
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what}'s seat is {}; {}", sq(v), bounds(r.min, r.max, &sq)));
+                                    }
+                                }
+                                _ => {
+                                    let v = b.seat.unwrap_or(0.0);
+                                    if outside(v, r.min, r.max) {
+                                        find(None, false, format!("{what}: its seat is {} below the water; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                }
                             }
                         }
                     }

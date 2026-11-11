@@ -4484,15 +4484,18 @@ edit_command!(
     PoolAddEntry,
     "pool.add_entry",
     "Build an entry into a pool",
-    "Builds stairs, a sloped entry, an underwater bench, recessed steps or a beach entry into a swimming pool \
-     (ARC-POOL-003, ARC-POOL-013), against the outline edge nearest `point` with its middle there, or on `edge` \
+    "Builds stairs, a sloped entry, an underwater bench, recessed steps, a beach entry or a swimout into a \
+     swimming pool (ARC-POOL-003, ARC-POOL-013, ARC-POOL-015), against the outline edge nearest `point` with its middle there, or on `edge` \
      (from 1, the shallow end's wall) `at` a distance along it. `kind`: `stairs` step down from the deck in \
      equal risers no higher than `riser` (default 0.25 m) on `tread`-deep treads (default 0.305 m), 1.5 m wide; \
      a `sloped_entry` falls at `slope` (default 1:12) to `reach` below the water (default 27 in), 1.0 m wide; a \
      `bench`'s seat is `seat` below the water (default 0.45 m), `depth` out from the wall, 2.0 m long; \
      `recessed_steps` are treads `width` wide (default 18 in) cut `depth` into the wall (default 5½ in), the top \
      one `top` below the deck (default 10 in) and the rest `riser` apart (default 10 in); a `beach` entry rises \
-     at `slope` (default 1:12) from the floor to the deck along the whole edge unless given a `width`. \
+     at `slope` (default 1:12) from the floor to the deck along the whole edge unless given a `width`; a \
+     `swimout` is a seat `seat` below the water (default 0.45 m) in an alcove `depth` out behind the wall \
+     (default 0.6 m), 1.5 m wide. `nosing` is the contrasting stripe on each tread's or seat's front edge \
+     (default 1.5 in on stairs and swimouts, none on the rest; 0 for none). \
      `handrails` (default 2 for stairs, sloped entries and recessed steps' grab rails; 0 otherwise) stand \
      `handrail_height` above the nosings or ramp (default 36 in; grab rails 0.85 m above the deck) with \
      `handrail_gap` clear between the outer two (default the width less 30 mm a side; grab rails 21 in). Each is \

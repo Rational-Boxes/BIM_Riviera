@@ -990,20 +990,21 @@ impl Gui {
         let frame = self.frame;
         let Some(pool) = self.selected_pool() else { return };
         let f = super::reinforcement_ui::Form::new(&frame, "Pool Entry");
-        let kinds = ["stairs", "sloped_entry", "bench", "recessed_steps", "beach"];
-        let names = ["Stairs", "Sloped entry (ADA)", "Underwater bench", "Recessed steps with grab rails", "Beach (zero-depth) entry"].map(str::to_owned);
+        let kinds = ["stairs", "sloped_entry", "bench", "recessed_steps", "beach", "swimout"];
+        let names = ["Stairs", "Sloped entry (ADA)", "Underwater bench", "Recessed steps with grab rails", "Beach (zero-depth) entry", "Swimout (a seat in an alcove)"].map(str::to_owned);
         let kind = f.choice("Entry", &names, 0);
         let width = f.text("Width (m)", "", "Along the edge: 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench, 0.457 m for recessed treads; a beach takes the whole edge");
         let tread = f.text("Tread (m)", "", "Stairs: default 0.305 (12 in)");
         let riser = f.text("Highest riser (m)", "", "Stairs: default 0.25, the risers made equal under it; recessed steps: their spacing, default 0.254 (10 in)");
         let slope = f.text("Slope 1:", "", "Sloped or beach entry: default 12");
         let reach = f.text("Reaches (m below water)", "", "Sloped entry: default 0.69 (27 in)");
-        let seat = f.text("Seat (m below water)", "", "Bench: default 0.45");
-        let depth = f.text("Recess (m)", "", "Recessed steps: how deep the treads go into the wall, default 0.14 (5½ in)");
+        let seat = f.text("Seat (m below water)", "", "Bench or swimout: default 0.45");
+        let depth = f.text("Recess (m)", "", "Recessed steps: how deep the treads go into the wall, default 0.14 (5½ in); swimout: how far out behind the wall, default 0.6 (24 in)");
         let top = f.text("Top tread (m below deck)", "", "Recessed steps: default 0.254 (10 in)");
         let rails = f.text("Handrails", "", "Default 2, one at each side (grab rails for recessed steps); 0 for none; more are spread across");
         let rail_h = f.text("Handrail height (m)", "", "Above the nosings or ramp: default 0.914 (36 in); grab rails above the deck, 0.85");
         let rail_gap = f.text("Between handrails (m, clear)", "", "Default the width less 30 mm a side; grab rails 0.533 (21 in)");
+        let nosing = f.text("Nosing stripe (m)", "", "The contrasting stripe on each tread's or seat's edge: default 0.038 (1.5 in) on stairs and swimouts; 0 for none");
         let ok = f.show("Then click by the pool's wall where the entry's middle goes: it runs from that edge into the pool.", "Pick the Edge");
         let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v > 0.0);
         let mut args = json!({ "pool_id": pool, "kind": kinds[kind.get_selection().unwrap_or(0) as usize] });
@@ -1014,6 +1015,9 @@ impl Gui {
         }
         if let Ok(n) = rails.get_value().trim().parse::<u32>() {
             args["handrails"] = json!(n);
+        }
+        if let Some(v) = nosing.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v >= 0.0) {
+            args["nosing"] = json!(v);
         }
         if let Some(n) = num(&slope) {
             args["slope"] = json!(1.0 / n);
@@ -1494,6 +1498,7 @@ impl Gui {
                     Some("stairs") => format!("Stairs: {} risers of {:.0} mm on {:.0} mm treads", v["risers"], n("riser") * 1000.0, n("tread") * 1000.0),
                     Some("sloped_entry") => format!("Sloped entry: 1:{:.1} over {:.2} m, reaching {:.0} mm below the water", 1.0 / n("slope").max(1e-9), n("run"), n("reaches") * 1000.0),
                     Some("recessed_steps") => format!("Recessed steps: {} treads {:.0} mm apart, {:.0} mm into the wall", v["risers"], n("riser") * 1000.0, n("recess") * 1000.0),
+                    Some("swimout") => format!("Swimout: a {:.2} m² seat {:.0} mm below the water, {:.2} m out behind the wall", n("area"), n("seat") * 1000.0, n("recess")),
                     Some("beach") => format!("Beach entry: 1:{:.1}, the water's edge {:.2} m out, meeting the floor {:.2} m out", 1.0 / n("slope").max(1e-9), n("waterline"), n("run")),
                     _ => format!("Bench: its seat {:.0} mm below the water, in {:.2} m of water", n("seat") * 1000.0, n("water_depth")),
                 };
