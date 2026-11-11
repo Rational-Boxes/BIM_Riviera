@@ -92,10 +92,14 @@ pub enum Category {
     Transport,
     /// Wall mirrors and other finishes placed as objects (ARC-GYM-001).
     Covering,
+    /// Balance, surge and chemical tanks (ARC-POOL-014).
+    Tank,
+    /// Water filters (ARC-POOL-014).
+    Filter,
 }
 
 impl Category {
-    pub const ALL: [Category; 29] = [
+    pub const ALL: [Category; 31] = [
         Category::GenericModel,
         Category::Furniture,
         Category::Column,
@@ -125,6 +129,8 @@ impl Category {
         Category::Transport,
         Category::SystemFurniture,
         Category::Covering,
+        Category::Tank,
+        Category::Filter,
     ];
 
     pub fn label(self) -> &'static str {
@@ -158,6 +164,8 @@ impl Category {
             Category::Transport => "Transport Element",
             Category::SystemFurniture => "System Furniture",
             Category::Covering => "Covering",
+            Category::Tank => "Tank",
+            Category::Filter => "Filter",
         }
     }
 
@@ -193,6 +201,8 @@ impl Category {
             Category::Transport => "IfcTransportElement",
             Category::SystemFurniture => "IfcSystemFurnitureElement",
             Category::Covering => "IfcCovering",
+            Category::Tank => "IfcTank",
+            Category::Filter => "IfcFilter",
         }
     }
 
@@ -228,6 +238,8 @@ impl Category {
             Category::Transport => "IfcTransportElementType",
             Category::SystemFurniture => "IfcSystemFurnitureElementType",
             Category::Covering => "IfcCoveringType",
+            Category::Tank => "IfcTankType",
+            Category::Filter => "IfcFilterType",
         }
     }
 
@@ -237,11 +249,11 @@ impl Category {
     }
 
     /// Mechanical equipment (MEP-DUCT-009): air handlers and other unitary equipment, VAV boxes,
-    /// fans, boilers, chillers, pumps and radiators.
+    /// fans, boilers, chillers, pumps, radiators, tanks and filters.
     pub fn is_mechanical_equipment(self) -> bool {
         matches!(
             self,
-            Category::MechanicalEquipment | Category::AirTerminalBox | Category::Fan | Category::Boiler | Category::Chiller | Category::Pump | Category::SpaceHeater | Category::Humidifier
+            Category::MechanicalEquipment | Category::AirTerminalBox | Category::Fan | Category::Boiler | Category::Chiller | Category::Pump | Category::SpaceHeater | Category::Humidifier | Category::Tank | Category::Filter
         )
     }
 
@@ -266,6 +278,8 @@ impl Category {
         match self {
             Category::Column => "COLUMN",
             Category::Sprinkler => "SPRINKLER",
+            Category::Tank => "STORAGE",
+            Category::Filter => "WATERFILTER",
             _ => "NOTDEFINED",
         }
     }

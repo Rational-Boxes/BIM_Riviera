@@ -5,8 +5,9 @@
 //! pool is an `IfcElementAssembly` (SWIMMINGPOOL) contained in its level, aggregating its shell's
 //! `IfcWall` (SOLIDWALL) and `IfcSlab` (BASESLAB) and its coping's `IfcCovering` (COPING), each a
 //! faceted B-rep, with its entries' `IfcStair`, `IfcRamp` and `IfcBuildingElementProxy`
-//! (POOLBENCH) (ARC-POOL-003). Its water is an `IfcSpace` (USERDEFINED, WATER) under the level,
-//! with its area and volume in `Qto_SpaceBaseQuantities`.
+//! (POOLBENCH) (ARC-POOL-003) and their handrails' `IfcRailing` (HANDRAIL) (ARC-POOL-013). Its
+//! water is an `IfcSpace` (USERDEFINED, WATER) under the level, with its area and volume in
+//! `Qto_SpaceBaseQuantities`.
 //!
 //! The parts are made from the pool: they are not elements of their own. The aggregations are
 //! marked `rxd:pool:<signature>` (the water's `rxd:pool:water:<pool GlobalId>`) and each part
@@ -30,7 +31,7 @@ fn r(id: StepId) -> AttrValue {
 
 fn signature(g: &PoolGeometry, scale: f64) -> String {
     let mut h = std::collections::hash_map::DefaultHasher::new();
-    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.markings, &g.depth_marks] {
+    for set in [&g.walls, &g.base, &g.coping, &g.water, &g.stairs, &g.ramps, &g.benches, &g.rails, &g.markings, &g.depth_marks] {
         set.len().hash(&mut h);
         for (p, i) in set {
             for q in p {
@@ -181,6 +182,8 @@ pub(crate) fn write_pools(ifc: &mut IfcModel, doc: &Document, steps: &HashMap<El
             ("IfcStair", "stairs", "STRAIGHT_RUN_STAIR", None, &g.stairs),
             ("IfcRamp", "sloped entries", "STRAIGHT_RUN_RAMP", None, &g.ramps),
             ("IfcBuildingElementProxy", "benches", "USERDEFINED", Some("POOLBENCH"), &g.benches),
+            // Handrails and grab rails (ARC-POOL-013).
+            ("IfcRailing", "handrails", "HANDRAIL", None, &g.rails),
             // Lane markings (ARC-POOL-005): IFC 4.3's LINEMARKING surface feature, a covering in IFC4.
             ("IfcCovering", "lane markings", "USERDEFINED", Some("LANEMARKING"), &g.markings),
             // Depth and NO DIVING markers and the break-point band (ARC-POOL-011).

@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: A swimming pool hall
--- description: A pool hall's deck with a six-lane 25 m competition pool, 2.0 m deep throughout, with starting platforms, ladders, a pool lift, a lifeguard chair and main drains from the Riviera Pools library, and a 12 × 7 m teaching pool beside it whose floor falls from 0.6 m to 0.9 m, with stairs and an ADA sloped entry built in; each pool's shell walls, base slab, coping and water are generated, and the deck is cut round them.
+-- description: A pool hall's deck with a six-lane 25 m competition pool, 2.0 m deep throughout, with starting platforms, ladders, a pool lift, a lifeguard chair and main drains from the Riviera Pools library, and a 12 × 7 m teaching pool beside it whose floor falls from 0.6 m to 0.9 m, with stairs and an ADA sloped entry built in, and the main pool's treatment plant in a plant room; each pool's shell walls, base slab, coping and water are generated, and the deck is cut round them.
 --
 -- Riviera sample model (test-data/samples): swimming pools (ARC-POOL-001…004). pool.create makes a
 -- pool from a template or an outline with its depth profile; pool.info gives its water area,
@@ -29,9 +29,10 @@ end
 riviera.door.place{ host_wall_id = hall[4], point_along = 15 }
 
 -- A 25 m pool, six 2.5 m lanes, its long axis east–west.
-local main = riviera.pool.create{ level = l1, name = "Main pool", template = { kind = "competition_25m", origin = { 16, 12 } } }
--- A teaching pool to the east, 0.6 m deep at its west end falling to 0.9 m.
-local teach = riviera.pool.create{ level = l1, name = "Teaching pool", template = { kind = "teaching", origin = { 36, 20 } },
+local main = riviera.pool.create{ level = l1, name = "Main pool", template = { kind = "competition_25m", origin = { 15.3, 12 } } }
+-- A teaching pool to the east, 0.6 m deep at its west end falling to 0.9 m, 2.2 m clear of the
+-- main pool so its handrails stay out of the main pool's 6 ft deck.
+local teach = riviera.pool.create{ level = l1, name = "Teaching pool", template = { kind = "teaching", origin = { 36.05, 20 } },
   profile = { { at = 0, depth = 0.6 }, { at = 12, depth = 0.9 } } }
 -- Depth markings round both (ARC-POOL-011): deck and wall markers at least every 25 ft, NO DIVING
 -- where the water is 5 ft deep or less, and the main pool's break-point band.
@@ -53,7 +54,7 @@ end
 -- A starting platform at the east end of each of the six lanes (lane centres 1.25 m in from
 -- the side walls, 2.5 m apart), facing west; the touch pads' 30 mm is in the length.
 for k = 0, 5 do
-  place("Starting platform 24 × 32 in", 28.515 + 0.406, 4.5 + 1.25 + 2.5 * k, -math.pi / 2)
+  place("Starting platform 24 × 32 in", 27.815 + 0.406, 4.5 + 1.25 + 2.5 * k, -math.pi / 2)
 end
 -- Ladders at each end of both long sides, on the walls' faces.
 place("Pool ladder, 3 steps", 5, 19.5, 0)
@@ -99,3 +100,20 @@ for _, t in ipairs(riviera.pool.treatment{}) do
   print(string.format("%s: %.1f h turnover, %.0f m³/h, %.1f m² of filters, %.1f m³ of surge, %.0f mm suction, plant room %.0f–%.0f m²",
     t.name, t.turnover, t.flow, t.filter_area, t.surge_volume, t.suction.diameter, t.plant_room[1], t.plant_room[2]))
 end
+
+-- The main pool's plant room (ARC-POOL-014), 21 × 5 m against the hall's east wall (its face at x = 44.1) with its own
+-- door: the balance tank, duty and standby pumps, filters and chemical tanks sized above, along
+-- its south wall, the room's area checked against Sport England's 15–30 % of the water.
+local pr = { { 44.1, 0 }, { 65, 0 }, { 65, 5 }, { 44.1, 5 } }
+local plant_walls = {}
+for i = 1, 3 do
+  plant_walls[i] = riviera.wall.create{ curve = { line = { start = pr[i], ["end"] = pr[i + 1] } }, base_level = l1, top_constraint = { unconnected = 4.0 } }
+end
+riviera.door.place{ host_wall_id = plant_walls[2], point_along = 2.5 }
+local room = riviera.room.place{ level_id = l1, point = { 54.5, 2.5 }, name = "Pool plant" }
+local plant = riviera.pool.plant{ pool_id = main, room = room }
+print(string.format("Plant: %d items, pumps %.1f kW for %.0f m³/h at %.0f m, filters Ø%.0f mm, a %.1f m³ balance tank, the row %.1f × %.1f m in %.0f m²",
+  #plant.items, plant.motor, plant.flow, plant.head, plant.filter_diameter * 1000, plant.balance_tank, plant.footprint[1], plant.footprint[2], plant.room_area))
+for _, n in ipairs(plant.notes) do print("  " .. n) end
+for _, n in ipairs(plant.notes) do assert(not n:find("plant room is") and not n:find("needs"), n) end
+assert(#riviera.overlap.find{}.overlaps == 0, "the plant stands clear")

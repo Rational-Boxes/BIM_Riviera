@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 934 numbered requirements (320 P0 · 370 P1 · 237 P2 · 7 P3), 2,412 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 936 numbered requirements (320 P0 · 372 P1 · 237 P2 · 7 P3), 2,413 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,412 commands; 934 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,413 commands; 936 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15664,9 +15664,9 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012) |
-| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012) |
-| `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012); stair handrails, recessed steps and their grab rails, 1:12 beaches (ARC-POOL-013) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012); stair handrails, recessed steps and 1:10 beaches, secondary (ARC-POOL-013) |
+| `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004); a sloped entry's handrails (ARC-POOL-013) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
 | `uk_hsg179` | recommended | Domain `pool`, in England: HSE's 3 m² a bather (ARC-POOL-007); depth signs in metres (ARC-POOL-011) |
@@ -16224,7 +16224,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16295,7 +16295,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the entries are an `IfcStair` and a POOLBENCH proxy in the pool's assembly; reopened, the pool has its two entries and the same volume, and they are not loaded as elements.
 - [x] The sample *A public pool checked against the codes* has stairs and a sloped entry at its shallow end and passes its packs.
 
-*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: recessed steps and swimouts, beach (zero-depth) entries, a sloped entry along the wall with its landings, handrails and grab rails (the MAHC's 34–38 in and the ADA's 33–38 in apart), nosing stripes, transfer walls and systems as built entries, and the *Riviera Pools* equipment library with use zones (the rest of step 3).
+*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: swimouts, a sloped entry along the wall with its landings, nosing stripes and transfer walls and systems as built entries (recessed steps, beach entries and handrails are ARC-POOL-013, built; the *Riviera Pools* library is ARC-POOL-004, built).
 
 ### 3.9c.4 The Riviera Pools library
 **ID:** ARC-POOL-004 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §4, §8 (step 3, second half); research/23 A.7, A.9, A.15.2, D.4, D.5.3 (S2762, S2768, S2773, S2775, S2776, S2791, S2836, S2837, S2840, S2841, S2855, S2856, S2861); DM-LIB-006 (bundled libraries), ARC-FURN-001 (the catalogue), ARC-RULE-002 (use zones)
@@ -16502,8 +16502,8 @@ Public and competition pools come first (Q6).
 - [x] A wading pool turns over in 1 h and needs secondary disinfection. A deck-level diving pool with a board turns over in 8 h with gutters for 125 % of its flow, and a 10 h turnover is a note.
 
 *Built (2026-11-09):* `riviera_core::pool_treatment`, View › Coordination › Pool Water Treatment. Defaults are E-124. Not yet:
-- the plant as equipment (filters, pumps, the balance tank as objects in a plant room, with their pipes);
-- pump power and heads;
+- the plant's pipes (the plant as equipment, and pump power at a set head, are ARC-POOL-014, built);
+- pump heads worked out from the pipework;
 - the MAHC's secondary-treatment flow;
 - disinfectant dosing;
 - checking a modelled plant room's area;
@@ -16676,6 +16676,100 @@ Public and competition pools come first (Q6).
 - the MAHC's 15 ft between a wading pool and other pools;
 - Washington's and Texas's heights;
 - a railing type editor in the window, and choosing a gate's swing there.
+
+### 3.9c.13 Pool handrails, recessed steps and beach entries
+**ID:** ARC-POOL-013 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §3, §4, §8 (step 3's rest); research/23 A.3, A.4.2, A.4.3, A.15.2, D.4 (S2762, S2767, S2768, S2773, S2841); ARC-POOL-003 (entries), ARC-POOL-002 (`pool.check`)
+
+**Purpose.** Finish the ways into a pool: handrails on stairs and sloped entries, treads recessed into the wall with grab rails, and zero-depth (beach) entries, each checked against the codes.
+
+**Behaviour & rules.**
+- **Handrails** go on every entry built by `pool.add_entry` (ARC-POOL-003):
+  - by default two, one at each side, on stairs, sloped entries and recessed steps (their grab rails); none on benches and beaches. `handrails` sets how many (0 for none); more than two are spread evenly across.
+  - each is a 1.90 in (48 mm) tube, its centre 30 mm in from the entry's side, or with `handrail_gap` the clear width between the outer two;
+  - stairs: `handrail_height` (default 36 in) above the treads' nosings, from the deck a tread behind the wall down to the floor at the bottom riser's face;
+  - sloped and beach entries: the same height above the ramp, from 0.3 m back on the deck to the ramp's foot.
+- **Recessed steps** (`recessed_steps`) are treads cut into the pool's wall, one under another:
+  - `width` (default 18 in), `depth` into the wall (default 5½ in), `riser` apart (default 10 in), the top one `top` below the deck (default 10 in), each opening 0.14 m high;
+  - they go down to 0.3 m off the floor and no more than 1.0 m under the water;
+  - the shell must leave 50 mm behind them;
+  - the wall is built round their openings, which hold water;
+  - grab rails each side 21 in apart clear by default, 0.85 m above the deck, from 0.2 m back on the deck over the coping and 0.4 m down in front of the wall.
+- **A beach entry** (`beach`) rises at `slope` (default 1:12) from the floor to the deck along the whole edge, or `width` of it. It reports where it reaches the water (`waterline`) and the floor (`run`).
+- **The water's volume** is less what beaches displace and more what recessed treads hold. Sloped entries and beaches are built in two blocks, broken where they go under the water.
+- **Checks** (`pool.check`), on the entries of a rule's `kinds` (default stairs):
+  - `handrails`: at least `min`; on both sides where the entry is wider than `wide`; at most `spacing` apart;
+  - `handrail_height`, `handrail_gap` (min, max);
+  - `recessed_step_width`, `recessed_step_depth`, `recessed_step_spacing`, `recessed_step_top` (min, max);
+  - `beach_slope` (max).
+- **Packs:**
+  - the MAHC: handrails on every stair set, both sides over 5 ft wide and at most 12 ft apart (4.5.5), 34–38 in (Table 4.5.5.7); recessed steps' grab rails both sides, 18–24 in apart and 28 in above the deck (4.5.6); treads at least 12 in wide and 5 in deep, 6–12 in apart, the top one 12 in below the deck at most (Table 4.5.7.4); beaches 1:12 (4.5.9.2);
+  - the ISPSC (public, secondary): stair handrails 34–38 in (323.2); recessed steps as the MAHC's but 7–12 in apart (322.4); beaches 1:10 (411.3);
+  - the ADA: a sloped entry's two handrails 33–38 in apart (1009.3.3) and 34–38 in high (505.4);
+  - recessed steps count as *Recessed Steps* and beaches as *Beach Entry*, entries under the MAHC and the ISPSC.
+- **The window:** Architecture › Build › Pool Entry offers recessed steps and beach entries, and the handrails' count, height and gap.
+
+**Data (IFC mapping).** The handrails are one more part in the pool's assembly, an `IfcRailing` (HANDRAIL) of faceted B-reps marked `rxd:pool`. A beach is part of the `IfcRamp`. Recessed steps are openings in the shell's `IfcWall`. All of it is in the recipe's entries.
+
+**Commands.** `pool.add_entry` takes `kind` `recessed_steps` or `beach`, and `top`, `handrails`, `handrail_height` and `handrail_gap`; it returns `recess`, `top`, `waterline`, `handrails`, `handrail_height`, `handrail_gap` (the least clear width between neighbours) and `handrail_spacing` (the most between centres).
+
+**Acceptance criteria.**
+- [x] Stairs get two handrails 36 in above the nosings; a 1.0 m sloped entry's are 35 in apart clear. Without handrails, with one on stairs 2 m wide, at 31.5 in, or a sloped entry's 39.4 in apart, the MAHC, the ISPSC and the ADA fail them; 6 m stairs fail with two handrails 19 ft apart and pass with four.
+- [x] Recessed steps in a 2.0 m deep wall have four treads 10 in apart; the water gains their openings' volume. A top tread 15.75 in down, 3.9 in deep treads, grab rails 27.6 in apart and treads 6.5 in apart (the ISPSC only) fail; treads deeper than the shell allows are refused.
+- [x] A beach along a 0.9 m deep shallow end at 1:12 reaches the water 1.8 m out and the floor 12.6 m out, displacing exactly its wedge; at 1:9 it fails the MAHC and the ISPSC.
+- [x] Saved, the handrails are an `IfcRailing` HANDRAIL in the pool's assembly; reopened, the pool has its entries and volume, and the handrails are not loaded as railings.
+- [x] The sample *A resort pool with a beach entry* passes its packs with a beach, wide stairs with three handrails, a sloped entry and recessed steps.
+
+*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the eight rule checks, Architecture › Build › Pool Entry. Defaults are E-128. Not yet:
+- swimouts;
+- a sloped entry along the wall with its landings;
+- nosing stripes;
+- the beach's trench drain at the waterline;
+- the MAHC's recessed stairs where the water is over 5 ft deep;
+- the ADA's 20–24 in between pool stairs' handrails, with stairs counted as an accessible means of entry;
+- transfer walls and systems as built entries;
+- handrails' loads (50 lb/ft or 200 lb);
+- editing entries in the view.
+
+### 3.9c.14 The pool's treatment plant as equipment
+**ID:** ARC-POOL-014 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §6, §8 (step 7's plant room); research/23 C.3 (S2762, S2798, S2800, S2808, S2809, S2821); ARC-POOL-009 (sizing); MEP-PIPE-008 (pumps)
+
+**Purpose.** Put the treatment plant `pool.treatment` sizes into the model as equipment in the plant room, so the room can be planned, scheduled and checked.
+
+**Behaviour & rules.**
+- **What:** from `pool.treatment` on `basis` with `filters`:
+  - a balance tank for the surge or balance volume, 1.2 m of water in a tank 1.5 m high, twice as long as wide;
+  - a duty and a standby circulation pump, each for the whole flow against `head` (default 15 m: the filters, strainer and pipework) at 60 % efficiency, the motor the next standard size up (IEC 60072);
+  - the filters, vertical vessels 1.8 m high whose diameter (to the next 50 mm) gives each its share of the filter area. Over 3 m across is a note to use more filters or horizontal vessels;
+  - a 200 L sodium hypochlorite tank and a 200 L acid tank, each in a bund, 2 m apart (Sport England: acid and chlorine stored apart).
+- **Where:** in a row 0.5 m off the back wall, 0.8 m between items and 0.6 m from the ends, with 1.0 m in front:
+  - in `room`, or the room round `point` on `level`: along its longer side from its lower corner;
+  - otherwise from `point` on `level` along `rotation`.
+- **Checks** (notes):
+  - a room smaller than 15 % of the water's area (Sport England's 15–30 %);
+  - a row longer or deeper than the room;
+  - without a room, a row taking more than 30 % of the water's area.
+  - Always: the chemicals' separate ventilated stores, and that the head is an allowance and the pipes are not drawn.
+- **Objects:** each item is a generated object type, made once by name: `IfcTank` (STORAGE), `IfcPump` and `IfcFilter` (WATERFILTER). Each placed item is marked with its pool, and running the command again replaces the pool's plant.
+- **The window:** Architecture › Build › Pool Plant, on the selected pool: basis, filters and head, then a click in the plant room.
+
+**Data (IFC mapping).** Ordinary placed objects (`IfcTank`, `IfcPump`, `IfcFilter` with their types), with `rxd:pool_plant` naming the pool. The new object categories *Tank* and *Filter* are available to imported objects too.
+
+**Commands.** `pool.plant(pool_id?, room? | level + point, rotation?, basis?, filters?, head?)` → `{pool, basis, flow, head, pump_power, motor, filter_diameter, balance_tank, items [{element, role, name, size, at}], footprint, area, plant_room, room?, room_area?, notes}`.
+
+**Acceptance criteria.**
+- [x] A 25 m competition pool's plant in a 14 × 5 m room: the flow `pool.treatment` gives, pumps sized from it at 15 m and 60 %, filters whose diameter gives their share of the area. A balance tank, two pumps, two filters and two chemical tanks (three `IfcTank`, two `IfcPump`, two `IfcFilter`) stand along the south wall 0.5 m off it, the chemicals 2 m apart. There are no notes on the room, and nothing overlaps.
+- [x] In a 6 × 3 m room, notes say the room is under the 15 % and the row does not fit. The plant is replaced, not added to.
+- [x] Placed from a point turned 90°, the row runs north; on the UK basis it is sized on the UK's numbers.
+- [x] Saved, the items are `IfcTank`s, `IfcPump`s and `IfcFilter`s, their types STORAGE and WATERFILTER.
+- [x] The sample *A swimming pool hall* has its plant in a plant room.
+
+*Built (2026-11-11):* `riviera_core::pool_plant`, the *Tank* and *Filter* object categories, Architecture › Build › Pool Plant. Defaults are E-129. Not yet:
+- the pipes between the items and to the pool, with valves and the strainer;
+- heaters or heat exchangers, UV and other secondary treatment;
+- pump curves and heads from the pipework;
+- the chemical stores as rooms of their own, with their exhaust;
+- horizontal filters and filter batteries;
+- connectors on the items for the MEP tools.
 
 ## 3.11 Massing and site
 
@@ -17913,7 +18007,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.set` | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `pool.info` | pool_id, points? | {area, perimeter, volume, depths, segments, deepest, shallowest, shell_volume} | No (query) | ARC-POOL-001 |
 | `pool.list` | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
-| `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes | ARC-POOL-003 |
+| `pool.add_entry` | pool_id, kind, point \| edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth?, top?, handrails?, handrail_height?, handrail_gap? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?, recess?, top?, waterline?, handrails?, handrail_height?, handrail_gap?, handrail_spacing?} | Yes | ARC-POOL-003, ARC-POOL-013 |
 | `pool.remove_entry` | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.lanes` | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \| null | Yes | ARC-POOL-005 |
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
@@ -17921,6 +18015,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.depth_markings` | pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove? | {markers: [{at, edge, along, depth, label, no_diving, reason}], lines?} | Yes | ARC-POOL-011 |
 | `pool.barriers` | pool_id? | [{enclosed, area?, barriers, gates, openings, wall_openings}] | No (query) | ARC-POOL-012 |
 | `railing_type.create` | name, height?, top_rail?, bottom_rail?, bottom_rail_height?, baluster?, baluster_spacing?, post?, post_space? | id | Yes | ARC-POOL-012 |
+| `pool.plant` | pool_id?, room? \| level + point, rotation?, basis?, filters?, head? | {flow, head, pump_power, motor, filter_diameter, balance_tank, items, footprint, area, plant_room, room?, room_area?, notes} | Yes | ARC-POOL-014 |
 | `pool.structure` | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |
 | `pool.apply_loads` | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
 | `pool.bonding` | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
@@ -31461,14 +31556,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 125 | 41 | 1 | 244 |
+| ARC | 77 | 127 | 41 | 1 | 246 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **370** | **237** | **7** | **934** |
+| **Total** | **320** | **372** | **237** | **7** | **936** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31682,7 +31777,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2412 unique commands** in 457 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2413 unique commands** in 457 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31979,7 +32074,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate` | 3 |
 | `plumbing_fixture` | 1 |
 | `pointcloud` | 1 |
-| `pool` | 15 |
+| `pool` | 16 |
 | `position` | 8 |
 | `precast` | 10 |
 | `precast_config` | 7 |
@@ -33523,7 +33618,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate.set` | 4 | plate_ids[], contour?, thickness?, justification?, material?, coating?, role? | — | Yes | STR-STL-005 |
 | `plumbing_fixture.place` | 4 | type_id, host_face_ref \ | work_plane, point, rotation | id | Yes |
 | `pointcloud.reindex` | 6 | link_id | job_id | No | COL-LNK-003 |
-| `pool.add_entry` | 3 | pool_id, kind, point \ | edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes |
+| `pool.add_entry` | 3 | pool_id, kind, point \ | edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth?, top?, handrails?, handrail_height?, handrail_gap? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?, recess?, top?, waterline?, handrails?, handrail_height?, handrail_gap?, handrail_spacing?} | Yes |
 | `pool.apply_loads` | 3 | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
 | `pool.barriers` | 3 | pool_id? | [{enclosed, area?, barriers, gates, openings, wall_openings}] | No (query) | ARC-POOL-012 |
 | `pool.bonding` | 3 | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
@@ -33534,6 +33629,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `pool.lanes` | 3 | pool_id, count, width?, gap?, pads?, markings? | {length, course, width, widths, centres, gap} \ | null | Yes |
 | `pool.list` | 3 | — | [{id, name, area, volume}] | No (query) | ARC-POOL-001 |
 | `pool.natatorium` | 3 | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
+| `pool.plant` | 3 | pool_id?, room? \ | level + point, rotation?, basis?, filters?, head? | {flow, head, pump_power, motor, filter_diameter, balance_tank, items, footprint, area, plant_room, room?, room_area?, notes} | Yes |
 | `pool.remove_entry` | 3 | pool_id, index | null | Yes | ARC-POOL-003 |
 | `pool.set` | 3 | pool_id, (as `pool.create`) | null | Yes | ARC-POOL-001 |
 | `pool.structure` | 3 | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |

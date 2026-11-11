@@ -534,6 +534,19 @@
     ]
   },
   {
+    "name": "resort_pool",
+    "title": "A resort pool with a beach entry",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "resort_pool.lua"
+        }
+      }
+    ]
+  },
+  {
     "name": "wet_room",
     "title": "Family bathroom and wet room (England)",
     "group": "Architecture",

@@ -64,7 +64,7 @@ is given as 1:n; <a href="#check">Check Pools</a> judges it against the codes.</
 </ul>
 <p>The values are provisional (EXPERT_REVIEW.md E-116).</p>
 
-<h2 id="entries">Stairs, sloped entries and benches</h2>
+<h2 id="entries">Stairs, sloped entries, benches, recessed steps and beaches</h2>
 <p>Select the pool and choose <b>Architecture › Build › Pool Entry</b>, then click by the wall
 where the entry's middle goes. It runs from that edge into the pool and becomes part of it:</p>
 <ul>
@@ -73,11 +73,24 @@ where the entry's middle goes. It runs from that edge into the pool and becomes 
   <li><b>Sloped entry</b>, 1.0 m wide: a 1:12 ramp from the deck to 27 in below the water, the
   ADA's accessible entry (§1009.3); it stops where the pool does.</li>
   <li><b>Underwater bench</b>, 2.0 m long and 0.45 m deep, its seat 0.45 m below the water.</li>
+  <li><b>Recessed steps</b>, treads 18 in wide cut 5½ in into the wall, 10 in apart, the top one
+  10 in below the deck, down to 1.0 m under the water. A grab rail each side, 21 in apart and
+  0.85 m above the deck, curves over the coping into the water. The shell must leave 50 mm
+  behind the treads.</li>
+  <li><b>Beach (zero-depth) entry</b>: the floor rising 1:12 to the deck along the whole edge,
+  or the width you type. The status bar says where it reaches the water and the floor.</li>
 </ul>
-<p>The water's volume is less what they displace. Check Pools counts stairs and sloped entries
-as entries, a sloped entry as an accessible one, and measures treads, risers, widths, the ramp's
-slope and depth, and benches. From a script: <code>pool.add_entry</code>,
-<code>pool.remove_entry</code>, or <code>pool.set</code> with <code>entries</code>.</p>
+<p><b>Handrails.</b> Stairs and sloped entries get two handrails, one at each side, 36 in above
+the nosings or the ramp, of 1.90 in tube. Type how many (0 for none; more are spread across),
+their height, and the clear width between the outer two. Wide stairs need more than two: the
+MAHC wants them at most 12 ft apart.</p>
+<p>The water's volume is less what they displace and more what recessed treads hold. Check Pools
+counts stairs, recessed steps and beaches as entries, a sloped entry as an accessible one, and
+measures treads, risers, widths, the ramp's slope and depth, benches, handrails (how many, how
+high, how far apart), recessed treads and the beach's slope. The sample
+<a href="riviera:sample/resort_pool">A resort pool with a beach entry</a> has one of each. From a
+script: <code>pool.add_entry</code>, <code>pool.remove_entry</code>, or <code>pool.set</code>
+with <code>entries</code>.</p>
 
 <h2 id="lanes">Competition lanes</h2>
 <p>The competition templates come with their lanes: six (eight for 50 m), the middle ones 2.5 m
@@ -150,7 +163,8 @@ disagree (1:12 or 1:10 above the break, a 4 ft or 6 ft deck) you see which pack 
   deepest point, the cove and the coping.</li>
   <li><b>Deck</b>: a floor that reaches the width along every edge, with nothing standing in it.</li>
   <li><b>Entries</b>: <i>Pool ladder</i>, stairs and recessed steps within 1 m of the edge; the
-  <i>Pool lift</i>, sloped entries and transfer walls as accessible means of entry. A pool wall
+  <i>Pool lift</i>, sloped entries and transfer walls as accessible means of entry. Under the
+  MAHC and the ISPSC a beach entry counts too. A pool wall
   under 300 ft needs one, a lift or sloped entry; longer, two. The ladder, lift and drains are in
   the <a href="#equipment">Riviera Pools</a> library.</li>
   <li><b>Drains</b>: main drains in the pool, two at least 3 ft apart, or one with a cover larger
@@ -191,6 +205,24 @@ swimming pools), the filtered flow, the filter area and its backwash, the surge 
 the skimmers or gutters, the suction and discharge pipes' sizes, the flow each main drain carries,
 and the plant room's 15–30 % of the water area.</p>
 
+<h2 id="plant">The plant room</h2>
+<p>Select the pool and choose <b>Architecture › Build › Pool Plant</b>. Choose the basis, the
+number of filters and the pumps' head (15 m by default), then click inside the plant room. The
+plant <a href="#treatment">Pool Water Treatment</a> sizes goes along the room's longer side, 0.5 m
+off the wall with 0.8 m between items and 1.0 m in front:</p>
+<ul>
+  <li>a <b>balance tank</b> for the surge or balance volume, 1.5 m high;</li>
+  <li>a <b>duty and a standby pump</b>, each for the whole flow, the motor the next standard size
+  above the flow times the head over 60 % efficiency;</li>
+  <li>the <b>filters</b>, vertical vessels 1.8 m high, each wide enough for its share of the filter
+  area;</li>
+  <li>a <b>hypochlorite</b> and an <b>acid</b> tank in bunds, 2 m apart.</li>
+</ul>
+<p>A room under 15 % of the water's area, or too small for the row, is noted. Clicking outside a
+room starts the row at the click. The items are tanks, pumps and filters you can schedule;
+placing the plant again replaces it. The pipes between them are not drawn yet. From a script:
+<code>pool.plant</code>.</p>
+
 <h2 id="structure">Structure</h2>
 <p><b>View › Coordination › Pool Structure</b> weighs the pool: its water at 9.81 kN/m³, its
 shell at 24.5 kN/m³ (concrete) and its tiles at 1.25 kN/m², in kN and per m² of footprint, on
@@ -218,7 +250,9 @@ that applies. The metal equipment to bond is listed too.</p>
 
 <h2 id="ifc">In IFC</h2>
 <p>A pool is an <code>IfcElementAssembly</code> (SWIMMINGPOOL) of an <code>IfcWall</code>, an
-<code>IfcSlab</code> (BASESLAB) and an <code>IfcCovering</code> (COPING). Its water is an
+<code>IfcSlab</code> (BASESLAB) and an <code>IfcCovering</code> (COPING), with its entries'
+<code>IfcStair</code>, <code>IfcRamp</code> and bench proxies and their handrails'
+<code>IfcRailing</code> (HANDRAIL). Its water is an
 <code>IfcSpace</code> (WATER) under the level, with its area and volume in
 <code>Qto_SpaceBaseQuantities</code>. No IFC version has a pool class, so this is Riviera's
 mapping.</p>
@@ -232,12 +266,12 @@ mapping.</p>
   symbol is a plain tile. The float line is placed but not drawn.</li>
   <li>Barriers: gates' self-closing hardware and latch heights, the clear zone outside, and the
   ground under a fence (grass or paving) are not modelled.</li>
-  <li>Not checked yet: where entries stand along the pool, handrails, 3 m boards and
-  platforms.
-  Recessed steps, swimouts and beach entries are not built yet.</li>
+  <li>Not checked yet: where entries stand along the pool, 3 m boards and platforms, pool
+  stairs' handrails under the ADA (20–24 in apart).</li>
+  <li>Swimouts, nosing stripes and a beach's trench drain are not built yet.</li>
 </ul>
 
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.barriers</code>, <code>railing_type.create</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.barriers</code>, <code>railing_type.create</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.plant</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>

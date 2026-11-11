@@ -1466,6 +1466,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_structure" => format!(
             r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // A filter vessel and a pump on a plinth beside a tank.
+        "pool_plant" => format!(
+            r#"<rect x="3" y="12" width="9" height="15" rx="4" fill="{a}" {s}/><rect x="15" y="20" width="8" height="7" {s}/><circle cx="19" cy="23" r="2" fill="{f}"/><rect x="25" y="8" width="5" height="19" {s}/><path d="M7 12V6h21v2M2 28h29" fill="none" {s}/>"#
+        ),
         // A pool inside a fence of balusters with a gate standing open.
         "pool_barriers" => format!(
             r#"<rect x="10" y="11" width="12" height="10" fill="{a}" {s}/><path d="M4 4h24v24H18M14 28H4z" fill="none" {s}/><path d="M8 4v24M12 4v4M16 4v4M20 4v4M24 4v24M14 28l-3-4" stroke="{f}" stroke-width="1.2"/>"#

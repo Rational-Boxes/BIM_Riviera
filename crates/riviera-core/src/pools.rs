@@ -172,6 +172,10 @@ pub enum EntryKind {
     SlopedEntry,
     /// An underwater bench along the wall.
     Bench,
+    /// Treads recessed into the wall, one under another, with grab rails each side (ARC-POOL-013).
+    RecessedSteps,
+    /// A zero-depth (beach) entry: the floor rising from the pool to the deck (ARC-POOL-013).
+    Beach,
 }
 
 impl EntryKind {
@@ -181,6 +185,19 @@ impl EntryKind {
             EntryKind::Stairs => ("IfcStair", "Pool Stairs"),
             EntryKind::SlopedEntry => ("IfcRamp", "Sloped Entry"),
             EntryKind::Bench => ("IfcBuildingElementProxy", "Pool Bench"),
+            EntryKind::RecessedSteps => ("IfcBuildingElementProxy", "Recessed Steps"),
+            EntryKind::Beach => ("IfcRamp", "Beach Entry"),
+        }
+    }
+
+    /// What a finding calls it.
+    pub fn label(self) -> &'static str {
+        match self {
+            EntryKind::Stairs => "stairs",
+            EntryKind::SlopedEntry => "sloped entry",
+            EntryKind::Bench => "bench",
+            EntryKind::RecessedSteps => "recessed steps",
+            EntryKind::Beach => "beach entry",
         }
     }
 }
@@ -195,7 +212,8 @@ pub struct Entry {
     /// Its middle's distance along the edge from the edge's start.
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub at: f64,
-    /// Along the edge (default 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench).
+    /// Along the edge (default 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench,
+    /// 0.457 m (18 in) for recessed treads, the whole edge for a beach entry).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub width: Option<f64>,
@@ -204,10 +222,11 @@ pub struct Entry {
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub tread: Option<f64>,
     /// Stairs: the highest riser allowed (default 0.25 m); the risers are made equal under it.
+    /// Recessed steps: the treads' spacing (default 0.254 m, 10 in).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub riser: Option<f64>,
-    /// A sloped entry's slope, rise over run (default 1:12).
+    /// A sloped entry's or beach entry's slope, rise over run (default 1:12).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub slope: Option<f64>,
     /// How far below the water a sloped entry reaches (default 0.69 m, 27 in).
@@ -218,10 +237,30 @@ pub struct Entry {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub seat: Option<f64>,
-    /// A bench's depth out from the wall (default 0.45 m).
+    /// A bench's depth out from the wall (default 0.45 m); recessed treads' depth into the wall
+    /// (default 0.14 m, 5½ in).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub depth: Option<f64>,
+    /// Recessed steps: the top tread below the deck (default 0.254 m, 10 in).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub top: Option<f64>,
+    /// How many handrails (ARC-POOL-013): default 2, one at each side, for stairs, sloped entries
+    /// and recessed steps (their grab rails); none for benches and beach entries. More than two
+    /// are spread evenly across.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub handrails: Option<u32>,
+    /// Their top above the treads' nosings or the ramp (default 0.914 m, 36 in), or for grab
+    /// rails above the deck (default 0.85 m).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub handrail_height: Option<f64>,
+    /// The clear width between the outer two (default: the entry's width less 30 mm each side
+    /// and the rails; 0.533 m, 21 in, for grab rails).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub handrail_gap: Option<f64>,
 }
 
 /// A competition pool's lanes (ARC-POOL-005): equal middle lanes, the two outer lanes taking
@@ -340,6 +379,8 @@ pub struct PoolGeometry {
     pub stairs: Vec<Mesh>,
     pub ramps: Vec<Mesh>,
     pub benches: Vec<Mesh>,
+    /// The entries' handrails and grab rails (ARC-POOL-013).
+    pub rails: Vec<Mesh>,
     /// Lane lines, T-ends, cross lines and end-wall targets (ARC-POOL-005).
     pub markings: Vec<Mesh>,
     /// Depth and NO DIVING markers and the break-point band (ARC-POOL-011).
@@ -485,6 +526,25 @@ pub struct EntryInfo {
     /// A bench's seat below the water.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seat: Option<f64>,
+    /// Recessed steps (the treads in `risers`, their spacing in `riser`): how deep each is into
+    /// the wall and the top one below the deck.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub recess: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub top: Option<f64>,
+    /// A beach entry: how far from the wall the water's edge is.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub waterline: Option<f64>,
+    /// Its handrails: how many, their height, the least clear width between neighbours and the
+    /// most between their centres.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub handrails: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub handrail_height: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub handrail_gap: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub handrail_spacing: Option<f64>,
 }
 
 /// The top of an entry's block: level, or a ramp falling from the wall.
@@ -523,9 +583,25 @@ fn across(r: &[[f64; 2]], from: usize, c: [f64; 2], dir: [f64; 2]) -> f64 {
         .fold(f64::MAX, f64::min)
 }
 
-/// An entry's blocks (plan rectangles with their tops) and numbers; `None` when its edge is not
-/// the pool's.
-fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Option<(Vec<(Ring, Top)>, EntryInfo)> {
+/// A handrail's tube: 1.90 in outside (DMS-100; research/23 D.4), its centre 30 mm in from the
+/// entry's side.
+const RAIL_OD: f64 = 0.048;
+const RAIL_INSET: f64 = 0.03;
+/// A recessed tread's opening, floor to roof (at most; 5½ in, over the MAHC's 5 in).
+const RECESS_OPENING: f64 = 0.14;
+
+/// An entry as laid out: its blocks (plan rectangles with their tops), its handrails (each a
+/// polyline the tube follows), the recesses it cuts into the wall (plan rectangles, each with
+/// its openings' bottoms and tops), and its numbers.
+struct Layout {
+    blocks: Vec<(Ring, Top)>,
+    rails: Vec<Vec<[f64; 3]>>,
+    recesses: Vec<(Ring, Vec<[f64; 2]>)>,
+    info: EntryInfo,
+}
+
+/// An entry's layout; `None` when its edge is not the pool's.
+fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Option<Layout> {
     let n = rec.outline.len();
     let i = e.edge.checked_sub(1).filter(|i| *i < n)?;
     let (a, b) = (rec.outline[i], rec.outline[(i + 1) % n]);
@@ -533,19 +609,50 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
     let u = [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
     // Inward of a counter-clockwise ring: to the left of the edge.
     let nin = [-u[1], u[0]];
-    let c = [a[0] + u[0] * e.at, a[1] + u[1] * e.at];
+    // A beach entry left at its default width takes the whole edge.
+    let whole = e.kind == EntryKind::Beach && e.width.is_none();
+    let along = if whole { l / 2.0 } else { e.at };
+    let c = [a[0] + u[0] * along, a[1] + u[1] * along];
     let w = e.width.unwrap_or(match e.kind {
         EntryKind::Stairs => 1.5,
         EntryKind::SlopedEntry => 1.0,
         EntryKind::Bench => 2.0,
+        EntryKind::RecessedSteps => 0.457,
+        EntryKind::Beach => l,
     });
     let rect = |d0: f64, d1: f64| -> Ring {
         let q = |s: f64, d: f64| [c[0] + u[0] * s + nin[0] * d, c[1] + u[1] * s + nin[1] * d];
         vec![q(-w / 2.0, d0), q(w / 2.0, d0), q(w / 2.0, d1), q(-w / 2.0, d1)]
     };
     let water_depth = rec.depth_at(rec.t(c));
-    let mut info = EntryInfo { index, kind: e.kind, edge: e.edge, width: w, at: c, water_depth, risers: None, riser: None, tread: None, slope: None, run: None, reaches: None, seat: None };
-    let mut blocks = Vec::new();
+    let water_z = deck_z - rec.water_level;
+    let floor_z = |d: f64| water_z - rec.depth_at(rec.t([c[0] + nin[0] * d, c[1] + nin[1] * d]));
+    let mut info = EntryInfo {
+        index,
+        kind: e.kind,
+        edge: e.edge,
+        width: w,
+        at: c,
+        water_depth,
+        risers: None,
+        riser: None,
+        tread: None,
+        slope: None,
+        run: None,
+        reaches: None,
+        seat: None,
+        recess: None,
+        top: None,
+        waterline: None,
+        handrails: None,
+        handrail_height: None,
+        handrail_gap: None,
+        handrail_spacing: None,
+    };
+    let (mut blocks, mut recesses) = (Vec::new(), Vec::new());
+    // Each handrail's profile: (distance in from the wall, height) points.
+    let mut profile: Vec<[f64; 2]> = Vec::new();
+    let rail_h = e.handrail_height.unwrap_or(if e.kind == EntryKind::RecessedSteps { 0.85 } else { 0.9144 });
     match e.kind {
         EntryKind::Stairs => {
             let (tread, max) = (e.tread.unwrap_or(0.305), e.riser.unwrap_or(0.25));
@@ -556,23 +663,106 @@ fn entry_layout(rec: &PoolRecipe, index: usize, e: &Entry, deck_z: f64) -> Optio
                 blocks.push((rect(f64::from(k - 1) * tread, f64::from(k) * tread), Top::Flat(deck_z - f64::from(k) * r)));
             }
             (info.risers, info.riser, info.tread) = (Some(risers), Some(r), Some(tread));
+            // Up from the deck a tread behind the wall, down the nosings' line, to the floor at
+            // the bottom riser's face.
+            if risers > 1 {
+                let end = f64::from(risers - 1) * tread;
+                let bottom = deck_z - f64::from(risers) * r;
+                profile = vec![[-tread, deck_z], [-tread, deck_z + rail_h], [end, bottom + rail_h], [end, bottom]];
+            }
         }
-        EntryKind::SlopedEntry => {
-            let (slope, reach) = (e.slope.unwrap_or(1.0 / 12.0), e.reach.unwrap_or(0.6858));
-            // As far as the pool lets it.
-            let run = ((rec.water_level + reach) / slope).min(across(&rec.outline, i, c, nin));
-            blocks.push((rect(0.0, run), Top::Ramp { z: deck_z, slope, from: c, n: nin }));
-            let foot = [c[0] + nin[0] * run, c[1] + nin[1] * run];
-            let reaches = (slope * run - rec.water_level).min(rec.depth_at(rec.t(foot)));
-            (info.slope, info.run, info.reaches) = (Some(slope), Some(run), Some(reaches));
+        EntryKind::SlopedEntry | EntryKind::Beach => {
+            let slope = e.slope.unwrap_or(1.0 / 12.0);
+            let far = across(&rec.outline, i, c, nin);
+            let run = if e.kind == EntryKind::SlopedEntry {
+                // As far as the pool lets it.
+                let run = ((rec.water_level + e.reach.unwrap_or(0.6858)) / slope).min(far);
+                let foot = [c[0] + nin[0] * run, c[1] + nin[1] * run];
+                info.reaches = Some((slope * run - rec.water_level).min(rec.depth_at(rec.t(foot))));
+                run
+            } else {
+                // Down to where it meets the floor: stepped to it, then halved in on it.
+                let above = |d: f64| deck_z - slope * d > floor_z(d);
+                let mut d = 0.0;
+                while d < far && above(d) {
+                    d += 0.05;
+                }
+                let (mut lo, mut hi) = ((d - 0.05).max(0.0), d.min(far));
+                if above(hi) {
+                    lo = hi;
+                }
+                for _ in 0..40 {
+                    let mid = (lo + hi) / 2.0;
+                    if above(mid) { lo = mid } else { hi = mid }
+                }
+                info.waterline = Some(rec.water_level / slope);
+                lo
+            };
+            // In blocks broken where it goes under the water, so each block's top is straight
+            // between its ends both in the model and in the water it displaces.
+            let wet = (rec.water_level / slope).min(run);
+            for (d0, d1) in [(0.0, wet), (wet, run)] {
+                if d1 - d0 > 1e-6 {
+                    blocks.push((rect(d0, d1), Top::Ramp { z: deck_z, slope, from: c, n: nin }));
+                }
+            }
+            (info.slope, info.run) = (Some(slope), Some(run));
+            let foot = deck_z - slope * run;
+            profile = vec![[-0.3, deck_z], [-0.3, deck_z + rail_h], [0.0, deck_z + rail_h], [run, foot + rail_h], [run, foot]];
         }
         EntryKind::Bench => {
             let seat = e.seat.unwrap_or(0.45);
             blocks.push((rect(0.0, e.depth.unwrap_or(0.45)), Top::Flat(deck_z - rec.water_level - seat)));
             info.seat = Some(seat);
         }
+        EntryKind::RecessedSteps => {
+            let (spacing, recess, top) = (e.riser.unwrap_or(0.254), e.depth.unwrap_or(0.14), e.top.unwrap_or(0.254));
+            let opening = RECESS_OPENING.min(spacing * 0.6);
+            // Treads down the wall, at least 0.3 m off the floor and no more than 1.0 m under the
+            // water.
+            let lowest = (floor_z(0.0) + 0.3).max(water_z - 1.0);
+            let mut openings = Vec::new();
+            let mut z = deck_z - top;
+            while z >= lowest - 1e-9 || openings.is_empty() && z > floor_z(0.0) + 0.05 {
+                openings.push([z, z + opening]);
+                z -= spacing;
+            }
+            openings.reverse();
+            info.risers = Some(openings.len() as u32);
+            (info.riser, info.recess, info.top) = (Some(spacing), Some(recess), Some(top));
+            recesses.push((rect(-recess, 0.0), openings));
+            // Grab rails: from the deck 0.2 m back, over the coping, and down into the water.
+            profile = vec![[-0.2, deck_z], [-0.2, deck_z + rail_h], [0.15, deck_z + rail_h], [0.15, deck_z - 0.4]];
+        }
     }
-    Some((blocks, info))
+    let count = e.handrails.unwrap_or(match e.kind {
+        EntryKind::Stairs | EntryKind::SlopedEntry | EntryKind::RecessedSteps => 2,
+        EntryKind::Bench | EntryKind::Beach => 0,
+    });
+    let mut rails = Vec::new();
+    if count > 0 && !profile.is_empty() {
+        // Across: between the outer rails' centres.
+        let span = match (e.handrail_gap, e.kind) {
+            (Some(g), _) => g + RAIL_OD,
+            (None, EntryKind::RecessedSteps) => 0.533 + RAIL_OD,
+            (None, _) => w - 2.0 * RAIL_INSET,
+        };
+        let offsets: Vec<f64> = if count == 1 { vec![-span / 2.0] } else { (0..count).map(|k| -span / 2.0 + span * f64::from(k) / f64::from(count - 1)).collect() };
+        for s in &offsets {
+            rails.push(profile.iter().map(|[d, z]| [c[0] + u[0] * s + nin[0] * d, c[1] + u[1] * s + nin[1] * d, *z]).collect());
+        }
+        (info.handrails, info.handrail_height) = (Some(count), Some(rail_h));
+        if count > 1 {
+            let between = span / f64::from(count - 1);
+            (info.handrail_gap, info.handrail_spacing) = (Some(between - RAIL_OD), Some(between));
+        }
+    } else {
+        info.handrails = Some(0);
+    }
+    if e.kind == EntryKind::Bench {
+        info.handrails = None;
+    }
+    Some(Layout { blocks, rails, recesses, info })
 }
 
 /// A pool's lanes as laid out.
@@ -667,7 +857,7 @@ fn lane_marks(rec: &PoolRecipe, water_z: f64, wall_top: f64) -> Vec<(Ring, Optio
 /// Each entry's numbers.
 pub fn entries(store: &Store, rec: &PoolRecipe) -> Vec<EntryInfo> {
     let deck_z = crate::levels::elevation_of(store, &rec.level).unwrap_or(0.0) + rec.deck;
-    rec.entries.iter().enumerate().filter_map(|(k, e)| entry_layout(rec, k + 1, e, deck_z).map(|x| x.1)).collect()
+    rec.entries.iter().enumerate().filter_map(|(k, e)| entry_layout(rec, k + 1, e, deck_z).map(|x| x.info)).collect()
 }
 
 /// Regenerates a pool.
@@ -685,7 +875,29 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     let water: Vec<Mesh> = strips(&rec, std::slice::from_ref(&outline)).iter().map(|s| extrude(s, &floor, &|_| water_z)).collect();
     let base: Vec<Mesh> = strips(&rec, std::slice::from_ref(&outline)).iter().map(|s| extrude(s, &|p| floor(p) - t, &floor)).collect();
     let ring = crate::polygons::difference(&[Shape { outer: offset(&rec.outline, t), holes: Vec::new() }], std::slice::from_ref(&rec.outline));
-    let walls: Vec<Mesh> = strips(&rec, &ring).iter().map(|s| extrude(s, &|p| floor(p) - t, &|_| wall_top)).collect();
+    let layouts: Vec<(EntryKind, Layout)> = rec.entries.iter().enumerate().filter_map(|(k, en)| Some((en.kind, entry_layout(&rec, k + 1, en, deck_z)?))).collect();
+    // Recessed treads (ARC-POOL-013) are cut out of the walls: where they are, the wall is built
+    // in pieces between their openings, which hold water.
+    let recesses: Vec<&(Ring, Vec<[f64; 2]>)> = layouts.iter().flat_map(|(_, l)| &l.recesses).collect();
+    let cut: Vec<Ring> = recesses.iter().map(|(r, _)| r.clone()).collect();
+    let solid = if cut.is_empty() { ring.clone() } else { crate::polygons::difference(&ring, &cut) };
+    let mut walls: Vec<Mesh> = strips(&rec, &solid).iter().map(|s| extrude(s, &|p| floor(p) - t, &|_| wall_top)).collect();
+    let mut recessed = 0.0;
+    for (r, openings) in &recesses {
+        let inside = crate::polygons::intersection(&ring, &[Shape { outer: r.clone(), holes: Vec::new() }]);
+        for s in strips(&rec, &inside) {
+            let mut below: Option<f64> = None;
+            for [lo, hi] in openings {
+                walls.push(match below {
+                    None => extrude(&s, &|p| floor(p) - t, &|_| *lo),
+                    Some(z) => extrude(&s, &|_| z, &|_| *lo),
+                });
+                recessed += crate::polygons::area(&s.outer).abs() * (hi.min(water_z) - lo).max(0.0);
+                below = Some(*hi);
+            }
+            walls.push(extrude(&s, &|_| below.unwrap_or(wall_top), &|_| wall_top));
+        }
+    }
     let mut coping = Vec::new();
     if any_coping {
         let c = rec.coping;
@@ -713,12 +925,16 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }
     // Entries: blocks from the floor up to their tops, inside the outline; the water they
     // displace comes off its volume.
-    let (mut stairs, mut ramps, mut benches) = (Vec::new(), Vec::new(), Vec::new());
-    let mut displaced = 0.0;
-    for (k, en) in rec.entries.iter().enumerate() {
-        let Some((blocks, _)) = entry_layout(&rec, k + 1, en, deck_z) else { continue };
-        for (r, top) in blocks {
-            let inside = crate::polygons::intersection(std::slice::from_ref(&outline), &[Shape { outer: r, holes: Vec::new() }]);
+    let (mut stairs, mut ramps, mut benches, mut rails) = (Vec::new(), Vec::new(), Vec::new(), Vec::new());
+    let mut displaced = -recessed;
+    for (kind, lay) in &layouts {
+        for line in &lay.rails {
+            let tubes = line.windows(2).filter(|w| (w[1][0] - w[0][0]).hypot(w[1][1] - w[0][1]).hypot(w[1][2] - w[0][2]) > 1e-6).map(|w| crate::steel_fab::cylinder(w[0], w[1], RAIL_OD / 2.0, 8)).collect();
+            rails.push(crate::steel_fab::join(tubes));
+        }
+        for (r, top) in &lay.blocks {
+            let top = *top;
+            let inside = crate::polygons::intersection(std::slice::from_ref(&outline), &[Shape { outer: r.clone(), holes: Vec::new() }]);
             for s in strips(&rec, &inside) {
                 let up = |p: [f64; 2]| top.at(p).max(floor(p));
                 if s.outer.iter().all(|p| up(*p) - floor(*p) < 1e-4) {
@@ -726,10 +942,10 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
                 }
                 let m = extrude(&s, &floor, &up);
                 displaced += mesh_volume(&extrude(&s, &floor, &|p| up(p).min(water_z)));
-                match en.kind {
+                match kind {
                     EntryKind::Stairs => stairs.push(m),
-                    EntryKind::SlopedEntry => ramps.push(m),
-                    EntryKind::Bench => benches.push(m),
+                    EntryKind::SlopedEntry | EntryKind::Beach => ramps.push(m),
+                    EntryKind::Bench | EntryKind::RecessedSteps => benches.push(m),
                 }
             }
         }
@@ -760,7 +976,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }).sum();
     let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, rails, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -933,9 +1149,14 @@ fn validate(rec: &PoolRecipe) -> Result<()> {
         };
         let (a, b) = (rec.outline[i], rec.outline[(i + 1) % n]);
         let l = (b[0] - a[0]).hypot(b[1] - a[1]);
-        let positive = [e.width, e.tread, e.riser, e.slope, e.reach, e.seat, e.depth].iter().flatten().all(|v| *v > 0.0);
+        let positive = [e.width, e.tread, e.riser, e.slope, e.reach, e.seat, e.depth, e.top, e.handrail_height, e.handrail_gap].iter().flatten().all(|v| *v > 0.0);
         if !(0.0..=l).contains(&e.at) || !positive {
             return Err(bad("pool.bad_entry", format!("entry {}: its middle must be on edge {} (0 to {l:.2} m) and its sizes above zero", k + 1, e.edge)));
+        }
+        if e.kind == EntryKind::RecessedSteps
+            && e.depth.unwrap_or(0.14) > rec.shell.thickness - 0.05 + 1e-9
+        {
+            return Err(bad("pool.bad_entry", format!("entry {}: treads {:.0} mm into a {:.0} mm shell leave less than 50 mm of wall behind them", k + 1, e.depth.unwrap_or(0.14) * 1000.0, rec.shell.thickness * 1000.0)));
         }
     }
     if let Some(l) = rec.lanes
@@ -1236,6 +1457,13 @@ pub struct AddEntryParams {
     pub seat: Option<f64>,
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub depth: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub top: Option<f64>,
+    pub handrails: Option<u32>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub handrail_height: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub handrail_gap: Option<f64>,
 }
 
 /// The nearest edge to a plan point (from 1) and the distance along it.
@@ -1263,7 +1491,7 @@ pub(crate) fn add_entry(txn: &mut Transaction<'_>, p: AddEntryParams) -> Result<
         (None, Some(e), Some(a)) => (e, a),
         _ => return Err(bad("pool.bad_entry", "give a point by the wall, or an edge and a distance along it")),
     };
-    rec.entries.push(Entry { kind: p.kind, edge, at, width: p.width, tread: p.tread, riser: p.riser, slope: p.slope, reach: p.reach, seat: p.seat, depth: p.depth });
+    rec.entries.push(Entry { kind: p.kind, edge, at, width: p.width, tread: p.tread, riser: p.riser, slope: p.slope, reach: p.reach, seat: p.seat, depth: p.depth, top: p.top, handrails: p.handrails, handrail_height: p.handrail_height, handrail_gap: p.handrail_gap });
     validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");
     txn.modify(id, |e| {
@@ -1740,7 +1968,7 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             _ => EntryKind::Stairs,
                         };
                         for b in built.iter().filter(|b| b.kind == kind) {
-                            let what = format!("{} {} (edge {})", match kind { EntryKind::Stairs => "stairs", EntryKind::SlopedEntry => "sloped entry", EntryKind::Bench => "bench" }, b.index, b.edge);
+                            let what = format!("{} {} (edge {})", kind.label(), b.index, b.edge);
                             match r.check {
                                 M::StairTread | M::StairRiser | M::StairWidth => {
                                     let (name, v) = match r.check {
@@ -1776,6 +2004,72 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                                         find(None, false, format!("{what} stands in {} of water; at most {}", feet(b.water_depth), feet(m)));
                                     }
                                 }
+                            }
+                        }
+                    }
+                    M::Handrails | M::HandrailHeight | M::HandrailGap => {
+                        let kinds: &[EntryKind] = if r.kinds.is_empty() { &[EntryKind::Stairs] } else { &r.kinds };
+                        for b in built.iter().filter(|b| kinds.contains(&b.kind)) {
+                            let what = format!("{} {} (edge {})", b.kind.label(), b.index, b.edge);
+                            let rails = if b.kind == EntryKind::RecessedSteps { "grab rails" } else { "handrails" };
+                            let n = b.handrails.unwrap_or(0);
+                            match r.check {
+                                M::Handrails => {
+                                    if r.min.is_some_and(|m| f64::from(n) < m - 1e-9) {
+                                        find(None, false, format!("{what} has {n} {rails}; at least {:.0}", r.min.unwrap_or(0.0)));
+                                    } else if r.wide.is_some_and(|wd| b.width > wd + 1e-6) && n < 2 {
+                                        find(None, false, format!("{what} is {} wide and has {rails} on one side; over {} they go on both", feet(b.width), feet(r.wide.unwrap_or(0.0))));
+                                    }
+                                    if let (Some(sp), Some(v)) = (r.spacing, b.handrail_spacing)
+                                        && v > sp + 1e-6
+                                    {
+                                        find(None, false, format!("{what}: its {rails} are {} apart; at most {}", feet(v), feet(sp)));
+                                    }
+                                }
+                                M::HandrailHeight => {
+                                    if let Some(v) = b.handrail_height.filter(|_| n > 0)
+                                        && outside(v, r.min, r.max)
+                                    {
+                                        let above = if b.kind == EntryKind::RecessedSteps { "the deck" } else if b.kind == EntryKind::Stairs { "the nosings" } else { "the ramp" };
+                                        find(None, false, format!("{what}: its {rails} are {} above {above}; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                }
+                                _ => {
+                                    if let Some(v) = b.handrail_gap
+                                        && outside(v, r.min, r.max)
+                                    {
+                                        find(None, false, format!("{what}: its {rails} are {} apart, clear; {}", inches(v), bounds(r.min, r.max, &inches)));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    M::RecessedStepWidth | M::RecessedStepDepth | M::RecessedStepSpacing | M::RecessedStepTop => {
+                        for b in built.iter().filter(|b| b.kind == EntryKind::RecessedSteps) {
+                            let what = format!("recessed steps {} (edge {})", b.index, b.edge);
+                            let (name, v) = match r.check {
+                                M::RecessedStepWidth => ("its treads are", b.width),
+                                M::RecessedStepDepth => ("its treads go", b.recess.unwrap_or(0.0)),
+                                M::RecessedStepSpacing => ("its treads are", b.riser.unwrap_or(0.0)),
+                                _ => ("its top tread is", b.top.unwrap_or(0.0)),
+                            };
+                            let tail = match r.check {
+                                M::RecessedStepWidth => " wide",
+                                M::RecessedStepDepth => " into the wall",
+                                M::RecessedStepSpacing => " apart",
+                                _ => " below the deck",
+                            };
+                            if outside(v, r.min, r.max) {
+                                find(None, false, format!("{what}: {name} {}{tail}; {}", inches(v), bounds(r.min, r.max, &inches)));
+                            }
+                        }
+                    }
+                    M::BeachSlope => {
+                        let Some(max) = r.max else { continue };
+                        for b in built.iter().filter(|b| b.kind == EntryKind::Beach) {
+                            let v = b.slope.unwrap_or(0.0);
+                            if v > max + 1e-6 {
+                                find(None, false, format!("beach entry {} (edge {}) falls {}; at most {}", b.index, b.edge, ratio(v), ratio(max)));
                             }
                         }
                     }
@@ -2021,17 +2315,13 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                                 let env = Shape { outer: vec![q(-lb, -ls), q(la, -ls), q(la, ls), q(-lb, ls)], holes: Vec::new() };
                                 let env = if crate::polygons::area(&env.outer) < 0.0 { Shape { outer: env.outer.iter().rev().copied().collect(), holes: Vec::new() } } else { env };
                                 for (k, en) in rec.entries.iter().enumerate() {
-                                    let Some((blocks, info)) = entry_layout(&rec, k + 1, en, g.deck_z) else { continue };
+                                    let Some(Layout { blocks, info, .. }) = entry_layout(&rec, k + 1, en, g.deck_z) else { continue };
                                     let hit = blocks.iter().any(|(b, top)| {
                                         let cut = crate::polygons::intersection(std::slice::from_ref(&env), &[Shape { outer: b.clone(), holes: Vec::new() }]);
                                         cut.iter().flat_map(|c| c.outer.iter()).any(|v| top.at(*v) > g.water_z - need + 1e-6)
                                     });
                                     if hit {
-                                        let kind = match info.kind {
-                                            EntryKind::Stairs => "stairs",
-                                            EntryKind::SlopedEntry => "sloped entry",
-                                            EntryKind::Bench => "bench",
-                                        };
+                                        let kind = info.kind.label();
                                         find(Some(board), false, format!("{kind} {} (edge {}) stands up into {name}'s diving envelope, where the water must be {} deep", info.index, info.edge, m_(need)));
                                     }
                                 }

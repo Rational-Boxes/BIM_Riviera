@@ -270,3 +270,14 @@ exposed to Lua and MCP.
   outward, door alarms noted at homes) and the MAHC (6 ft, 2 in under); `railing_type.create`;
   View › Coordination › Pool Barriers; the samples fenced or walled. Not yet: gate hardware and
   latch heights, the clear zone, the ground under a fence.
+- ARC-POOL-013 (2026-11-11): the rest of step 3's entries. Handrails on stairs, sloped entries
+  and (as grab rails) recessed steps, by default two at the sides; recessed steps cut into the
+  wall; beach (zero-depth) entries; the `handrails`, `handrail_height`, `handrail_gap`,
+  `recessed_step_*` and `beach_slope` rule kinds in the MAHC, ISPSC and ADA packs; the Pool Entry
+  dialog's new kinds and handrail fields; the sample *A resort pool with a beach entry*. Not yet:
+  swimouts, nosing stripes, the beach's trench drain, transfer walls as built entries.
+- ARC-POOL-014 (2026-11-11): the plant room. `pool.plant` places the balance tank, duty and
+  standby pumps, filters and chemical tanks sized by `pool.treatment` in a row in the plant room,
+  with the room's area and fit checked; new *Tank* and *Filter* object categories (`IfcTank`,
+  `IfcFilter`); Architecture › Build › Pool Plant; the pool hall sample's plant room. Not yet:
+  the pipes, heaters and secondary treatment, pump heads from the pipework.

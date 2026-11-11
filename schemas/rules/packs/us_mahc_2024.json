@@ -194,7 +194,8 @@
           "Pool Ladder",
           "Pool Stairs",
           "Recessed Steps",
-          "Sloped Entry"
+          "Sloped Entry",
+          "Beach Entry"
         ]
       },
       "near": 1.0
@@ -277,6 +278,100 @@
       "check": "bench_seat",
       "max": 0.508,
       "water_depth_max": 1.524
+    },
+    {
+      "id": "MAHC 2024 4.5.5",
+      "description": "Pool stairs: handrails on every set, on both sides where the stairs are over 5 ft wide, at most 12 ft apart",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "handrails",
+      "min": 1,
+      "wide": 1.524,
+      "spacing": 3.6576
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.5.7",
+      "description": "Stair handrails 34–38 in above the treads' nosings",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "handrail_height",
+      "min": 0.8636,
+      "max": 0.9652
+    },
+    {
+      "id": "MAHC 2024 4.5.6",
+      "description": "Recessed steps: grab rails on both sides",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "handrails",
+      "kinds": [
+        "recessed_steps"
+      ],
+      "min": 2
+    },
+    {
+      "id": "MAHC 2024 4.5.6",
+      "description": "Recessed steps: grab rails 18–24 in apart, clear",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "handrail_gap",
+      "kinds": [
+        "recessed_steps"
+      ],
+      "min": 0.4572,
+      "max": 0.6096
+    },
+    {
+      "id": "MAHC 2024 4.5.6",
+      "description": "Recessed steps: grab rails at least 28 in above the deck",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "handrail_height",
+      "kinds": [
+        "recessed_steps"
+      ],
+      "min": 0.7112
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.7.4",
+      "description": "Recessed steps: treads at least 12 in wide",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "recessed_step_width",
+      "min": 0.3048
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.7.4",
+      "description": "Recessed steps: treads at least 5 in deep",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "recessed_step_depth",
+      "min": 0.127
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.7.4",
+      "description": "Recessed steps: treads 6–12 in apart",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "recessed_step_spacing",
+      "min": 0.1524,
+      "max": 0.3048
+    },
+    {
+      "id": "MAHC 2024 Table 4.5.7.4",
+      "description": "Recessed steps: the top tread 12 in below the deck at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "recessed_step_top",
+      "max": 0.3048
+    },
+    {
+      "id": "MAHC 2024 4.5.9.2",
+      "description": "Zero-depth (beach) entries: 1:12 at most",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "beach_slope",
+      "max": 0.083333
     },
     {
       "id": "MAHC 2024 4.8.3.2",

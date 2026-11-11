@@ -12,7 +12,7 @@ Start with **File › New**.
    Wall**, and a door in the west wall 15 m along it. They enclose the pools, the ISPSC's
    barrier for an indoor pool (305.2); **View › Coordination › Pool Barriers** shows it.
 3. **The main pool.** Choose **Architecture › Build › Swimming Pool**, *Competition 25 m*, and
-   leave the lanes empty for six. Click (16, 12) for its centre and a point east of it for its
+   leave the lanes empty for six. Click (15.3, 12) for its centre and a point east of it for its
    deep end. The pool is 25.03 × 15 m (2.5 m lanes and 30 mm for the touch pads) and 2.0 m deep.
    Its six lanes come with it: the middle four 2.5 m, the outer two 2.4 m with 0.1 m gaps at the
    side walls, their lines, T-ends, 15 m lines and end-wall targets drawn (**Pool Lanes** changes
@@ -20,7 +20,7 @@ Start with **File › New**.
    Its shell walls and base slab (0.3 m of concrete), its 0.3 m coping and its water appear, and
    the deck is cut round it.
 4. **The teaching pool.** Choose **Swimming Pool** again, *Teaching 12 × 7 m*, and enter the depths
-   `0:0.6, 12:0.9`. Click (36, 20) and a point east of it. Its floor falls from 0.6 m to 0.9 m,
+   `0:0.6, 12:0.9`. Click (36.05, 20) and a point east of it. Its floor falls from 0.6 m to 0.9 m,
    a slope of 1:40.
 5. **Depth markings.** Select each pool in turn and choose **Architecture › Build › Pool Depth
    Markings**, leaving the defaults: markers on the deck and walls at each end's and side's least
@@ -32,7 +32,7 @@ Start with **File › New**.
    (`pool.info` from a script also gives each segment's slope and the shell's concrete volume).
 7. **Starting platforms.** From **Insert › Component Libraries › Riviera Pools › Competition**,
    place a *Starting platform 24 × 32 in* at the east end of each lane, turned to face west
-   (−90°), its front edge on the wall: at x = 28.92 and y = 5.75, 8.25, 10.75, 13.25, 15.75 and
+   (−90°), its front edge on the wall: at x = 28.22 and y = 5.75, 8.25, 10.75, 13.25, 15.75 and
    18.25 (the lanes' centres).
 8. **Ladders, a lift and a chair.** From *Access*, place a *Pool ladder, 3 steps* on the north
    wall's face at (5, 19.5) and (27, 19.5), and turned 180° on the south wall's at (5, 4.5) and
@@ -41,8 +41,8 @@ Start with **File › New**.
 9. **Drains.** From *Fittings*, place two *Main drain cover 300 × 300* at (15, 12) and (17, 12),
    2.15 m down on the floor between the lines of lanes 3 and 4.
 10. **The teaching pool's entries.** Select the teaching pool and choose **Architecture › Build ›
-   Pool Entry**: *Stairs*, clicking by its west wall at (30, 18.5), then *Sloped entry (ADA)* at
-   (30, 21.5), and *Stairs* again by its east wall at (42, 20). The stairs step down in equal
+   Pool Entry**: *Stairs*, clicking by its west wall at (30.05, 18.5), then *Sloped entry (ADA)* at
+   (30.05, 21.5), and *Stairs* again by its east wall at (42.05, 20). The stairs step down in equal
    risers on 12 in treads; the sloped entry falls 1:12 for 10 m to 27 in below the water. The
    ISPSC wants an entry at each end and does not count accessible devices among them, hence the
    second stairs.
@@ -61,11 +61,18 @@ Start with **File › New**.
    on the MAHC's basis: a 6 h turnover over the water and its surge, the flow, two filters at
    36.7 m/h and their backwash, the skimmers, the suction and discharge pipes, the flow each of
    the main pool's two drains carries, and a plant room of 15–30 % of the water area.
-14. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
+14. **The plant room.** Draw three walls 4.0 m high from (44.1, 0) to (65, 0), (65, 5) and (44.1, 5),
+   against the hall's east wall, with a door in the east one, and place a room *Pool plant*
+   inside (**Architecture › Room & Area › Room**). Select the main pool and choose
+   **Architecture › Build › Pool Plant**, keep the basis, two filters and the 15 m head, and click
+   inside the room. Along its south wall, 0.5 m off it: the balance tank, a duty and a standby
+   pump, the two filters and the hypochlorite and acid tanks 2 m apart. The room's 100 m² is
+   inside the 15–30 % of the water Sport England asks for, and the row fits.
+15. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
    `IfcSlab` (BASESLAB) and an `IfcCovering` (COPING), with the teaching pool's `IfcStair` and
    `IfcRamp`, and its water an `IfcSpace` (WATER) under the level carrying its area and volume.
    The equipment is ordinary typed objects: the lift an `IfcTransportElement`, the rest
-   `IfcFurniture` of their kinds.
+   `IfcFurniture` of their kinds; the plant is `IfcTank`s, `IfcPump`s and `IfcFilter`s.
 
 ## Gaps
 
@@ -74,5 +81,6 @@ Start with **File › New**.
 - **[gap]** Backstroke flags, the false-start rope, lane ropes and touch pads as objects, and the
   diving envelopes, are not built yet; equipment is placed by coordinates, not snapped to the
   pool's edge.
+- **[gap]** The plant's pipes, to each other and to the pool, are not drawn.
 - **[gap]** Deck-level gutters and infinity-edge basins are recorded but not drawn, the wall–floor
   cove is a value only, and tiling and membrane layers are not drawn.

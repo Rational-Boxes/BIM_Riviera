@@ -252,6 +252,21 @@ pub enum PoolMeasure {
     Barrier,
     /// The barrier's gates swing away from the pool.
     GateSwing,
+    /// Entries of `kinds` (default stairs) have at least `min` handrails, on both sides where they
+    /// are wider than `wide`, at most `spacing` apart (ARC-POOL-013).
+    Handrails,
+    /// Their handrails' height, `min` to `max`.
+    HandrailHeight,
+    /// The clear width between their handrails, `min` to `max`.
+    HandrailGap,
+    /// Recessed steps: each tread's width, depth into the wall, spacing, and the top one below
+    /// the deck.
+    RecessedStepWidth,
+    RecessedStepDepth,
+    RecessedStepSpacing,
+    RecessedStepTop,
+    /// A beach (zero-depth) entry's slope, at most `max`.
+    BeachSlope,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
@@ -348,6 +363,12 @@ pub struct PoolRule {
     pub opening: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub close: Option<[f64; 2]>,
+    /// Handrails: the entries they are checked on (default stairs), and the width over which
+    /// they are needed on both sides (ARC-POOL-013).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub kinds: Vec<crate::pools::EntryKind>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub wide: Option<f64>,
 }
 
 /// A shared-format rule pack.

@@ -372,6 +372,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolCheck),
         registry.add(PoolNatatorium),
         registry.add(PoolTreatment),
+        registry.add(PoolPlant),
         registry.add(PoolStructure),
         registry.add(PoolApplyLoads),
         registry.add(PoolBonding),
@@ -4483,14 +4484,20 @@ edit_command!(
     PoolAddEntry,
     "pool.add_entry",
     "Build an entry into a pool",
-    "Builds stairs, a sloped entry or an underwater bench into a swimming pool (ARC-POOL-003), against the \
-     outline edge nearest `point` with its middle there, or on `edge` (from 1, the shallow end's wall) `at` a \
-     distance along it. Stairs step down from the deck in equal risers no higher than `riser` (default 0.25 m) \
-     on `tread`-deep treads (default 0.305 m), 1.5 m wide; a sloped entry falls at `slope` (default 1:12) to \
-     `reach` below the water (default 27 in), 1.0 m wide; a bench's seat is `seat` below the water (default \
-     0.45 m), `depth` out from the wall, 2.0 m long. Each is part of the pool, its water's volume less what it \
-     displaces; `pool.check` counts stairs as entries and a sloped entry as an accessible one. Returns its \
-     numbers.",
+    "Builds stairs, a sloped entry, an underwater bench, recessed steps or a beach entry into a swimming pool \
+     (ARC-POOL-003, ARC-POOL-013), against the outline edge nearest `point` with its middle there, or on `edge` \
+     (from 1, the shallow end's wall) `at` a distance along it. `kind`: `stairs` step down from the deck in \
+     equal risers no higher than `riser` (default 0.25 m) on `tread`-deep treads (default 0.305 m), 1.5 m wide; \
+     a `sloped_entry` falls at `slope` (default 1:12) to `reach` below the water (default 27 in), 1.0 m wide; a \
+     `bench`'s seat is `seat` below the water (default 0.45 m), `depth` out from the wall, 2.0 m long; \
+     `recessed_steps` are treads `width` wide (default 18 in) cut `depth` into the wall (default 5½ in), the top \
+     one `top` below the deck (default 10 in) and the rest `riser` apart (default 10 in); a `beach` entry rises \
+     at `slope` (default 1:12) from the floor to the deck along the whole edge unless given a `width`. \
+     `handrails` (default 2 for stairs, sloped entries and recessed steps' grab rails; 0 otherwise) stand \
+     `handrail_height` above the nosings or ramp (default 36 in; grab rails 0.85 m above the deck) with \
+     `handrail_gap` clear between the outer two (default the width less 30 mm a side; grab rails 21 in). Each is \
+     part of the pool, its water's volume less what it displaces; `pool.check` counts stairs, recessed steps \
+     and beach entries as entries and a sloped entry as an accessible one. Returns its numbers.",
     "Pool Entry",
     crate::pools::AddEntryParams,
     crate::pools::EntryInfo,
@@ -4560,6 +4567,26 @@ read_command!(
     Option<crate::pool_treatment::TreatmentParams>,
     Vec<crate::pool_treatment::Treatment>,
     crate::pool_treatment::treatment
+);
+
+edit_command!(
+    PoolPlant,
+    "pool.plant",
+    "Place a pool's treatment plant",
+    "Places a swimming pool's treatment plant as equipment (ARC-POOL-014), sized by `pool.treatment` on \
+     `basis` with `filters`: a balance tank for the surge or balance volume (1.2 m deep, 1.5 m high), a duty \
+     and a standby circulation pump each for the whole flow against `head` (default 15 m) at 60 % efficiency, \
+     the motor the next standard size up, the filters as vertical vessels 1.8 m high from their share of the \
+     filter area, and 200 L sodium hypochlorite and acid tanks in bunds 2 m apart. They stand in a row 0.5 m \
+     off the back wall, 0.8 m apart and 0.6 m from the ends, with 1.0 m in front: in `room` along its longer \
+     side from its lower corner (its area checked against the 15–30 % of the water and the row's fit), or on \
+     `level` from `point` at `rotation` (a point inside a room takes that room). Each is a generated `IfcTank`, `IfcPump` or `IfcFilter` type; running \
+     it again replaces the pool's plant. Returns the flow, head, pump power and motor, the items, the row's \
+     footprint and notes.",
+    "Pool Plant",
+    crate::pool_plant::PlantParams,
+    crate::pool_plant::Plant,
+    crate::pool_plant::plant
 );
 
 edit_command!(

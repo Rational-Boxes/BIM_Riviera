@@ -108,6 +108,41 @@
       ],
       "min": 0.6096,
       "max": 0.762
+    },
+    {
+      "id": "ADA 2010 1009.3.3",
+      "description": "A sloped entry has handrails on both sides",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "handrails",
+      "kinds": [
+        "sloped_entry"
+      ],
+      "min": 2
+    },
+    {
+      "id": "ADA 2010 1009.3.3",
+      "description": "A sloped entry's handrails 33–38 in apart, clear",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "handrail_gap",
+      "kinds": [
+        "sloped_entry"
+      ],
+      "min": 0.8382,
+      "max": 0.9652
+    },
+    {
+      "id": "ADA 2010 505.4",
+      "description": "A sloped entry's handrails 34–38 in above the ramp",
+      "source": "S2773",
+      "confidence": "verified",
+      "check": "handrail_height",
+      "kinds": [
+        "sloped_entry"
+      ],
+      "min": 0.8636,
+      "max": 0.9652
     }
   ]
 }

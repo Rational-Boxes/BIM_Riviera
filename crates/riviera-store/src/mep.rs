@@ -577,6 +577,8 @@ fn is_flow_element(class: &str) -> bool {
             | "IfcDamper"
             | "IfcFan"
             | "IfcPump"
+            | "IfcTank"
+            | "IfcFilter"
             | "IfcValve"
             | "IfcDuctSegment"
             | "IfcDuctFitting"

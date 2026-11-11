@@ -990,21 +990,30 @@ impl Gui {
         let frame = self.frame;
         let Some(pool) = self.selected_pool() else { return };
         let f = super::reinforcement_ui::Form::new(&frame, "Pool Entry");
-        let kinds = ["stairs", "sloped_entry", "bench"];
-        let kind = f.choice("Entry", &["Stairs".to_owned(), "Sloped entry (ADA)".to_owned(), "Underwater bench".to_owned()], 0);
-        let width = f.text("Width (m)", "", "Along the edge: 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench");
+        let kinds = ["stairs", "sloped_entry", "bench", "recessed_steps", "beach"];
+        let names = ["Stairs", "Sloped entry (ADA)", "Underwater bench", "Recessed steps with grab rails", "Beach (zero-depth) entry"].map(str::to_owned);
+        let kind = f.choice("Entry", &names, 0);
+        let width = f.text("Width (m)", "", "Along the edge: 1.5 m for stairs, 1.0 m for a sloped entry, 2.0 m for a bench, 0.457 m for recessed treads; a beach takes the whole edge");
         let tread = f.text("Tread (m)", "", "Stairs: default 0.305 (12 in)");
-        let riser = f.text("Highest riser (m)", "", "Stairs: default 0.25; the risers are made equal under it");
-        let slope = f.text("Slope 1:", "", "Sloped entry: default 12");
+        let riser = f.text("Highest riser (m)", "", "Stairs: default 0.25, the risers made equal under it; recessed steps: their spacing, default 0.254 (10 in)");
+        let slope = f.text("Slope 1:", "", "Sloped or beach entry: default 12");
         let reach = f.text("Reaches (m below water)", "", "Sloped entry: default 0.69 (27 in)");
         let seat = f.text("Seat (m below water)", "", "Bench: default 0.45");
+        let depth = f.text("Recess (m)", "", "Recessed steps: how deep the treads go into the wall, default 0.14 (5½ in)");
+        let top = f.text("Top tread (m below deck)", "", "Recessed steps: default 0.254 (10 in)");
+        let rails = f.text("Handrails", "", "Default 2, one at each side (grab rails for recessed steps); 0 for none; more are spread across");
+        let rail_h = f.text("Handrail height (m)", "", "Above the nosings or ramp: default 0.914 (36 in); grab rails above the deck, 0.85");
+        let rail_gap = f.text("Between handrails (m, clear)", "", "Default the width less 30 mm a side; grab rails 0.533 (21 in)");
         let ok = f.show("Then click by the pool's wall where the entry's middle goes: it runs from that edge into the pool.", "Pick the Edge");
         let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v > 0.0);
         let mut args = json!({ "pool_id": pool, "kind": kinds[kind.get_selection().unwrap_or(0) as usize] });
-        for (k, t) in [("width", &width), ("tread", &tread), ("riser", &riser), ("reach", &reach), ("seat", &seat)] {
+        for (k, t) in [("width", &width), ("tread", &tread), ("riser", &riser), ("reach", &reach), ("seat", &seat), ("depth", &depth), ("top", &top), ("handrail_height", &rail_h), ("handrail_gap", &rail_gap)] {
             if let Some(v) = num(t) {
                 args[k] = json!(v);
             }
+        }
+        if let Ok(n) = rails.get_value().trim().parse::<u32>() {
+            args["handrails"] = json!(n);
         }
         if let Some(n) = num(&slope) {
             args["slope"] = json!(1.0 / n);
@@ -1412,6 +1421,68 @@ impl Gui {
         }
     }
 
+    /// Architecture › Build › Pool Plant (ARC-POOL-014): the selected pool's treatment plant,
+    /// sized, then a click in the plant room.
+    pub(crate) fn pool_plant(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let f = super::reinforcement_ui::Form::new(&frame, "Pool Plant");
+        let basis = f.choice("Basis", &["From the building code".to_owned(), "US: the MAHC".to_owned(), "UK: Sport England and PWTAG".to_owned()], 0);
+        let filters = f.text("Filters", "2", "How many share the flow");
+        let head = f.text("Pump head (m)", "15", "The filters, strainer and pipework");
+        let ok = f.show("Then click inside the plant room: the plant goes along its longer side. Outside a room, the row starts at the click.", "Pick the Room");
+        let mut args = json!({ "pool_id": pool });
+        match basis.get_selection().unwrap_or(0) {
+            1 => args["basis"] = json!("us"),
+            2 => args["basis"] = json!("uk"),
+            _ => {}
+        }
+        if let Ok(n) = filters.get_value().trim().parse::<u32>() {
+            args["filters"] = json!(n);
+        }
+        if let Some(v) = head.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v > 0.0) {
+            args["head"] = json!(v);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking("pool.plant", vec![json!({ "key": "at", "kind": "at", "prompt": "Pool Plant: click inside the plant room" })], args);
+    }
+
+    /// The plant room picked: the plant placed, and its numbers shown.
+    pub(crate) fn pool_plant_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let at = args["at"].take();
+        args.as_object_mut().expect("an object").remove("at");
+        args["point"] = at["point"].clone();
+        args["level"] = at["level"].clone();
+        match self.run("pool.plant", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let n = |k: &str| v[k].as_f64().unwrap_or(0.0);
+                let mut text = format!(
+                    "{} items for {:.0} m³/h: pumps {:.1} kW ({:.2} kW at {:.0} m), filters Ø{:.0} mm, a {:.1} m³ balance tank; the row {:.1} × {:.1} m",
+                    v["items"].as_array().map_or(0, Vec::len),
+                    n("flow"),
+                    n("motor"),
+                    n("pump_power"),
+                    n("head"),
+                    n("filter_diameter") * 1000.0,
+                    n("balance_tank"),
+                    v["footprint"][0].as_f64().unwrap_or(0.0),
+                    v["footprint"][1].as_f64().unwrap_or(0.0),
+                );
+                for note in v["notes"].as_array().into_iter().flatten().filter_map(|x| x.as_str()) {
+                    text.push_str("\n• ");
+                    text.push_str(note);
+                }
+                MessageDialog::builder(&frame, &text, "Pool Plant").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build().show_modal();
+            }
+            Err(e) => error(&frame, &format!("The plant was not placed:\n{e}")),
+        }
+    }
+
     /// The entry's edge picked: built, and its numbers shown.
     pub(crate) fn pool_entry_finish(&mut self, args: serde_json::Value) {
         let frame = self.frame;
@@ -1422,9 +1493,15 @@ impl Gui {
                 let text = match v["kind"].as_str() {
                     Some("stairs") => format!("Stairs: {} risers of {:.0} mm on {:.0} mm treads", v["risers"], n("riser") * 1000.0, n("tread") * 1000.0),
                     Some("sloped_entry") => format!("Sloped entry: 1:{:.1} over {:.2} m, reaching {:.0} mm below the water", 1.0 / n("slope").max(1e-9), n("run"), n("reaches") * 1000.0),
+                    Some("recessed_steps") => format!("Recessed steps: {} treads {:.0} mm apart, {:.0} mm into the wall", v["risers"], n("riser") * 1000.0, n("recess") * 1000.0),
+                    Some("beach") => format!("Beach entry: 1:{:.1}, the water's edge {:.2} m out, meeting the floor {:.2} m out", 1.0 / n("slope").max(1e-9), n("waterline"), n("run")),
                     _ => format!("Bench: its seat {:.0} mm below the water, in {:.2} m of water", n("seat") * 1000.0, n("water_depth")),
                 };
-                frame.set_status_text(&format!("{text}; Check Pools checks it"), 0);
+                let rails = match v["handrails"].as_u64() {
+                    Some(0) | None => String::new(),
+                    Some(k) => format!(", {k} handrails {:.0} mm high", n("handrail_height") * 1000.0),
+                };
+                frame.set_status_text(&format!("{text}{rails}; Check Pools checks it"), 0);
             }
             Err(e) => error(&frame, &format!("The entry was not made:\n{e}")),
         }

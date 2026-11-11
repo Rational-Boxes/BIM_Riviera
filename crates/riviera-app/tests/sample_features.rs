@@ -1597,6 +1597,9 @@ fn the_pool_hall_sample_has_its_two_pools() {
     let t = ok(&mut app, "pool.treatment", json!({ "pool_id": main_id }))[0].clone();
     assert_eq!((t["turnover"].as_f64(), t["main_drains"].as_u64()), (Some(6.0), Some(2)), "{t:#}");
     assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+    // Its plant in the plant room: a balance tank and two chemical tanks, two pumps, two filters.
+    let st = store(&app);
+    assert_eq!(["IfcTank", "IfcPump", "IfcFilter"].map(|k| st.iter().filter(|e| e.class == k).count()), [3, 2, 2]);
     // The six starting platforms, the lift and the lifeguard chair are typed library items.
     let s = store(&app);
     let kind = |k: &str| s.iter().filter(|e| riviera_core::mesh_objects::type_of(&s, e).and_then(|(t, _)| s.get(t)).and_then(|t| t.param("@ElementType")).and_then(Value::as_str) == Some(k)).count();
@@ -1672,6 +1675,24 @@ fn the_rooftop_pool_sample_weighs_its_pool_and_checks_its_electrics() {
     assert!(b["findings"].as_array().unwrap().iter().all(|f| f["severity"] == "note"), "{b:#}");
     let what: Vec<&str> = b["bond"].as_array().unwrap().iter().map(|x| x["what"].as_str().unwrap()).collect();
     assert!(what.contains(&"Pool Lift") && what.contains(&"Pool Ladder") && what.iter().filter(|w| **w == "Underwater Light").count() == 2, "{b:#}");
+}
+
+#[test]
+fn the_resort_pool_sample_has_handrails_recessed_steps_and_a_beach() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "resort_pool");
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+    let c = ok(&mut app, "pool.check", json!({}));
+    assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
+    assert_eq!((c["pools"][0]["entries"].as_u64(), c["pools"][0]["accessible_entries"].as_u64()), (Some(4), Some(1)), "{c:#}");
+    let id = c["pools"][0]["pool"].clone();
+    let i = ok(&mut app, "pool.info", json!({ "pool_id": id }));
+    let kinds: Vec<&str> = i["entries"].as_array().unwrap().iter().map(|e| e["kind"].as_str().unwrap()).collect();
+    assert_eq!(kinds, vec!["beach", "stairs", "sloped_entry", "recessed_steps"], "{i:#}");
+    let e = &i["entries"];
+    assert!(e[0]["waterline"].as_f64().is_some_and(|w| (w - 1.8).abs() < 1e-9) && e[1]["handrails"] == 3 && e[3]["risers"] == 4 && e[3]["handrails"] == 2, "{i:#}");
+    // The handrails are the pool's parts in the file: the enclosure is the only railing element.
+    assert_eq!(store(&app).iter().filter(|e| e.class == "IfcRailing").count(), 1);
 }
 
 #[test]

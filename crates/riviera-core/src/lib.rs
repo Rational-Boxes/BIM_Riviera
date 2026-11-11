@@ -200,6 +200,7 @@ pub mod pool_barriers;
 pub mod pool_bonding;
 pub mod pool_markings;
 pub mod pool_structure;
+pub mod pool_plant;
 pub mod pool_treatment;
 pub mod interior_layouts;
 pub mod rooms;

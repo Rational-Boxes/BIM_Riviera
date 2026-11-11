@@ -470,9 +470,17 @@
             "depth_markers",
             "break_line",
             "barrier",
-            "gate_swing"
+            "gate_swing",
+            "handrails",
+            "handrail_height",
+            "handrail_gap",
+            "recessed_step_width",
+            "recessed_step_depth",
+            "recessed_step_spacing",
+            "recessed_step_top",
+            "beach_slope"
           ],
-          "description": "shallow_slope and deep_slope: each profile segment's slope above or below the 5 ft break (max); shallow_end_depth: the shallowest depth (min, max); depth: the deepest (max); cove_radius: the wall–floor radius (max), where the pool's shallowest is at most depth_up_to; coping_overhang and coping_thickness (min, max); deck_width: clear deck round the whole edge (min); infinity_edge: the share of the edge that is vanishing (max); entries: elements counts selects within near of the water's edge (min); accessible_entries: as entries, with min where the pool wall is at least perimeter long and 1 below it, and at least one primary; drains: suction outlets counts selects inside the pool, at least min unless one has a cover at least cover in size, spacing apart; bather_load: the water's area per bather (min, reported). The pool's own entries (ARC-POOL-003): stair_tread, stair_riser and stair_width (min, max) for each set of stairs; sloped_entry_slope (max) and sloped_entry_depth (min, max: how far below the water it reaches) for each sloped entry; bench_seat (min, max: the seat below the water), with water_depth_max the deepest water a bench may stand in. Stairs count as `Pool Stairs` and a sloped entry as `Sloped Entry` where entries and accessible_entries select them. Competition (ARC-POOL-005): course_length, the length between the touch pads against the nearest of lengths, from min to max over it; lane_width, the middle lanes at least min, the outer ones outer_min and the side gaps gap_min; platform_depth, the shallowest water over range (metres out from the end wall) at each starting platform counts selects within near of the edge, at least min; platform_height, a platform's top above the water (min, max). Diving (ARC-POOL-006): for each diving board counts selects within near of the edge, the diving column nearest its height above the water (within 0.15 m): A back from its plummet to the wall, B to the side walls, C to the next plummet, D to the wall ahead, E clear overhead, H the depth at the plummet, K at J ahead and M at L to each side, and the pool's entries standing up into the envelope from A behind to J ahead and L each side. floor_slope (ARC-POOL-007): each profile segment's slope (max) where its water depth overlaps band. Depth markings (ARC-POOL-011): depth_markers, for pools deeper than min, the pool's markings present, in one of units, stepping at most max of depth, at most spacing apart round the perimeter, and with NO DIVING where the water is depth_up_to deep or less; break_line, for pools deeper than min, the break-point band and float line present. Barriers (ARC-POOL-012): barrier, railings and walls at the pool's level enclosing it, each at least min high, a railing at most clearance over the ground and its balusters at most opening apart (close[1] where its rails are less than close[0] apart), and for residential pools the doors and windows in its walls noted; gate_swing, each gate in it swinging away from the pool."
+          "description": "shallow_slope and deep_slope: each profile segment's slope above or below the 5 ft break (max); shallow_end_depth: the shallowest depth (min, max); depth: the deepest (max); cove_radius: the wall–floor radius (max), where the pool's shallowest is at most depth_up_to; coping_overhang and coping_thickness (min, max); deck_width: clear deck round the whole edge (min); infinity_edge: the share of the edge that is vanishing (max); entries: elements counts selects within near of the water's edge (min); accessible_entries: as entries, with min where the pool wall is at least perimeter long and 1 below it, and at least one primary; drains: suction outlets counts selects inside the pool, at least min unless one has a cover at least cover in size, spacing apart; bather_load: the water's area per bather (min, reported). The pool's own entries (ARC-POOL-003): stair_tread, stair_riser and stair_width (min, max) for each set of stairs; sloped_entry_slope (max) and sloped_entry_depth (min, max: how far below the water it reaches) for each sloped entry; bench_seat (min, max: the seat below the water), with water_depth_max the deepest water a bench may stand in. Stairs count as `Pool Stairs` and a sloped entry as `Sloped Entry` where entries and accessible_entries select them. Competition (ARC-POOL-005): course_length, the length between the touch pads against the nearest of lengths, from min to max over it; lane_width, the middle lanes at least min, the outer ones outer_min and the side gaps gap_min; platform_depth, the shallowest water over range (metres out from the end wall) at each starting platform counts selects within near of the edge, at least min; platform_height, a platform's top above the water (min, max). Diving (ARC-POOL-006): for each diving board counts selects within near of the edge, the diving column nearest its height above the water (within 0.15 m): A back from its plummet to the wall, B to the side walls, C to the next plummet, D to the wall ahead, E clear overhead, H the depth at the plummet, K at J ahead and M at L to each side, and the pool's entries standing up into the envelope from A behind to J ahead and L each side. floor_slope (ARC-POOL-007): each profile segment's slope (max) where its water depth overlaps band. Depth markings (ARC-POOL-011): depth_markers, for pools deeper than min, the pool's markings present, in one of units, stepping at most max of depth, at most spacing apart round the perimeter, and with NO DIVING where the water is depth_up_to deep or less; break_line, for pools deeper than min, the break-point band and float line present. Barriers (ARC-POOL-012): barrier, railings and walls at the pool's level enclosing it, each at least min high, a railing at most clearance over the ground and its balusters at most opening apart (close[1] where its rails are less than close[0] apart), and for residential pools the doors and windows in its walls noted; gate_swing, each gate in it swinging away from the pool. Handrails and more entries (ARC-POOL-013), on the pool's entries of kinds (default stairs): handrails, at least min, on both sides where the entry is wider than wide, at most spacing apart; handrail_height (min, max: above the nosings, the ramp, or for recessed steps' grab rails the deck); handrail_gap (min, max: clear between neighbours). recessed_step_width, recessed_step_depth (into the wall), recessed_step_spacing and recessed_step_top (below the deck) (min, max) for each set of recessed steps; beach_slope (max) for each beach entry. Recessed steps count as `Recessed Steps` and a beach entry as `Beach Entry`."
         },
         "pools": {
           "type": "array",
@@ -605,6 +613,25 @@
           "minItems": 2,
           "maxItems": 2,
           "description": "barrier: where a railing's rails are closer than the first, its largest opening the second."
+        },
+        "kinds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "stairs",
+              "sloped_entry",
+              "bench",
+              "recessed_steps",
+              "beach"
+            ]
+          },
+          "description": "handrails, handrail_height, handrail_gap: the entries checked (default stairs)."
+        },
+        "wide": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "handrails: the width over which an entry needs them on both sides."
         }
       }
     },

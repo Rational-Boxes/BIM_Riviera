@@ -327,6 +327,7 @@ impl Gui {
             Some("gym.mirror") => self.gym_mirror_finish(args),
             Some("pool.create") => self.swimming_pool_finish(args),
             Some("pool.add_entry") => self.pool_entry_finish(args),
+            Some("pool.plant") => self.pool_plant_finish(args),
             _ => {}
         }
     }

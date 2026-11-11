@@ -115,7 +115,8 @@
         "object_types": [
           "Pool Ladder",
           "Pool Stairs",
-          "Recessed Steps"
+          "Recessed Steps",
+          "Beach Entry"
         ]
       },
       "near": 1.0
@@ -190,6 +191,95 @@
         "competition"
       ],
       "max": 0.508
+    },
+    {
+      "id": "ISPSC 2021 323.2 (public)",
+      "description": "Stair handrails 34–38 in above the treads' nosings",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "handrail_height",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.8636,
+      "max": 0.9652
+    },
+    {
+      "id": "ISPSC 2021 322.4 (public)",
+      "description": "Recessed steps: grab rails on both sides",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "handrails",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "kinds": [
+        "recessed_steps"
+      ],
+      "min": 2
+    },
+    {
+      "id": "ISPSC 2021 322.4 (public)",
+      "description": "Recessed steps: treads at least 12 in wide",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "recessed_step_width",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.3048
+    },
+    {
+      "id": "ISPSC 2021 322.4 (public)",
+      "description": "Recessed steps: treads at least 5 in deep",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "recessed_step_depth",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.127
+    },
+    {
+      "id": "ISPSC 2021 322.4 (public)",
+      "description": "Recessed steps: treads 7–12 in apart, centre to centre",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "recessed_step_spacing",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "min": 0.1778,
+      "max": 0.3048
+    },
+    {
+      "id": "ISPSC 2021 322.4 (public)",
+      "description": "Recessed steps: the top tread 12 in below the deck at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "recessed_step_top",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.3048
+    },
+    {
+      "id": "ISPSC 2021 411.3 (public)",
+      "description": "A beach entry used as an entry and exit: 1:10 at most",
+      "source": "S2768",
+      "confidence": "secondary",
+      "check": "beach_slope",
+      "pools": [
+        "public",
+        "competition"
+      ],
+      "max": 0.1
     },
     {
       "id": "ISPSC 2021 809.5",
