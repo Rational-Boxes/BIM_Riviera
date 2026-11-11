@@ -284,3 +284,7 @@ exposed to Lua and MCP.
 - ARC-POOL-015 (2026-11-11): swimouts (a seat in an alcove behind the wall, the shell and deck
   cut round it) and nosing stripes on treads and seats; the `nosing_stripe` and `swimout_*` rule
   kinds in the MAHC and ISPSC packs; the resort sample's swimout.
+- ARC-POOL-016 (2026-11-11): gate hardware. `railing.gate_hardware` (self-closing, self-latching,
+  lockable, latch height and release, mesh round a pool-side latch); the `gate_hardware` rule
+  kind in the ISPSC (public 52–54 in, residential 54 in or pool-side) and the MAHC (54 in);
+  Modify | Railings › Gate Hardware; the pool samples' gates set.

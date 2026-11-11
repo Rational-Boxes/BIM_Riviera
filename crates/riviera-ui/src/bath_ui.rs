@@ -1322,6 +1322,54 @@ impl Gui {
     }
 
     /// The selected pool, or the model's only one; else an error shown.
+    /// Modify | Railings › Gate Hardware (ARC-POOL-016): the selected gates' (or the selected
+    /// railings' gates') closing and latching hardware.
+    pub(crate) fn gate_hardware(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return };
+        let selected = self.selection();
+        let railings: Vec<String> = selected.iter().filter_map(|id| store.get(*id)).filter(|e| riviera_core::railings::railing_recipe(e).is_some()).map(|e| e.guid().to_string()).collect();
+        let gates: Vec<&riviera_core::Element> = store.iter().filter(|e| riviera_core::railings::gate_of(e).is_some_and(|(r, _)| selected.contains(&e.id()) || railings.contains(&r))).collect();
+        let Some(first) = gates.first() else {
+            return error(&frame, "Select a gate, or a railing with gates, first.");
+        };
+        let h = riviera_core::railings::hardware(first).unwrap_or_default();
+        let ids: Vec<u64> = gates.iter().map(|e| e.id().0).collect();
+        let yes_no = ["Yes".to_owned(), "No".to_owned()];
+        let f = super::reinforcement_ui::Form::new(&frame, "Gate Hardware");
+        let closing = f.choice("Self-closing", &yes_no, usize::from(!h.self_closing));
+        let latching = f.choice("Self-latching", &yes_no, usize::from(!h.self_latching));
+        let lockable = f.choice("Lockable", &yes_no, usize::from(!h.lockable));
+        let kinds = ["outside", "key", "pool_side"];
+        let latch = f.choice("Latch released", &["Outside, by hand".to_owned(), "By a key, card or combination".to_owned(), "From the pool side only".to_owned()], kinds.iter().position(|k| serde_json::to_value(h.latch).ok().and_then(|v| v.as_str().map(|s| s == *k)).unwrap_or(false)).unwrap_or(0));
+        let height = f.text("Latch height (m)", &format!("{:.3}", h.latch_height), "Its release above the ground: the ISPSC asks 52–54 in (1.32–1.37 m) at public pools, 54 in at homes; the MAHC 54 in");
+        let mesh = f.choice("½ in mesh within 18 in of the latch", &yes_no, usize::from(!h.latch_mesh));
+        let ok = f.show(&format!("For {} gate(s); Check Pools holds pool gates to it.", ids.len()), "Set");
+        let pick = |c: &Choice| c.get_selection().unwrap_or(0) == 0;
+        let mut args = json!({
+            "self_closing": pick(&closing),
+            "self_latching": pick(&latching),
+            "lockable": pick(&lockable),
+            "latch": kinds[latch.get_selection().unwrap_or(0) as usize],
+            "latch_mesh": pick(&mesh),
+        });
+        if let Some(v) = height.get_value().trim().replace(',', ".").parse::<f64>().ok().filter(|v| *v > 0.0) {
+            args["latch_height"] = json!(v);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        for id in ids {
+            let mut a = args.clone();
+            a["gate_id"] = json!(id);
+            if let Err(e) = self.run("railing.gate_hardware", a) {
+                return error(&frame, &format!("The hardware was not set:\n{e}"));
+            }
+        }
+        frame.set_status_text("Gate hardware set; Check Pools checks it", 0);
+    }
+
     fn selected_pool(&mut self) -> Option<u64> {
         let frame = self.frame;
         let store = self.store_now()?;

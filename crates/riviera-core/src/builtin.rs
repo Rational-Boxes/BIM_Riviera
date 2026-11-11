@@ -121,6 +121,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(RailingCreateOnStair),
         registry.add(RailingAddOpening),
         registry.add(RailingAddGate),
+        registry.add(RailingGateHardware),
         registry.add(RailingMoveFeature),
         registry.add(RailingRemoveFeature),
         registry.add(RailingFeatures),
@@ -3635,6 +3636,21 @@ modify_command!(
     crate::railings::AddGateParams,
     ElementId,
     crate::railings::add_gate
+);
+modify_command!(
+    RailingGateHardware,
+    "railing.gate_hardware",
+    "Set a gate's hardware",
+    "Sets a railing gate's closing and latching hardware (ARC-POOL-016): `self_closing`, `self_latching`, \
+     `lockable`, the latch's release `latch_height` above the ground, how it is released (`latch`: \
+     `outside`, `key` for a key, card or combination, or `pool_side`), and `latch_mesh` (nothing within 18 in \
+     of the latch opens more than ½ in). What is not given stays; a gate's first hardware is self-closing, \
+     self-latching and lockable with a 54 in outside latch. `remove` takes it away. `pool.check` holds pool \
+     gates to it. Returns the hardware.",
+    "Gate Hardware",
+    crate::railings::GateHardwareParams,
+    Option<crate::railings::GateHardware>,
+    crate::railings::set_hardware
 );
 modify_command!(
     RailingMoveFeature,

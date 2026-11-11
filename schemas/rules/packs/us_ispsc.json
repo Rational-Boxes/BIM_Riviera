@@ -437,6 +437,47 @@
         "residential",
         "wading"
       ]
+    },
+    {
+      "id": "ISPSC 305.3.3 (public)",
+      "description": "Public pool gates self-closing, self-latching and lockable; a latch released outside 52–54 in above the ground, a key, card or combination latch 34–48 in; no pool-side-only latch",
+      "source": "S2765",
+      "confidence": "verified",
+      "check": "gate_hardware",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ],
+      "latch": [
+        1.3208,
+        1.3716
+      ],
+      "key_latch": [
+        0.8636,
+        1.2192
+      ],
+      "lockable": true
+    },
+    {
+      "id": "ISPSC 305.3.3 (residential)",
+      "description": "Residential pool gates self-closing, self-latching and lockable; a latch released outside 54 in above the ground at least, a key latch 54 in at most, or a latch on the pool side 3 in below the gate's top with no opening over ½ in within 18 in of it (305.3.4)",
+      "source": "S2765",
+      "confidence": "verified",
+      "check": "gate_hardware",
+      "pools": [
+        "residential"
+      ],
+      "latch": [
+        1.3716,
+        10.0
+      ],
+      "key_latch": [
+        0.0,
+        1.3716
+      ],
+      "below_top": 0.0762,
+      "lockable": true
     }
   ]
 }

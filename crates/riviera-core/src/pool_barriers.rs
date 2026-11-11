@@ -55,6 +55,10 @@ pub struct Gate {
     pub width: f64,
     /// It swings away from the pool, out of the enclosure.
     pub swings_out: bool,
+    /// Its railing's height, and its hardware where it is set (ARC-POOL-016).
+    pub height: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hardware: Option<crate::railings::GateHardware>,
 }
 
 #[derive(Debug, Clone, Serialize, JsonSchema)]
@@ -264,7 +268,9 @@ pub fn enclosure(store: &Store, id: ElementId, rec: &PoolRecipe, deck_z: f64) ->
             let right = [dir[1], -dir[0]];
             let s = if swing_out { 1.0 } else { -1.0 };
             let side = [at[0] + right[0] * s * 0.4, at[1] + right[1] * s * 0.4];
-            Gate { element: gate, railing, at, width, swings_out: !inside(side) }
+            let height = barriers.iter().find(|b| b.element == railing).map_or(0.0, |b| b.height);
+            let hardware = store.get(gate).and_then(crate::railings::hardware);
+            Gate { element: gate, railing, at, width, swings_out: !inside(side), height, hardware }
         })
         .collect();
     let barriers: Vec<Barrier> = barriers.into_iter().filter(|b| touched.contains(&b.element)).collect();

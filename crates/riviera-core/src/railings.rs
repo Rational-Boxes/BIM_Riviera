@@ -1406,6 +1406,95 @@ pub(crate) fn add_gate(
     Ok(gate)
 }
 
+/// Where a gate's hardware is kept on the gate.
+pub const HARDWARE_KEY: &str = "rxd:gate_hardware";
+
+/// How a gate's latch is released (ARC-POOL-016).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Latch {
+    /// A latch released from outside by hand.
+    #[default]
+    Outside,
+    /// Opened only by a key, card or combination.
+    Key,
+    /// Released from the pool side only.
+    PoolSide,
+}
+
+/// A gate's closing and latching hardware (ARC-POOL-016).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct GateHardware {
+    pub self_closing: bool,
+    pub self_latching: bool,
+    pub lockable: bool,
+    /// The latch's release above the ground.
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub latch_height: f64,
+    pub latch: Latch,
+    /// Nothing within 18 in of the latch opens more than ½ in (a mesh or solid panel there).
+    #[serde(default)]
+    pub latch_mesh: bool,
+}
+
+impl Default for GateHardware {
+    fn default() -> Self {
+        GateHardware { self_closing: true, self_latching: true, lockable: true, latch_height: 1.3716, latch: Latch::Outside, latch_mesh: false }
+    }
+}
+
+/// A gate's hardware, if it has been set.
+pub fn hardware(e: &Element) -> Option<GateHardware> {
+    serde_json::from_value(e.params.get(HARDWARE_KEY)?.clone()).ok()
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct GateHardwareParams {
+    pub gate_id: ElementRef,
+    pub self_closing: Option<bool>,
+    pub self_latching: Option<bool>,
+    pub lockable: Option<bool>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub latch_height: Option<f64>,
+    pub latch: Option<Latch>,
+    pub latch_mesh: Option<bool>,
+    /// Takes the hardware away (unknown again).
+    #[serde(default)]
+    pub remove: bool,
+}
+
+/// Sets a gate's hardware (`railing.gate_hardware`): what is given changes, the rest stays (a
+/// self-closing, self-latching, lockable gate with a 54 in outside latch at first).
+pub(crate) fn set_hardware(txn: &mut crate::txn::Transaction<'_>, p: GateHardwareParams) -> Result<Option<GateHardware>> {
+    let id = txn.store().resolve(&p.gate_id).ok_or_else(|| Error::new("element.not_found", "no such gate"))?;
+    let e = txn.store().get(id).expect("resolved");
+    if gate_of(e).is_none() {
+        return Err(Error::new("railing.not_a_gate", format!("element {} is not a railing's gate", id.0)));
+    }
+    if p.remove {
+        txn.modify(id, |e| {
+            e.params.remove(HARDWARE_KEY);
+        })?;
+        return Ok(None);
+    }
+    let mut h = hardware(e).unwrap_or_default();
+    h.self_closing = p.self_closing.unwrap_or(h.self_closing);
+    h.self_latching = p.self_latching.unwrap_or(h.self_latching);
+    h.lockable = p.lockable.unwrap_or(h.lockable);
+    h.latch_height = p.latch_height.unwrap_or(h.latch_height);
+    h.latch = p.latch.unwrap_or(h.latch);
+    h.latch_mesh = p.latch_mesh.unwrap_or(h.latch_mesh);
+    if !(h.latch_height > 0.0 && h.latch_height < 5.0) {
+        return Err(Error::new("railing.bad_latch", "the latch's height must be above zero and under 5 m"));
+    }
+    let v = serde_json::to_value(h).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(HARDWARE_KEY.into(), v);
+    })?;
+    Ok(Some(h))
+}
+
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureParams {

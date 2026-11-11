@@ -71,6 +71,7 @@ pub const UI_ACTIONS: &[&str] = &[
     "ui.pool_lanes",
     "ui.pool_depth_markings",
     "ui.pool_plant",
+    "ui.gate_hardware",
     "ui.check_pools",
     "ui.pool_hall_air",
     "ui.pool_water_treatment",

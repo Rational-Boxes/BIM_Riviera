@@ -155,6 +155,12 @@ apart) and gates opening outward, away from the pool; the MAHC asks for 6 ft rou
 pools. Doors and low windows in a house wall that is part of a home pool's barrier need alarms.
 A fence of the right height is a railing type: from a script, <code>railing_type.create</code>
 makes one (1.25 m with 2 in under it and 95 mm gaps meets the ISPSC).</p>
+<p><b>Gate hardware.</b> Select the gate (or its railing) and choose
+<b>Modify | Railings › Gate Hardware</b>: whether it closes, latches and locks itself, the latch's
+height and whether it is released outside, by a key or code, or from the pool side only. Check
+Pools holds it to the ISPSC (52–54 in at public pools, 54 in at least at homes, key latches
+34–48 in, a pool-side latch at homes 3 in under the top with ½ in mesh round it) and the MAHC
+(54 in). A gate whose hardware is not set is a note.</p>
 
 <h2 id="check">Checking a pool</h2>
 <p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
@@ -270,8 +276,8 @@ mapping.</p>
   only; tiling and the membrane are not drawn.</li>
   <li>Depth markers are tiles: their labels are listed, not yet drawn as text, and the NO DIVING
   symbol is a plain tile. The float line is placed but not drawn.</li>
-  <li>Barriers: gates' self-closing hardware and latch heights, the clear zone outside, and the
-  ground under a fence (grass or paving) are not modelled.</li>
+  <li>Barriers: the clear zone outside, the ground under a fence (grass or paving), double gates'
+  secured leaf and the MAHC's exit gates are not modelled.</li>
   <li>Not checked yet: where entries stand along the pool, 3 m boards and platforms, pool
   stairs' handrails under the ADA (20–24 in apart).</li>
   <li>A beach's trench drain and the coping round a swimout are not built yet.</li>
@@ -280,4 +286,4 @@ mapping.</p>
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.barriers</code>, <code>railing_type.create</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.plant</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.barriers</code>, <code>railing_type.create</code>, <code>railing.gate_hardware</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.plant</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>

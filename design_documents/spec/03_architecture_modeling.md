@@ -5407,8 +5407,8 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012); stair handrails, recessed steps and their grab rails, 1:12 beaches (ARC-POOL-013); stair nosing stripes (ARC-POOL-015) |
-| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012); stair handrails, recessed steps and 1:10 beaches, secondary (ARC-POOL-013); stair nosing stripes and swimouts, secondary (ARC-POOL-015) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012) and self-closing, self-latching 54 in latches (ARC-POOL-016); stair handrails, recessed steps and their grab rails, 1:12 beaches (ARC-POOL-013); stair nosing stripes (ARC-POOL-015) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012), its gates' hardware and latch heights (ARC-POOL-016); stair handrails, recessed steps and 1:10 beaches, secondary (ARC-POOL-013); stair nosing stripes and swimouts, secondary (ARC-POOL-015) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004); a sloped entry's handrails (ARC-POOL-013) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
@@ -5967,7 +5967,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), gate hardware (ARC-POOL-016, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6410,7 +6410,7 @@ Public and competition pools come first (Q6).
 - [x] The pool samples are enclosed: fences and outward gates (backyard, rules, diving well, rooftop) and the hall's walls.
 
 *Built (2026-11-11):* `riviera_core::pool_barriers`, `railing_type.create`, View › Coordination › Pool Barriers. Defaults are E-127. Not yet:
-- gates' self-closing and self-latching hardware and latch heights (54 in; 52–54 in public; key latches 34–48 in), and the ½ in mesh within 18 in of a latch;
+- (gates' hardware and latch heights are ARC-POOL-016, built);
 - the 36 in clear zone outside the barrier;
 - grass or gravel under it (the ISPSC's 2 in);
 - mesh fences' 20 in setback;
@@ -6549,6 +6549,46 @@ Public and competition pools come first (Q6).
 - swimouts' "outside water currents" (MAHC) and their place relative to the lanes;
 - stripes on the riser faces;
 - the stripes' colour as a material.
+
+### 3.9c.16 Pool gate hardware
+**ID:** ARC-POOL-016 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5; research/23 A.8 (S2762, S2765); ARC-RAIL-003 (gates); ARC-POOL-012 (barriers)
+
+**Purpose.** Record how a pool's gates close and latch, and check them against the codes' self-closing, self-latching and latch-height rules.
+
+**Behaviour & rules.**
+- **Hardware** is kept on a railing's gate (`railing.gate_hardware`):
+  - `self_closing`, `self_latching`, `lockable`;
+  - the latch's release `latch_height` above the ground;
+  - how it is released (`latch`): `outside` by hand, `key` (a key, card or combination), or `pool_side` only;
+  - `latch_mesh`: nothing within 18 in of the latch opens more than ½ in.
+  - The first time it is set it is self-closing, self-latching and lockable with a 54 in outside latch; what is given changes and the rest stays. `remove` makes it unknown again.
+- **The barrier** (`pool.barriers`, ARC-POOL-012) gives each gate's railing height and hardware.
+- **Checks** (`pool.check`, rule kind `gate_hardware`), on each gate in the barrier:
+  - hardware not set: a note;
+  - not self-closing or self-latching, or not lockable where `lockable`: an error;
+  - an outside latch outside `latch`, or a key latch outside `key_latch` (default `latch`);
+  - a pool-side latch: refused without `below_top`; with it, at least `below_top` under the gate's top, with `latch_mesh`.
+- **Packs:**
+  - the ISPSC, public, competition and wading pools (305.3.3): latch 52–54 in, key latch 34–48 in, lockable, no pool-side latch;
+  - the ISPSC, residential (305.3.3, 305.3.4): latch 54 in at least, key latch 54 in at most, or a pool-side latch 3 in below the top with ½ in openings within 18 in;
+  - the MAHC (4.8.6): latch 54 in at least, lockable.
+- **The window:** Modify | Railings › **Gate Hardware**, for the selected gates or the selected railings' gates.
+
+**Data.** The hardware is a parameter on the gate's `IfcDoor` (`rxd:gate_hardware`), saved and opened with it.
+
+**Commands.** `railing.gate_hardware(gate_id, self_closing?, self_latching?, lockable?, latch_height?, latch?, latch_mesh?, remove?)` → `{self_closing, self_latching, lockable, latch_height, latch, latch_mesh}` or null.
+
+**Acceptance criteria.**
+- [x] A public pool's gate with no hardware is a note. Its first hardware passes the ISPSC. A 48 in latch fails 52–54 in, a gate that does not close itself fails, and a 50 in key latch fails 34–48 in. A pool-side latch is refused. Under the MAHC a gate that does not lock and a 51.2 in latch fail. Removed, it is a note again.
+- [x] A residential gate latched on the pool side 0.95 m up a 1.25 m gate fails without ½ in mesh and passes with it; at 1.2 m it is 2 in below the top and fails. Saved and opened, the gate keeps its hardware. An element that is not a gate is refused.
+- [x] The pool samples' gates have hardware and pass.
+
+*Built (2026-11-11):* `railing.gate_hardware`, the `gate_hardware` rule kind, Modify | Railings › Gate Hardware. Defaults are E-131. Not yet:
+- double gates' one leaf secured;
+- utility gates locked;
+- the MAHC's exit gates (36 in, EMERGENCY EXIT) and the staffed-entry exception;
+- Washington's and Texas's latch rules;
+- drawing the latch on the gate.
 
 ## 3.11 Massing and site
 
@@ -7793,6 +7833,7 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.treatment` | pool_id?, basis?, turnover?, filter_rate?, filters? | [{turnover, flow, filter_area, backwash_volume, surge_volume, skimmers?, gutter_capacity?, suction, discharge, flow_per_drain, plant_room, notes}] | No (query) | ARC-POOL-009 |
 | `pool.depth_markings` | pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove? | {markers: [{at, edge, along, depth, label, no_diving, reason}], lines?} | Yes | ARC-POOL-011 |
 | `pool.barriers` | pool_id? | [{enclosed, area?, barriers, gates, openings, wall_openings}] | No (query) | ARC-POOL-012 |
+| `railing.gate_hardware` | gate_id, self_closing?, self_latching?, lockable?, latch_height?, latch?, latch_mesh?, remove? | {self_closing, self_latching, lockable, latch_height, latch, latch_mesh} \| null | Yes | ARC-POOL-016 |
 | `railing_type.create` | name, height?, top_rail?, bottom_rail?, bottom_rail_height?, baluster?, baluster_spacing?, post?, post_space? | id | Yes | ARC-POOL-012 |
 | `pool.plant` | pool_id?, room? \| level + point, rotation?, basis?, filters?, head? | {flow, head, pump_power, motor, filter_diameter, balance_tank, items, footprint, area, plant_room, room?, room_area?, notes} | Yes | ARC-POOL-014 |
 | `pool.structure` | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |

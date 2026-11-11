@@ -4848,6 +4848,7 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.pool_lanes" => with(gui, Gui::pool_lanes),
         "ui.pool_depth_markings" => with(gui, Gui::pool_depth_markings),
         "ui.pool_plant" => with(gui, Gui::pool_plant),
+        "ui.gate_hardware" => with(gui, Gui::gate_hardware),
         "ui.pool_entry" => with(gui, |g| {
             g.pool_entry();
             focus(g);

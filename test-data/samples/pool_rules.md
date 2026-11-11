@@ -16,7 +16,7 @@ Start with **File › New**.
    window has no railing type editor yet). Draw it round the deck with **Architecture › Build ›
    Railing**, closed, from (0.3, 0.3) to (31.7, 19.7), and add a gate in its south side with Modify | Railings › **Gate**,
    swinging out, away from the pool (**[gap]** its swing is set from a script,
-   `swing_out = true`). **View › Coordination › Pool Barriers** shows it enclosing the pool; the
+   `swing_out = true`). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.38 m (54.3 in) up. **View › Coordination › Pool Barriers** shows it enclosing the pool; the
    MAHC asks for 6 ft (4.8.6).
 4. **The pool.** Choose **Architecture › Build › Swimming Pool**, *Typed outline*, and type the
    outline `6,15; 6,5; 26,5; 26,15` (its first edge, on x = 6, is the shallow end) and the depths

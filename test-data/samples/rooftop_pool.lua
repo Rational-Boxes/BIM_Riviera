@@ -29,7 +29,9 @@ riviera.floor.create{ loops = { rect(0, 0, 18, 12) }, level_id = roof }
 -- The ISPSC's barrier round the terrace (ARC-POOL-012), its gate by the stair opening outward.
 local fence_type = riviera.railing_type.create{ name = "Pool fence 4 ft", height = 1.25, bottom_rail_height = 0.05, baluster = 0.025, baluster_spacing = 0.12 }
 local fence = riviera.railing.create{ type_id = fence_type, path = { { 0.1, 0.1 }, { 17.9, 0.1 }, { 17.9, 11.9 }, { 0.1, 11.9 } }, closed = true, base_level = roof }
-riviera.railing.add_gate{ railing_id = fence, point = { 2, 0.1 }, swing_out = true }
+local gate = riviera.railing.add_gate{ railing_id = fence, point = { 2, 0.1 }, swing_out = true }
+-- Self-closing, self-latching and lockable (ARC-POOL-016), its latch 53 in up, inside the ISPSC's 52–54 in for public pools.
+riviera.railing.gate_hardware{ gate_id = gate, latch_height = 1.35 }
 
 -- 10 × 4 m, 1.2 m deep throughout (a hotel pool, no diving), a 250 mm concrete shell, tiled.
 local pool = riviera.pool.create{ level = roof, name = "Rooftop pool",

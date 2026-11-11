@@ -24,7 +24,9 @@ riviera.floor.create{ loops = { rect(0, 0, 32, 20) }, level_id = l1 }
 -- balusters 95 mm apart, with a gate in the south side opening outward, away from the pool.
 local fence_type = riviera.railing_type.create{ name = "Pool enclosure 6 ft", height = 1.85, bottom_rail_height = 0.05, baluster = 0.025, baluster_spacing = 0.12 }
 local fence = riviera.railing.create{ type_id = fence_type, path = { { 0.3, 0.3 }, { 31.7, 0.3 }, { 31.7, 19.7 }, { 0.3, 19.7 } }, closed = true, base_level = l1 }
-riviera.railing.add_gate{ railing_id = fence, point = { 16, 0.3 }, swing_out = true }
+local gate = riviera.railing.add_gate{ railing_id = fence, point = { 16, 0.3 }, swing_out = true }
+-- Self-closing, self-latching and lockable (ARC-POOL-016), its latch 54.3 in up: over the MAHC's 54 in.
+riviera.railing.gate_hardware{ gate_id = gate, latch_height = 1.38 }
 
 -- 20 × 10 m, its shallow end at x = 6: 0.9 m, to 5 ft over 8 m, to 2.5 m over 3 m more.
 local pool = riviera.pool.create{ level = l1, name = "Pool", outline = { { 6, 15 }, { 6, 5 }, { 26, 5 }, { 26, 15 } },

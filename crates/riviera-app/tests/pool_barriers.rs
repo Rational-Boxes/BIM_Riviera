@@ -60,7 +60,9 @@ fn a_fence_and_its_gate() {
     assert_eq!(c["findings"].as_array().unwrap().iter().filter(|x| x["rule"] == "ISPSC 305.3").map(|x| x["element"].clone()).collect::<Vec<_>>(), vec![gate.clone()], "{c:#}");
     let key = ok(&mut app, "railing.features", json!({ "railing_id": rail }))[0]["key"].clone();
     ok(&mut app, "railing.remove_feature", json!({ "railing_id": rail, "key": key }));
-    ok(&mut app, "railing.add_gate", json!({ "railing_id": rail, "point": [5.0, -2.0], "swing_out": true }));
+    let gate = ok(&mut app, "railing.add_gate", json!({ "railing_id": rail, "point": [5.0, -2.0], "swing_out": true }));
+    // Its hardware (ARC-POOL-016): self-closing and self-latching, the latch 53 in up.
+    ok(&mut app, "railing.gate_hardware", json!({ "gate_id": gate, "latch_height": 1.35 }));
     let c = ok(&mut app, "pool.check", json!({}));
     assert!(findings(&c, "305").is_empty(), "{c:#}");
     // The MAHC asks for 6 ft.

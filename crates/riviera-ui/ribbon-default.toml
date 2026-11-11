@@ -2869,6 +2869,12 @@ icon = "gate"
 help = "Add single gates to the selected railing: click it where each goes"
 
 [[action]]
+id = "ui.gate_hardware"
+label = "Gate Hardware"
+icon = "gate"
+help = "The selected gates' (or the selected railings' gates') hardware: self-closing, self-latching, lockable, the latch's height and how it is released; Check Pools holds pool gates to the ISPSC and the MAHC (ARC-POOL-016)"
+
+[[action]]
 id = "railing.add_double_gate"
 label = "Double Gate"
 icon = "double_gate"
@@ -4893,6 +4899,7 @@ panels = [{ label = "Openings", tools = [
   { action = "railing.add_opening", size = "large" },
   { action = "railing.add_gate", size = "large" },
   { action = "railing.add_double_gate", size = "large" },
+  { action = "ui.gate_hardware", size = "large" },
 ] }]
 
 [[context]]

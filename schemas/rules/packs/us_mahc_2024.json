@@ -549,6 +549,23 @@
         "competition",
         "wading"
       ]
+    },
+    {
+      "id": "MAHC 2024 4.8.6 (gate hardware)",
+      "description": "Enclosure gates self-closing and self-latching from any open position and lockable, the latch's operable parts 54 in (4.5 ft) above the ground at least",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "gate_hardware",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ],
+      "latch": [
+        1.3716,
+        10.0
+      ],
+      "lockable": true
     }
   ]
 }

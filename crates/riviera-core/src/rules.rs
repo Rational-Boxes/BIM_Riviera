@@ -252,6 +252,11 @@ pub enum PoolMeasure {
     Barrier,
     /// The barrier's gates swing away from the pool.
     GateSwing,
+    /// The barrier's gates close and latch themselves (and lock, with `lockable`), their latch
+    /// within `latch`, a key latch within `key_latch`, and a latch on the pool side only `below_top`
+    /// under the gate's top with ½ in openings round it, or refused without `below_top`
+    /// (ARC-POOL-016).
+    GateHardware,
     /// Entries of `kinds` (default stairs) have at least `min` handrails, on both sides where they
     /// are wider than `wide`, at most `spacing` apart (ARC-POOL-013).
     Handrails,
@@ -377,6 +382,16 @@ pub struct PoolRule {
     pub kinds: Vec<crate::pools::EntryKind>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wide: Option<f64>,
+    /// Gate hardware: the outside latch's height range, a key latch's, how far below the gate's
+    /// top a pool-side latch must be, and whether gates must lock (ARC-POOL-016).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub latch: Option<[f64; 2]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub key_latch: Option<[f64; 2]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub below_top: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lockable: Option<bool>,
 }
 
 /// A shared-format rule pack.

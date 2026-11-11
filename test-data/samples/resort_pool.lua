@@ -24,7 +24,9 @@ riviera.floor.create{ loops = { rect(0, 0, 34, 22) }, level_id = l1 }
 -- The MAHC's 6 ft enclosure (ARC-POOL-012), its gate opening outward.
 local fence_type = riviera.railing_type.create{ name = "Pool enclosure 6 ft", height = 1.85, bottom_rail_height = 0.05, baluster = 0.025, baluster_spacing = 0.12 }
 local fence = riviera.railing.create{ type_id = fence_type, path = { { 0.3, 0.3 }, { 33.7, 0.3 }, { 33.7, 21.7 }, { 0.3, 21.7 } }, closed = true, base_level = l1 }
-riviera.railing.add_gate{ railing_id = fence, point = { 17, 0.3 }, swing_out = true }
+local gate = riviera.railing.add_gate{ railing_id = fence, point = { 17, 0.3 }, swing_out = true }
+-- Self-closing, self-latching and lockable (ARC-POOL-016), its latch exactly 54 in up: the MAHC asks 54 in at least and the ISPSC 52–54 in.
+riviera.railing.gate_hardware{ gate_id = gate, latch_height = 1.3716 }
 
 -- 25 × 12 m, its shallow end the west wall (edge 1): 0.9 m to 14 m out, 5 ft at 21.5 m (1:12),
 -- 2.0 m at 24 m, and level to the east wall (edge 3).

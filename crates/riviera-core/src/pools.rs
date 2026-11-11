@@ -2251,8 +2251,59 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             find(None, false, format!("the pool is {} deep at its deepest but has no break-point band and float line at the 5 ft break (pool.depth_markings)", feet(deepest)));
                         }
                     }
-                    M::Barrier | M::GateSwing => {
+                    M::Barrier | M::GateSwing | M::GateHardware => {
                         let enc = barrier.get_or_insert_with(|| crate::pool_barriers::enclosure(store, id, &rec, g.deck_z));
+                        if r.check == M::GateHardware {
+                            use crate::railings::Latch;
+                            let range = |v: f64, rg: [f64; 2]| -> Option<String> {
+                                let (lo, hi) = (rg[0], rg[1]);
+                                (v < lo - 1e-6 || v > hi + 1e-6).then(|| bounds((lo > 0.0).then_some(lo), (hi < 10.0).then_some(hi), &inches))
+                            };
+                            for gt in &enc.gates {
+                                let Some(h) = gt.hardware else {
+                                    find(Some(gt.element), true, "the gate's hardware is not set (railing.gate_hardware); a pool gate closes and latches itself".into());
+                                    continue;
+                                };
+                                let mut missing = Vec::new();
+                                if !h.self_closing {
+                                    missing.push("self-closing");
+                                }
+                                if !h.self_latching {
+                                    missing.push("self-latching");
+                                }
+                                if r.lockable == Some(true) && !h.lockable {
+                                    missing.push("lockable");
+                                }
+                                if !missing.is_empty() {
+                                    find(Some(gt.element), false, format!("the gate is not {}", missing.join(" or ")));
+                                }
+                                let lh = h.latch_height;
+                                match h.latch {
+                                    Latch::Outside => {
+                                        if let Some(want) = r.latch.and_then(|rg| range(lh, rg)) {
+                                            find(Some(gt.element), false, format!("its latch is {} above the ground; {want}", inches(lh)));
+                                        }
+                                    }
+                                    Latch::Key => {
+                                        if let Some(want) = r.key_latch.or(r.latch).and_then(|rg| range(lh, rg)) {
+                                            find(Some(gt.element), false, format!("its key latch is {} above the ground; {want}", inches(lh)));
+                                        }
+                                    }
+                                    Latch::PoolSide => match r.below_top {
+                                        None => find(Some(gt.element), false, format!("its latch is released from the pool side only; {} wants it released outside{}", pack.id, r.latch.map(|rg| format!(", {}", bounds((rg[0] > 0.0).then_some(rg[0]), (rg[1] < 10.0).then_some(rg[1]), &inches))).unwrap_or_default())),
+                                        Some(b) => {
+                                            if lh > gt.height - b + 1e-6 {
+                                                find(Some(gt.element), false, format!("its pool-side latch is {} below the gate's top; at least {}", inches((gt.height - lh).max(0.0)), inches(b)));
+                                            }
+                                            if !h.latch_mesh {
+                                                find(Some(gt.element), false, "nothing within 18 in of its pool-side latch may open more than ½ in (latch_mesh)".into());
+                                            }
+                                        }
+                                    },
+                                }
+                            }
+                            continue;
+                        }
                         if r.check == M::GateSwing {
                             for gt in enc.gates.iter().filter(|gt| !gt.swings_out) {
                                 find(Some(gt.element), false, "the gate swings in toward the pool; a pool gate opens outward, away from it, and closes and latches itself".into());

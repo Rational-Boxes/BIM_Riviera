@@ -11,7 +11,7 @@ Start with **File › New**.
    and 25 mm balusters at 120 mm, so its rails are over 45 in apart and its gaps under 4 in
    (`railing_type.create` from a script **[gap]**). Draw it round the patio with **Architecture ›
    Build › Railing**, closed, from (0.3, 0.3) to (15.7, 11.7), and add a gate with Modify | Railings › **Gate**, swinging out, away from the pool
-   (**[gap]** its swing is set from a script, `swing_out = true`), at (8, 0.3).
+   (**[gap]** its swing is set from a script, `swing_out = true`), at (8, 0.3). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.40 m (55 in) up.
    **View › Coordination › Pool Barriers** shows it enclosing the pool (ISPSC 305).
 3. **The pool.** Choose **Architecture › Build › Swimming Pool**, type the outline
    `3,8.5; 3,3.5; 13,3.5; 13,8.5` (its first edge, the west wall, is the shallow end) and the
