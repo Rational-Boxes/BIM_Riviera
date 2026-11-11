@@ -240,6 +240,7 @@ pub fn toolset_of(command: &str) -> String {
             | "tile"
             | "vent"
             | "railing"
+            | "railing_type"
             | "deck"
             | "site"
             | "cme"

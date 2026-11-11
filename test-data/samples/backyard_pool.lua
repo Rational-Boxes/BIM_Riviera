@@ -19,6 +19,12 @@ end
 -- The patio, its top at the level.
 riviera.floor.create{ loops = { rect(0, 0, 16, 12) }, level_id = l1 }
 
+-- The ISPSC's barrier (305, ARC-POOL-012): a 1.25 m fence round the patio, 2 in off it, its
+-- balusters under 4 in apart, its gate opening outward, away from the pool.
+local fence_type = riviera.railing_type.create{ name = "Pool fence 4 ft", height = 1.25, bottom_rail_height = 0.05, baluster = 0.025, baluster_spacing = 0.12 }
+local fence = riviera.railing.create{ type_id = fence_type, path = { { 0.3, 0.3 }, { 15.7, 0.3 }, { 15.7, 11.7 }, { 0.3, 11.7 } }, closed = true, base_level = l1 }
+riviera.railing.add_gate{ railing_id = fence, point = { 8, 0.3 }, swing_out = true }
+
 -- 10 × 5 m, its shallow end the west wall (edge 1): 1.0 m (39 in), 1.4 m at 4 m, 5 ft at 5 m
 -- (1:8, inside the ISPSC's 1:7), then 2.0 m at 7 m.
 local pool = riviera.pool.create{ level = l1, name = "Backyard pool", class = "residential",

@@ -419,6 +419,32 @@
         "competition"
       ],
       "min": 1.524
+    },
+    {
+      "id": "MAHC 2024 4.8.6",
+      "description": "An aquatic facility's enclosure at least 6 ft high, at most 2 in under it where it is not solid, without horizontal mid-rails",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "barrier",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ],
+      "min": 1.8288,
+      "clearance": 0.0508
+    },
+    {
+      "id": "MAHC 2024 4.8.6 (gates)",
+      "description": "Gates self-closing and self-latching, exit gates swinging away from the venue",
+      "source": "S2762",
+      "confidence": "verified",
+      "check": "gate_swing",
+      "pools": [
+        "public",
+        "competition",
+        "wading"
+      ]
     }
   ]
 }

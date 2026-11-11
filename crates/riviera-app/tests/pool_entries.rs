@@ -38,6 +38,9 @@ fn stairs_a_sloped_entry_and_a_bench() {
     let profile = json!([{ "at": 0.0, "depth": 1.0 }, { "at": 7.0, "depth": 1.524 }, { "at": 9.0, "depth": 2.0 }]);
     let pool = ok(&mut app, "pool.create", json!({ "level": level, "outline": [[0.0, 8.0], [0.0, 0.0], [15.0, 0.0], [15.0, 8.0]], "profile": profile }));
     ok(&mut app, "pool.depth_markings", json!({ "pool_id": pool }));
+    // The MAHC's 6 ft enclosure round the deck (ARC-POOL-012).
+    let fence = ok(&mut app, "railing_type.create", json!({ "name": "Enclosure", "height": 1.85, "bottom_rail_height": 0.05, "baluster": 0.025, "baluster_spacing": 0.12 }));
+    ok(&mut app, "railing.create", json!({ "type_id": fence, "path": [[-5.8, -5.8], [20.8, -5.8], [20.8, 13.8], [-5.8, 13.8]], "closed": true, "base_level": level }));
     let before = ok(&mut app, "pool.info", json!({ "pool_id": pool }))["volume"].as_f64().unwrap();
     // Stairs by the west wall at y = 2: 1.15 m from deck to floor in five 0.23 m risers.
     let s = ok(&mut app, "pool.add_entry", json!({ "pool_id": pool, "kind": "stairs", "point": [0.1, 2.0] }));

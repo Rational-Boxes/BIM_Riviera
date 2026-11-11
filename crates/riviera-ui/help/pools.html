@@ -23,6 +23,7 @@ Hot tubs, saunas and steam rooms are on the <a href="riviera:help/bathrooms">bat
   <a href="#diving">Diving boards</a>
   <a href="#equipment">Equipment</a>
   <a href="#markings">Depth markings</a>
+  <a href="#barriers">Barriers and gates</a>
   <a href="#check">Checking a pool</a>
   <a href="#air">The hall's air</a>
   <a href="#treatment">Water treatment</a>
@@ -122,6 +123,20 @@ where it would go. In a pool whose floor passes 5 ft, a 4 in band marks the brea
 and up the walls; the float line is placed 1 ft shallower. Check Pools checks the markings
 against the MAHC, the ISPSC and HSG179.</p>
 
+<h2 id="barriers">Barriers and gates</h2>
+<p>A pool needs a barrier round it: a fence, the walls of its hall or the house, with gates.
+Draw it with the railing tools (<b>Architecture › Build › Railing</b>, and <b>Modify | Railings ›
+Gate</b> for its gates) and walls. <b>View › Coordination › Pool Barriers</b> shows what encloses
+the pool: Riviera fills the ground outward from the water until it meets railings, gates and
+walls, and lists those it meets with their heights, the gap under each railing and between its
+balusters, and which way each gate swings. If the ground reaches open space, it says the pool is
+not enclosed and where an opening let it through. Check Pools judges the barrier: the ISPSC
+asks for 48 in, at most 4 in under it, no 4 in opening (1¾ in where its rails are under 45 in
+apart) and gates opening outward, away from the pool; the MAHC asks for 6 ft round public
+pools. Doors and low windows in a house wall that is part of a home pool's barrier need alarms.
+A fence of the right height is a railing type: from a script, <code>railing_type.create</code>
+makes one (1.25 m with 2 in under it and 95 mm gaps meets the ISPSC).</p>
+
 <h2 id="check">Checking a pool</h2>
 <p><b>View › Coordination › Check Pools</b> checks each pool against the pool rule packs in use.
 Under the IBC these are the <b>ISPSC</b> and the <b>VGB Act</b>'s drain rules; with the ADA rule set,
@@ -215,12 +230,14 @@ mapping.</p>
   only; tiling and the membrane are not drawn.</li>
   <li>Depth markers are tiles: their labels are listed, not yet drawn as text, and the NO DIVING
   symbol is a plain tile. The float line is placed but not drawn.</li>
-  <li>Not checked yet: barriers and gates, where entries stand along the pool, handrails, 3 m
-  boards and platforms.
+  <li>Barriers: gates' self-closing hardware and latch heights, the clear zone outside, and the
+  ground under a fence (grass or paving) are not modelled.</li>
+  <li>Not checked yet: where entries stand along the pool, handrails, 3 m boards and
+  platforms.
   Recessed steps, swimouts and beach entries are not built yet.</li>
 </ul>
 
 <h2 id="scripts">Scripts and agents</h2>
 <p>Every step is a command, in Lua as <code>riviera.pool.…</code> and through the MCP server:
 <code>pool.create</code>, <code>pool.set</code>, <code>pool.info</code>, <code>pool.list</code>,
-<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>
+<code>pool.add_entry</code>, <code>pool.remove_entry</code>, <code>pool.lanes</code>, <code>pool.depth_markings</code>, <code>pool.barriers</code>, <code>railing_type.create</code>, <code>pool.check</code>, <code>pool.natatorium</code>, <code>pool.treatment</code>, <code>pool.structure</code>, <code>pool.apply_loads</code>, <code>pool.bonding</code>; packs are chosen with <code>rules.set_packs</code>.</p>

@@ -111,6 +111,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(SketchMoveCorner),
         registry.add(StairCreate),
         registry.add(RailingCreate),
+        registry.add(RailingTypeCreate),
         registry.add(DeckCreate),
         registry.add(DeckSetBoards),
         registry.add(DeckSetFraming),
@@ -3570,6 +3571,19 @@ modify_command!(
     crate::railings::CreateParams,
     ElementId,
     crate::railings::create
+);
+modify_command!(
+    RailingTypeCreate,
+    "railing_type.create",
+    "Create a railing type",
+    "Creates a railing type named `name`: its `height` (the top rail's top), the rails' sections, the bottom \
+     rail's height (the gap under it), the balusters' section and spacing, and the posts; each value the \
+     default type's unless given (a pool fence, for instance, 1.25 m high with 2 in under it and balusters \
+     under 4 in apart).",
+    "Railing Type",
+    crate::railings::CreateTypeParams,
+    ElementId,
+    crate::railings::create_type
 );
 modify_command!(
     RailingCreateOnEdges,

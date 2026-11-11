@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 933 numbered requirements (320 P0 · 369 P1 · 237 P2 · 7 P3), 2,410 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 934 numbered requirements (320 P0 · 370 P1 · 237 P2 · 7 P3), 2,412 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,410 commands; 933 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,412 commands; 934 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -15664,8 +15664,8 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 | `ada_2010_interiors` | accessible | 2010 ADA Standards: a 30 × 48 in clear floor space for a parallel approach along each side of a bed (§806.2.3, G139); 80 in headroom under a hanging fixture on a circulation path (§307.4); 4 in at most for a sconce between 27 and 80 in above the floor (§307.2); an accessible counter portion 36 in high at most and 36 in (parallel) or 30 in (forward) long at least, with its 30 × 48 in clear floor space and, for a forward approach, knee clearance 30 in wide, 17 in deep and 27 in high (§904.4, §306); an accessible closet rod or shelf between 15 and 46 in, a side reach over 24 in (§811, §308.3.2); 36 in along gondolas and 48 in in front of end caps (§403.5.1, §403.5.2; ARC-RETAIL-001); 36 in along an accessible check-out lane (§904.3.1, ARC-RETAIL-003) |
 | `us_ibc_mercantile` | minimum | Domain `retail`: a 44 in Group M public aisle along gondolas and in front of end caps (§1018.3, ARC-RETAIL-001) |
 | `gym_equipment` | minimum | Domain `gym`: a treadmill's 0.5 m sides and 2.0 m rear (ASTM F2115 as makers quote it), a rower's 2.74 × 1.22 m use area, a dumbbell rack's 0.9 m live depth, and 0.9 m round strength stations (the ACSM's, advisory) (ARC-GYM-001) |
-| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011) |
-| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011) |
+| `us_mahc_2024` | minimum | Domain `pool`: the CDC's Model Aquatic Health Code 2024 (slopes, cove, coping, a 4 ft deck, vanishing edges, entries, wading depth, drains, 20 ft² a bather), chosen per project (ARC-POOL-002); stairs and benches (ARC-POOL-003); 4 ft of deck round diving equipment, guard stands and lifts (ARC-POOL-004); Table 4.8.2.3's diving wells (ARC-POOL-006); depth markings every 1 ft at most 25 ft apart, NO DIVING and the break-point band (ARC-POOL-011); a 6 ft enclosure with outward gates (ARC-POOL-012) |
+| `us_ispsc` | minimum | Domain `pool`: the ISPSC 2021 (public values secondary, residential slope and shallow end) and the IBC's 50 ft² a pool occupant (ARC-POOL-002); depth markings every 2 ft and the break-point band, secondary (ARC-POOL-011); §305's 48 in barrier, its openings and outward gates (ARC-POOL-012) |
 | `ada_2010_pools` | accessible | Domain `pool`: §242 accessible means of entry by the pool wall's length, a wading pool's sloped entry (ARC-POOL-002); a sloped entry's 1:12 and 24–30 in (ARC-POOL-003); a pool lift's 36 × 48 in clear deck (ARC-POOL-004) |
 | `world_aquatics` | minimum | Domain `pool`, competition pools only: the course between the touch pads, lane widths, depth, and the depth and height at starting platforms (FINA FR 2017–2021 with the 2026 checklist), each finding saying to verify against the current text (ARC-POOL-005); the springboards' diving table (ARC-POOL-006) |
 | `uk_sport_england` | recommended | Domain `pool`, in England: floor gradients by depth, the shallow end, community lanes, the surround, steps and ramps (ARC-POOL-007) |
@@ -16224,7 +16224,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16628,6 +16628,54 @@ Public and competition pools come first (Q6).
 - markers on permanent structures within 5 ft (ISPSC);
 - Sport England's deep and shallow warnings (over 1.2 m, under 0.9 m);
 - letter heights.
+
+### 3.9c.12 Pool barriers
+**ID:** ARC-POOL-012 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5; research/23 A.8 (S2762, S2765); ARC-RAIL-001…003 (railings, openings, gates); ARC-POOL-002 (`pool.check`)
+
+**Purpose.** Check that a pool is enclosed by a barrier the codes accept, from the railings, gates and walls already in the model.
+
+**Behaviour & rules.**
+- **Finding the barrier:**
+  - railings (not on stairs) whose base is within 1 m of the deck, and walls at the deck's level that rise 0.3 m above it, are drawn onto a grid (0.1 m, coarser for very large sites) round the pool and them, 1 m out;
+  - a railing's openings are left open and its gates shut;
+  - the ground is filled outward from the pool's water. Reaching the grid's edge means nothing encloses the pool, and the railing openings the fill passed are listed.
+  - Otherwise the railings, walls and gates the filled ground touches are its barrier, and the area inside is given.
+- **What each part gives:**
+  - railings: their type's height, the gap under the bottom rail, the balusters' clear gap and the distance from the bottom rail's top to the top rail's top;
+  - walls: their top above the deck;
+  - gates: whether they swing out of the enclosed ground;
+  - walls: their doors, and their windows with sills.
+- **Checks** (`pool.check`, two pool rule kinds):
+  - `barrier`: enclosed; each part at least `min` high; railings at most `clearance` off the ground; their balusters' gap at most `opening`, or `close[1]` where the rails are less than `close[0]` apart. For residential pools, each door, and each window under 48 in, in a barrier wall is a note to alarm it (UL 2017) or fit a powered safety cover (ISPSC 305.4).
+  - `gate_swing`: each gate swings out, away from the pool.
+- **Packs:**
+  - the ISPSC (305.2, 305.3) for every class: 48 in; 4 in under it; 4 in openings, 1¾ in where the rails are under 45 in apart; gates outward.
+  - the MAHC (4.8.6) for public, competition and wading pools: 6 ft; 2 in under it; gates outward.
+- **Railing types:** `railing_type.create` makes a type with its own height, rails, bottom-rail height, balusters and posts (a pool fence, for instance).
+- **The window:** View › Coordination › Pool Barriers lists the barrier.
+
+**Data.** Nothing is stored; the barrier follows from the railings and walls.
+
+**Commands.**
+- `pool.barriers(pool_id?)` → `[{pool, enclosed, area?, barriers [{element, kind, height, clearance?, opening?, rails_apart?}], gates [{element, railing, at, width, swings_out}], openings, wall_openings [{element, wall, kind, sill}]}]`.
+- `railing_type.create(name, height?, top_rail?, bottom_rail?, bottom_rail_height?, baluster?, baluster_spacing?, post?, post_space?)` → id.
+
+**Acceptance criteria.**
+- [x] A public pool with nothing round it fails the ISPSC: nothing encloses it. A 1.25 m fence round the deck, 50 mm off the ground with 95 mm baluster gaps and its rails 1.16 m apart, encloses about 120 m² and passes.
+- [x] An opening in the fence: not enclosed, and where. A gate there: enclosed, and swinging in toward the pool is an error on the gate; swinging out passes. Under the MAHC the 1.25 m fence is under 6 ft.
+- [x] A residential pool enclosed by the default 1.0 m guard rail on three sides and a house wall with a door: too low, its 100 mm gaps over 1¾ in where its rails are 0.88 m apart (errors on the railing only), and the door a note to alarm it.
+- [x] The pool samples are enclosed: fences and outward gates (backyard, rules, diving well, rooftop) and the hall's walls.
+
+*Built (2026-11-11):* `riviera_core::pool_barriers`, `railing_type.create`, View › Coordination › Pool Barriers. Defaults are E-127. Not yet:
+- gates' self-closing and self-latching hardware and latch heights (54 in; 52–54 in public; key latches 34–48 in), and the ½ in mesh within 18 in of a latch;
+- the 36 in clear zone outside the barrier;
+- grass or gravel under it (the ISPSC's 2 in);
+- mesh fences' 20 in setback;
+- above-ground pools' walls as the barrier;
+- the powered safety cover exemption;
+- the MAHC's 15 ft between a wading pool and other pools;
+- Washington's and Texas's heights;
+- a railing type editor in the window, and choosing a gate's swing there.
 
 ## 3.11 Massing and site
 
@@ -17871,6 +17919,8 @@ All commands below are registered once in the command registry and exposed autom
 | `pool.natatorium` | pool_id?, hall?, outdoor_dew_point? | [{evaporation, latent_load, water_heat, outdoor_air, purge, exhaust, dew_point, air_changes?, notes}] | No (query) | ARC-POOL-008 |
 | `pool.treatment` | pool_id?, basis?, turnover?, filter_rate?, filters? | [{turnover, flow, filter_area, backwash_volume, surge_volume, skimmers?, gutter_capacity?, suction, discharge, flow_per_drain, plant_room, notes}] | No (query) | ARC-POOL-009 |
 | `pool.depth_markings` | pool_id, units?, increment?, spacing?, no_diving?, break_line?, remove? | {markers: [{at, edge, along, depth, label, no_diving, reason}], lines?} | Yes | ARC-POOL-011 |
+| `pool.barriers` | pool_id? | [{enclosed, area?, barriers, gates, openings, wall_openings}] | No (query) | ARC-POOL-012 |
+| `railing_type.create` | name, height?, top_rail?, bottom_rail?, bottom_rail_height?, baluster?, baluster_spacing?, post?, post_space? | id | Yes | ARC-POOL-012 |
 | `pool.structure` | pool_id?, groundwater?, factor?, elevated? | [{water_weight, shell_weight, finishes, full, empty, peak, wall_line_load, wall, uplift?, point_loads, elevated, deflection_limit?, notes}] | No (query) | ARC-POOL-010 |
 | `pool.apply_loads` | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
 | `pool.bonding` | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
@@ -31411,14 +31461,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 124 | 41 | 1 | 243 |
+| ARC | 77 | 125 | 41 | 1 | 244 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **369** | **237** | **7** | **933** |
+| **Total** | **320** | **370** | **237** | **7** | **934** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31632,7 +31682,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2410 unique commands** in 456 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2412 unique commands** in 457 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -31929,7 +31979,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `plate` | 3 |
 | `plumbing_fixture` | 1 |
 | `pointcloud` | 1 |
-| `pool` | 14 |
+| `pool` | 15 |
 | `position` | 8 |
 | `precast` | 10 |
 | `precast_config` | 7 |
@@ -31943,6 +31993,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `purge` | 2 |
 | `qto` | 1 |
 | `railing` | 12 |
+| `railing_type` | 1 |
 | `railingtype` | 5 |
 | `ramp` | 2 |
 | `rebar` | 25 |
@@ -33474,6 +33525,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `pointcloud.reindex` | 6 | link_id | job_id | No | COL-LNK-003 |
 | `pool.add_entry` | 3 | pool_id, kind, point \ | edge + at, width?, tread?, riser?, slope?, reach?, seat?, depth? | {index, kind, edge, risers?, riser?, run?, reaches?, seat?} | Yes |
 | `pool.apply_loads` | 3 | pool_id, panel_id, dead_case_id, water_case_id | {dead, water, dead_pressure, water_pressure, panel_area, footprint} | Yes | ARC-POOL-010 |
+| `pool.barriers` | 3 | pool_id? | [{enclosed, area?, barriers, gates, openings, wall_openings}] | No (query) | ARC-POOL-012 |
 | `pool.bonding` | 3 | pool_id?, basis? | [{basis, indoor, zones, grid?, bond, devices, findings, notes}] | No (query) | ARC-POOL-010 |
 | `pool.check` | 3 | pool_id? | {packs, pools: [{entries, accessible_entries, drains, loads}], findings} | No (query) | ARC-POOL-002 |
 | `pool.create` | 3 | level, outline \ | template, deck?, water_level?, axis?, profile?, cove?, edges?, coping?, shell? | id | Yes |
@@ -33554,6 +33606,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `railing.place_on_host` | 3 | type_id, host_id, position: Treads\ | Stringer | [element_id] | Yes |
 | `railing.remove_feature` | 3 | railing_id, key | — | Yes | ARC-RAIL-003 |
 | `railing.set_rail_join` | 3 | railing_id, join_ref, mode: ByType\ | Fillet\ | Miter\ | Flush |
+| `railing_type.create` | 3 | name, height?, top_rail?, bottom_rail?, bottom_rail_height?, baluster?, baluster_spacing?, post?, post_space? | id | Yes | ARC-POOL-012 |
 | `railingtype.set_baluster_pattern` | 3 | type_id, rows, break_at, angle?, justify, excess_fill, excess_family?, excess_spacing? | — | Yes | ARC-RAIL-002 |
 | `railingtype.set_continuous_rail` | 3 | type_id, which: Top\ | Handrail1\ | Handrail2, props | — |
 | `railingtype.set_per_tread` | 3 | type_id, enabled, count, family_id | — | Yes | ARC-RAIL-002 |

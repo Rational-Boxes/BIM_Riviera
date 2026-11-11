@@ -19,6 +19,14 @@ local function rect(x0, y0, x1, y1)
   return out
 end
 riviera.floor.create{ loops = { rect(0, 0, 44, 30) }, level_id = l1 }
+-- The hall's walls, 6 m high, enclose the pools (the ISPSC's barrier for indoor pools,
+-- ARC-POOL-012), with a door in the west wall.
+local hall = {}
+local corners = { { 0, 0 }, { 44, 0 }, { 44, 30 }, { 0, 30 } }
+for i = 1, 4 do
+  hall[i] = riviera.wall.create{ curve = { line = { start = corners[i], ["end"] = corners[i % 4 + 1] } }, base_level = l1, top_constraint = { unconnected = 6.0 } }
+end
+riviera.door.place{ host_wall_id = hall[4], point_along = 15 }
 
 -- A 25 m pool, six 2.5 m lanes, its long axis east–west.
 local main = riviera.pool.create{ level = l1, name = "Main pool", template = { kind = "competition_25m", origin = { 16, 12 } } }

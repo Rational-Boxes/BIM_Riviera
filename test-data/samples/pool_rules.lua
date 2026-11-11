@@ -20,6 +20,12 @@ local function rect(x0, y0, x1, y1)
 end
 riviera.floor.create{ loops = { rect(0, 0, 32, 20) }, level_id = l1 }
 
+-- The MAHC's enclosure (ARC-POOL-012): a 1.85 m (6 ft) fence round the deck, 2 in off it, its
+-- balusters 95 mm apart, with a gate in the south side opening outward, away from the pool.
+local fence_type = riviera.railing_type.create{ name = "Pool enclosure 6 ft", height = 1.85, bottom_rail_height = 0.05, baluster = 0.025, baluster_spacing = 0.12 }
+local fence = riviera.railing.create{ type_id = fence_type, path = { { 0.3, 0.3 }, { 31.7, 0.3 }, { 31.7, 19.7 }, { 0.3, 19.7 } }, closed = true, base_level = l1 }
+riviera.railing.add_gate{ railing_id = fence, point = { 16, 0.3 }, swing_out = true }
+
 -- 20 × 10 m, its shallow end at x = 6: 0.9 m, to 5 ft over 8 m, to 2.5 m over 3 m more.
 local pool = riviera.pool.create{ level = l1, name = "Pool", outline = { { 6, 15 }, { 6, 5 }, { 26, 5 }, { 26, 15 } },
   profile = { { at = 0, depth = 0.9 }, { at = 8, depth = 1.524 }, { at = 11, depth = 2.5 } } }

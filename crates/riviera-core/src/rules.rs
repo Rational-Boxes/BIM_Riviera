@@ -246,6 +246,12 @@ pub enum PoolMeasure {
     DepthMarkers,
     /// The break-point band and float line in pools deeper than `min`.
     BreakLine,
+    /// A barrier round the pool (ARC-POOL-012): enclosed, at least `min` high, at most
+    /// `clearance` under it, openings at most `opening` (or `close[1]` where its rails are less
+    /// than `close[0]` apart).
+    Barrier,
+    /// The barrier's gates swing away from the pool.
+    GateSwing,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the
@@ -334,6 +340,14 @@ pub struct PoolRule {
     /// Depth markings: the units allowed (`feet`, `metres`, `both`; default any).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub units: Vec<String>,
+    /// A barrier: the most under it, the largest opening, and where its horizontal members are
+    /// closer than `close[0]`, the largest opening `close[1]` (ARC-POOL-012).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clearance: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub opening: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub close: Option<[f64; 2]>,
 }
 
 /// A shared-format rule pack.

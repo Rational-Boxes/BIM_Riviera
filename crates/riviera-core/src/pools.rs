@@ -1496,7 +1496,15 @@ fn outside(v: f64, min: Option<f64>, max: Option<f64>) -> bool {
 
 fn inches(m: f64) -> String {
     let i = m / 0.0254;
-    if (i - i.round()).abs() < 0.05 { format!("{:.0} in", i) } else { format!("{:.1} in", i) }
+    // Code values in quarters stay exact (1¾ in); others to a tenth.
+    let q = (i * 4.0).round() / 4.0;
+    if (i - i.round()).abs() < 0.05 {
+        format!("{:.0} in", i)
+    } else if (i - q).abs() < 0.005 {
+        format!("{} in", format!("{q:.2}").trim_end_matches('0'))
+    } else {
+        format!("{:.1} in", i)
+    }
 }
 
 fn feet(m: f64) -> String {
@@ -1553,6 +1561,7 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
             let (class, name) = b.kind.counted_as();
             sel.selects(class, None, Some(name))
         }).count();
+        let mut barrier: Option<crate::pool_barriers::Enclosure> = None;
         let mut report = PoolReport { pool: id, name: e.name.clone().unwrap_or_default(), class, area: g.area, perimeter: g.perimeter, shallowest, deepest, entries: 0, accessible_entries: 0, drains: 0, loads: Vec::new() };
         for pack in &packs {
             for r in pack.pool.iter().filter(|r| r.pools.is_empty() || r.pools.contains(&class)) {
@@ -1818,6 +1827,48 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                         }
                         if crate::pool_markings::lines(&rec).is_none() {
                             find(None, false, format!("the pool is {} deep at its deepest but has no break-point band and float line at the 5 ft break (pool.depth_markings)", feet(deepest)));
+                        }
+                    }
+                    M::Barrier | M::GateSwing => {
+                        let enc = barrier.get_or_insert_with(|| crate::pool_barriers::enclosure(store, id, &rec, g.deck_z));
+                        if r.check == M::GateSwing {
+                            for gt in enc.gates.iter().filter(|gt| !gt.swings_out) {
+                                find(Some(gt.element), false, "the gate swings in toward the pool; a pool gate opens outward, away from it, and closes and latches itself".into());
+                            }
+                            continue;
+                        }
+                        if !enc.enclosed {
+                            let gaps = if enc.openings.is_empty() { String::new() } else { format!(" (open at {})", enc.openings.iter().map(|p| format!("({:.1}, {:.1})", p[0], p[1])).collect::<Vec<_>>().join(", ")) };
+                            find(None, false, format!("nothing encloses the pool{gaps}: a barrier at least {} high all round it, of railings, walls and gates", r.min.map(inches).unwrap_or_default()));
+                            continue;
+                        }
+                        for b in &enc.barriers {
+                            if let Some(m) = r.min
+                                && b.height < m - 1e-6
+                            {
+                                find(Some(b.element), false, format!("{} is {} high; a pool barrier at least {}", b.name, inches(b.height), inches(m)));
+                            }
+                            if let (Some(c), Some(m)) = (b.clearance, r.clearance)
+                                && c > m + 1e-6
+                            {
+                                find(Some(b.element), false, format!("{} leaves {} under it; at most {}", b.name, inches(c), inches(m)));
+                            }
+                            if let Some(o) = b.opening {
+                                let (limit, why) = match (r.close, b.rails_apart) {
+                                    (Some([apart, max]), Some(ra)) if ra < apart - 1e-6 => (Some(max), format!(" where its rails are under {} apart", inches(apart))),
+                                    _ => (r.opening, String::new()),
+                                };
+                                if let Some(m) = limit
+                                    && o > m + 1e-6
+                                {
+                                    find(Some(b.element), false, format!("{}'s balusters are {} apart; at most {}{why}", b.name, inches(o), inches(m)));
+                                }
+                            }
+                        }
+                        if class == PoolClass::Residential {
+                            for w in enc.wall_openings.iter().filter(|w| w.kind == "door" || w.sill < 48.0 * 0.0254 - 1e-6) {
+                                find(Some(w.element), true, format!("a {} in a wall that is part of the barrier: alarm it (UL 2017), or use a powered safety cover (ISPSC 305.4)", w.kind));
+                            }
                         }
                     }
                     M::CourseLength => {

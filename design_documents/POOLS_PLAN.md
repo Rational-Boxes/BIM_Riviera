@@ -264,3 +264,9 @@ exposed to Lua and MCP.
   the break-point band; the `depth_markers` and `break_line` rule kinds in the MAHC, ISPSC and
   HSG179 packs; Architecture › Build › Pool Depth Markings; the pool samples marked. Next:
   barriers and gates (ISPSC §305, MAHC 4.8.6) over the railings (ARC-POOL-012).
+- ARC-POOL-012 (2026-11-11): barriers. `pool.barriers` fills the ground outward from the water to
+  the railings (openings open, gates shut) and walls at its level; the `barrier` and
+  `gate_swing` rule kinds in the ISPSC (48 in, 4 in and 1¾ in openings, 4 in under, gates
+  outward, door alarms noted at homes) and the MAHC (6 ft, 2 in under); `railing_type.create`;
+  View › Coordination › Pool Barriers; the samples fenced or walled. Not yet: gate hardware and
+  latch heights, the clear zone, the ground under a fence.

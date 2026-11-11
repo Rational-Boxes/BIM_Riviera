@@ -379,6 +379,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(PoolRemoveEntry),
         registry.add(PoolLanes),
         registry.add(PoolDepthMarkings),
+        registry.add(PoolBarriers),
         registry.add(LightingChandelier),
         registry.add(LightingPendants),
         registry.add(LightingSconces),
@@ -4577,6 +4578,21 @@ edit_command!(
     crate::pool_markings::MarkingsParams,
     crate::pool_markings::Markings,
     crate::pool_markings::set
+);
+
+read_command!(
+    PoolBarriers,
+    "pool.barriers",
+    "Find the barrier round a pool",
+    "Finds the barrier round each swimming pool, or `pool_id`'s (ARC-POOL-012): the railings (their openings \
+     open, their gates shut) and walls at its level are drawn on a 0.1 m grid and the ground round its water \
+     filled outward. Returns whether it is enclosed and the area inside; each railing and wall bounding it \
+     with its height and, for railings, the gap under it, the balusters' clear gap and how far apart its rails \
+     are; each gate and whether it swings away from the pool; the railing openings the fill passed; and the \
+     doors and windows in its walls. `pool.check` judges them by the packs' barrier rules.",
+    Option<crate::pool_barriers::BarriersParams>,
+    Vec<crate::pool_barriers::Enclosure>,
+    crate::pool_barriers::barriers
 );
 
 read_command!(

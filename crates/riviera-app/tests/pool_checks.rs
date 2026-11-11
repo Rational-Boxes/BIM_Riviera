@@ -18,8 +18,14 @@ fn square(a: [f64; 2], b: [f64; 2]) -> Value {
 }
 
 /// The findings' (pack, rule) pairs, with their messages for failures.
+/// The findings' (pack, rule), less the barrier's (pool_barriers.rs tests those).
 fn rules(c: &Value) -> Vec<(String, String)> {
-    c["findings"].as_array().unwrap().iter().map(|f| (f["pack"].as_str().unwrap().to_owned(), f["rule"].as_str().unwrap().to_owned())).collect()
+    c["findings"].as_array().unwrap().iter().filter(|f| !f["rule"].as_str().unwrap().contains("305.") && !f["rule"].as_str().unwrap().contains("4.8.6")).map(|f| (f["pack"].as_str().unwrap().to_owned(), f["rule"].as_str().unwrap().to_owned())).collect()
+}
+
+/// The first finding but the barrier's.
+fn first(c: &Value) -> Value {
+    c["findings"].as_array().unwrap().iter().find(|f| !f["rule"].as_str().unwrap().contains("305.") && !f["rule"].as_str().unwrap().contains("4.8.6")).cloned().unwrap_or_default()
 }
 
 fn has(c: &Value, pack: &str, rule: &str) -> bool {
@@ -71,15 +77,15 @@ fn a_public_pool_is_checked() {
     let p = &c["pools"][0];
     assert_eq!((p["entries"].as_u64(), p["accessible_entries"].as_u64(), p["drains"].as_u64()), (Some(2), Some(1), Some(2)), "{c:#}");
     assert_eq!(rules(&c), vec![("us_vgb".to_owned(), "VGB 15 USC 8003(c); 16 CFR 1450".to_owned())], "{c:#}");
-    assert!(c["findings"][0]["message"].as_str().unwrap().contains("0.50 m apart"), "{c:#}");
+    assert!(first(&c)["message"].as_str().unwrap().contains("0.50 m apart"), "{c:#}");
     // One unblockable drain instead passes; a bench on the deck blocks it.
     ok(&mut app, "element.delete", json!({ "element_ids": [d1] }));
     place(&mut app, &types["Main drain cover, unblockable 610 × 760"], &level, [11.0, 2.0], -2.15, 0.0);
     assert_eq!(rules(&ok(&mut app, "pool.check", json!({}))), Vec::<(String, String)>::new());
     let bench = place(&mut app, &bench, &level, [7.0, -1.0], 0.0, 0.0);
     let c = ok(&mut app, "pool.check", json!({}));
-    assert_eq!(c["findings"][0]["element"], bench, "{c:#}");
-    assert!(c["findings"][0]["message"].as_str().unwrap().contains("6 ft"), "{c:#}");
+    assert_eq!(first(&c)["element"], bench, "{c:#}");
+    assert!(first(&c)["message"].as_str().unwrap().contains("6 ft"), "{c:#}");
     ok(&mut app, "element.delete", json!({ "element_ids": [bench] }));
     // The MAHC, chosen for the project: its 1:12 shallow slope and its 20 ft² a bather.
     ok(&mut app, "rules.set_packs", json!({ "domain": "pool", "packs": ["us_mahc_2024", "us_vgb", "ada_2010_pools"] }));

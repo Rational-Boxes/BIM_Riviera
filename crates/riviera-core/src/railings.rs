@@ -749,7 +749,8 @@ pub fn path_heights(store: &Store, r: &RailingRecipe) -> Result<Vec<f64>> {
     Ok(vec![z; pts.len()])
 }
 
-fn type_of(store: &Store, e: &Element) -> RailingType {
+/// A railing's type (the default type's values when it has none).
+pub fn type_of(store: &Store, e: &Element) -> RailingType {
     e.param("@type")
         .and_then(Value::as_str)
         .and_then(|g| store.get(find(store, g)?))
@@ -884,6 +885,60 @@ fn number(store: &Store, v: &Value, what: &str) -> Result<f64> {
             format!("{what} must be a number or text with units"),
         )),
     }
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct CreateTypeParams {
+    /// Unique among railing types.
+    pub name: String,
+    /// The top of the top rail over the path (default 1.0 m).
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub height: Option<f64>,
+    /// Width and depth of the top rail's and the bottom rail's sections.
+    pub top_rail: Option<[f64; 2]>,
+    pub bottom_rail: Option<[f64; 2]>,
+    /// The bottom rail's underside over the path (the gap under it).
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub bottom_rail_height: Option<f64>,
+    /// The balusters' square section and their spacing, centre to centre.
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub baluster: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub baluster_spacing: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub post: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub post_space: Option<f64>,
+}
+
+/// Creates a railing type (`railing_type.create`), each value the default type's unless given.
+pub(crate) fn create_type(txn: &mut crate::txn::Transaction<'_>, p: CreateTypeParams) -> Result<ElementId> {
+    if p.name.trim().is_empty() || txn.store().iter().any(|e| railing_type(e).is_some() && e.name.as_deref() == Some(p.name.as_str())) {
+        return Err(Error::new("type.name_taken", format!("a railing type is already named {:?}", p.name)));
+    }
+    let d = RailingType::default();
+    let t = RailingType {
+        kind: RAILING_TYPE_RECIPE.into(),
+        height: p.height.unwrap_or(d.height),
+        top_rail: p.top_rail.unwrap_or(d.top_rail),
+        bottom_rail: p.bottom_rail.unwrap_or(d.bottom_rail),
+        bottom_rail_height: p.bottom_rail_height.unwrap_or(d.bottom_rail_height),
+        baluster: p.baluster.unwrap_or(d.baluster),
+        baluster_spacing: p.baluster_spacing.unwrap_or(d.baluster_spacing),
+        post: p.post.unwrap_or(d.post),
+        post_space: p.post_space.unwrap_or(d.post_space),
+    };
+    let sizes = [t.height, t.top_rail[0], t.top_rail[1], t.bottom_rail[0], t.bottom_rail[1], t.baluster, t.baluster_spacing, t.post];
+    if sizes.iter().any(|v| !v.is_finite() || *v <= 0.0) || t.bottom_rail_height < 0.0 || t.post_space < 0.0 || t.baluster >= t.baluster_spacing || t.bottom_rail_height + t.bottom_rail[1] >= t.height - t.top_rail[1] {
+        return Err(Error::new("railing.bad_type", "a railing type's sizes must be positive, its balusters narrower than their spacing and its bottom rail under its top rail"));
+    }
+    txn.create(
+        NewElement::new(TYPE_CLASS)
+            .name(p.name.trim())
+            .param("@PredefinedType", "GUARDRAIL")
+            .param(RECIPE_KEY, serde_json::to_value(t).expect("serialises")),
+    )
 }
 
 /// The project's default railing type, created when first needed.

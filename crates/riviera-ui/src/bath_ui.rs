@@ -1232,6 +1232,35 @@ impl Gui {
         self.report_message("Pool Structure", &text, "pool.structure", args);
     }
 
+    /// View › Coordination › Pool Barriers (ARC-POOL-012): what encloses the selected pool.
+    pub(crate) fn pool_barriers(&mut self) {
+        let frame = self.frame;
+        let Some(pool) = self.selected_pool() else { return };
+        let args = json!({ "pool_id": pool });
+        let b = match self.run("pool.barriers", args.clone()) {
+            Ok(v) => v[0].clone(),
+            Err(e) => return error(&frame, &e),
+        };
+        let mut text = if b["enclosed"] == true {
+            format!("{}: enclosed, {:.0} m² inside the barrier", b["name"].as_str().unwrap_or_default(), b["area"].as_f64().unwrap_or(0.0))
+        } else {
+            let at: Vec<String> = b["openings"].as_array().into_iter().flatten().map(|p| format!("({:.1}, {:.1})", p[0].as_f64().unwrap_or(0.0), p[1].as_f64().unwrap_or(0.0))).collect();
+            format!("{}: not enclosed{}", b["name"].as_str().unwrap_or_default(), if at.is_empty() { String::new() } else { format!(" (open at {})", at.join(", ")) })
+        };
+        for x in b["barriers"].as_array().into_iter().flatten() {
+            let mm = |k: &str| x[k].as_f64().map(|v| format!(", {k} {:.0} mm", v * 1000.0)).unwrap_or_default();
+            text.push_str(&format!("\n{} ({}): {:.2} m high{}{}{}", x["name"].as_str().unwrap_or_default(), x["kind"].as_str().unwrap_or_default(), x["height"].as_f64().unwrap_or(0.0), mm("clearance"), mm("opening"), mm("rails_apart")));
+        }
+        for g in b["gates"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\nGate {:.2} m wide: swings {}", g["width"].as_f64().unwrap_or(0.0), if g["swings_out"] == true { "out, away from the pool" } else { "in, toward the pool" }));
+        }
+        for o in b["wall_openings"].as_array().into_iter().flatten() {
+            text.push_str(&format!("\nA {} in a barrier wall, {:.2} m up", o["kind"].as_str().unwrap_or_default(), o["sill"].as_f64().unwrap_or(0.0)));
+        }
+        text.push_str("\n• Check Pools judges them by the ISPSC (48 in) or the MAHC (6 ft).");
+        self.report_message("Pool Barriers", &text, "pool.barriers", args);
+    }
+
     /// View › Coordination › Pool Electrical Zones (ARC-POOL-010): the devices round the selected
     /// pool against NEC 680 or IEC 60364-7-702, and its bonding.
     pub(crate) fn pool_bonding(&mut self) {

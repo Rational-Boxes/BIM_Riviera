@@ -1649,6 +1649,9 @@ fn the_backyard_pool_sample_is_a_residential_pool() {
     let rules: Vec<&str> = b["findings"].as_array().unwrap().iter().map(|f| f["rule"].as_str().unwrap()).collect();
     assert_eq!(rules, vec!["receptacle_gfci"], "{b:#}");
     assert!(!b["notes"].as_array().unwrap().iter().any(|n| n.as_str().unwrap().contains("none is modelled")), "{b:#}");
+    // The ISPSC's barrier: the patio fence encloses it, its gate swinging away from the pool.
+    let e = ok(&mut app, "pool.barriers", json!({}))[0].clone();
+    assert!(e["enclosed"] == true && e["gates"].as_array().unwrap().len() == 1 && e["gates"][0]["swings_out"] == true, "{e:#}");
 }
 
 #[test]

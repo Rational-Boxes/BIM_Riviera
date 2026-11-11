@@ -10,33 +10,39 @@ Start with **File › New**.
    Level** properties), then add a level *Roof* at 12.0 m.
 2. **The terrace.** On *Roof*, draw a floor 18 × 12 m from (0, 0) with **Architecture › Build ›
    Floor**.
-3. **The pool.** Choose **Architecture › Build › Swimming Pool** on *Roof*, type the outline
+3. **The barrier.** Make a railing type *Pool fence 4 ft* 1.25 m high, its bottom rail 50 mm up
+   and 25 mm balusters at 120 mm, so its rails are over 45 in apart and its gaps under 4 in
+   (`railing_type.create` from a script **[gap]**). Draw it round the terrace with **Architecture ›
+   Build › Railing**, closed, from (0.1, 0.1) to (17.9, 11.9), and add a gate with Modify | Railings › **Gate**, swinging out, away from the pool
+   (**[gap]** its swing is set from a script, `swing_out = true`), at (2, 0.1).
+   **View › Coordination › Pool Barriers** shows it enclosing the pool (ISPSC 305).
+4. **The pool.** Choose **Architecture › Build › Swimming Pool** on *Roof*, type the outline
    `4,8; 4,4; 14,4; 14,8` and the depths `0:1.2, 10:1.2`: 1.2 m throughout, a hotel pool with no
    diving. Set its shell to 250 mm of cast concrete, tiled, with a membrane. **[gap]** The shell's
    tiling and membrane are set from a script (`pool.set{shell = …}`).
-4. **Depth markings.** **Architecture › Build › Pool Depth Markings**: 1.2 m (3 ft 11 in, marked
+5. **Depth markings.** **Architecture › Build › Pool Depth Markings**: 1.2 m (3 ft 11 in, marked
    "4 FT") all round, with NO DIVING beside every marker.
-5. **Equipment.** From **Insert › Component Libraries › Riviera Pools**, place a *Pool lift,
+6. **Equipment.** From **Insert › Component Libraries › Riviera Pools**, place a *Pool lift,
    300 lb* on the north deck at (6.5, 8.6), a *Pool ladder, 3 steps* on the north wall's face
    at (12.5, 8), and two *Underwater light, large niche* on the south wall's face at (7, 4) and
    (11, 4), turned 180° to face the water. The library's light sits with its lens top 18 in
    (457 mm) under water 150 mm below the deck, as NEC 680.23(A)(5) asks.
-6. **The terrace's electrics.** With **Systems › Electrical › Device**, place two *Receptacle*
+7. **The terrace's electrics.** With **Systems › Electrical › Device**, place two *Receptacle*
    at (6, 10.5) and (12, 10.5), 0.45 m up and standing free, and a *Light Switch* at (16, 6),
    1.1 m up; with **Lighting Fixture**, two *Ceiling Luminaire* at (6, 0.5) and (12, 0.5),
    3.0 m up; with **Electrical Equipment**, a *Distribution Board* at (17.5, 11.5).
-7. **Its loads.** Select the pool and choose **View › Coordination › Pool Structure**. A level
+8. **Its loads.** Select the pool and choose **View › Coordination › Pool Structure**. A level
    is below it, so it is taken as standing on a structure: the water, the shell and the tiles in
    kN; the load on average over the footprint, on the floor at its deepest, and along the walls
    as a line load; the walls' hydrostatic pressure and moment; the lift's and the ladder's
    advisory point loads; and the slab's deflection limit (its 4 m span over 360, 11 mm), with
    the rooftop notes (membrane and drainage, geofoam, no plumbing cast in, a flood test).
-8. **On the slab.** **[gap]** Draw the slab under the shell as an analytical panel 12 × 6 m at
+9. **On the slab.** **[gap]** Draw the slab under the shell as an analytical panel 12 × 6 m at
    10.4 m (**Analyze › Analytical Model › Panel**), add a load nature *Fluid* (F), and load
    cases *D* and *F*; then put the pool's weight on it with `pool.apply_loads` from a script:
    the window has no button for it yet. The shell and tiles go in *D* and the water in *F*,
    each its total spread over the panel's 72 m².
-9. **Electrical zones.** Choose **View › Coordination › Pool Electrical Zones**. Under the IBC
+10. **Electrical zones.** Choose **View › Coordination › Pool Electrical Zones**. Under the IBC
    it takes NEC Article 680: the receptacles 2.5 m from the water (more than 6 ft) need GFCI
    protection, being within 20 ft; the switch is more than 5 ft away; the luminaires, 3.5 m
    out, are beyond 10 ft; the underwater lights run at 12 V, under the 15 V low-voltage contact

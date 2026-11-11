@@ -249,6 +249,39 @@
         "competition"
       ],
       "min": 1.524
+    },
+    {
+      "id": "ISPSC 305.2",
+      "description": "A barrier round outdoor and indoor pools, at least 48 in high, at most 4 in under it over a solid surface (2 in over grass or gravel), no 4 in sphere through it, and 1¾ in openings where its horizontal members are less than 45 in apart",
+      "source": "S2765",
+      "confidence": "verified",
+      "check": "barrier",
+      "pools": [
+        "public",
+        "competition",
+        "residential",
+        "wading"
+      ],
+      "min": 1.2192,
+      "clearance": 0.1016,
+      "opening": 0.1016,
+      "close": [
+        1.143,
+        0.04445
+      ]
+    },
+    {
+      "id": "ISPSC 305.3",
+      "description": "Pedestrian gates open outward, away from the pool, and are self-closing and self-latching",
+      "source": "S2765",
+      "confidence": "verified",
+      "check": "gate_swing",
+      "pools": [
+        "public",
+        "competition",
+        "residential",
+        "wading"
+      ]
     }
   ]
 }
