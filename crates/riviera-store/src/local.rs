@@ -570,6 +570,7 @@ impl LocalProject {
                 || recipe_kind == Some(riviera_core::skylights::SKYLIGHT_RECIPE)
                 || recipe_kind == Some(riviera_core::growing::PART_RECIPE)
                 || recipe_kind == Some(riviera_core::hothouse::LIGHT_RECIPE)
+                || recipe_kind == Some(riviera_core::sun_control::RECIPE)
                 || recipe_kind == Some(riviera_core::hothouse::SCREEN_RECIPE)
                 || recipe_kind == Some(riviera_core::geodesic::RECIPE)
                 || recipe_kind == Some(stairs::STAIR_RECIPE)
@@ -803,6 +804,7 @@ impl LocalProject {
             self.write_parts(doc)?;
             self.write_skylights(doc)?;
             self.write_growing(doc)?;
+            self.write_baffles(doc)?;
             self.write_grow_lights(doc)?;
             self.write_geodesic(doc)?;
             let owner_history = self.new_owner_history()?;
@@ -3963,6 +3965,38 @@ impl LocalProject {
                 .collect();
             geometry::write_breps(&mut self.ifc, step, geometry::BrepFrame::WORLD, &solids, self.length_scale, contexts)?;
             let storey = riviera_core::growing::part_recipe(store.get(*id).expect("listed"))
+                .and_then(|p| GlobalId::parse(&p.level))
+                .and_then(|g| store.find_by_guid(&g))
+                .and_then(|l| self.steps.get(&l).copied());
+            if let Some(storey) = storey {
+                geometry::contain(&mut self.ifc, step, storey, owner_history)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// Writes every baffle array (ARC-GLZ-019): one faceted B-rep per blade, contained in its level.
+    fn write_baffles(&mut self, doc: &Document) -> Result<()> {
+        let store = doc.store();
+        let all = riviera_core::sun_control::all(store);
+        if all.is_empty() {
+            return Ok(());
+        }
+        let contexts = geometry::Contexts::find(&self.ifc)?;
+        let owner_history = self.new_owner_history()?;
+        for (id, meshes) in &all {
+            let Some(&step) = self.steps.get(id) else {
+                continue;
+            };
+            let solids: Vec<geometry::Polyhedron> = meshes
+                .iter()
+                .map(|(points, idx)| geometry::Polyhedron {
+                    points: points.clone(),
+                    faces: idx.chunks(3).map(|t| t.iter().map(|i| *i as usize).collect()).collect(),
+                })
+                .collect();
+            geometry::write_breps(&mut self.ifc, step, geometry::BrepFrame::WORLD, &solids, self.length_scale, contexts)?;
+            let storey = riviera_core::sun_control::recipe(store.get(*id).expect("listed"))
                 .and_then(|p| GlobalId::parse(&p.level))
                 .and_then(|g| store.find_by_guid(&g))
                 .and_then(|l| self.steps.get(&l).copied());

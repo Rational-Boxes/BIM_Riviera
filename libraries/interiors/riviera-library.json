@@ -295,6 +295,161 @@
       },
       "sha256": "59f88f3857ceca38df19c3d4be7819d878223db90d80629d233f7d2530f1036f"
     },
+    "Dining/restaurant_table_2_seats_24_x_30_in.ifc": {
+      "guid": "d9c4da1e-8d0b-4447-8fbe-eca6c0c216eb",
+      "name": "Restaurant table, 2 seats 24 × 30 in",
+      "description": "A two-top 24 × 30 in, 29 in high.",
+      "tags": [
+        "dining",
+        "DiningTable",
+        "table",
+        "Uniclass Pr_40_50_21_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2181 S2184"
+      },
+      "sha256": "0b62301e0165710d6e2b4f2c2bfa1f33c3108c4294dcc9923934a6db75464cc1"
+    },
+    "Dining/restaurant_table_4_seats_36_x_36_in.ifc": {
+      "guid": "c3b7251b-36d7-433f-bbc3-55f4291c52ac",
+      "name": "Restaurant table, 4 seats 36 × 36 in",
+      "description": "A four-top 36 in square, 29 in high.",
+      "tags": [
+        "dining",
+        "DiningTable",
+        "table",
+        "Uniclass Pr_40_50_21_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2181 S2184"
+      },
+      "sha256": "45f430965911500681993c6e19533aed6d84fecd902a01719b8a374beb2e9ab4"
+    },
+    "Events/banquet_round_60_in.ifc": {
+      "guid": "48d2d711-58b2-46c8-94bd-edf6c9b15d12",
+      "name": "Banquet round 60 in",
+      "description": "A banquet round 60 in across and 30 in high, about eight seats.",
+      "tags": [
+        "events",
+        "BanquetTable",
+        "table",
+        "Uniclass Pr_40_50_21_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2133"
+      },
+      "sha256": "a28a73cf6319d2e529d6df9094a1d67e4b38e8daa7ef2eba90a309f759b9b631"
+    },
+    "Events/banquet_round_72_in.ifc": {
+      "guid": "79306b48-df1c-4c40-bb1e-3521630542a0",
+      "name": "Banquet round 72 in",
+      "description": "A banquet round 72 in across and 30 in high, about ten seats.",
+      "tags": [
+        "events",
+        "BanquetTable",
+        "table",
+        "Uniclass Pr_40_50_21_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2133 S2126"
+      },
+      "sha256": "1204796ae22959710d9ee6515ef5c916a0fc44a8c3a1fde14f0224a334998dce"
+    },
+    "Events/cocktail_table_30_in.ifc": {
+      "guid": "a135ea66-a1ce-4f69-aa25-67cf3f9fc0b0",
+      "name": "Cocktail table 30 in",
+      "description": "A standing cocktail round 30 in across, 42 in high by judgement.",
+      "tags": [
+        "events",
+        "CocktailTable",
+        "table"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2135"
+      },
+      "sha256": "ff3d53fac00a23221191c835a7a04548c9d2d240180688875dee3ec6c5844d5f"
+    },
+    "Events/lectern.ifc": {
+      "guid": "4fe17afe-8bea-4e9f-914f-493eeafce5ed",
+      "name": "Lectern",
+      "description": "A lectern 24 × 18 in, 46 in to its sloped top, by judgement.",
+      "tags": [
+        "events",
+        "Lectern"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0"
+      },
+      "sha256": "de4873d5719ed4823f440013283cfea1768b24633b3eadb7c078915fa2e6904c"
+    },
+    "Events/seminar_table_18_x_72_in.ifc": {
+      "guid": "421790ef-fd10-4e0a-a9d5-667b990ef0d1",
+      "name": "Seminar table 18 × 72 in",
+      "description": "A classroom or seminar table 18 × 72 in, 30 in high, for three.",
+      "tags": [
+        "events",
+        "SeminarTable",
+        "table",
+        "Uniclass Pr_40_50_21_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2133"
+      },
+      "sha256": "7a2526608705f43e26c357496fa458bd70fa383efd80d55151868ce745b846c4"
+    },
+    "Events/stack_chair_18_x_22_in.ifc": {
+      "guid": "cf3688ff-1de1-46bc-aab7-ee230caeb9dd",
+      "name": "Stack chair 18 × 22 in",
+      "description": "A banquet stack chair 18 in wide and 22 in deep, its back 35.5 in high (Forbes Aptos).",
+      "tags": [
+        "events",
+        "StackChair",
+        "chair"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2139"
+      },
+      "sha256": "4f6dc913d50464d84f8f53a6036bc5e71fe9f1a09f9ce316582100d3d0f82ee9"
+    },
+    "Events/stage_deck_4_x_8_ft_24_in.ifc": {
+      "guid": "e5e9736c-4596-48f4-8ead-68a61459914c",
+      "name": "Stage deck 4 × 8 ft, 24 in",
+      "description": "A staging deck 4 × 8 ft set at 24 in (decks come at 8, 16, 24 and 32 in), rated 200 psf.",
+      "tags": [
+        "events",
+        "StageDeck"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S2134"
+      },
+      "sha256": "3f2a165f230a539ebe298888fe647f318a484ebbb2be08ad73d304b5a15c8891"
+    },
     "Fans/ceiling_fan_52_in.ifc": {
       "guid": "7b8c8136-4ef9-45ec-930b-be8cb87f7e77",
       "name": "Ceiling fan 52 in",

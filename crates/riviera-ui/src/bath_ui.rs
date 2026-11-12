@@ -837,7 +837,7 @@ impl Gui {
     }
 
     /// The one room selected, or an error shown.
-    fn selected_room(&mut self) -> Option<u64> {
+    pub(crate) fn selected_room(&mut self) -> Option<u64> {
         let frame = self.frame;
         let store = self.store_now()?;
         let rooms: Vec<u64> = self.selection().into_iter().filter(|id| store.get(*id).is_some_and(|e| riviera_core::rooms::room_recipe(e).is_some())).map(|id| id.0).collect();

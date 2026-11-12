@@ -554,6 +554,9 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitConnect),
         registry.add(AtriumCreate),
         registry.add(AtriumCheck),
+        registry.add(ShadingBaffles),
+        registry.add(ShadingSunCheck),
+        registry.add(SeatingLayout),
         registry.add(SelectionSetLoad),
         registry.add(SelectionSetList),
         registry.add(SelectionSetSetExport),
@@ -6719,6 +6722,39 @@ edit_command!(
     crate::selection_sets::RenameParams,
     (),
     crate::selection_sets::rename
+);
+
+edit_command!(
+    SeatingLayout,
+    "seating.layout",
+    "Set out a room for an event or dining",
+    "Sets out a room (ARC-INT-006) in `style` banquet (72 or 60 in `round`s with stack chairs), theatre (rows of chairs in blocks of 14, `stage` clear at the `front`), classroom (seminar tables for three), boardroom, dining (four-tops) or reception (cocktail tables), kept `perimeter` (44 in) from its walls, replacing its last set-up (`clear` takes it away). Returns the tables, chairs and seats, the area per seat, IBC 1004.5's occupant load and the load designed for, the exits needed against the doors in its walls, and the egress width against theirs (0.15 in an occupant sprinklered, else 0.2), with findings.",
+    "Seating Layout",
+    crate::seating::LayoutParams,
+    crate::seating::Layout,
+    crate::seating::layout
+);
+
+edit_command!(
+    ShadingBaffles,
+    "shading.baffles",
+    "Place sun-control baffles",
+    "Rows of blades (ARC-GLZ-019) filling the region `outline` with their tops `height` above `level`: running along `direction` (default 0), `spacing` apart (0.6 m), `depth` deep (0.4 m), `thickness` thick (25 mm), tilted `tilt` from vertical (default 0). An IfcShadingDevice (Baffle). Returns it, the blades and their length, and the cut-off profile angles from vertical each side.",
+    "Baffles",
+    crate::sun_control::BafflesParams,
+    crate::sun_control::Baffles,
+    crate::sun_control::baffles
+);
+
+read_command!(
+    ShadingSunCheck,
+    "shading.sun_check",
+    "Check the sun on areas",
+    "Follows the sun hour by hour on `days` (default 21 March, June, September and December) at the project's location, from points on each area (pools' water, rooms' floors, or `areas` by outline and height) toward the sun, cutting each ray to what the baffle arrays it crosses let through. Returns each area's share of the clear sky's direct sun (weighted by the sun's height), its peak hour and the hours, held to `max_share` (default 0.25).",
+    [Effect::Read],
+    crate::sun_control::SunCheckParams,
+    crate::sun_control::SunCheck,
+    |store, p| crate::sun_control::sun_check(store, Some(p))
 );
 
 edit_command!(

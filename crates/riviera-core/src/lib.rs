@@ -91,6 +91,8 @@ pub mod measure;
 pub mod mesh_io;
 pub mod atriums;
 pub mod mesh_objects;
+pub mod sun_control;
+pub mod seating;
 pub mod modular_units;
 pub mod mep;
 pub mod mep_runs;

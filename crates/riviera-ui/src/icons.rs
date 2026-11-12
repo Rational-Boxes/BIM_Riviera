@@ -1466,6 +1466,18 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_structure" => format!(
             r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // Rounds with chairs round them in a room (Seating Layout).
+        "seating_layout" => format!(
+            r#"<rect x="2" y="2" width="28" height="28" fill="none" {s}/><circle cx="10" cy="10" r="3.5" fill="{a}" {s}/><circle cx="22" cy="10" r="3.5" fill="{a}" {s}/><circle cx="10" cy="22" r="3.5" fill="{a}" {s}/><circle cx="22" cy="22" r="3.5" fill="{a}" {s}/><path d="M10 4.5v1M10 14.5v1M4.5 10h1M14.5 10h1M22 4.5v1M22 14.5v1M16.5 10h1M26.5 10h1" stroke="{f}" stroke-width="2"/>"#
+        ),
+        // Slanted blades under a sun, its rays cut (Baffles).
+        "baffles" => format!(
+            r#"<circle cx="7" cy="7" r="4" fill="{f}"/><path d="M4 18l4 6M10 18l4 6M16 18l4 6M22 18l4 6" {s}/><path d="M2 17h28" {s}/><path d="M10 10l5 6" stroke="{f}" stroke-width="1.2" stroke-dasharray="2 2"/>"#
+        ),
+        // The sun over a pool, a share marked (Sun Check).
+        "sun_check" => format!(
+            r#"<circle cx="22" cy="8" r="5" fill="{f}"/><rect x="3" y="20" width="26" height="8" fill="{a}" {s}/><path d="M19 13l-6 7M24 14l-4 6" {s}/>"#
+        ),
         // Floors in section opened round a void under a glazed ridge (Atrium).
         "atrium" => format!(
             r#"<path d="M4 12l12-8 12 8" fill="{a}" {s}/><path d="M2 16h9M21 16h9M2 22h9M21 22h9M2 28h28" {s}/><path d="M11 13v15M21 13v15" stroke="{f}" stroke-width="1.2" stroke-dasharray="2 2"/>"#

@@ -300,7 +300,8 @@ and the defaults recorded for expert review.
    pad in the side walls. Set aside by the owner on 2026-10-31 for bathrooms.*
 3. **Sunlight management.** Shading devices on any face (louvres, fins, brise-soleil, baffles,
    light shelves, screens), with the sun-path design aid; their effect in daylight, solar studies
-   and loads; operable devices and their control.
+   and loads; operable devices and their control. *Begun 2026-11-12: roof baffles and the sun check
+   on pools, rooms and areas (`shading.baffles`, `shading.sun_check`, ARC-GLZ-019).*
 4. **Atriums.** Atrium roofs over floor openings (ridge, pyramid, barrel vault, space frame),
    atrium spaces through storeys, smoke vents and the code summaries; stratification and stack
    ventilation. *Sample: a hotel atrium.* *Begun 2026-11-12: `atrium.create` and `atrium.check`

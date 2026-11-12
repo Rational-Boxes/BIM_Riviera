@@ -564,7 +564,12 @@ pub(crate) fn merge(txn: &mut Transaction<'_>, copy: ElementId) -> Result<CopyIn
     let depth = unit_type(&store, &info.unit_type).map_or(0.0, |t| t.depth);
     let mine: Vec<(u32, ElementId)> = g.members.iter().filter_map(|m| Some((m.key, find(&store, &m.guid)?))).collect();
     let mine_ids: Vec<ElementId> = mine.iter().map(|(_, id)| *id).collect();
-    let others: Vec<(ElementId, crate::walls::WallGeometry)> = store.iter().filter(|o| !mine_ids.contains(&o.id())).filter_map(|o| Some((o.id(), wall(&store, o.id())?))).collect();
+    // Walls on the copy's level only (a merge needs the same level).
+    let others: Vec<(ElementId, crate::walls::WallGeometry)> = store
+        .iter()
+        .filter(|o| !mine_ids.contains(&o.id()) && crate::walls::wall_recipe(o).is_some_and(|r| r.base_level == info.level))
+        .filter_map(|o| Some((o.id(), wall(&store, o.id())?)))
+        .collect();
     let (origin, rotation) = ([g.origin[0], g.origin[1]], g.rotation);
     info.merged.clear();
     info.rehosted.clear();
@@ -683,11 +688,11 @@ pub(crate) fn unmerge(txn: &mut Transaction<'_>, copy: ElementId) -> Result<()> 
     })
 }
 
-/// A slab's outer outline in plan.
+/// A floor's outer outlines in plan, as one list of points (enough for a box).
 fn slab_outline(store: &Store, id: ElementId) -> Option<Vec<[f64; 2]>> {
-    let b = crate::bodies::all(store).into_iter().find(|b| b.element == id)?;
-    let (lo, hi) = b.bounds()?;
-    Some(vec![[lo[0], lo[1]], [hi[0], lo[1]], [hi[0], hi[1]], [lo[0], hi[1]]])
+    let g = crate::floors::regenerate(store, store.get(id)?).ok()?;
+    let pts: Vec<[f64; 2]> = g.profiles.iter().flat_map(|p| p.outer.iter().copied()).collect();
+    (!pts.is_empty()).then_some(pts)
 }
 
 /// Whether two plan boxes touch or overlap, or are no further apart than a façade wall is thick

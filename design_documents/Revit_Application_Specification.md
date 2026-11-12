@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 940 numbered requirements (320 P0 · 374 P1 · 239 P2 · 7 P3), 2,416 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 942 numbered requirements (320 P0 · 376 P1 · 239 P2 · 7 P3), 2,419 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,416 commands; 940 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,419 commands; 942 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -13397,6 +13397,37 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
 
 *Built (2026-11-12):* `riviera_core::atriums`, Architecture › Build › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; editing the atrium as one; the atrium space's own volume in schedules.
 
+### Sun-control baffles
+**ID:** ARC-GLZ-019 · **Priority:** P1 · **Ref:** GLAZED_ENCLOSURES_PLAN §5.2, §9 (phase 3); research/10 (A035–A040); ANA-SOLAR-001 (the sun's position); ARC-GLZ-018 (atriums)
+
+**Purpose.** Hang rows of blades under or over a glazed roof to control the sun on the water, terraces and floors below, and show how much of the direct sun reaches each area.
+
+**Behaviour & rules.**
+- **A baffle array** (`shading.baffles`) fills a plan region (`outline`) with parallel blades whose tops are `height` above `level`:
+  - running along `direction` (default 0, along x), `spacing` apart (default 0.6 m), `depth` deep (default 0.4 m), `thickness` thick (default 25 mm);
+  - tilted `tilt` from vertical (default 0), the bottoms leaning to the blades' left;
+  - laid across the region centred, each blade clipped to it.
+
+  Blades closer than their thickness, without depth, or tilted 80° or more are refused.
+- **What a blade lets through:** for a sun direction, θ is its profile angle from vertical across the blades. A blade's shadow on the plane of the tops is |depth·sin tilt + depth·cos tilt·tan θ| + thickness, and the share blocked is that over the spacing, at most all. The **cut-off** each side is the profile angle beyond which no direct sun gets through.
+- **The sun check** (`shading.sun_check`), at the project's location (40° N, 0° E with a note when it has none):
+  - follows the sun at the middle of each hour on `days` (default 21 March, June, September, December), by ANA-SOLAR-001's position;
+  - from points on each area (a grid of about a twentieth of its size, at most 400) toward the sun;
+  - a ray through a baffle array's region above the area is cut to what its blades let through, and rays through several arrays are cut by each; other rays pass;
+  - the area's **share** is the hours' admitted shares weighted by the cosine of the sun's zenith (the clear sky's direct sun on a horizontal surface), with the highest hour; it passes at no more than `max_share` (default 0.25).
+- **Areas:** pools (their water's outline and level), rooms (their floor's region), or outlines with a height.
+- **The window:** Architecture › Build › Baffles (the blades, then two corners of the region); View › Coordination › Sun Check (the selected pools and rooms).
+
+**Data (IFC mapping).** An `IfcShadingDevice` (USERDEFINED, ObjectType `Baffle`), one faceted B-rep per blade, contained in its level; the recipe in the RXD.
+
+**Commands.** `shading.baffles(outline, level, height, direction?, spacing?, depth?, thickness?, tilt?, name?) -> {device, blades, length, cutoff}`; `shading.sun_check(elements?, areas?, devices?, days?, max_share?) -> {latitude, longitude, max_share, areas [{name, area, share, peak, peak_at, days, passes}], notes}`.
+
+**Acceptance criteria.**
+- [x] A pool at 25.8° N open to the sky gets all the direct sun and fails 25 %. Vertical blades 0.6 m apart and 0.4 m deep (19 blades over a 16 × 11 m region, cut-off 55.2°) let less through but still fail; blades 0.3 m apart, 0.45 m deep and tilted 40° over the whole terrace pass, with four days of hours. An area clear of the baffles gets all the sun; blades closer than their thickness are refused.
+- [x] Nothing overlaps; saved, the baffles are a Baffle `IfcShadingDevice`; opened again, the check gives the same share.
+
+*Built (2026-11-12):* `riviera_core::sun_control`, Architecture › Build › Baffles, View › Coordination › Sun Check. Defaults are E-135. Not yet: louvres, fins, brise-soleil and screens on façades and windows; operable blades and their control; light shelves; the glazing's transmittance and the building's own shading in the check; diffuse light; the sun-path design aid; the devices in the daylight, solar and energy analyses.
+
 
 ## 3.7 Stairs, railings and ramps
 
@@ -16186,6 +16217,36 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 
 ---
 
+### 3.9b.17 Event and dining seating
+**ID:** ARC-INT-006 · **Priority:** P1 · **Ref:** research/20 C4 (setups and capacities, S2126), C5 (event furniture, S2133–S2139), D3 (dining), E2–E3 (occupant loads); IBC Table 1004.5, 1004.5.1, 1005.3.2, Table 1006.3.2 (via research/20)
+
+**Purpose.** Set out a ballroom, meeting room or restaurant for its use, and check the seats against the code's occupant load, exits and egress width.
+
+**Behaviour & rules.**
+- **The set-up** (`seating.layout`) fills a room's region, `perimeter` clear of its walls (default 44 in), in the room's frame: x along its longest edge, the front at its lower side, or the side nearer `front`. Styles:
+  - `banquet`: rounds (`round` 72 in with ten stack chairs, default, or 60 in with eight) on a square grid `pitch` apart (default the round plus two chairs and 24 in: 11.7 ft for 72 in);
+  - `theatre`: stack chairs 20 in apart in rows 36 in back to back, `stage` clear at the front (default 3 m), in blocks of at most 14 between 48 in aisles;
+  - `classroom`: 18 × 72 in seminar tables for three in rows 54 in apart, in blocks of at most three tables between 48 in aisles, the front kept clear as for a theatre;
+  - `boardroom`: a 96 × 42 in conference table with eight chairs in the middle;
+  - `dining`: 36 in four-tops with four chairs 7 ft apart;
+  - `reception`: 30 in cocktail rounds 3 m apart, people standing.
+
+  A piece goes where its footprint is inside the region and `perimeter` from its edges. Every piece is a *Riviera Interiors* library item marked with the room; setting the room out again replaces it, and `clear` takes it away.
+- **The library** gains *Events*: banquet rounds 72 and 60 in, a stack chair 18 × 22 in, a seminar table 18 × 72 in, a cocktail table 30 in, a stage deck 4 × 8 ft at 24 in and a lectern; and *Dining*: restaurant two-tops 24 × 30 in and four-tops 36 in.
+- **The occupant load** (IBC Table 1004.5): the room's net area over 15 ft² for tables and chairs, 7 ft² for chairs only (theatre), 5 ft² standing (reception). The set-up is designed for the larger of that and its seats (a reception's standing places at 7 ft², the planning density). More seats than the table's load is a note: an increased occupant load needs an approved plan and egress for it (1004.5.1).
+- **Exits** (Table 1006.3.2): one up to 49, two to 500, three to 1,000, four above, against the doors in the room's walls; too few is an error. **Egress width** (1005.3.2): 0.15 in an occupant sprinklered with voice alarm (`sprinklered`, default), else 0.2, against the doors' widths; too little is an error.
+- **The window:** Architecture › Build › Seating Layout on the selected room: the set-up, rounds, wall clearance, front clearance and sprinklers; the counts and findings are shown.
+
+**Data (IFC mapping).** The pieces are ordinary placed library objects (`IfcFurniture` TABLE and CHAIR), each with `rxd:seating` naming its room.
+
+**Commands.** `seating.layout(room_id, style, round?, pitch?, perimeter?, front?, stage?, sprinklered?, clear?) -> {style, tables, chairs, seats, area, per_seat, code_load, design_load, exits_needed, doors, width_needed, width, elements, findings}`.
+
+**Acceptance criteria.**
+- [x] A 30 × 20 m ballroom with three doors set out for a banquet holds 35 rounds of ten, its occupant load the net area over 15 ft², two exits needed, no findings. As a theatre it seats over 600, needs three exits, and the banquet's pieces are gone; as a classroom three chairs a table; as a reception its standing load. 60 in rounds 9 ft apart are denser than the table's load: a note. Cleared, nothing is left.
+- [x] A 7 × 5 m boardroom has one table for eight and needs one exit. A 15 × 10 m restaurant with one door has at least twelve four-tops and fails two exits; nothing overlaps.
+
+*Built (2026-11-12):* `riviera_core::seating`, the *Events* and restaurant items, Architecture › Build › Seating Layout. Defaults are E-136. Not yet: U-shapes, hollow squares, crescent rounds and cabaret; booths and banquettes; staging and lecterns placed with a set-up; operable partitions dividing a ballroom (research/20 C3); ADA dining-surface counts (226) and wheelchair spaces; aisle widths by the seats they serve (1029); the main-exit rule for assembly over 300; set-ups as schedules.
+
 ## 3.9c Swimming pools
 
 Owner requirement (2026-11-08), planned in `POOLS_PLAN.md` and researched in `research/23_swimming_pools.md` (sources S2762–S2868). The toolset covers public, leisure, teaching, competition and residential pools. Hot tubs, saunas, steam rooms and spa access are the bathroom toolset's (ARC-BATH-013…016).
@@ -18134,6 +18195,7 @@ All commands below are registered once in the command registry and exposed autom
 | `interior.layouts` | — | [{id, title, items}] | No (query) | ARC-INT-001 |
 | `interior.layout` | template, point, level, wall_id?, replace?, fit_only? | {placed, fit, packs, guest_room?} | Yes | ARC-INT-001 |
 | `hotel.set_room` | room_ids, room_type?, beds?, mobility?, communication?, clear? | — | Yes | ARC-INT-002 |
+| `seating.layout` | room_id, style, round?, pitch?, perimeter?, front?, stage?, sprinklered?, clear? | layout | Yes | ARC-INT-006 |
 | `hotel.rooms` | level_ids? | [{room, number, name, level, room_type, beds, mobility, communication}] | No (query) | ARC-INT-002 |
 | `hotel.room_matrix` | level_ids?, standards?, total? | {placed, total, floors, classes, ada?, uk?, findings} | No (query) | ARC-INT-002 |
 | `retail.run` | start, end, level, kind, section?, deck?, height?, end_caps?, toward? | {run, kind, length, overall, depth, sections, left_over} | Yes | ARC-RETAIL-001 |
@@ -18280,6 +18342,8 @@ All commands below are registered once in the command registry and exposed autom
 | `enclosure.pad_and_fan` | enclosure_id, climate?, fan_airflow?, fan_size?, pads?, pad_height?, reversed?, remove? | {layout, fans, fan_airflow, airflow, pad_area, pad_length, notes} | Yes | ARC-GLZ-017 |
 | `atrium.create` | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name? | {atrium, shaft, roof, guards, opened} | Yes | ARC-GLZ-018 |
 | `atrium.check` | atrium_id?, fire?, clearance?, ambient? | [atrium_report] | No (query) | ARC-GLZ-018 |
+| `shading.baffles` | outline, level, height, direction?, spacing?, depth?, thickness?, tilt?, name? | {device, blades, length, cutoff} | Yes | ARC-GLZ-019 |
+| `shading.sun_check` | elements?, areas?, devices?, days?, max_share? | sun_check | No (query) | ARC-GLZ-019 |
 | `growing.crops` | — | [crop] | No (query) | ARC-GLZ-008 |
 | `enclosure.set_climate` | enclosure_id, crop?, target_dli?, day_temperature?, night_temperature?, humidity?, co2?, photoperiod?, clear? | — | Yes | ARC-GLZ-008 |
 | `enclosure.crop_light` | enclosure_id, clearness?, outdoor_dli? | {source, transmission, months, darkest_month, required_ppfd, lamp_ppfd} | No (query) | ARC-GLZ-009 |
@@ -31706,14 +31770,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 129 | 43 | 1 | 250 |
+| ARC | 77 | 131 | 43 | 1 | 252 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **374** | **239** | **7** | **940** |
+| **Total** | **320** | **376** | **239** | **7** | **942** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31927,7 +31991,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2416 unique commands** in 458 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2419 unique commands** in 460 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -32283,12 +32347,14 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `sco` | 3 |
 | `scopebox` | 4 |
 | `script` | 11 |
+| `seating` | 1 |
 | `section` | 3 |
 | `select` | 2 |
 | `selection` | 23 |
 | `selectionset` | 6 |
 | `session` | 2 |
 | `settings` | 12 |
+| `shading` | 2 |
 | `shape` | 9 |
 | `shear_stud_pattern` | 1 |
 | `sheet` | 12 |
@@ -34064,6 +34130,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `script.run` | 2 | module, entry, args? | — | Per transactions in script | DM-LUA-008 |
 | `script.run_file` | 2 | path, entry?, args? | — | Per transactions in script | DM-LUA-008 |
 | `script.security` | 2 | — | — | No | DM-LUA-007 |
+| `seating.layout` | 3 | room_id, style, round?, pitch?, perimeter?, front?, stage?, sprinklered?, clear? | layout | Yes | ARC-INT-006 |
 | `section.flip` | 5 | view_id | () | Yes | DOC-VIEW-004 |
 | `section.set_gap_mode` | 5 | view_id, mode | () | Yes | DOC-VIEW-004 |
 | `section.split_segment` | 5 | view_id, point, offset | () | Yes | DOC-VIEW-004 |
@@ -34112,6 +34179,8 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `settings.set_halftone` | 5 | brightness?, underlay_weight?, underlay_pattern_id? | () | Yes | DOC-GFX-009 |
 | `settings.starting_view.set` | 2 | view_id \ | "last" | — | Yes |
 | `settings.temporary_dimensions.set` | 2 | walls, doors_windows | — | Yes | DM-SET-003 |
+| `shading.baffles` | 3 | outline, level, height, direction?, spacing?, depth?, thickness?, tilt?, name? | {device, blades, length, cutoff} | Yes | ARC-GLZ-019 |
+| `shading.sun_check` | 3 | elements?, areas?, devices?, days?, max_share? | sun_check | No (query) | ARC-GLZ-019 |
 | `shape.add_point` | 3 | element_id, xy, mode: AlongSurface(offset)\ | Absolute(z), elevation_base? | key | Yes |
 | `shape.add_split_line` | 3 | element_id, points: [xy], mode, heights? | key | Yes | ARC-SHAPE-001 |
 | `shape.convert_folding_lines` | 3 | element_id | — | Yes | ARC-SHAPE-001 |

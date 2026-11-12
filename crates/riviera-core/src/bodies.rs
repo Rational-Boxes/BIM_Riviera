@@ -586,6 +586,12 @@ pub fn all(store: &Store) -> Vec<Body> {
             push(id, &format!("{class}:{}", crate::mesh_objects::color_hex(color)), m, false);
         }
     }
+    // Sun-control baffles (ARC-GLZ-019), pale aluminium.
+    for (id, blades) in crate::sun_control::all(store) {
+        for m in blades {
+            push(id, &format!("IfcShadingDevice:{}", crate::mesh_objects::color_hex([0.86, 0.87, 0.88, 1.0])), m, false);
+        }
+    }
     // Grow lights (ARC-GLZ-009): dark housings.
     for (id, m) in crate::hothouse::all(store) {
         push(id, &format!("IfcLightFixture:{}", crate::mesh_objects::color_hex([0.22, 0.23, 0.25, 1.0])), m, false);

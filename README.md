@@ -2127,6 +2127,15 @@ area by area (reviewed against the spec on 2026-10-15).
   flat) that can reach past the void over a terrace or a roof pool; Check reports the storeys open
   to it, IBC 404's requirements and the NFPA 92B smoke exhaust that holds the layer 6 ft above its
   highest walkway (`atrium.create`, `atrium.check`).
+- **Event and dining seating** (Architecture › Build › Seating Layout; ARC-INT-006): a room set
+  out as a banquet, theatre, classroom, boardroom, restaurant or reception from new *Events* and
+  restaurant library items, with its seats against the IBC occupant load, exits and egress width
+  (`seating.layout`).
+- **Sun-control baffles** (Architecture › Build › Baffles, View › Coordination › Sun Check;
+  ARC-GLZ-019): rows of blades under or over a glazed roof, their spacing, depth and tilt setting
+  the cut-off; Sun Check follows the sun on the solstices and equinoxes at the project's location
+  and reports the share of the direct sun reaching each selected pool or room through them
+  (`shading.baffles`, `shading.sun_check`).
 - **Digital twins, operational data and smart-city features** (`design_documents/DIGITAL_TWIN_PLAN.md`):
   sensor and controls design with points schedules, bindings from model elements to live BACnet,
   MQTT/Sparkplug, SensorThings, Haystack and time-series points, live comfort and energy overlays

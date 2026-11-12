@@ -52,6 +52,8 @@ mod openings;
 mod overlaps;
 mod bath_ui;
 mod units_ui;
+mod sun_ui;
+mod seating_ui;
 mod elevator_ui;
 mod parts;
 mod path_arrays;
@@ -4853,6 +4855,9 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.unit_array" => with(gui, Gui::unit_array),
         "ui.unit_connect" => with(gui, Gui::unit_connect),
         "ui.atrium" => with(gui, Gui::atrium),
+        "ui.baffles" => with(gui, Gui::baffles),
+        "ui.sun_check" => with(gui, Gui::sun_check),
+        "ui.seating_layout" => with(gui, Gui::seating_layout),
         "ui.gate_hardware" => with(gui, Gui::gate_hardware),
         "ui.pool_entry" => with(gui, |g| {
             g.pool_entry();

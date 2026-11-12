@@ -280,6 +280,8 @@ pub fn toolset_of(command: &str) -> String {
             | "group"
             | "unit"
             | "atrium"
+            | "shading"
+            | "seating"
             | "selectionset"
             | "modeltext"
             | "inplace"
