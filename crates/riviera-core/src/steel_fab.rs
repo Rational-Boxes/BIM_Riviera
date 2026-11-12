@@ -610,7 +610,7 @@ fn clip_above(points: &[V3], z: f64) -> Vec<V3> {
 // ---- Bodies ----
 
 /// A convex outline extruded symmetrically about its plane.
-fn prism(outline: &[V3], normal: V3, thickness: f64) -> crate::bodies::Mesh {
+pub(crate) fn prism(outline: &[V3], normal: V3, thickness: f64) -> crate::bodies::Mesh {
     let h = thickness / 2.0;
     let n = outline.len();
     let mut pts: Vec<V3> = outline.iter().map(|q| at(*q, &[(normal, -h)])).collect();

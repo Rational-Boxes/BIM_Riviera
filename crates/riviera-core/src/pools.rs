@@ -292,6 +292,86 @@ pub struct Lanes {
     /// Lane lines, T-ends, 15 m cross lines and end-wall targets drawn (default true).
     #[serde(default = "yes")]
     pub markings: bool,
+    /// Lane ropes, backstroke flags and the false-start rope (ARC-POOL-017).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fittings: Option<LaneFittings>,
+}
+
+/// The end races start from: the deeper (default; the MAHC and World Aquatics want deep water
+/// under the starting platforms) or the shallower.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum StartEnd {
+    Shallow,
+    #[default]
+    Deep,
+}
+
+/// A competition pool's fittings over its lanes (ARC-POOL-017).
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, JsonSchema)]
+pub struct LaneFittings {
+    /// Lane ropes on the lines between the lanes, and outside the outer lanes where the gap
+    /// holds a float (default true).
+    #[serde(default = "yes")]
+    pub ropes: bool,
+    /// The ropes' floats' diameter (default 0.15 m).
+    #[serde(default = "rope_float")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub float: f64,
+    /// Backstroke flags across the pool near each end (default true).
+    #[serde(default = "yes")]
+    pub flags: bool,
+    /// Their rope above the water (default 1.8 m) and out from each end wall (default 5.0 m).
+    #[serde(default = "flag_height")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub flag_height: f64,
+    #[serde(default = "flag_distance")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub flag_distance: f64,
+    /// The false-start rope across the pool (default true).
+    #[serde(default = "yes")]
+    pub false_start: bool,
+    /// Its height above the water (default 1.2 m) and distance from the start end (default 15 m).
+    #[serde(default = "false_start_height")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub false_start_height: f64,
+    #[serde(default = "false_start_distance")]
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub false_start_distance: f64,
+    #[serde(default)]
+    pub start: StartEnd,
+}
+
+impl Default for LaneFittings {
+    fn default() -> Self {
+        LaneFittings {
+            ropes: true,
+            float: rope_float(),
+            flags: true,
+            flag_height: flag_height(),
+            flag_distance: flag_distance(),
+            false_start: true,
+            false_start_height: false_start_height(),
+            false_start_distance: false_start_distance(),
+            start: StartEnd::Deep,
+        }
+    }
+}
+
+fn rope_float() -> f64 {
+    0.15
+}
+fn flag_height() -> f64 {
+    1.8
+}
+fn flag_distance() -> f64 {
+    5.0
+}
+fn false_start_height() -> f64 {
+    1.2
+}
+fn false_start_distance() -> f64 {
+    15.0
 }
 
 fn lane_width() -> f64 {
@@ -397,6 +477,12 @@ pub struct PoolGeometry {
     pub markings: Vec<Mesh>,
     /// Depth and NO DIVING markers and the break-point band (ARC-POOL-011).
     pub depth_marks: Vec<Mesh>,
+    /// Lane ropes, one mesh per colour, and the colours (ARC-POOL-017).
+    pub ropes: Vec<Mesh>,
+    pub rope_colours: Vec<[f32; 4]>,
+    /// The backstroke flags and the false-start rope, with their posts.
+    pub flags: Vec<Mesh>,
+    pub false_start: Vec<Mesh>,
     pub deck_z: f64,
     pub water_z: f64,
     pub area: f64,
@@ -826,10 +912,34 @@ pub struct LaneLayout {
     /// Each lane's centre, across the axis from the right-hand wall.
     pub centres: Vec<f64>,
     pub gap: f64,
+    /// Its ropes, flags and false-start rope (ARC-POOL-017).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub fittings: Option<FittingsInfo>,
     #[serde(skip)]
     ends: [f64; 2],
     #[serde(skip)]
     side: f64,
+}
+
+/// A pool's lane fittings as laid out.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
+pub struct FittingsInfo {
+    /// Each lane rope's line, across the axis from the right-hand wall.
+    pub ropes: Vec<f64>,
+    pub float: f64,
+    /// The backstroke flags' rope above the water and out from each end wall.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flag_height: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flag_distance: Option<f64>,
+    /// The false-start rope above the water and out from the start end.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub false_start_height: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub false_start_distance: Option<f64>,
+    pub start: StartEnd,
+    /// The start end's wall, along the axis.
+    pub start_wall: f64,
 }
 
 /// The pool's extent along its axis and across it, as `t` and `s` ranges.
@@ -863,7 +973,138 @@ pub fn lane_layout(rec: &PoolRecipe) -> Option<LaneLayout> {
         centres.push(at + w / 2.0);
         at += w;
     }
-    Some(LaneLayout { length: t[1] - t[0], course: t[1] - t[0] - f64::from(l.pads) * PAD, width, widths, centres, gap: l.gap, ends: t, side: s[0] })
+    let fittings = l.fittings.map(|f| {
+        // Ropes on the lines between lanes; outside the outer lanes only where the gap holds a float.
+        let mut lines = vec![l.gap];
+        lines.extend(widths.iter().scan(l.gap, |at, w| {
+            *at += w;
+            Some(*at)
+        }));
+        let n = lines.len();
+        let ropes = if f.ropes { lines.into_iter().enumerate().filter(|(k, _)| (*k > 0 && *k < n - 1) || l.gap >= f.float - 1e-9).map(|(_, s)| s).collect() } else { Vec::new() };
+        // The start end: the deeper (or the shallower), the far end when they are as deep.
+        let (d0, d1) = (rec.depth_at(t[0]), rec.depth_at(t[1]));
+        let start_wall = match f.start {
+            StartEnd::Deep => if d0 > d1 + 1e-9 { t[0] } else { t[1] },
+            StartEnd::Shallow => if d1 < d0 - 1e-9 { t[1] } else { t[0] },
+        };
+        FittingsInfo {
+            ropes,
+            float: f.float,
+            flag_height: f.flags.then_some(f.flag_height),
+            flag_distance: f.flags.then_some(f.flag_distance),
+            false_start_height: f.false_start.then_some(f.false_start_height),
+            false_start_distance: f.false_start.then_some(f.false_start_distance),
+            start: f.start,
+            start_wall,
+        }
+    });
+    Some(LaneLayout { length: t[1] - t[0], course: t[1] - t[0] - f64::from(l.pads) * PAD, width, widths, centres, gap: l.gap, fittings, ends: t, side: s[0] })
+}
+
+/// How far out from the side walls the flags' and false-start rope's posts stand.
+const POST_OUT: f64 = 0.6;
+/// The posts' and ropes' diameters.
+const POST_OD: f64 = 0.05;
+const LINE_OD: f64 = 0.012;
+
+/// The fittings' solids (ARC-POOL-017): lane ropes by colour (green outside, then blue, then
+/// yellow; red the last 5 m at each end and 0.5 m at 15 m and halfway along a 50 m pool),
+/// backstroke flags (pennants 0.20 m along their rope, 0.40 m sides, 0.25 m apart) and the
+/// false-start rope, each rope between posts on the deck.
+struct FittingSolids {
+    ropes: Vec<(Mesh, [f32; 4])>,
+    flags: Vec<Mesh>,
+    false_start: Vec<Mesh>,
+}
+
+fn fitting_solids(rec: &PoolRecipe, deck_z: f64, water_z: f64) -> Option<FittingSolids> {
+    let lay = lane_layout(rec)?;
+    let f = lay.fittings.as_ref()?;
+    let (a, u) = rec.axis_dir();
+    let v = [-u[1], u[0]];
+    let at = |t: f64, s: f64, z: f64| [a[0] + u[0] * t + v[0] * s, a[1] + u[1] * t + v[1] * s, z];
+    let [e0, e1] = lay.ends;
+    let (s0, s1) = (lay.side, lay.side + lay.width);
+    let cyl = |p: [f64; 3], q: [f64; 3], d: f64| crate::steel_fab::cylinder(p, q, d / 2.0, 8);
+    // Ropes, their middles two-thirds under the water.
+    const GREEN: [f32; 4] = [0.15, 0.62, 0.30, 1.0];
+    const BLUE: [f32; 4] = [0.15, 0.35, 0.80, 1.0];
+    const YELLOW: [f32; 4] = [0.95, 0.80, 0.15, 1.0];
+    const RED: [f32; 4] = [0.85, 0.15, 0.12, 1.0];
+    let length = e1 - e0;
+    let mut red: Vec<[f64; 2]> = vec![[e0, e0 + 5.0_f64.min(length / 2.0)], [e1 - 5.0_f64.min(length / 2.0), e1]];
+    if length > 31.0 {
+        red.extend([[e0 + 14.75, e0 + 15.25], [e1 - 15.25, e1 - 14.75]]);
+    }
+    if length > 45.0 {
+        let m = (e0 + e1) / 2.0;
+        red.push([m - 0.25, m + 0.25]);
+    }
+    red.sort_by(|x, y| x[0].total_cmp(&y[0]));
+    let z = water_z - f.float / 6.0;
+    let lines = {
+        let mut l = vec![lay.gap];
+        l.extend(lay.widths.iter().scan(lay.gap, |at, w| {
+            *at += w;
+            Some(*at)
+        }));
+        l
+    };
+    let mut by_colour: Vec<(Vec<Mesh>, [f32; 4])> = [GREEN, BLUE, YELLOW, RED].iter().map(|c| (Vec::new(), *c)).collect();
+    for s in &f.ropes {
+        let k = lines.iter().position(|x| (x - s).abs() < 1e-9).unwrap_or(0);
+        let from_edge = k.min(lines.len() - 1 - k);
+        let colour = match from_edge {
+            0 => 0,
+            1 | 2 => 1,
+            _ => 2,
+        };
+        let s = lay.side + s;
+        let mut t = e0;
+        for r in &red {
+            if r[0] > t + 1e-9 {
+                by_colour[colour].0.push(cyl(at(t, s, z), at(r[0], s, z), f.float));
+            }
+            by_colour[3].0.push(cyl(at(r[0].max(t), s, z), at(r[1], s, z), f.float));
+            t = r[1];
+        }
+        if e1 > t + 1e-9 {
+            by_colour[colour].0.push(cyl(at(t, s, z), at(e1, s, z), f.float));
+        }
+    }
+    let ropes = by_colour.into_iter().filter(|(m, _)| !m.is_empty()).map(|(m, c)| (crate::steel_fab::join(m), c)).collect();
+    // A rope across the pool at `t`, `h` above the water, between posts on the deck.
+    let across = |t: f64, h: f64| -> Vec<Mesh> {
+        let top = water_z + h;
+        vec![
+            cyl(at(t, s0 - POST_OUT, deck_z), at(t, s0 - POST_OUT, top + 0.1), POST_OD),
+            cyl(at(t, s1 + POST_OUT, deck_z), at(t, s1 + POST_OUT, top + 0.1), POST_OD),
+            cyl(at(t, s0 - POST_OUT, top), at(t, s1 + POST_OUT, top), LINE_OD),
+        ]
+    };
+    let mut flags = Vec::new();
+    if let (Some(h), Some(d)) = (f.flag_height, f.flag_distance) {
+        let pitch = 0.45;
+        let n = ((s1 - s0 + 0.25) / pitch).floor().max(0.0) as usize;
+        let first = (s0 + s1) / 2.0 - (n as f64 - 1.0) * pitch / 2.0;
+        let drop = (0.4_f64 * 0.4 - 0.1 * 0.1).sqrt();
+        for t in [e0 + d, e1 - d] {
+            flags.extend(across(t, h));
+            let top = water_z + h;
+            for k in 0..n {
+                let c = first + k as f64 * pitch;
+                let tri = vec![at(t, c - 0.1, top), at(t, c + 0.1, top), at(t, c, top - drop)];
+                flags.push(crate::steel_fab::prism(&tri, [u[0], u[1], 0.0], 0.002));
+            }
+        }
+    }
+    let mut false_start = Vec::new();
+    if let (Some(h), Some(d)) = (f.false_start_height, f.false_start_distance) {
+        let t = if (f.start_wall - e0).abs() < 1e-9 { e0 + d } else { e1 - d };
+        false_start.extend(across(t, h));
+    }
+    Some(FittingSolids { ropes, flags, false_start })
 }
 
 /// The lanes' markings as plan rectangles, each with its bottom and top: lines on the floor
@@ -1043,6 +1284,13 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
             depth_marks.push(extrude(&s, &floor, &|p| floor(p) + 0.005));
         }
     }
+    let (ropes, rope_colours, flags, false_start) = match fitting_solids(&rec, deck_z, water_z) {
+        Some(f) => {
+            let (m, c) = f.ropes.into_iter().unzip();
+            (m, c, f.flags, f.false_start)
+        }
+        None => Default::default(),
+    };
     let area = crate::polygons::area(&rec.outline).abs();
     let n = rec.outline.len();
     let perimeter = (0..n).map(|i| {
@@ -1051,7 +1299,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<PoolGeometry> {
     }).sum();
     let volume = water.iter().map(mesh_volume).sum::<f64>() - displaced;
     let shell_volume = base.iter().chain(&walls).map(mesh_volume).sum();
-    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, rails, nosings, markings, depth_marks, deck_z, water_z, area, perimeter, volume, shell_volume })
+    Ok(PoolGeometry { water, base, walls, coping, stairs, ramps, benches, rails, nosings, markings, depth_marks, ropes, rope_colours, flags, false_start, deck_z, water_z, area, perimeter, volume, shell_volume })
 }
 
 /// A segment offset outward (to its right) by `d`.
@@ -1139,7 +1387,7 @@ fn template(t: &Template) -> Result<(Ring, Vec<Station>, f64, Option<Lanes>)> {
         Competition50m => Some(8),
         _ => None,
     }
-    .map(|n| Lanes { count: t.lanes.unwrap_or(n), width: t.lane_width.unwrap_or(2.5), gap: lane_gap(), pads: 2, markings: true });
+    .map(|n| Lanes { count: t.lanes.unwrap_or(n), width: t.lane_width.unwrap_or(2.5), gap: lane_gap(), pads: 2, markings: true, fittings: None });
     Ok((ring, profile.unwrap_or_else(|| default_profile(l)), l, lanes))
 }
 
@@ -1246,6 +1494,20 @@ fn validate(rec: &PoolRecipe) -> Result<()> {
         && lay.widths.iter().any(|w| *w <= 0.0)
     {
         return Err(bad("pool.bad_lanes", format!("{} lanes of {:.2} m do not fit {:.2} m", rec.lanes.map_or(0, |l| l.count), rec.lanes.map_or(0.0, |l| l.width), lay.width)));
+    }
+    if let Some(lay) = lane_layout(rec)
+        && let Some(f) = rec.lanes.and_then(|l| l.fittings)
+    {
+        let length = lay.length;
+        if !(f.float > 0.0 && f.float < 0.5 && f.flag_height > 0.0 && f.false_start_height > 0.0) {
+            return Err(bad("pool.bad_fittings", "the floats need a diameter under 0.5 m, and the ropes a height above the water"));
+        }
+        if f.flags && !(f.flag_distance > 0.0 && 2.0 * f.flag_distance < length) {
+            return Err(bad("pool.bad_fittings", format!("backstroke flags {:.2} m from each end do not fit a {length:.2} m pool", f.flag_distance)));
+        }
+        if f.false_start && !(f.false_start_distance > 0.0 && f.false_start_distance < length) {
+            return Err(bad("pool.bad_fittings", format!("a false-start rope {:.2} m out does not fit a {length:.2} m pool", f.false_start_distance)));
+        }
     }
     if rec.shell.thickness.partial_cmp(&0.0) != Some(std::cmp::Ordering::Greater) || rec.water_level.partial_cmp(&0.0).is_none_or(std::cmp::Ordering::is_lt) {
         return Err(bad("pool.bad_shell", "the shell needs a thickness, and the water must be at or below the deck"));
@@ -1603,6 +1865,23 @@ pub struct LanesParams {
     pub gap: Option<f64>,
     pub pads: Option<u32>,
     pub markings: Option<bool>,
+    /// Lane ropes, backstroke flags and the false-start rope (ARC-POOL-017): true adds them with
+    /// their defaults, false takes them away; any of the settings below adds them.
+    pub fittings: Option<bool>,
+    pub ropes: Option<bool>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub float: Option<f64>,
+    pub flags: Option<bool>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub flag_height: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub flag_distance: Option<f64>,
+    pub false_start: Option<bool>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub false_start_height: Option<f64>,
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub false_start_distance: Option<f64>,
+    pub start: Option<StartEnd>,
 }
 
 /// Sets a pool's lanes (`pool.lanes`); their layout back.
@@ -1615,7 +1894,32 @@ pub(crate) fn set_lanes(txn: &mut Transaction<'_>, p: LanesParams) -> Result<Opt
         gap: p.gap.or(old.map(|l| l.gap)).unwrap_or(lane_gap()),
         pads: p.pads.or(old.map(|l| l.pads)).unwrap_or(2),
         markings: p.markings.or(old.map(|l| l.markings)).unwrap_or(true),
+        fittings: None,
     });
+    // The fittings: kept, added or taken away, then each setting given.
+    let given = p.ropes.is_some() || p.float.is_some() || p.flags.is_some() || p.flag_height.is_some() || p.flag_distance.is_some() || p.false_start.is_some() || p.false_start_height.is_some() || p.false_start_distance.is_some() || p.start.is_some();
+    let kept = old.and_then(|l| l.fittings);
+    let fittings = match p.fittings {
+        Some(false) => None,
+        Some(true) => Some(kept.unwrap_or_default()),
+        None if given => Some(kept.unwrap_or_default()),
+        None => kept,
+    }
+    .map(|mut f| {
+        f.ropes = p.ropes.unwrap_or(f.ropes);
+        f.float = p.float.unwrap_or(f.float);
+        f.flags = p.flags.unwrap_or(f.flags);
+        f.flag_height = p.flag_height.unwrap_or(f.flag_height);
+        f.flag_distance = p.flag_distance.unwrap_or(f.flag_distance);
+        f.false_start = p.false_start.unwrap_or(f.false_start);
+        f.false_start_height = p.false_start_height.unwrap_or(f.false_start_height);
+        f.false_start_distance = p.false_start_distance.unwrap_or(f.false_start_distance);
+        f.start = p.start.unwrap_or(f.start);
+        f
+    });
+    if let Some(l) = rec.lanes.as_mut() {
+        l.fittings = fittings;
+    }
     validate(&rec)?;
     let v = serde_json::to_value(&rec).expect("serialises");
     txn.modify(id, |e| {
@@ -1795,6 +2099,7 @@ impl PoolClass {
 /// "a–b", "at least a" or "at most b", each in `unit`.
 fn bounds(min: Option<f64>, max: Option<f64>, unit: &dyn Fn(f64) -> String) -> String {
     match (min, max) {
+        (Some(a), Some(b)) if (a - b).abs() < 1e-12 => unit(a),
         (Some(a), Some(b)) => {
             // One unit for both: "12–18 in".
             let (x, y) = (unit(a), unit(b));
@@ -2381,6 +2686,61 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<PoolCheck> 
                             && lay.gap < m - 1e-6
                         {
                             find(None, false, format!("{:.2} m outside the outer lanes; at least {m:.2} m", lay.gap));
+                        }
+                    }
+                    M::LaneRopes | M::BackstrokeFlags | M::FalseStartRope => {
+                        // Pools with lanes (ARC-POOL-017); fittings not set are a note.
+                        let Some(lay) = lane_layout(&rec) else { continue };
+                        let Some(f) = &lay.fittings else {
+                            let what = match r.check {
+                                M::LaneRopes => "no lane ropes are",
+                                M::BackstrokeFlags => "no backstroke flags are",
+                                _ => "no false-start rope is",
+                            };
+                            find(None, true, format!("{what} set (pool.lanes fittings)"));
+                            continue;
+                        };
+                        let m2 = |v: f64| format!("{v:.2} m");
+                        // How far out, against `range`.
+                        let range = |d: f64, what: &str, from: &str| -> Option<String> {
+                            r.range.filter(|[lo, hi]| d < lo - 1e-6 || d > hi + 1e-6).map(|[lo, hi]| {
+                                let want = if (hi - lo).abs() < 1e-9 { m2(lo) } else { format!("{lo:.2}–{hi:.2} m") };
+                                format!("{what} {} out from {from}; {want}", m2(d))
+                            })
+                        };
+                        match r.check {
+                            M::LaneRopes => {
+                                if f.ropes.is_empty() {
+                                    find(None, true, "no lane ropes are set (pool.lanes ropes)".into());
+                                } else if outside(f.float, r.min, r.max) {
+                                    find(None, false, format!("the lane ropes' floats are {:.0} mm across; {}", f.float * 1000.0, bounds(r.min.map(|v| v * 1000.0), r.max.map(|v| v * 1000.0), &|v| format!("{v:.0} mm"))));
+                                }
+                            }
+                            M::BackstrokeFlags => {
+                                let (Some(h), Some(d)) = (f.flag_height, f.flag_distance) else {
+                                    find(None, true, "no backstroke flags are set (pool.lanes flags)".into());
+                                    continue;
+                                };
+                                if outside(h, r.min, r.max) {
+                                    find(None, false, format!("the backstroke flags' rope is {} above the water; {}", m2(h), bounds(r.min, r.max, &m2)));
+                                }
+                                if let Some(m) = range(d, "the backstroke flags are", "each end wall") {
+                                    find(None, false, m);
+                                }
+                            }
+                            _ => {
+                                let (Some(h), Some(d)) = (f.false_start_height, f.false_start_distance) else {
+                                    find(None, true, "no false-start rope is set (pool.lanes false_start)".into());
+                                    continue;
+                                };
+                                if outside(h, r.min, r.max) {
+                                    find(None, false, format!("the false-start rope is {} above the water; {}", m2(h), bounds(r.min, r.max, &m2)));
+                                }
+                                let end = if f.start == StartEnd::Deep { "the start end (the deep end)" } else { "the start end (the shallow end)" };
+                                if let Some(m) = range(d, "the false-start rope is", end) {
+                                    find(None, false, m);
+                                }
+                            }
                         }
                     }
                     M::PlatformDepth | M::PlatformHeight => {

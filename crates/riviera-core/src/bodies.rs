@@ -555,6 +555,17 @@ pub fn all(store: &Store) -> Vec<Body> {
         for m in g.depth_marks {
             push(id, &format!("IfcCovering:{}", hex([0.10, 0.12, 0.20, 1.0])), m, false);
         }
+        // Lane ropes in their colours, the backstroke flags red and the false-start rope white,
+        // each with its posts (ARC-POOL-017).
+        for (m, c) in g.ropes.into_iter().zip(g.rope_colours) {
+            push(id, &format!("IfcDiscreteAccessory:{}", hex(c)), m, false);
+        }
+        for m in g.flags {
+            push(id, &format!("IfcDiscreteAccessory:{}", hex([0.85, 0.15, 0.12, 1.0])), m, false);
+        }
+        for m in g.false_start {
+            push(id, &format!("IfcDiscreteAccessory:{}", hex([0.95, 0.95, 0.95, 1.0])), m, false);
+        }
         for m in g.water {
             push(id, &format!("IfcSpace:{}", hex([0.35, 0.65, 0.90, 0.45])), m, true);
         }

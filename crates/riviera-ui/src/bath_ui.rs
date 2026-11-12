@@ -1402,9 +1402,15 @@ impl Gui {
         let gap = f.text("Side gaps (m)", "", "Outside the first and last lanes; default 0.1 (World Aquatics 2026)");
         let pads = f.choice("Touch pads", &["At both ends".to_owned(), "At one end".to_owned(), "None".to_owned()], 0);
         let marks = f.check("Markings", "Draw the lane lines, T-ends, 15 m lines and end-wall targets", true);
+        let has = !lanes["fittings"].is_null();
+        let fit = f.check("Fittings", "Lane ropes, backstroke flags 1.8 m up and 5 m out, and the false-start rope 15 m from the start end (World Aquatics)", has);
+        let start = f.choice("Races start at", &["The deep end".to_owned(), "The shallow end".to_owned()], usize::from(lanes["fittings"]["start"] == "shallow"));
         let ok = f.show("The outer lanes take what is left of the pool's width. Check Pools checks them against World Aquatics where the pool is marked for competition.", "Set Lanes");
         let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
-        let mut args = json!({ "pool_id": pool, "count": n.get_value().trim().parse::<u32>().unwrap_or(0), "pads": 2 - pads.get_selection().unwrap_or(0).min(2), "markings": marks.get_value() });
+        let mut args = json!({ "pool_id": pool, "count": n.get_value().trim().parse::<u32>().unwrap_or(0), "pads": 2 - pads.get_selection().unwrap_or(0).min(2), "markings": marks.get_value(), "fittings": fit.get_value() });
+        if fit.get_value() {
+            args["start"] = json!(if start.get_selection().unwrap_or(0) == 1 { "shallow" } else { "deep" });
+        }
         if let Some(v) = num(&width) {
             args["width"] = json!(v);
         }

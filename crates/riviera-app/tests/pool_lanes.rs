@@ -17,7 +17,8 @@ fn near(a: f64, b: f64, tol: f64) -> bool {
 }
 
 fn by_pack<'a>(c: &'a Value, pack: &str) -> Vec<&'a str> {
-    c["findings"].as_array().unwrap().iter().filter(|f| f["pack"] == pack).map(|f| f["message"].as_str().unwrap()).collect()
+    // The lane fittings' notes (ARC-POOL-017) are pool_lane_fittings.rs's.
+    c["findings"].as_array().unwrap().iter().filter(|f| f["pack"] == pack).map(|f| f["message"].as_str().unwrap()).filter(|m| !m.contains("(pool.lanes fittings)")).collect()
 }
 
 fn app() -> (tempfile::TempDir, App, Value) {
@@ -97,6 +98,6 @@ fn course_lengths_are_measured_between_the_pads() {
     // A 25 yd pool is not a World Aquatics course: a note.
     let yards = ok(&mut app, "pool.create", json!({ "level": level, "template": { "kind": "competition_25yd", "origin": [0.0, 40.0] } }));
     let c = ok(&mut app, "pool.check", json!({ "pool_id": yards }));
-    let f: Vec<&Value> = c["findings"].as_array().unwrap().iter().filter(|f| f["pack"] == "world_aquatics").collect();
+    let f: Vec<&Value> = c["findings"].as_array().unwrap().iter().filter(|f| f["pack"] == "world_aquatics" && !f["message"].as_str().unwrap().contains("(pool.lanes fittings)")).collect();
     assert!(f.len() == 1 && f[0]["severity"] == "note" && f[0]["message"].as_str().unwrap().starts_with("22.870 m between the touch pads is not a course of 50 m or 25 m"), "{c:#}");
 }

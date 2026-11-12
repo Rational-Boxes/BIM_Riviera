@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 938 numbered requirements (320 P0 · 373 P1 · 238 P2 · 7 P3), 2,414 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 939 numbered requirements (320 P0 · 373 P1 · 239 P2 · 7 P3), 2,414 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,414 commands; 938 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,414 commands; 939 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -16224,7 +16224,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), gate hardware (ARC-POOL-016, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), gate hardware (ARC-POOL-016, built), lane ropes, flags and the false-start rope (ARC-POOL-017, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -16846,6 +16846,41 @@ Public and competition pools come first (Q6).
 - the MAHC's exit gates (36 in, EMERGENCY EXIT) and the staffed-entry exception;
 - Washington's and Texas's latch rules;
 - drawing the latch on the gate.
+
+### 3.9c.17 Lane ropes, backstroke flags and the false-start rope
+**ID:** ARC-POOL-017 · **Priority:** P2 · **Ref:** `POOLS_PLAN.md` §4; research/23 B.7 (S2791, S2792); ARC-POOL-005 (lanes)
+
+**Purpose.** Put a competition pool's lane equipment into the model and check it against World Aquatics.
+
+**Behaviour & rules.**
+- **Fittings** are kept with the pool's lanes (`pool.lanes` `fittings`); true adds them with their defaults, false takes them away, and any setting given adds them.
+- **Lane ropes** (`ropes`, default on):
+  - on the lines between the lanes, and outside the outer lanes where the side gap holds a whole float (a 0.1 m gap does not: the outer lanes run to the walls);
+  - floats `float` across (default 0.15 m), two-thirds under the water, wall to wall;
+  - coloured from the side walls in: green, then two blue, then yellow; red the last 5 m at each end, 0.5 m at 15 m from each end, and halfway along pools over 45 m.
+- **Backstroke flags** (`flags`): a rope `flag_height` above the water (default 1.8 m), `flag_distance` out from each end wall (default 5.0 m), with pennants 0.20 m along it, 0.40 m sides, 0.25 m apart, across the water.
+- **The false-start rope** (`false_start`): `false_start_height` above the water (default 1.2 m), `false_start_distance` from the start end (default 15.0 m). `start` is the `deep` end (default; the far end when both are as deep) or the `shallow` end.
+- **Posts:** each rope across the pool runs between two 50 mm posts on the deck, 0.6 m back from the side walls.
+- Flags that do not fit between the ends, or a false-start rope beyond the far end, are refused.
+- **Checks** (`pool.check`), on pools with lanes:
+  - fittings not set: a note each;
+  - `lane_ropes`: floats `min` to `max` across;
+  - `backstroke_flags`: the rope `min` to `max` above the water, `range` out from each end wall;
+  - `false_start_rope`: at least `min` above the water, `range` from the start end.
+- **The `world_aquatics` pack:** floats 0.10–0.15 m (FR 2.6); flags 1.8 m up and 5.0 m out (FR 2.9); the false-start rope 1.2 m up at least, 15.0 m out (FR 2.11), each saying to verify against the current text.
+- **The window:** Architecture › Build › Pool Lanes has *Fittings* and the start end.
+
+**Data (IFC mapping).** Three more parts in the pool's assembly, `IfcDiscreteAccessory` USERDEFINED: `LANEROPE`, `BACKSTROKEFLAGS` and `FALSESTARTROPE` (the last two with their posts). The settings are in the recipe's lanes.
+
+**Commands.** `pool.lanes(…, fittings?, ropes?, float?, flags?, flag_height?, flag_distance?, false_start?, false_start_height?, false_start_distance?, start?)`; its result and `pool.info`'s `lanes` give `fittings {ropes, float, flag_height?, flag_distance?, false_start_height?, false_start_distance?, start, start_wall}`.
+
+**Acceptance criteria.**
+- [x] A six-lane 25 m pool without fittings has three notes. With them it has five ropes (none in the 0.1 m side gaps), flags 1.8 m up, the false-start rope 15 m from the deep end, and passes.
+- [x] 200 mm floats, flags 2.2 m up and 4.5 m out, and a false-start rope 1.0 m up and 12 m out fail their five rules; flags 13 m out are refused.
+- [x] Nothing overlaps. Saved, the fittings are LANEROPE, BACKSTROKEFLAGS and FALSESTARTROPE discrete accessories; reopened, the pool keeps them. Taken away, they are notes again.
+- [x] The sample *A swimming pool hall* has its main pool's fittings.
+
+*Built (2026-11-12):* in `riviera_core::pools` and its IFC writer, the three rule checks, Architecture › Build › Pool Lanes. Defaults are E-132. Not yet: rope anchors in the end walls, the ropes' 10 lanes' colours, quick-release on the false-start rope, rope storage reels, and USA Swimming's and NFHS's flag heights.
 
 ## 3.11 Massing and site
 
@@ -31633,14 +31668,14 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 |------|---:|---:|---:|---:|------:|
 | UI | 76 | 39 | 8 | 0 | 123 |
 | DM | 91 | 66 | 34 | 3 | 194 |
-| ARC | 77 | 128 | 42 | 1 | 248 |
+| ARC | 77 | 128 | 43 | 1 | 249 |
 | STR | 0 | 15 | 47 | 0 | 62 |
 | MEP | 0 | 30 | 42 | 0 | 72 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
 | DOC | 68 | 42 | 13 | 1 | 124 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **373** | **238** | **7** | **938** |
+| **Total** | **320** | **373** | **239** | **7** | **939** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 

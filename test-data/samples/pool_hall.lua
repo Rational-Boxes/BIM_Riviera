@@ -62,7 +62,7 @@ place("Pool ladder, 3 steps", 27, 19.5, 0)
 place("Pool ladder, 3 steps", 5, 4.5, math.pi)
 place("Pool ladder, 3 steps", 27, 4.5, math.pi)
 -- A pool lift on the south deck and a lifeguard chair on the north deck, both facing the pool.
-place("Pool lift, 300 lb", 8, 3.6, math.pi)
+place("Pool lift, 300 lb", 10, 3.6, math.pi)
 place("Lifeguard chair 6 ft", 16, 21.6, 0)
 -- Two main drains on the floor between the lines of lanes 3 and 4, 2 m apart (the VGB Act's
 -- 3 ft at least), 2.15 m down.
@@ -77,8 +77,11 @@ local r = riviera.pool.add_entry{ pool_id = teach, kind = "sloped_entry", edge =
 riviera.pool.add_entry{ pool_id = teach, kind = "stairs", edge = 3, at = 3.5 }
 print(string.format("Teaching pool: stairs of %d risers of %.0f mm; a sloped entry %.2f m long", s.risers, s.riser * 1000, r.run))
 
+-- The main pool's lane fittings (ARC-POOL-017): lane ropes, backstroke flags 1.8 m up and 5 m
+-- out from each end, and the false-start rope 15 m from the east (deep, starting) end.
+riviera.pool.lanes{ pool_id = main, count = 6, fittings = true }
 local lanes = riviera.pool.info{ pool_id = main }.lanes
-print(string.format("Main pool: %d lanes, %.3f m between the touch pads", #lanes.widths, lanes.course))
+print(string.format("Main pool: %d lanes, %.3f m between the touch pads, %d lane ropes", #lanes.widths, lanes.course, #lanes.fittings.ropes))
 for _, p in ipairs(riviera.pool.check{}.pools) do
   print(string.format("%s (%s): %d entries, %d accessible, %d drains", p.name, p.class, p.entries, p.accessible_entries, p.drains))
 end

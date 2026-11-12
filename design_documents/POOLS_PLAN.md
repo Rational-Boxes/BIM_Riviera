@@ -288,3 +288,7 @@ exposed to Lua and MCP.
   lockable, latch height and release, mesh round a pool-side latch); the `gate_hardware` rule
   kind in the ISPSC (public 52–54 in, residential 54 in or pool-side) and the MAHC (54 in);
   Modify | Railings › Gate Hardware; the pool samples' gates set.
+- ARC-POOL-017 (2026-11-12): lane ropes, backstroke flags and the false-start rope as parts of
+  the pool (`pool.lanes` fittings), checked against World Aquatics FR 2.6, 2.9 and 2.11; the
+  pool hall sample's main pool fitted. The owner then called the pool work complete enough
+  for now (2026-11-12).

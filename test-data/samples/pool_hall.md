@@ -36,7 +36,7 @@ Start with **File › New**.
    18.25 (the lanes' centres).
 8. **Ladders, a lift and a chair.** From *Access*, place a *Pool ladder, 3 steps* on the north
    wall's face at (5, 19.5) and (27, 19.5), and turned 180° on the south wall's at (5, 4.5) and
-   (27, 4.5). Place the *Pool lift, 300 lb* turned 180° at (8, 3.6), and from *Safety* the
+   (27, 4.5). Place the *Pool lift, 300 lb* turned 180° at (10, 3.6), clear of the backstroke flags' post, and from *Safety* the
    *Lifeguard chair 6 ft* at (16, 21.6), both facing the water.
 9. **Drains.** From *Fittings*, place two *Main drain cover 300 × 300* at (15, 12) and (17, 12),
    2.15 m down on the floor between the lines of lanes 3 and 4.
@@ -46,29 +46,35 @@ Start with **File › New**.
    risers on 12 in treads; the sloped entry falls 1:12 for 10 m to 27 in below the water. The
    ISPSC wants an entry at each end and does not count accessible devices among them, hence the
    second stairs.
-11. **Check.** **View › Coordination › Check Pools** lists each pool's entries, accessible
+11. **Lane fittings.** Select the main pool, choose **Pool Lanes** again and tick *Fittings*,
+   races starting at the deep end: five lane ropes between the lanes (the 0.1 m side gaps are
+   too narrow for a 0.15 m float), green outside, then blue, yellow in the middle, red for 5 m at each end and at 15 m;
+   backstroke flags 1.8 m over the water 5 m from each end wall; and the false-start rope 1.2 m
+   up 15 m from the east wall, where the platforms stand. Their posts stand on the deck 0.6 m
+   back from the side walls.
+12. **Check.** **View › Coordination › Check Pools** lists each pool's entries, accessible
    entries and drains, and checks the main pool against World Aquatics: 25.010 m between the
    touch pads (25.000–25.010 m), its lanes, 2.0 m of water under the starting platforms (1.35 m
    at least) and their tops 0.75 m above the water (0.50–0.75 m). The main pool has four ladders
    and the lift, the teaching pool its two sets of stairs (and its sloped entry, an accessible
    one). Nothing overlaps (**Check Overlaps**).
-12. **The hall's air.** Select the main pool and choose **View › Coordination › Pool Hall Air**:
+13. **The hall's air.** Select the main pool and choose **View › Coordination › Pool Hall Air**:
    water 27 °C, air 28 °C, 55 % RH, 200 spectators. It gives the evaporation by ASHRAE's
    equation (competition pools' activity factor 0.65), its latent load, the water's heat losses,
    the MAHC's outdoor air for the water, the wet deck and the spectators, and the hall air's dew
    point. Do the same for the teaching pool at 30 °C under a cover (0.1).
-13. **Water treatment.** **View › Coordination › Pool Water Treatment** sizes each pool's plant
+14. **Water treatment.** **View › Coordination › Pool Water Treatment** sizes each pool's plant
    on the MAHC's basis: a 6 h turnover over the water and its surge, the flow, two filters at
    36.7 m/h and their backwash, the skimmers, the suction and discharge pipes, the flow each of
    the main pool's two drains carries, and a plant room of 15–30 % of the water area.
-14. **The plant room.** Draw three walls 4.0 m high from (44.1, 0) to (65, 0), (65, 5) and (44.1, 5),
+15. **The plant room.** Draw three walls 4.0 m high from (44.1, 0) to (65, 0), (65, 5) and (44.1, 5),
    against the hall's east wall, with a door in the east one, and place a room *Pool plant*
    inside (**Architecture › Room & Area › Room**). Select the main pool and choose
    **Architecture › Build › Pool Plant**, keep the basis, two filters and the 15 m head, and click
    inside the room. Along its south wall, 0.5 m off it: the balance tank, a duty and a standby
    pump, the two filters and the hypochlorite and acid tanks 2 m apart. The room's 100 m² is
    inside the 15–30 % of the water Sport England asks for, and the row fits.
-15. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
+16. **IFC.** Saved, each pool is an `IfcElementAssembly` (SWIMMINGPOOL) of an `IfcWall`, an
    `IfcSlab` (BASESLAB) and an `IfcCovering` (COPING), with the teaching pool's `IfcStair` and
    `IfcRamp`, and its water an `IfcSpace` (WATER) under the level carrying its area and volume.
    The equipment is ordinary typed objects: the lift an `IfcTransportElement`, the rest

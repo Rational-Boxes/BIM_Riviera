@@ -280,6 +280,13 @@ pub enum PoolMeasure {
     SwimoutDepth,
     SwimoutArea,
     SwimoutSeat,
+    /// A competition pool's lane fittings (ARC-POOL-017): lane ropes with floats `min` to `max`
+    /// across; backstroke flags `min` to `max` above the water and `range` out from each end
+    /// wall; the false-start rope at least `min` above the water and `range` out from the start
+    /// end. Fittings not set are a note.
+    LaneRopes,
+    BackstrokeFlags,
+    FalseStartRope,
 }
 
 /// One column of a diving table (ARC-POOL-006): for a board or platform this high above the

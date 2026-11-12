@@ -728,7 +728,8 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   and set out, with the room's area checked (ARC-POOL-014). Swimouts and contrasting
   nosing stripes on treads and seats are built and checked (ARC-POOL-015). Gate Hardware records whether
   gates close, latch and lock themselves and where the latch is, checked against the ISPSC's
-  and MAHC's latch heights (ARC-POOL-016). Not built yet: sketched outlines, drawn gutters and
+  and MAHC's latch heights (ARC-POOL-016). Pool Lanes adds lane ropes, backstroke flags and the
+  false-start rope, checked against World Aquatics (ARC-POOL-017). Not built yet: sketched outlines, drawn gutters and
   basins, the markers' text, the plant's pipes, and the zones drawn in the views.
 - **Decorative lighting** (ARC-INT-003). Chandeliers, pendants, sconces and lamps join the
   Interiors library as typed light fixtures:
