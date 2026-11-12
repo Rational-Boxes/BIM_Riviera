@@ -3708,6 +3708,30 @@ Allowed values come from Mechanical Settings › Slopes. Fabrication pipework ca
 - [x] Changing the roof's overhang moves the gutter with the eave.
 - [x] A downspout from an outlet to the ground level is a vertical run with bends at the eave offset.
 
+### 4.8.10a Basement sumps and groundwater drainage
+**ID:** MEP-PIPE-011 · **Priority:** P1 · **Ref:** owner requirement (2026-11-12, the hotel: "sump pumping and drainage for the basement for groundwater control"); Riviera's own design (Appendix A.2a); MEP-PIPE-008 (pumps), MEP-PEN-001 (penetrations)
+
+**Purpose.** Keep groundwater out of a basement: a drain round it, a sump in its floor and pumps that lift the water to the storm drain, sized and drawn in one step.
+
+**Behaviour & rules.**
+- **The drain:** a 100 mm subsoil pipe in a ring `drain_offset` outside the edge of the level's largest floor (default 0.6 m, beside the strip footings) and `drain_depth` below the level (default 0.5 m), starting and ending mid-side so it closes on a straight. A branch drops 0.9 m below the level, passes under the footings and the slab, and enters the pit's nearest face.
+- **The inflow:** `inflow` (L/s), or the drain's length times `seepage` (default 0.01 L/s a metre: an allowance, with a note to take the inflow from the site investigation). The design flow is 1.5 times the inflow.
+- **The pumps:** a duty and a standby submersible pump (`IfcPump` SUBMERSIBLEPUMP), each for the design flow against the lift from the pit's floor to the rising main's turn plus 3 m for the pipework, at 50 % efficiency; the motor the next standard size up (0.37–15 kW; more is a note to dewater otherwise).
+- **The pit** (`IfcDistributionChamberElement` SUMP): its working volume V = Q·T/4 with T = 3600/`starts` (default 10 an hour); 0.6 m of working depth gives its plan area, at least 1.0 m square, rounded up to 100 mm; `depth` deep (default 1.2 m); 150 mm concrete walls and base; the floor is opened over it.
+- **The rising main:** from the pumps up `rise` (default 3.0 m) and out to the drain's line, sized for the design flow at 1.5 m/s (80–200 mm). The pipes are in the storm drainage system; where they pass through walls and slabs, openings are made (MEP-PEN-001).
+- A note asks for the drain's fall to the pit, non-return and isolating valves, a high-level alarm and a discharge above the storm drain's flood level.
+- **The window:** Systems › Plumbing › Sump: the inflow, starts, pit depth and drain, then a click on the basement's floor.
+
+**Data (IFC mapping).** The pit and pumps are placed objects of generated types (`IfcDistributionChamberElement` with its SUMP type; `IfcPump` with its SUBMERSIBLEPUMP type); the pipes are ordinary storm drainage pipe segments and fittings. Each part, and the floor's opening, carries `rxd:sump` naming the pit. The *Chamber* object category is available to imported objects too.
+
+**Commands.** `sump.create(level, point, inflow?, seepage?, starts?, depth?, drain?, drain_offset?, drain_depth?, rise?) -> {pit, pumps, pit_size, pit_depth, working_volume, drain_length, inflow, design_flow, head, power, motor, pipes, outfall, notes}`.
+
+**Acceptance criteria.**
+- [x] Under a 30 × 20 m basement on strip footings, the drain is 104 m, 1.04 L/s at 0.01 L/s a metre and 1.56 L/s design; the pit holds Q·T/4 at ten starts and is 1.0 m square, the head 7.2 m and the motors 0.37 kW, two pumps; at 8 L/s the pit and motor grow. Nothing overlaps; a pit outside the floor is refused; saved, the pit is a SUMP chamber and the pumps SUBMERSIBLEPUMP.
+- [x] The sample *An atrium hotel with a roof pool* has its sump in the basement's plant room.
+
+*Built (2026-11-12):* `riviera_core::sumps`, the *Chamber* category, Systems › Plumbing › Sump. Defaults are E-137. Strip footings now meet once at corners (STR-FND-002). Not yet: the drain's fall, valves, the alarm and controls, underfloor drainage grids, interceptors, pump curves, and editing the sump as one.
+
 ### 4.8.11 Automatic penetrations for pipes, ducts, conduits and cable trays
 **ID:** MEP-PEN-001 · **Priority:** P1 · **Ref:** owner requirement (2026-10-13); Riviera's own design (Appendix A.2a)
 
@@ -4400,6 +4424,28 @@ The drawing tool uses the micro-operation schema of MEP-ELEC-016 with the `condu
 - [x] Renumbering with start 40 on a 42-slot panel holding 5 circuits is refused and names the first circuit that does not fit.
 
 *Built (2026-10-25):* Systems › Electrical › **Renumber Circuits** (`RI`) on the selected panel: a list of every circuit's number now and after, load name, phases and lock, moved rows marked •, with the phase loads (the panel's phases only) and imbalance before and after and the warning, *Start…* to change the first slot and *Renumber*. `circuit.renumber(panel_id, start?)` and `circuit.renumber_preview` (the same report, no change). The panel's circuits with slots (branch circuits and feeders, not a feeder on feed-through lugs) move in their current slot order: each to the lowest start slot from the start number (and past the previous circuit's) whose poles' slots (every second slot, as placed) are free of locked circuits and those already placed; the whole command is refused, naming the circuit, when one would pass the last slot. Names are made again by the panel's naming scheme (`rename_all`), load names untouched. Imbalance is the largest phase's excess over the average as a percentage of the average; a growth of more than 10 points is a warning (`circuit.phase_imbalance`), and nothing is rebalanced. Nothing to move changes nothing and adds no undo step. With it, from MEP-ELEC-015: **Lock Circuits** (`circuit.set_locked(circuit_ids, locked)`, kept on the circuit recipe) and `circuit.select_panel(…, slot?)` to choose a circuit's first slot (refused when taken or past the last slot). Not yet: spares and spaces (MEP-ELEC-015), renumbering from the panel schedule's tab, the changed rows highlighted in the panel schedule, wires (not built).
+
+### 4.9.20 Rooftop photovoltaic arrays
+**ID:** MEP-ELEC-022 · **Priority:** P2 · **Ref:** owner requirement (2026-11-12, the hotel: "to the remaining roof areas not covered by glazings or HVAC equipment add an array of solar panels"); ANA-SOLAR-001 (yield); Riviera's own design
+
+**Purpose.** Fill what is left of a roof with photovoltaic modules, clear of the glazing, plant and other things standing on it, in rows that do not shade each other.
+
+**Behaviour & rules.**
+- **The region:** `outline`, or the outer outlines of the level's floors, less a `setback` from the edge (default 4 ft, a fire-service pathway).
+- **Kept clear:** every element whose body rises from 50 mm to 8 m above the level, by its plan extent grown by `clearance` (default 1.2 m): roofs and glazing, equipment, lift overruns, stairs and the like. Railings, floors, coverings, spaces, beams and columns are not obstacles.
+- **The modules** (`module` {width, length, watts}, default 1.134 × 1.722 m and 400 W) are tilted `tilt` (default 10°) up from the side facing `azimuth` (degrees clockwise from true north; default toward the equator), `gap` apart along a row (default 20 mm), their low edge 0.3 m above the roof. Rows are `row_pitch` apart, by default L cos tilt + L sin tilt / tan α, α the sun's noon altitude at the winter solstice (90° − |latitude| − 23.44°, at least 15°). A module goes where it lies wholly inside the region and touches no obstacle.
+- Without a location, a note: the array faces south, spaced for 40° N.
+- **The window:** Systems › Electrical › PV Array: the module's watts, tilt, setback and clearance, then a click on the roof.
+
+**Data (IFC mapping).** An `IfcSolarDevice` (SOLARPANEL) whose body is all its modules, contained in its level; the module centres, tilt and facing in its recipe.
+
+**Commands.** `pv.array(level, outline?, module?, tilt?, azimuth?, setback?, clearance?, gap?, row_pitch?, name?) -> {array, modules, rows, kwp, area, row_pitch, kept_clear_of [{element, class}], notes}`.
+
+**Acceptance criteria.**
+- [x] A bare 30 × 20 m roof at 25.8° N takes over 150 modules in rows 1.70 + 0.30 / tan 40.8° apart, 0.4 kWp each. With an air handling unit and a 10 × 20 m glazed roof on it, it takes fewer, keeps clear of both, and nothing overlaps; saved, it is an `IfcSolarDevice` SOLARPANEL.
+- [x] The sample *An atrium hotel with a roof pool* covers its open roof with an array clear of the atrium's glazing, the air handling units and the lift overruns.
+
+*Built (2026-11-12):* `riviera_core::pv_arrays`, Systems › Electrical › PV Array. Defaults are E-138. Not yet: strings, inverters and circuits; east–west and portrait layouts; sloped roofs and façades; ballast and wind uplift; residential ridge setbacks; the array's yield (use the solar analysis) and its place in the energy model.
 
 ---
 
@@ -6037,6 +6083,8 @@ Every command below is registered once in the command registry and is exposed au
 | `electrical_equipment.place` | type_id, point \| host_face_ref, level | id | Yes | MEP-ELEC-001 |
 | `device.place` | type_id, host_face_ref \| point, level | id | Yes | MEP-ELEC-001 |
 | `lighting_fixture.place` | type_id, host_face_ref \| point, level | id | Yes | MEP-ELEC-001 |
+| `pv.array` | level, outline?, module?, tilt?, azimuth?, setback?, clearance?, gap?, row_pitch?, name? | array | Yes | MEP-ELEC-022 |
+| `sump.create` | level, point, inflow?, seepage?, starts?, depth?, drain?, drain_offset?, drain_depth?, rise? | sump | Yes | MEP-PIPE-011 |
 | `circuit.create` | kind, element_ids[], voltage?, poles? | circuit_id | Yes | MEP-ELEC-002 |
 | `circuit.renumber` | panel_id, start? (renumbers the panel's circuit indexes and closes gaps) | () | Yes | MEP-ELEC-021 |
 | `circuit.add` | circuit_id, element_ids[] | — | Yes | MEP-ELEC-003 |

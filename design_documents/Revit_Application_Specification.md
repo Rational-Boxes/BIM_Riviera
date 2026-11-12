@@ -32,7 +32,7 @@
 **Document:** Functional and technical specification of Riviera, an open-source BIM authoring application
 **Functional reference:** Autodesk® Revit® 2026/2027 (described from public sources only; see `RESEARCH_LOG.md`)
 **Licence of Riviera:** GPL-3.0-or-later
-**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 942 numbered requirements (320 P0 · 376 P1 · 239 P2 · 7 P3), 2,419 commands
+**Version:** 0.1 (draft) · 2026-10-16 · **Size:** 945 numbered requirements (320 P0 · 378 P1 · 240 P2 · 7 P3), 2,421 commands
 
 > **Clean-room statement.** This specification describes features, workflows and behaviour in Riviera's own words. Every input was publicly available: vendor online help, public blogs and tutorials, public forums and open-source repositories. All of it is listed with URLs and access checks in `SOURCE_REGISTER.md`. No proprietary, confidential, leaked or NDA-covered information was used. No vendor code, binaries, file formats or assets were examined or copied. Autodesk and Revit are trademarks of Autodesk, Inc. They are used here only to identify the functional reference. Riviera is not affiliated with or endorsed by Autodesk.
 
@@ -64,7 +64,7 @@ This document covers:
 | 6 | Collaboration, linking and coordination (Local and BIMserver modes) |
 | 7 | Advanced features beyond the reference product: scene protocol, simulated walkthroughs, Godot translation layer for VR/AR, render bridges |
 | 8 | Remote computation and analysis (overview): the remote computation subsystem and the analysis plugin layer, how they fit together, and a build order |
-| A | Appendix A: requirement summary, shared commands, consolidated command index (2,419 commands; 942 requirements) |
+| A | Appendix A: requirement summary, shared commands, consolidated command index (2,421 commands; 945 requirements) |
 
 Out of scope:
 - reproducing vendor-cloud services such as ACC/Forma and Autodesk Assistant (open alternatives are specified instead)
@@ -22502,6 +22502,30 @@ Allowed values come from Mechanical Settings › Slopes. Fabrication pipework ca
 - [x] Changing the roof's overhang moves the gutter with the eave.
 - [x] A downspout from an outlet to the ground level is a vertical run with bends at the eave offset.
 
+### 4.8.10a Basement sumps and groundwater drainage
+**ID:** MEP-PIPE-011 · **Priority:** P1 · **Ref:** owner requirement (2026-11-12, the hotel: "sump pumping and drainage for the basement for groundwater control"); Riviera's own design (Appendix A.2a); MEP-PIPE-008 (pumps), MEP-PEN-001 (penetrations)
+
+**Purpose.** Keep groundwater out of a basement: a drain round it, a sump in its floor and pumps that lift the water to the storm drain, sized and drawn in one step.
+
+**Behaviour & rules.**
+- **The drain:** a 100 mm subsoil pipe in a ring `drain_offset` outside the edge of the level's largest floor (default 0.6 m, beside the strip footings) and `drain_depth` below the level (default 0.5 m), starting and ending mid-side so it closes on a straight. A branch drops 0.9 m below the level, passes under the footings and the slab, and enters the pit's nearest face.
+- **The inflow:** `inflow` (L/s), or the drain's length times `seepage` (default 0.01 L/s a metre: an allowance, with a note to take the inflow from the site investigation). The design flow is 1.5 times the inflow.
+- **The pumps:** a duty and a standby submersible pump (`IfcPump` SUBMERSIBLEPUMP), each for the design flow against the lift from the pit's floor to the rising main's turn plus 3 m for the pipework, at 50 % efficiency; the motor the next standard size up (0.37–15 kW; more is a note to dewater otherwise).
+- **The pit** (`IfcDistributionChamberElement` SUMP): its working volume V = Q·T/4 with T = 3600/`starts` (default 10 an hour); 0.6 m of working depth gives its plan area, at least 1.0 m square, rounded up to 100 mm; `depth` deep (default 1.2 m); 150 mm concrete walls and base; the floor is opened over it.
+- **The rising main:** from the pumps up `rise` (default 3.0 m) and out to the drain's line, sized for the design flow at 1.5 m/s (80–200 mm). The pipes are in the storm drainage system; where they pass through walls and slabs, openings are made (MEP-PEN-001).
+- A note asks for the drain's fall to the pit, non-return and isolating valves, a high-level alarm and a discharge above the storm drain's flood level.
+- **The window:** Systems › Plumbing › Sump: the inflow, starts, pit depth and drain, then a click on the basement's floor.
+
+**Data (IFC mapping).** The pit and pumps are placed objects of generated types (`IfcDistributionChamberElement` with its SUMP type; `IfcPump` with its SUBMERSIBLEPUMP type); the pipes are ordinary storm drainage pipe segments and fittings. Each part, and the floor's opening, carries `rxd:sump` naming the pit. The *Chamber* object category is available to imported objects too.
+
+**Commands.** `sump.create(level, point, inflow?, seepage?, starts?, depth?, drain?, drain_offset?, drain_depth?, rise?) -> {pit, pumps, pit_size, pit_depth, working_volume, drain_length, inflow, design_flow, head, power, motor, pipes, outfall, notes}`.
+
+**Acceptance criteria.**
+- [x] Under a 30 × 20 m basement on strip footings, the drain is 104 m, 1.04 L/s at 0.01 L/s a metre and 1.56 L/s design; the pit holds Q·T/4 at ten starts and is 1.0 m square, the head 7.2 m and the motors 0.37 kW, two pumps; at 8 L/s the pit and motor grow. Nothing overlaps; a pit outside the floor is refused; saved, the pit is a SUMP chamber and the pumps SUBMERSIBLEPUMP.
+- [x] The sample *An atrium hotel with a roof pool* has its sump in the basement's plant room.
+
+*Built (2026-11-12):* `riviera_core::sumps`, the *Chamber* category, Systems › Plumbing › Sump. Defaults are E-137. Strip footings now meet once at corners (STR-FND-002). Not yet: the drain's fall, valves, the alarm and controls, underfloor drainage grids, interceptors, pump curves, and editing the sump as one.
+
 ### 4.8.11 Automatic penetrations for pipes, ducts, conduits and cable trays
 **ID:** MEP-PEN-001 · **Priority:** P1 · **Ref:** owner requirement (2026-10-13); Riviera's own design (Appendix A.2a)
 
@@ -23194,6 +23218,28 @@ The drawing tool uses the micro-operation schema of MEP-ELEC-016 with the `condu
 - [x] Renumbering with start 40 on a 42-slot panel holding 5 circuits is refused and names the first circuit that does not fit.
 
 *Built (2026-10-25):* Systems › Electrical › **Renumber Circuits** (`RI`) on the selected panel: a list of every circuit's number now and after, load name, phases and lock, moved rows marked •, with the phase loads (the panel's phases only) and imbalance before and after and the warning, *Start…* to change the first slot and *Renumber*. `circuit.renumber(panel_id, start?)` and `circuit.renumber_preview` (the same report, no change). The panel's circuits with slots (branch circuits and feeders, not a feeder on feed-through lugs) move in their current slot order: each to the lowest start slot from the start number (and past the previous circuit's) whose poles' slots (every second slot, as placed) are free of locked circuits and those already placed; the whole command is refused, naming the circuit, when one would pass the last slot. Names are made again by the panel's naming scheme (`rename_all`), load names untouched. Imbalance is the largest phase's excess over the average as a percentage of the average; a growth of more than 10 points is a warning (`circuit.phase_imbalance`), and nothing is rebalanced. Nothing to move changes nothing and adds no undo step. With it, from MEP-ELEC-015: **Lock Circuits** (`circuit.set_locked(circuit_ids, locked)`, kept on the circuit recipe) and `circuit.select_panel(…, slot?)` to choose a circuit's first slot (refused when taken or past the last slot). Not yet: spares and spaces (MEP-ELEC-015), renumbering from the panel schedule's tab, the changed rows highlighted in the panel schedule, wires (not built).
+
+### 4.9.20 Rooftop photovoltaic arrays
+**ID:** MEP-ELEC-022 · **Priority:** P2 · **Ref:** owner requirement (2026-11-12, the hotel: "to the remaining roof areas not covered by glazings or HVAC equipment add an array of solar panels"); ANA-SOLAR-001 (yield); Riviera's own design
+
+**Purpose.** Fill what is left of a roof with photovoltaic modules, clear of the glazing, plant and other things standing on it, in rows that do not shade each other.
+
+**Behaviour & rules.**
+- **The region:** `outline`, or the outer outlines of the level's floors, less a `setback` from the edge (default 4 ft, a fire-service pathway).
+- **Kept clear:** every element whose body rises from 50 mm to 8 m above the level, by its plan extent grown by `clearance` (default 1.2 m): roofs and glazing, equipment, lift overruns, stairs and the like. Railings, floors, coverings, spaces, beams and columns are not obstacles.
+- **The modules** (`module` {width, length, watts}, default 1.134 × 1.722 m and 400 W) are tilted `tilt` (default 10°) up from the side facing `azimuth` (degrees clockwise from true north; default toward the equator), `gap` apart along a row (default 20 mm), their low edge 0.3 m above the roof. Rows are `row_pitch` apart, by default L cos tilt + L sin tilt / tan α, α the sun's noon altitude at the winter solstice (90° − |latitude| − 23.44°, at least 15°). A module goes where it lies wholly inside the region and touches no obstacle.
+- Without a location, a note: the array faces south, spaced for 40° N.
+- **The window:** Systems › Electrical › PV Array: the module's watts, tilt, setback and clearance, then a click on the roof.
+
+**Data (IFC mapping).** An `IfcSolarDevice` (SOLARPANEL) whose body is all its modules, contained in its level; the module centres, tilt and facing in its recipe.
+
+**Commands.** `pv.array(level, outline?, module?, tilt?, azimuth?, setback?, clearance?, gap?, row_pitch?, name?) -> {array, modules, rows, kwp, area, row_pitch, kept_clear_of [{element, class}], notes}`.
+
+**Acceptance criteria.**
+- [x] A bare 30 × 20 m roof at 25.8° N takes over 150 modules in rows 1.70 + 0.30 / tan 40.8° apart, 0.4 kWp each. With an air handling unit and a 10 × 20 m glazed roof on it, it takes fewer, keeps clear of both, and nothing overlaps; saved, it is an `IfcSolarDevice` SOLARPANEL.
+- [x] The sample *An atrium hotel with a roof pool* covers its open roof with an array clear of the atrium's glazing, the air handling units and the lift overruns.
+
+*Built (2026-11-12):* `riviera_core::pv_arrays`, Systems › Electrical › PV Array. Defaults are E-138. Not yet: strings, inverters and circuits; east–west and portrait layouts; sloped roofs and façades; ballast and wind uplift; residential ridge setbacks; the array's yield (use the solar analysis) and its place in the energy model.
 
 ---
 
@@ -24831,6 +24877,8 @@ Every command below is registered once in the command registry and is exposed au
 | `electrical_equipment.place` | type_id, point \| host_face_ref, level | id | Yes | MEP-ELEC-001 |
 | `device.place` | type_id, host_face_ref \| point, level | id | Yes | MEP-ELEC-001 |
 | `lighting_fixture.place` | type_id, host_face_ref \| point, level | id | Yes | MEP-ELEC-001 |
+| `pv.array` | level, outline?, module?, tilt?, azimuth?, setback?, clearance?, gap?, row_pitch?, name? | array | Yes | MEP-ELEC-022 |
+| `sump.create` | level, point, inflow?, seepage?, starts?, depth?, drain?, drain_offset?, drain_depth?, rise? | sump | Yes | MEP-PIPE-011 |
 | `circuit.create` | kind, element_ids[], voltage?, poles? | circuit_id | Yes | MEP-ELEC-002 |
 | `circuit.renumber` | panel_id, start? (renumbers the panel's circuit indexes and closes gaps) | () | Yes | MEP-ELEC-021 |
 | `circuit.add` | circuit_id, element_ids[] | — | Yes | MEP-ELEC-003 |
@@ -26201,6 +26249,31 @@ Further rules:
 - [ ] Hide Element and Children on Level 2 in the model tree hides every wall, floor, door and window on Level 2 in that view only; Reset shows them again.
 - [ ] Making a wall translucent shows its doors through it, and clicking where the door is selects the door.
 - [ ] In reveal-hidden mode, an element hidden by a filter shows in magenta and *Unhide* reports "hidden by filter <name>".
+
+### Discipline views
+**ID:** DOC-GFX-021 · **Priority:** P1 · **Ref:** owner requirement (2026-11-12: "an easy view selector to show the model from systems level perspectives, while showing the others as a ghost overlay or hidden"); DOC-GFX-008 (temporary hide/isolate)
+
+**Purpose.** Look at a model from one discipline's point of view (architecture, structure, mechanical, plumbing, electrical, site) with one click, the other disciplines ghosted for context or hidden.
+
+**Behaviour & rules.**
+- **Each element's discipline** is its category's, else its IFC class's:
+  - architecture: walls, curtain walls, floors, roofs, ceilings, doors, windows, stairs, railings, ramps, furniture, casework, rooms, transport, pools and shading devices;
+  - structure: structural columns, framing, foundations, connections and reinforcement, and any wall, floor or other element marked structural;
+  - mechanical: ducts and their fittings, air terminals, HVAC equipment, controls and spaces;
+  - plumbing: pipes and their fittings and accessories, fixtures, pumps, tanks, filters, sumps and sprinklers;
+  - electrical: panels, devices, lighting, cable tray, conduit and solar devices;
+  - site: toposolids and their sub-divisions, and alignments.
+
+  Levels, grids, views, types and annotation belong to none and stay as they are.
+- **Showing disciplines** (`view.discipline`) is a temporary isolate (DOC-GFX-008) of the elements of the disciplines chosen (and those of none) in a view, the default 3D view included. The others are ghosted (drawn translucent, the default) or hidden. Choosing again replaces it; none shows the whole model. It is not an edit: no undo, not saved, not printed; *Reset Hide/Isolate* clears it, *Apply to View* keeps it.
+- **The window:** View › Discipline: *All Disciplines*, *Architecture*, *Structure*, *Mechanical*, *Plumbing*, *Electrical* and *Site*, the one shown lit, and *Hide Others* to hide the rest instead of ghosting them (switching it shows the current discipline again that way).
+
+**Commands.** `view.discipline(view_id?, disciplines[]?, others?: ghost | hidden) -> {shown, others, by_discipline}`.
+
+**Acceptance criteria.**
+- [x] In a model with a wall, a column, a duct, a pipe and a toposolid, showing Structure isolates the column with the other four ghosted, one element in each discipline; showing Mechanical and Plumbing with the rest hidden shows the duct and the pipe; Site the toposolid; none shows everything again with no temporary state left.
+
+*Built (2026-11-12):* `riviera_core::disciplines`, `view.discipline` (a host command beside the temporary hide/isolate), View › Discipline. Not yet: a discipline as a saved view property drawing the others halftone in plans (as reference products do), a discipline per element overriding its category, coordination colouring by discipline, and the selector in the Project Browser.
 
 ### Line weights, halftone and underlay settings
 **ID:** DOC-GFX-009 · **Priority:** P0 · **Ref:** research/04 §3.6
@@ -31772,12 +31845,12 @@ Generated by `tools/build_spec.py` from the chapter command catalogs and require
 | DM | 91 | 66 | 34 | 3 | 194 |
 | ARC | 77 | 131 | 43 | 1 | 252 |
 | STR | 0 | 15 | 47 | 0 | 62 |
-| MEP | 0 | 30 | 42 | 0 | 72 |
+| MEP | 0 | 31 | 43 | 0 | 74 |
 | ANA | 0 | 1 | 32 | 0 | 33 |
-| DOC | 68 | 42 | 13 | 1 | 124 |
+| DOC | 68 | 43 | 13 | 1 | 125 |
 | COL | 8 | 52 | 16 | 1 | 77 |
 | ADV | 0 | 0 | 4 | 1 | 5 |
-| **Total** | **320** | **376** | **239** | **7** | **942** |
+| **Total** | **320** | **378** | **240** | **7** | **945** |
 
 Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver)"), it is counted under the first. The non-functional requirements (NFR-…) are in Chapter 0 §0.7 and are not counted here.
 
@@ -31832,7 +31905,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.2a Riviera-originated features
 
-152 requirements are Riviera's own design: owner directives, the technology stack (IFC/RXD storage, live store, BIMserver, MCP, scripting) and extensions beyond the reference product's feature set. Their Ref lines cite no research on the reference product. Listing them separately keeps the clean-room provenance clear: every other requirement traces to public research on the reference product.
+155 requirements are Riviera's own design: owner directives, the technology stack (IFC/RXD storage, live store, BIMserver, MCP, scripting) and extensions beyond the reference product's feature set. Their Ref lines cite no research on the reference product. Listing them separately keeps the clean-room provenance clear: every other requirement traces to public research on the reference product.
 
 | Requirement | Ch | Feature |
 |-------------|----|---------|
@@ -31948,13 +32021,16 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | ARC-MOD-033 | 3 | 3.12.3a Array along a path |
 | ARC-GRP-004 | 3 | 3.13.4 Modular units |
 | MEP-PIPE-010 | 4 | 4.8.10 Roof drainage: gutters and downspouts |
+| MEP-PIPE-011 | 4 | 4.8.10a Basement sumps and groundwater drainage |
 | MEP-PEN-001 | 4 | 4.8.11 Automatic penetrations for pipes, ducts, conduits and cable trays |
+| MEP-ELEC-022 | 4 | 4.9.20 Rooftop photovoltaic arrays |
 | ANA-ROUTE-005 | 4 | 4.12.13b Platform clearing times |
 | ANA-ROUTE-006 | 4 | 4.12.13c Lifts in egress routes |
 | ANA-ROUTE-007 | 4 | 4.12.13d Evacuation elevator lobbies |
 | ANA-ENV-001 | 4 | 4.12.17 Built-in environmental providers (extrapolation) |
 | DOC-VIEW-014 | 5 | Slice planes |
 | DOC-VIEW-013 | 5 | Blueprint mode (3D slice to 2D drawing) |
+| DOC-GFX-021 | 5 | Discipline views |
 | DOC-RBE-001 | 5 | Pluggable render backends |
 | DOC-RBE-002 | 5 | Backend hosting and licensing |
 | DOC-ANN-025 | 5 | Annotation floating in 3D views |
@@ -31991,7 +32067,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2419 unique commands** in 460 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2421 unique commands** in 462 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -32301,6 +32377,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `pset` | 2 |
 | `publish` | 5 |
 | `purge` | 2 |
+| `pv` | 1 |
 | `qto` | 1 |
 | `railing` | 13 |
 | `railing_type` | 1 |
@@ -32395,6 +32472,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `study` | 3 |
 | `subcategory` | 3 |
 | `subscription` | 7 |
+| `sump` | 1 |
 | `sun` | 1 |
 | `surfacepattern` | 1 |
 | `switch_system` | 4 |
@@ -33908,6 +33986,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `publish.save_set` | 6 | set_id?, name, connection_id, folder_uid, folder_name?, outputs | {id, name, connection_id, folder_uid, folder_name, outputs} | Yes | COL-FE-015 |
 | `purge.list` | 2 | include_unplaced_views=false | {kind, items[]}[] | No | DM-PURGE-001 |
 | `purge.run` | 2 | item_ids[], compact_undo=false | report | Yes | DM-PURGE-001 |
+| `pv.array` | 4 | level, outline?, module?, tilt?, azimuth?, setback?, clearance?, gap?, row_pitch?, name? | array | Yes | MEP-ELEC-022 |
 | `qto.recompute` | 2 | element_ids?[] | — | Yes | DM-IFC-003 |
 | `railing.add_gate` | 3 | railing_id, at?\ | point?, leaves?: 1\ | 2, width?, swing_out?, hinge_end? | element_id |
 | `railing.add_opening` | 3 | railing_id, at?\ | point?, width? | key | Yes |
@@ -34347,6 +34426,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `subscription.set_default` | 2 | subscription_id, job_kind? | — | No | DM-RPC-011 |
 | `subscription.status` | 2 | subscription_id | status | No | DM-RPC-011 |
 | `subscription.test` | 2 | subscription_id (UI and Lua only) | status | No | DM-RPC-011 |
+| `sump.create` | 4 | level, point, inflow?, seepage?, starts?, depth?, drain?, drain_offset?, drain_depth?, rise? | sump | Yes | MEP-PIPE-011 |
 | `sun.settings` | 5 | — | () | No | DOC-GFX-012 |
 | `surfacepattern.align` | 3 | element_id, face_ref, origin?, angle? | — | Yes | ARC-CEIL-001 |
 | `switch_system.add` | 4 | id, fixture_ids[] | — | Yes | MEP-ELEC-008 |

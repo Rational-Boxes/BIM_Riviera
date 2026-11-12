@@ -523,11 +523,18 @@ pub(crate) fn place_with(txn: &mut Transaction<'_>, t: &GroupType, origin: [f64;
 /// Deletes an instance's members.
 pub(crate) fn delete_members(txn: &mut Transaction<'_>, g: &GroupRecipe) -> Result<()> {
     let store = txn.store().clone();
+    let guids: std::collections::HashSet<&str> = g.members.iter().map(|m| m.guid.as_str()).collect();
     for m in &g.members {
         if let Some(id) = find(&store, &m.guid)
             && txn.store().get(id).is_some()
         {
             txn.delete(id)?;
+        }
+    }
+    // The openings of members' doors and windows go with them.
+    for e in store.iter() {
+        if crate::inserts::opening_of(e).is_some_and(|i| guids.contains(i.as_str())) && txn.store().get(e.id()).is_some() {
+            txn.delete(e.id())?;
         }
     }
     Ok(())

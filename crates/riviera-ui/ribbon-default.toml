@@ -972,6 +972,74 @@ icon = "pool_lanes"
 help = "A swimming pool's competition lanes: their count and width, the side gaps and touch pads, and the lane lines, T-ends, 15 m lines and end-wall targets drawn into it; Check Pools checks them against World Aquatics (ARC-POOL-005)"
 
 [[action]]
+id = "ui.discipline_all"
+toggle = true
+label = "All Disciplines"
+icon = "discipline_all"
+help = "Show the whole model again: every discipline, nothing ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_architecture"
+toggle = true
+label = "Architecture"
+icon = "discipline_architecture"
+help = "Show the view from Architecture's point of view: walls, floors, roofs, doors, windows, stairs, furniture and rooms, the other disciplines ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_structure"
+toggle = true
+label = "Structure"
+icon = "discipline_structure"
+help = "Show the structure alone: columns, beams, foundations, rebar and structural walls and slabs, the rest ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_mechanical"
+toggle = true
+label = "Mechanical"
+icon = "discipline_mechanical"
+help = "Show the mechanical systems: ducts, air terminals and HVAC equipment, the rest ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_plumbing"
+toggle = true
+label = "Plumbing"
+icon = "discipline_plumbing"
+help = "Show plumbing and fire protection: pipes, fixtures, pumps, tanks and sprinklers, the rest ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_electrical"
+toggle = true
+label = "Electrical"
+icon = "discipline_electrical"
+help = "Show the electrical systems: panels, devices, lighting, cable tray, conduit and PV, the rest ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_site"
+toggle = true
+label = "Site"
+icon = "discipline_site"
+help = "Show the site: toposolids, sub-divisions and alignments, the rest ghosted or hidden (DOC-GFX-021)"
+
+[[action]]
+id = "ui.discipline_hide"
+toggle = true
+label = "Hide Others"
+icon = "discipline_hide"
+help = "With a discipline shown, hide the other disciplines instead of ghosting them (DOC-GFX-021)"
+
+[[action]]
+id = "ui.sump"
+label = "Sump"
+icon = "sump"
+help = "Groundwater control for a basement: a perimeter drain outside its walls, a sump pit clicked on its floor sized for the pumps' starts, duty and standby submersible pumps and the rising main to the storm drain (MEP-PIPE-011)"
+
+[[action]]
+id = "ui.pv_array"
+label = "PV Array"
+icon = "pv_array"
+help = "Fill a roof with rows of photovoltaic modules facing the equator, set back from its edge and clear of the glazing, equipment and lift overruns standing on it, rows spaced clear of each other's winter shadow (MEP-ELEC-022)"
+
+[[action]]
 id = "ui.seating_layout"
 label = "Seating Layout"
 icon = "seating_layout"
@@ -4180,6 +4248,7 @@ tools = [
   { action = "mep_run.create_riser", size = "small" },
   { action = "mep_run.bind_riser", size = "small" },
   { action = "plumbing_fixture.place", size = "small" },
+  { action = "ui.sump", size = "small" },
   { action = "sprinkler.place", size = "small" },
   { action = "pipe_fitting.place", size = "small" },
   { action = "pipe_accessory.place", size = "small" },
@@ -4258,6 +4327,7 @@ tools = [
   { action = "electrical_equipment.place", size = "large" },
   { action = "device.place", size = "large" },
   { action = "lighting_fixture.place", size = "large" },
+  { action = "ui.pv_array", size = "small" },
   { action = "lighting_fixture_type.set_photometry", size = "small" },
   { action = "lighting_fixture_type.set_lighting", size = "small" },
 ]
@@ -4546,6 +4616,19 @@ label = "View"
 [[tab.panel]]
 label = "Select"
 tools = [{ action = "tool.modify", size = "large" }]
+
+[[tab.panel]]
+label = "Discipline"
+tools = [
+  { action = "ui.discipline_all", size = "large" },
+  { action = "ui.discipline_architecture", size = "small" },
+  { action = "ui.discipline_structure", size = "small" },
+  { action = "ui.discipline_mechanical", size = "small" },
+  { action = "ui.discipline_plumbing", size = "small" },
+  { action = "ui.discipline_electrical", size = "small" },
+  { action = "ui.discipline_site", size = "small" },
+  { action = "ui.discipline_hide", size = "small" },
+]
 
 [[tab.panel]]
 label = "Create"
@@ -5166,7 +5249,7 @@ items = [
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
   "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.atrium", "ui.baffles", "ui.seating_layout", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "ui.sun_check", "-",
+  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.atrium", "ui.baffles", "ui.seating_layout", "ui.pv_array", "ui.sump", "ui.discipline_all", "ui.discipline_architecture", "ui.discipline_structure", "ui.discipline_mechanical", "ui.discipline_plumbing", "ui.discipline_electrical", "ui.discipline_site", "ui.discipline_hide", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "ui.sun_check", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",

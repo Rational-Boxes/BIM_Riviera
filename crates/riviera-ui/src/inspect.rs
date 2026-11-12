@@ -912,6 +912,10 @@ impl Gui {
 
     /// After temporary visibility changed: plans redraw, captions mark the view, the tree
     /// restyles.
+    pub(crate) fn after_temp_change_pub(&mut self) {
+        self.after_temp_change();
+    }
+
     fn after_temp_change(&mut self) {
         if let Some(id) = self.active
             && let Some(v) = self.views.iter_mut().find(|v| v.id == id)

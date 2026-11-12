@@ -1466,6 +1466,40 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_structure" => format!(
             r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // The discipline selector (DOC-GFX-021): a building, a frame, a fan, a drop, a bolt, contours, all
+        // three layers, and an eye struck through.
+        "discipline_all" => format!(
+            r#"<path d="M4 10l12-6 12 6-12 6z" fill="{a}" {s}/><path d="M4 16l12 6 12-6M4 22l12 6 12-6" fill="none" {s}/>"#
+        ),
+        "discipline_architecture" => format!(
+            r#"<path d="M4 14l12-9 12 9" fill="none" {s}/><path d="M7 13v15h18V13" fill="{a}" {s}/><rect x="13" y="19" width="6" height="9" fill="{f}"/>"#
+        ),
+        "discipline_structure" => format!(
+            r#"<path d="M4 6h24M4 26h24M8 6v20M24 6v20M8 6l16 20" fill="none" {s}/><path d="M6 4h4v4H6zM22 4h4v4h-4z" fill="{f}"/>"#
+        ),
+        "discipline_mechanical" => format!(
+            r#"<circle cx="16" cy="16" r="11" fill="{a}" {s}/><path d="M16 16c0-6 5-8 7-5M16 16c5 3 4 8 0 9M16 16c-5 3-9 0-7-4" fill="none" stroke="{f}" stroke-width="2"/>"#
+        ),
+        "discipline_plumbing" => format!(
+            r#"<path d="M3 8h14v8" fill="none" stroke="{f}" stroke-width="3"/><path d="M17 20c-3 4-4 6-4 7a4 4 0 008 0c0-1-1-3-4-7z" fill="{a}" {s}/>"#
+        ),
+        "discipline_electrical" => format!(
+            r#"<path d="M18 3L7 18h8l-2 11 12-16h-8z" fill="{a}" {s}/>"#
+        ),
+        "discipline_site" => format!(
+            r#"<path d="M3 24c6-6 10-6 14-2s8 2 12-4M3 18c6-6 10-6 14-2s8 2 12-4M3 12c6-6 10-6 14-2s8 2 12-4" fill="none" {s}/>"#
+        ),
+        "discipline_hide" => format!(
+            r#"<path d="M3 16c4-6 9-9 13-9s9 3 13 9c-4 6-9 9-13 9S7 22 3 16z" fill="{a}" {s}/><circle cx="16" cy="16" r="4" fill="{f}"/><path d="M5 27L27 5" stroke="{f}" stroke-width="2"/>"#
+        ),
+        // A pit in section below a floor, a pump in it and water rising (Sump).
+        "sump" => format!(
+            r#"<path d="M2 12h9v14h10V12h9" fill="none" {s}/><path d="M12 20h8v5h-8z" fill="{a}"/><rect x="14" y="17" width="4" height="7" fill="{f}"/><path d="M16 17V5h10" fill="none" {s}/>"#
+        ),
+        // Rows of tilted solar modules under a sun (PV Array).
+        "pv_array" => format!(
+            r#"<circle cx="25" cy="6" r="4" fill="{f}"/><path d="M3 16l8-3v5l-8 3zM14 16l8-3v5l-8 3zM3 25l8-3v5l-8 3zM14 25l8-3v5l-8 3z" fill="{a}" {s}/>"#
+        ),
         // Rounds with chairs round them in a room (Seating Layout).
         "seating_layout" => format!(
             r#"<rect x="2" y="2" width="28" height="28" fill="none" {s}/><circle cx="10" cy="10" r="3.5" fill="{a}" {s}/><circle cx="22" cy="10" r="3.5" fill="{a}" {s}/><circle cx="10" cy="22" r="3.5" fill="{a}" {s}/><circle cx="22" cy="22" r="3.5" fill="{a}" {s}/><path d="M10 4.5v1M10 14.5v1M4.5 10h1M14.5 10h1M22 4.5v1M22 14.5v1M16.5 10h1M26.5 10h1" stroke="{f}" stroke-width="2"/>"#

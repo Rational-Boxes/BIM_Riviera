@@ -332,6 +332,8 @@ impl Gui {
             Some("unit.array") => self.unit_array_finish(args),
             Some("atrium.create") => self.atrium_finish(args),
             Some("shading.baffles") => self.baffles_finish(args),
+            Some("pv.array") => self.pv_array_finish(args),
+            Some("sump.create") => self.sump_finish(args),
             _ => {}
         }
     }

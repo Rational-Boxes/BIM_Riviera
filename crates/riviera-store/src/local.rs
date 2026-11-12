@@ -571,6 +571,7 @@ impl LocalProject {
                 || recipe_kind == Some(riviera_core::growing::PART_RECIPE)
                 || recipe_kind == Some(riviera_core::hothouse::LIGHT_RECIPE)
                 || recipe_kind == Some(riviera_core::sun_control::RECIPE)
+                || recipe_kind == Some(riviera_core::pv_arrays::RECIPE)
                 || recipe_kind == Some(riviera_core::hothouse::SCREEN_RECIPE)
                 || recipe_kind == Some(riviera_core::geodesic::RECIPE)
                 || recipe_kind == Some(stairs::STAIR_RECIPE)
@@ -3975,10 +3976,12 @@ impl LocalProject {
         Ok(())
     }
 
-    /// Writes every baffle array (ARC-GLZ-019): one faceted B-rep per blade, contained in its level.
+    /// Writes every baffle array (ARC-GLZ-019) and PV array (MEP-ELEC-022): faceted B-reps,
+    /// contained in its level.
     fn write_baffles(&mut self, doc: &Document) -> Result<()> {
         let store = doc.store();
-        let all = riviera_core::sun_control::all(store);
+        let mut all = riviera_core::sun_control::all(store);
+        all.extend(riviera_core::pv_arrays::all(store));
         if all.is_empty() {
             return Ok(());
         }
@@ -3996,8 +3999,11 @@ impl LocalProject {
                 })
                 .collect();
             geometry::write_breps(&mut self.ifc, step, geometry::BrepFrame::WORLD, &solids, self.length_scale, contexts)?;
-            let storey = riviera_core::sun_control::recipe(store.get(*id).expect("listed"))
-                .and_then(|p| GlobalId::parse(&p.level))
+            let e = store.get(*id).expect("listed");
+            let storey = riviera_core::sun_control::recipe(e)
+                .map(|p| p.level)
+                .or_else(|| riviera_core::pv_arrays::recipe(e).map(|p| p.level))
+                .and_then(|l| GlobalId::parse(&l))
                 .and_then(|g| store.find_by_guid(&g))
                 .and_then(|l| self.steps.get(&l).copied());
             if let Some(storey) = storey {

@@ -200,7 +200,8 @@ fn one() -> u32 {
     1
 }
 
-/// Numbers: `prefix`, then the floor (the level's place counting from 1) times `per_level`,
+/// Numbers: `prefix`, then the floor (counting from 1 at the lowest level at or above zero, so
+/// basements do not shift the numbers) times `per_level`,
 /// plus `start` and the copy's place on its level.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
@@ -419,8 +420,12 @@ fn place_copies(txn: &mut Transaction<'_>, array_id: ElementId, rec: &ArrayRecip
     };
     let mut report = ArrayReport { array_id, copies: 0, per_level: BTreeMap::new(), per_type: BTreeMap::new(), unmerged: Vec::new() };
     for level in &rec.levels {
-        let Some(floor) = all_levels.iter().position(|x| &x.guid == level) else { continue };
-        let level_name = all_levels[floor].name.clone();
+        let Some(at) = all_levels.iter().position(|x| &x.guid == level) else { continue };
+        let level_name = all_levels[at].name.clone();
+        // Floors count up from the lowest level at or above zero (the ground floor is 1);
+        // anything below it is 0.
+        let ground = all_levels.iter().position(|x| x.elevation >= -1e-6).unwrap_or(0) as i64;
+        let floor = (at as i64 - ground + 1).max(0) as u32;
         let mut seq = 0u32;
         for side in sides {
             for (k, s) in starts.iter().enumerate() {
@@ -434,7 +439,7 @@ fn place_copies(txn: &mut Transaction<'_>, array_id: ElementId, rec: &ArrayRecip
                     _ => ([a[0] + u[0] * mid - left[0] * rec.corridor / 2.0, a[1] + u[1] * mid - left[1] * rec.corridor / 2.0], angle + std::f64::consts::PI),
                 };
                 let mirrored = rec.handing == Handing::Alternate && k % 2 == 1;
-                let number = format!("{}{}", rec.numbering.prefix, (floor as u32 + 1) * rec.numbering.per_level + rec.numbering.start + seq - 1);
+                let number = format!("{}{}", rec.numbering.prefix, floor * rec.numbering.per_level + rec.numbering.start + seq - 1);
                 // The template's levels to this one.
                 let template_levels = template_levels(&gt);
                 let levels: BTreeMap<String, String> = template_levels.into_iter().filter(|g| g != level).map(|g| (g, level.clone())).collect();

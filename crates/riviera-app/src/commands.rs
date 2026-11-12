@@ -40,6 +40,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add_host(crate::views::ViewOpen),
         registry.add_host(crate::inspect::ViewTempHide),
         registry.add_host(crate::inspect::ViewTempIsolate),
+        registry.add_host(crate::inspect::ViewDiscipline),
         registry.add_host(crate::inspect::ViewTempTranslucent),
         registry.add_host(crate::inspect::ViewTempShow),
         registry.add_host(crate::inspect::ViewTempReset),

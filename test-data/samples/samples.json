@@ -828,5 +828,18 @@
         }
       }
     ]
+  },
+  {
+    "name": "hotel",
+    "title": "An atrium hotel with a roof pool",
+    "group": "Architecture",
+    "steps": [
+      {
+        "command": "script.run",
+        "args": {
+          "file": "hotel.lua"
+        }
+      }
+    ]
   }
 ]

@@ -607,3 +607,78 @@ impl HostCommand for ViewFitSectionBox {
         Ok(view)
     }
 }
+
+// ---- Disciplines (DOC-GFX-021) ----
+
+/// How the other disciplines are drawn.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Others {
+    /// Translucent (default).
+    #[default]
+    Ghost,
+    Hidden,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct DisciplineParams {
+    /// The view; the active view when omitted.
+    pub view_id: Option<ElementRef>,
+    /// The disciplines to show; none shows the whole model again.
+    #[serde(default)]
+    pub disciplines: Vec<riviera_core::disciplines::Discipline>,
+    #[serde(default)]
+    pub others: Others,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct DisciplineResult {
+    /// The elements shown (datums and the like, which belong to no discipline, included) and the
+    /// elements ghosted or hidden.
+    pub shown: usize,
+    pub others: usize,
+    /// Each discipline's elements in the model.
+    pub by_discipline: BTreeMap<String, usize>,
+}
+
+pub(crate) struct ViewDiscipline;
+
+impl HostCommand for ViewDiscipline {
+    type Host = App;
+    type Params = DisciplineParams;
+    type Output = DisciplineResult;
+    const META: CommandMeta = meta(
+        "view.discipline",
+        "Show a view from one or more disciplines' point of view (architecture, structure, mechanical, plumbing, electrical, site), the others ghosted or hidden; none shows all; not an edit",
+        &[Effect::Ui],
+    );
+
+    fn run(&self, app: &mut App, _: &Caller, p: DisciplineParams) -> Result<DisciplineResult> {
+        let (doc, view) = app.temp_view(&p.view_id)?;
+        app.temp_reset(doc, view);
+        let store = app.get(doc)?.doc.store();
+        let mut by_discipline = BTreeMap::new();
+        let mut shown = Vec::new();
+        let mut others = 0;
+        for e in store.iter() {
+            match riviera_core::disciplines::discipline_of(e) {
+                Some(d) => {
+                    *by_discipline.entry(d.label().to_owned()).or_insert(0) += 1;
+                    if p.disciplines.contains(&d) {
+                        shown.push(e.id());
+                    } else {
+                        others += 1;
+                    }
+                }
+                None => shown.push(e.id()),
+            }
+        }
+        if p.disciplines.is_empty() {
+            return Ok(DisciplineResult { shown: shown.len() + others, others: 0, by_discipline });
+        }
+        let count = shown.len();
+        app.temp_apply(doc, view, TempAction::Isolate { ghost_others: p.others == Others::Ghost }, &shown, Scope::Element)?;
+        Ok(DisciplineResult { shown: count, others, by_discipline })
+    }
+}

@@ -557,6 +557,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(ShadingBaffles),
         registry.add(ShadingSunCheck),
         registry.add(SeatingLayout),
+        registry.add(PvArray),
+        registry.add(SumpCreate),
         registry.add(SelectionSetLoad),
         registry.add(SelectionSetList),
         registry.add(SelectionSetSetExport),
@@ -6722,6 +6724,28 @@ edit_command!(
     crate::selection_sets::RenameParams,
     (),
     crate::selection_sets::rename
+);
+
+edit_command!(
+    SumpCreate,
+    "sump.create",
+    "Place a basement sump and its drainage",
+    "Groundwater control for a basement (MEP-PIPE-011): a 100 mm perimeter drain `drain_offset` (0.6 m) outside the level's floor and `drain_depth` (0.5 m) down, branched under the footings into a sump pit at `point`; duplex submersible pumps sized for 1.5 times the inflow (`inflow` L/s, or `seepage` 0.01 L/s a metre of drain) against the lift plus 3 m, at 50 %; the pit's working volume Q·T/4 for `starts` (10) an hour, `depth` (1.2 m) deep with 150 mm concrete walls, the floor opened over it; and a rising main up `rise` (3.0 m) and out to the drain's line, all in the storm drainage system. Returns the pit, pumps, sizes, flows, head, motor, pipes, the outfall and notes.",
+    "Sump",
+    crate::sumps::CreateParams,
+    crate::sumps::Sump,
+    crate::sumps::create
+);
+
+edit_command!(
+    PvArray,
+    "pv.array",
+    "Place a rooftop PV array",
+    "Fills a roof (MEP-ELEC-022) with rows of photovoltaic modules: the level's floors (or `outline`) less a `setback` from the edge (4 ft), kept `clearance` (1.2 m) from everything standing on it (roofs and glazing, equipment, lift overruns), the modules (`module` {width, length, watts}, default 1.722 × 1.134 m, 400 W) tilted `tilt` (10°) facing `azimuth` (default the equator), `gap` apart in rows `row_pitch` apart (default clear of the next row's shadow at noon on the winter solstice). An IfcSolarDevice (SOLARPANEL). Returns the modules, rows, kWp, area, pitch and what it kept clear of.",
+    "PV Array",
+    crate::pv_arrays::ArrayParams,
+    crate::pv_arrays::Array,
+    crate::pv_arrays::array
 );
 
 edit_command!(

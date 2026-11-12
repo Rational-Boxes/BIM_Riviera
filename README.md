@@ -2131,6 +2131,15 @@ area by area (reviewed against the spec on 2026-10-15).
   out as a banquet, theatre, classroom, boardroom, restaurant or reception from new *Events* and
   restaurant library items, with its seats against the IBC occupant load, exits and egress width
   (`seating.layout`).
+- **Discipline views** (View › Discipline; DOC-GFX-021): one click shows the model from
+  Architecture's, Structure's, Mechanical's, Plumbing's, Electrical's or the Site's point of view,
+  the other disciplines ghosted or hidden, temporarily (`view.discipline`).
+- **Basement sumps** (Systems › Plumbing › Sump; MEP-PIPE-011): a perimeter subsoil drain round
+  a basement, a sump pit sized for the pumps' starts, duty and standby submersible pumps sized for
+  the groundwater inflow, and the rising main to the storm drain (`sump.create`).
+- **Rooftop PV arrays** (Systems › Electrical › PV Array; MEP-ELEC-022): modules filling a roof
+  in rows clear of each other's winter shadow, set back from the edge and clear of the glazing,
+  plant and lift overruns standing on it, with the array's kWp (`pv.array`).
 - **Sun-control baffles** (Architecture › Build › Baffles, View › Coordination › Sun Check;
   ARC-GLZ-019): rows of blades under or over a glazed roof, their spacing, depth and tilt setting
   the cut-off; Sun Check follows the sun on the solstices and equinoxes at the project's location

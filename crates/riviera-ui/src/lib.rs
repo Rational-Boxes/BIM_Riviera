@@ -54,6 +54,8 @@ mod bath_ui;
 mod units_ui;
 mod sun_ui;
 mod seating_ui;
+mod sump_ui;
+mod discipline_ui;
 mod elevator_ui;
 mod parts;
 mod path_arrays;
@@ -490,6 +492,10 @@ struct Gui {
     ui_settings: radial::UiSettings,
     /// Full-screen and focus mode (UI-DOCK-004).
     chrome: fullscreen::Chrome,
+    /// The discipline shown by the View tab's selector (DOC-GFX-021), and whether the others are
+    /// hidden rather than ghosted.
+    discipline: Option<&'static str>,
+    discipline_hide: bool,
     /// The System Browser (MEP-SYS-003), made on first use.
     system_browser: Option<mep_ui::SystemBrowser>,
     /// MEP check markers turned on, by view.
@@ -3958,6 +3964,8 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 surfaces: std::collections::HashMap::new(),
                 ui_settings: radial::UiSettings::load(),
                 chrome: fullscreen::Chrome::default(),
+                discipline: None,
+                discipline_hide: false,
                 system_browser: None,
                 mep_marks: HashMap::new(),
                 inspector: None,
@@ -4858,6 +4866,10 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.baffles" => with(gui, Gui::baffles),
         "ui.sun_check" => with(gui, Gui::sun_check),
         "ui.seating_layout" => with(gui, Gui::seating_layout),
+        "ui.pv_array" => with(gui, Gui::pv_array),
+        "ui.sump" => with(gui, Gui::sump),
+        "ui.discipline_hide" => with(gui, Gui::toggle_discipline_hide),
+        a if a.starts_with("ui.discipline_") => with(gui, |g| g.show_discipline(a)),
         "ui.gate_hardware" => with(gui, Gui::gate_hardware),
         "ui.pool_entry" => with(gui, |g| {
             g.pool_entry();

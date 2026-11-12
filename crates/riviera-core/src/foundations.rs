@@ -315,13 +315,34 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<FoundationGeometry> {
             Function::Bearing => (-t.width / 2.0, t.width / 2.0),
             Function::Retaining => (-(g.width / 2.0 + t.heel), g.width / 2.0 + t.toe),
         };
+        // At a corner where another wall's foundation starts or ends, the earlier of the two runs
+        // on to the other's outer edge and the later stops at its inner edge, so they meet once.
+        let half = lo.abs().max(hi.abs());
+        let mut ext = [t.end_extension, t.end_extension];
+        for (k, p) in [g.start, g.end].iter().enumerate() {
+            for o in store.iter().filter(|o| o.id() != e.id()) {
+                let Some(or) = wall_foundation_recipe(o) else { continue };
+                let Some(og) = find(store, &or.wall).and_then(|w| store.get(w)).and_then(|w| crate::walls::regenerate(store, w).ok()) else { continue };
+                let od = og.direction();
+                if (d[0] * od[1] - d[1] * od[0]).abs() < 0.5 || ![og.start, og.end].iter().any(|q| (q[0] - p[0]).hypot(q[1] - p[1]) < 1e-3) {
+                    continue;
+                }
+                let Some(ot) = type_element(store, o).and_then(wall_foundation_type) else { continue };
+                let other = match ot.function {
+                    Function::Bearing => ot.width / 2.0,
+                    Function::Retaining => (og.width / 2.0 + ot.heel).max(og.width / 2.0 + ot.toe),
+                };
+                ext[k] = if e.id() < o.id() { other } else { -half };
+                break;
+            }
+        }
         let a = [
-            g.start[0] - d[0] * t.end_extension,
-            g.start[1] - d[1] * t.end_extension,
+            g.start[0] - d[0] * ext[0],
+            g.start[1] - d[1] * ext[0],
         ];
         let b = [
-            g.end[0] + d[0] * t.end_extension,
-            g.end[1] + d[1] * t.end_extension,
+            g.end[0] + d[0] * ext[1],
+            g.end[1] + d[1] * ext[1],
         ];
         let at = |p: [f64; 2], k: f64| [p[0] + n[0] * k, p[1] + n[1] * k];
         return Ok(FoundationGeometry {

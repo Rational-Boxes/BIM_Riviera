@@ -1125,6 +1125,31 @@ Further rules:
 - [ ] Making a wall translucent shows its doors through it, and clicking where the door is selects the door.
 - [ ] In reveal-hidden mode, an element hidden by a filter shows in magenta and *Unhide* reports "hidden by filter <name>".
 
+### Discipline views
+**ID:** DOC-GFX-021 · **Priority:** P1 · **Ref:** owner requirement (2026-11-12: "an easy view selector to show the model from systems level perspectives, while showing the others as a ghost overlay or hidden"); DOC-GFX-008 (temporary hide/isolate)
+
+**Purpose.** Look at a model from one discipline's point of view (architecture, structure, mechanical, plumbing, electrical, site) with one click, the other disciplines ghosted for context or hidden.
+
+**Behaviour & rules.**
+- **Each element's discipline** is its category's, else its IFC class's:
+  - architecture: walls, curtain walls, floors, roofs, ceilings, doors, windows, stairs, railings, ramps, furniture, casework, rooms, transport, pools and shading devices;
+  - structure: structural columns, framing, foundations, connections and reinforcement, and any wall, floor or other element marked structural;
+  - mechanical: ducts and their fittings, air terminals, HVAC equipment, controls and spaces;
+  - plumbing: pipes and their fittings and accessories, fixtures, pumps, tanks, filters, sumps and sprinklers;
+  - electrical: panels, devices, lighting, cable tray, conduit and solar devices;
+  - site: toposolids and their sub-divisions, and alignments.
+
+  Levels, grids, views, types and annotation belong to none and stay as they are.
+- **Showing disciplines** (`view.discipline`) is a temporary isolate (DOC-GFX-008) of the elements of the disciplines chosen (and those of none) in a view, the default 3D view included. The others are ghosted (drawn translucent, the default) or hidden. Choosing again replaces it; none shows the whole model. It is not an edit: no undo, not saved, not printed; *Reset Hide/Isolate* clears it, *Apply to View* keeps it.
+- **The window:** View › Discipline: *All Disciplines*, *Architecture*, *Structure*, *Mechanical*, *Plumbing*, *Electrical* and *Site*, the one shown lit, and *Hide Others* to hide the rest instead of ghosting them (switching it shows the current discipline again that way).
+
+**Commands.** `view.discipline(view_id?, disciplines[]?, others?: ghost | hidden) -> {shown, others, by_discipline}`.
+
+**Acceptance criteria.**
+- [x] In a model with a wall, a column, a duct, a pipe and a toposolid, showing Structure isolates the column with the other four ghosted, one element in each discipline; showing Mechanical and Plumbing with the rest hidden shows the duct and the pipe; Site the toposolid; none shows everything again with no temporary state left.
+
+*Built (2026-11-12):* `riviera_core::disciplines`, `view.discipline` (a host command beside the temporary hide/isolate), View › Discipline. Not yet: a discipline as a saved view property drawing the others halftone in plans (as reference products do), a discipline per element overriding its category, coordination colouring by discipline, and the selector in the Project Browser.
+
 ### Line weights, halftone and underlay settings
 **ID:** DOC-GFX-009 · **Priority:** P0 · **Ref:** research/04 §3.6
 

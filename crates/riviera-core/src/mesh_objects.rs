@@ -96,10 +96,12 @@ pub enum Category {
     Tank,
     /// Water filters (ARC-POOL-014).
     Filter,
+    /// Sumps, pits and other chambers (MEP-PIPE-011).
+    Chamber,
 }
 
 impl Category {
-    pub const ALL: [Category; 31] = [
+    pub const ALL: [Category; 32] = [
         Category::GenericModel,
         Category::Furniture,
         Category::Column,
@@ -131,6 +133,7 @@ impl Category {
         Category::Covering,
         Category::Tank,
         Category::Filter,
+        Category::Chamber,
     ];
 
     pub fn label(self) -> &'static str {
@@ -166,6 +169,7 @@ impl Category {
             Category::Covering => "Covering",
             Category::Tank => "Tank",
             Category::Filter => "Filter",
+            Category::Chamber => "Chamber",
         }
     }
 
@@ -203,6 +207,7 @@ impl Category {
             Category::Covering => "IfcCovering",
             Category::Tank => "IfcTank",
             Category::Filter => "IfcFilter",
+            Category::Chamber => "IfcDistributionChamberElement",
         }
     }
 
@@ -240,6 +245,7 @@ impl Category {
             Category::Covering => "IfcCoveringType",
             Category::Tank => "IfcTankType",
             Category::Filter => "IfcFilterType",
+            Category::Chamber => "IfcDistributionChamberElementType",
         }
     }
 
@@ -253,7 +259,7 @@ impl Category {
     pub fn is_mechanical_equipment(self) -> bool {
         matches!(
             self,
-            Category::MechanicalEquipment | Category::AirTerminalBox | Category::Fan | Category::Boiler | Category::Chiller | Category::Pump | Category::SpaceHeater | Category::Humidifier | Category::Tank | Category::Filter
+            Category::MechanicalEquipment | Category::AirTerminalBox | Category::Fan | Category::Boiler | Category::Chiller | Category::Pump | Category::SpaceHeater | Category::Humidifier | Category::Tank | Category::Filter | Category::Chamber
         )
     }
 
@@ -280,6 +286,7 @@ impl Category {
             Category::Sprinkler => "SPRINKLER",
             Category::Tank => "STORAGE",
             Category::Filter => "WATERFILTER",
+            Category::Chamber => "SUMP",
             _ => "NOTDEFINED",
         }
     }

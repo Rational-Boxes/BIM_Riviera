@@ -1709,3 +1709,44 @@ fn the_pool_rules_sample_passes_its_packs() {
     assert!(c["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{c:#}");
     assert_eq!(ok(&mut app, "rules.check", json!({})), json!([]), "the lift's clear deck is clear");
 }
+
+#[test]
+fn the_hotel_sample_has_its_units_atrium_and_roof_pool() {
+    let work = tempfile::tempdir().unwrap();
+    let mut app = open(work.path(), "hotel");
+    // 88 guest rooms from two unit types, every eighth on each floor accessible, numbered by floor.
+    let units = ok(&mut app, "unit.list", json!({}));
+    let units = units.as_array().unwrap();
+    assert_eq!(units.len(), 88);
+    assert_eq!(units.iter().filter(|u| u["unit_type"] == "Accessible king").count(), 16);
+    let numbers: Vec<&str> = units.iter().map(|u| u["number"].as_str().unwrap()).collect();
+    for n in ["201", "211", "251", "261", "501", "561"] {
+        assert!(numbers.contains(&n), "{n}: {numbers:?}");
+    }
+    // Every room merged with the building and connected to its corridor's main.
+    assert!(units.iter().all(|u| u["unmerged"].as_array().unwrap().is_empty() && u["open_connectors"] == 0), "{units:#?}");
+    let st = store(&app);
+    let building: Vec<String> = st.iter().filter(|e| riviera_core::walls::wall_recipe(e).is_some() && riviera_core::groups::instance_of(e).is_none()).map(|e| e.guid().to_string()).collect();
+    let windows: Vec<_> = st.iter().filter(|e| e.class == "IfcWindow").filter_map(riviera_core::inserts::insert_recipe).collect();
+    assert!(windows.len() >= 88 && windows.iter().all(|w| building.contains(&w.host)), "every room's window is in the façade");
+    // The atrium through six storeys under its glazed roof.
+    let a = ok(&mut app, "atrium.check", json!({}))[0].clone();
+    assert_eq!((a["storeys"].as_u64(), a["levels"].as_array().unwrap().len()), (Some(6), 6), "{a:#}");
+    // The roof pool on its podium, and the baffles keeping its direct sun under a quarter.
+    let pool = ok(&mut app, "pool.list", json!({}))[0]["id"].clone();
+    let sun = ok(&mut app, "shading.sun_check", json!({ "elements": [pool] }));
+    assert!(sun["areas"][0]["passes"] == true, "{sun:#}");
+    assert_eq!(st.iter().filter(|e| riviera_core::sun_control::recipe(e).is_some()).count(), 1);
+    // The ground floor's set-ups: the ballroom's rounds and the restaurant's four-tops.
+    assert!(st.iter().filter(|e| e.param("rxd:seating").is_some()).count() > 400);
+    // Six lifts: four guest lifts in the corners and two service lifts.
+    assert_eq!(st.iter().filter(|e| e.class == "IfcTransportElement").count(), 6);
+    // The basement: concrete on strip and pad footings, and its sump with two pumps.
+    assert_eq!(st.iter().filter(|e| e.class == "IfcFooting").count(), 4 + 6);
+    assert_eq!(riviera_core::sumps::all(&st).len(), 1);
+    assert_eq!(st.iter().filter(|e| e.class == "IfcPump" && e.param("rxd:sump").is_some()).count(), 2);
+    // The roof's solar panels and the site's drive.
+    let pv: Vec<_> = st.iter().filter_map(riviera_core::pv_arrays::recipe).collect();
+    assert!(pv.len() == 1 && pv[0].modules.len() > 200, "{}", pv.len());
+    assert_eq!(ok(&mut app, "alignment.list", json!({})).as_array().unwrap().len(), 1);
+}

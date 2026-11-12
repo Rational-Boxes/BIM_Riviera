@@ -525,6 +525,25 @@ from the outlet, bends back to the wall and runs down to the level you pick. The
 and downspouts form one Storm Drainage system. After each outlet, Riviera checks the roof area
 draining to it at 75 mm/h of rain, and warns when the gutter or downspout is too small.</p>
 
+<h2 id="sumps">Basement sumps</h2>
+<p><b>Systems › Plumbing › Sump</b> keeps groundwater out of a basement. Give the inflow from the
+site investigation (or leave it, for 0.01 L/s a metre of drain), the pump starts an hour and the
+pit's depth, then click where the pit goes on the basement's floor. Riviera draws a 100 mm
+subsoil drain round the basement 0.6 m outside its floor's edge, beside the strip footings, and a
+branch under the footings into the pit; sizes the pit so its working volume holds the pumps to
+the starts given (V = Q·T/4); places a duty and a standby submersible pump for 1.5 times the
+inflow; and runs the rising main up and out to the drain's line, all in the storm drainage
+system. The report gives the flows, the pit, the head and the motors, with what to add: the
+drain's fall, valves, an alarm. <code>sump.create</code></p>
+
+<h2 id="pv">Rooftop PV arrays</h2>
+<p><b>Systems › Electrical › PV Array</b> fills a roof with photovoltaic modules: give the module's
+watts, the tilt, the setback from the roof's edge (4 ft) and the clearance round what stands on
+the roof (1.2 m), then click on the roof. The modules face the equator in rows far enough apart
+not to shade each other at noon on the winter solstice, and keep clear of glazing, plant and lift
+overruns. The report gives the modules, rows and kWp; the solar analysis gives the yield.
+<code>pv.array</code></p>
+
 <h2 id="penetrations">Openings for runs</h2>
 <p>Where a duct, pipe, cable tray or conduit passes through a wall, floor or ceiling, Riviera opens
 the host around it automatically, 25 mm clear all round. If you move or resize the run, the

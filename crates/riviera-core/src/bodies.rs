@@ -271,10 +271,17 @@ pub fn all(store: &Store) -> Vec<Body> {
             }
             continue;
         }
-        // A warped top (ARC-SHAPE-001).
-        if let Some(shape) = store.get(id).and_then(crate::shape_edit::shape_of)
-            && let Some(p) = f.profiles.first()
-            && let Ok(mesh) = crate::shape_edit::slab_mesh(p, &shape, f.top, f.thickness)
+        // A warped top (ARC-SHAPE-001), less its vertical openings where they leave its outline
+        // as it was (the shape's corners are numbered round it), as holes.
+        if let Some(e) = store.get(id)
+            && let Some(shape) = crate::shape_edit::shape_of(e)
+            && let Some(first) = f.profiles.first()
+            && let cut = crate::slab_openings::cut_profiles(store, e, std::slice::from_ref(first))
+            && let p = cut
+                .iter()
+                .find(|c| c.outer.len() == first.outer.len() && c.outer.iter().all(|q| first.outer.iter().any(|r| (q[0] - r[0]).hypot(q[1] - r[1]) < 1e-9)))
+                .map_or_else(|| first.clone(), |c| crate::sketch::Profile { outer: first.outer.clone(), holes: c.holes.clone() })
+            && let Ok(mesh) = crate::shape_edit::slab_mesh(&p, &shape, f.top, f.thickness)
         {
             push(id, &class, mesh, false);
             continue;
@@ -584,6 +591,12 @@ pub fn all(store: &Store) -> Vec<Body> {
         let color = if class == "IfcBuildingElementProxy" { [0.92, 0.92, 0.90, 1.0] } else { [0.62, 0.64, 0.66, 1.0] };
         for m in meshes {
             push(id, &format!("{class}:{}", crate::mesh_objects::color_hex(color)), m, false);
+        }
+    }
+    // Photovoltaic arrays (MEP-ELEC-022), dark blue.
+    for (id, modules) in crate::pv_arrays::all(store) {
+        for m in modules {
+            push(id, &format!("IfcSolarDevice:{}", crate::mesh_objects::color_hex([0.10, 0.14, 0.30, 1.0])), m, false);
         }
     }
     // Sun-control baffles (ARC-GLZ-019), pale aluminium.
