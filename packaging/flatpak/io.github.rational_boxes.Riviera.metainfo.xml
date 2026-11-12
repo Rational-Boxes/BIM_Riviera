@@ -78,6 +78,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.0~pre.17" date="2026-11-12" type="development">
+      <description>
+        <p>Seventeenth pre-release (tag 0.1.0-pre.17), for testing. New: modular units (a room designed once and repeated down corridors on many floors, merged into the building's walls and floors and connected to its ducts); atriums with glazed roofs and their fire and smoke checks; sun-control baffles and a sun check; event and dining seating with occupant loads and exits; rooftop solar arrays; basement sumps and groundwater drainage; a discipline selector on the View tab; pool lane ropes and backstroke flags; and a new sample hotel with an atrium, a roof pool, conference rooms, a basement and its site.</p>
+      </description>
+    </release>
     <release version="0.1.0~pre.16" date="2026-11-09" type="development">
       <description>
         <p>Sixteenth pre-release (tag 0.1.0-pre.16), for testing. New: hotel guest rooms; gondola runs, store checks, checkout front ends and self-checkout pods; gym checks, layouts and studios; swimming pools with their generated shell, water and coping, built-in stairs, sloped entries and benches, checks against the ISPSC, the Model Aquatic Health Code, the ADA and the VGB Act, and a bundled Riviera Pools equipment library; new sample models of a pool hall, a checked public pool and a backyard pool.</p>
