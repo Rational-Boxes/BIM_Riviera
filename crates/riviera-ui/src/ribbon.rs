@@ -74,6 +74,7 @@ pub const UI_ACTIONS: &[&str] = &[
     "ui.unit_type",
     "ui.unit_array",
     "ui.unit_connect",
+    "ui.atrium",
     "ui.gate_hardware",
     "ui.check_pools",
     "ui.pool_hall_air",

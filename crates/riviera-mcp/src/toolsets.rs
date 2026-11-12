@@ -279,6 +279,7 @@ pub fn toolset_of(command: &str) -> String {
             | "areaboundary"
             | "group"
             | "unit"
+            | "atrium"
             | "selectionset"
             | "modeltext"
             | "inplace"

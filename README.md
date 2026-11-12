@@ -2122,6 +2122,11 @@ area by area (reviewed against the spec on 2026-10-15).
   sizing, following the house (`enclosure.pad_and_fan`, `IfcFan`, `IfcEvaporativeCooler`,
   ARC-GLZ-017); the `greenhouses` sample. Curtain walls' tops attach to one or more roofs
   (`wall.attach`).
+- **Atriums** (Architecture › Build › Atrium; ARC-GLZ-018): a void through the floors above a
+  level with 42 in guards on each opened floor and a glazed roof (ridge, pyramid, barrel vault or
+  flat) that can reach past the void over a terrace or a roof pool; Check reports the storeys open
+  to it, IBC 404's requirements and the NFPA 92B smoke exhaust that holds the layer 6 ft above its
+  highest walkway (`atrium.create`, `atrium.check`).
 - **Digital twins, operational data and smart-city features** (`design_documents/DIGITAL_TWIN_PLAN.md`):
   sensor and controls design with points schedules, bindings from model elements to live BACnet,
   MQTT/Sparkplug, SensorThings, Haystack and time-series points, live comfort and energy overlays

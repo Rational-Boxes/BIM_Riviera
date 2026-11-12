@@ -4,6 +4,7 @@
 //! Modular units (ARC-GRP-004): Create Unit Type makes the selection a unit type with its bay,
 //! its corner clicked in a plan; Unit Array repeats a type along a corridor clicked start to end,
 //! on a range of levels; Connect Units runs every copy's open connectors into the selected mains.
+//! Atrium (ARC-GLZ-018): a void clicked corner to corner, opened up to a chosen level and roofed.
 
 use serde_json::json;
 use wxdragon::prelude::*;
@@ -166,5 +167,64 @@ impl Gui {
             }
         }
         MessageDialog::builder(&frame, &text, "Connect Units").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build().show_modal();
+    }
+}
+
+impl Gui {
+    /// Architecture › Build › Atrium (ARC-GLZ-018): the top level and roof, then the void's two
+    /// opposite corners on the atrium floor's level.
+    pub(crate) fn atrium(&mut self) {
+        let frame = self.frame;
+        let levels: Vec<(String, serde_json::Value)> = self.run("level.list", json!({})).ok().and_then(|v| v.as_array().cloned()).unwrap_or_default().iter().map(|l| (l["name"].as_str().unwrap_or_default().to_owned(), l["id"].clone())).collect();
+        if levels.len() < 2 {
+            return error(&frame, "An atrium needs at least two levels.");
+        }
+        let names: Vec<String> = levels.iter().map(|(n, _)| n.clone()).collect();
+        let f = super::reinforcement_ui::Form::new(&frame, "Atrium");
+        let top = f.choice("Top level", &names, names.len() - 1);
+        let form = f.choice("Roof", &["Ridge".to_owned(), "Pyramid".to_owned(), "Barrel vault".to_owned(), "Flat".to_owned()], 0);
+        let offset = f.text("Roof above the top level (m)", "4.0", "The glazed roof's plate");
+        let reach = f.text("Roof reaches past the void (m)", "0.3", "On every side; more covers a terrace or a pool");
+        let ok = f.show("Then click two opposite corners of the void on the atrium floor's level. Its floors above are opened, guarded 42 in high, and roofed in glass.", "Pick the Void");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let roof = ["ridge", "pyramid", "barrel", "flat"][form.get_selection().unwrap_or(0).min(3) as usize];
+        let args = json!({
+            "top_level": levels[top.get_selection().unwrap_or(0) as usize].1,
+            "form": roof,
+            "roof_offset": num(&offset).unwrap_or(4.0),
+            "overhang": num(&reach).unwrap_or(0.3),
+        });
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        self.start_picking("atrium.create", vec![json!({ "key": "from", "kind": "at", "prompt": "Atrium: click a corner of the void" }), json!({ "key": "to", "kind": "point", "prompt": "Atrium: click the opposite corner" })], args);
+    }
+
+    pub(crate) fn atrium_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let from = args["from"].take();
+        let to = args["to"].take();
+        let (a, b) = ([from["point"][0].as_f64().unwrap_or(0.0), from["point"][1].as_f64().unwrap_or(0.0)], [to[0].as_f64().unwrap_or(0.0), to[1].as_f64().unwrap_or(0.0)]);
+        let o = args.as_object_mut().expect("an object");
+        o.remove("from");
+        o.remove("to");
+        args["base_level"] = from["level"].clone();
+        args["outline"] = json!([[a[0].min(b[0]), a[1].min(b[1])], [a[0].max(b[0]), a[1].min(b[1])], [a[0].max(b[0]), a[1].max(b[1])], [a[0].min(b[0]), a[1].max(b[1])]]);
+        match self.run("atrium.create", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let mut text = format!("Atrium through {}", v["opened"].as_array().map(|a| a.iter().filter_map(|x| x.as_str()).collect::<Vec<_>>().join(", ")).unwrap_or_default());
+                if let Ok(r) = self.run("atrium.check", json!({ "atrium_id": v["atrium"] })) {
+                    let r = &r[0];
+                    text.push_str(&format!("\n{} storeys, {:.1} m high; smoke exhaust about {:.0} m³/s", r["storeys"], r["height"].as_f64().unwrap_or(0.0), r["smoke"]["exhaust"].as_f64().unwrap_or(0.0)));
+                    for f in r["findings"].as_array().into_iter().flatten() {
+                        text.push_str(&format!("\n• {}: {}", f["rule"].as_str().unwrap_or(""), f["message"].as_str().unwrap_or("")));
+                    }
+                }
+                MessageDialog::builder(&frame, &text, "Atrium").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build().show_modal();
+            }
+            Err(e) => error(&frame, &format!("The atrium was not made:\n{e}")),
+        }
     }
 }

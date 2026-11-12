@@ -4852,6 +4852,7 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.unit_type" => with(gui, Gui::unit_type),
         "ui.unit_array" => with(gui, Gui::unit_array),
         "ui.unit_connect" => with(gui, Gui::unit_connect),
+        "ui.atrium" => with(gui, Gui::atrium),
         "ui.gate_hardware" => with(gui, Gui::gate_hardware),
         "ui.pool_entry" => with(gui, |g| {
             g.pool_entry();

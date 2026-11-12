@@ -3112,6 +3112,34 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
 
 *Built (2026-10-31):* the fields above in `riviera_core::schedules`; the `greenhouses` sample gains a Greenhouse Schedule and a Growing Area Schedule.
 
+### Atriums
+**ID:** ARC-GLZ-018 · **Priority:** P1 · **Ref:** GLAZED_ENCLOSURES_PLAN §6, §9 (phase 4); research/10 §2.1–2.4 (A003, A004, A007); ARC-OPEN (shafts), ARC-RAIL-001 (railings), ARC-CW-008 (sloped glazing), ARC-GLZ-006 (glazed vaults)
+
+**Purpose.** Open a void through a building's floors under a glazed roof, guard its edges, and summarise what the codes ask of it, with the smoke exhaust that holds the smoke above its highest walkway.
+
+**Behaviour & rules.**
+- **The atrium** (`atrium.create`) is a void `outline` through every floor above `base_level` up to and including `top_level`'s. It is made of ordinary elements:
+  - a shaft opening from 50 mm above the atrium floor through the top level's floor;
+  - guards on every opened floor, 0.1 m back from its edge: railings of an *Atrium guard* type, `guard_height` high (default 42 in, IBC 1015.3), balusters 110 mm apart (made once per height);
+  - a glazed roof on the top level, its plate `roof_offset` above it (default 0): `form` `ridge` (default; the longest edge and the one opposite slope at `slope`, default 15°), `pyramid` (every edge slopes), `flat`, or `barrel` (a vault springing from those two edges, rising `rise`, default a quarter of the span), of `glazing_type` (default *Atrium glazing*, a sloped glazing type made the first time);
+  - the roof covers the void grown by `overhang` (default 0.3 m, to bear on the floor round it), or `roof_outline` when it reaches further, over a roof terrace or a pool.
+- **The check** (`atrium.check`), for each atrium:
+  - the storeys open to it, its floor's included; its height from its floor to the roof's plate; its area and volume; the roof's area;
+  - IBC 404 (2017 public text): smoke control where more than two storeys are open (404.5); sprinklers throughout, and none at a ceiling over 55 ft (404.3); with more than three storeys open, all but three separated by a 1 h barrier or glass wetted by sprinklers (404.6); Class B finishes (404.8); 200 ft of travel within it (404.9), as notes;
+  - the smoke: the layer held `clearance` (default 6 ft) above the highest walkway open to it; for a steady design `fire` (default 5,000 kW, convective 0.7), the NFPA 92B (1991) axisymmetric plume's mass flow there (m = 0.071 Q_c^⅓ z^⁵⁄³ + 0.0018 Q_c above the flame, 0.032 Q_c^⅗ z within it), its mean temperature and the exhaust volume that holds the layer, and the time to fill to it with no exhaust (steady filling, where A/H² is 0.9–14);
+  - an error where the layer cannot be held under the roof; a note where it is less than 20 % of the height deep (NFPA 92B's layer depth against the 6 ft clearance).
+- **The window:** Architecture › Build › Atrium: the top level, roof form, its height and reach, then two opposite corners of the void on the atrium floor's level; the check is shown.
+
+**Data (IFC mapping).** The atrium is an `IfcSpace` (USERDEFINED, ObjectType `Atrium`) whose recipe names its shaft (`IfcOpeningElement`s in the floors), guards (`IfcRailing`) and roof (`IfcRoof` of glazing). Each part is saved as itself.
+
+**Commands.** `atrium.create(outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name?) -> {atrium, shaft, roof, guards, opened}`; `atrium.check(atrium_id?, fire?, clearance?, ambient?) -> [{atrium, name, storeys, levels, height, area, volume, roof_area, smoke {fire, convective, clear_height, flame_height, mass_flow, plume_temperature, exhaust, fill_time?}, findings}]`.
+
+**Acceptance criteria.**
+- [x] A 10 × 12 m void from level 1 through level 5 of a five-storey building opens four floors with four guards under a glazed ridge roof 4.5 m above level 5. The check gives five storeys, 20.5 m, 120 m², smoke control and separation notes, the layer 6 ft above level 5 at 17.83 m with the plume's mass flow by NFPA 92B, and notes the layer under 20 % of the height. With a flat roof on level 5 the layer cannot be held: an error.
+- [x] A barrel-vaulted atrium through three storeys whose roof reaches 8 m past the void over a terrace reports the roof's 173 m², smoke control but no separation finding, and nothing overlaps; saved and opened, it is still an atrium.
+
+*Built (2026-11-12):* `riviera_core::atriums`, Architecture › Build › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; editing the atrium as one; the atrium space's own volume in schedules.
+
 
 ## 3.7 Stairs, railings and ramps
 
@@ -7993,6 +8021,8 @@ All commands below are registered once in the command registry and exposed autom
 | `enclosure.heating` | enclosure_id, inside?, outside?, wind?, heater_kw? | heating_report | No (query) | ARC-GLZ-014 |
 | `enclosure.heating_pipes` | enclosure_id, system, runs?, height?, offset?, diameter?, outside?, remove? | {runs, segments, fittings, length, output_kw, replaced} | Yes | ARC-GLZ-016 |
 | `enclosure.pad_and_fan` | enclosure_id, climate?, fan_airflow?, fan_size?, pads?, pad_height?, reversed?, remove? | {layout, fans, fan_airflow, airflow, pad_area, pad_length, notes} | Yes | ARC-GLZ-017 |
+| `atrium.create` | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name? | {atrium, shaft, roof, guards, opened} | Yes | ARC-GLZ-018 |
+| `atrium.check` | atrium_id?, fire?, clearance?, ambient? | [atrium_report] | No (query) | ARC-GLZ-018 |
 | `growing.crops` | — | [crop] | No (query) | ARC-GLZ-008 |
 | `enclosure.set_climate` | enclosure_id, crop?, target_dli?, day_temperature?, night_temperature?, humidity?, co2?, photoperiod?, clear? | — | Yes | ARC-GLZ-008 |
 | `enclosure.crop_light` | enclosure_id, clearness?, outdoor_dli? | {source, transmission, months, darkest_month, required_ppfd, lamp_ppfd} | No (query) | ARC-GLZ-009 |

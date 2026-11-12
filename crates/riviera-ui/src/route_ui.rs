@@ -330,6 +330,7 @@ impl Gui {
             Some("pool.plant") => self.pool_plant_finish(args),
             Some("unit.create_type") => self.unit_type_finish(args),
             Some("unit.array") => self.unit_array_finish(args),
+            Some("atrium.create") => self.atrium_finish(args),
             _ => {}
         }
     }

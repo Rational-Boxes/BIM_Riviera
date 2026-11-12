@@ -552,6 +552,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitList),
         registry.add(UnitTypes),
         registry.add(UnitConnect),
+        registry.add(AtriumCreate),
+        registry.add(AtriumCheck),
         registry.add(SelectionSetLoad),
         registry.add(SelectionSetList),
         registry.add(SelectionSetSetExport),
@@ -6717,6 +6719,28 @@ edit_command!(
     crate::selection_sets::RenameParams,
     (),
     crate::selection_sets::rename
+);
+
+edit_command!(
+    AtriumCreate,
+    "atrium.create",
+    "Create an atrium",
+    "An atrium (ARC-GLZ-018): a void (`outline`) through the floors above `base_level` up to and including `top_level`'s, guards 42 in high (`guard_height`) 0.1 m back from each opened floor's edge, and a glazed roof on the top level (`form` flat, ridge, pyramid or barrel; `slope`, `rise`, `roof_offset`) over the void grown by `overhang` (0.3 m) or over `roof_outline` when it reaches past the void, of `glazing_type` (default Atrium glazing). Returns the atrium (an IfcSpace), its shaft, roof and guards, and the levels it opens.",
+    "Atrium",
+    crate::atriums::CreateParams,
+    crate::atriums::Created,
+    crate::atriums::create
+);
+
+read_command!(
+    AtriumCheck,
+    "atrium.check",
+    "Check atriums",
+    "For each atrium (or one): the storeys open to it, its height, area and volume, IBC 404's requirements (smoke control over two storeys, sprinklers and the 55 ft ceiling exception, three open storeys, Class B finishes, 200 ft travel), and the NFPA 92B (1991) steady axisymmetric plume for a design `fire` (default 5,000 kW): the smoke layer held `clearance` (6 ft) above the highest walkway open to it, the plume's mass flow and temperature there, the exhaust that holds it, and the time to fill to it with no exhaust.",
+    [Effect::Read],
+    crate::atriums::CheckParams,
+    Vec<crate::atriums::Report>,
+    |store, p| crate::atriums::check(store, Some(p))
 );
 
 edit_command!(

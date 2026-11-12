@@ -1466,6 +1466,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_structure" => format!(
             r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // Floors in section opened round a void under a glazed ridge (Atrium).
+        "atrium" => format!(
+            r#"<path d="M4 12l12-8 12 8" fill="{a}" {s}/><path d="M2 16h9M21 16h9M2 22h9M21 22h9M2 28h28" {s}/><path d="M11 13v15M21 13v15" stroke="{f}" stroke-width="1.2" stroke-dasharray="2 2"/>"#
+        ),
         // A room in plan with its bay's corner marked (Create Unit Type).
         "unit_type" => format!(
             r#"<rect x="5" y="7" width="22" height="18" fill="{a}" {s}/><path d="M13 7v4M5 18h6" {s}/><circle cx="5" cy="25" r="2.5" fill="{f}"/>"#

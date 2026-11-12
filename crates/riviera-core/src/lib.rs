@@ -89,6 +89,7 @@ pub mod masses;
 pub mod materials_library;
 pub mod measure;
 pub mod mesh_io;
+pub mod atriums;
 pub mod mesh_objects;
 pub mod modular_units;
 pub mod mep;

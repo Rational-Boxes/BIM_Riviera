@@ -303,7 +303,9 @@ and the defaults recorded for expert review.
    and loads; operable devices and their control.
 4. **Atriums.** Atrium roofs over floor openings (ridge, pyramid, barrel vault, space frame),
    atrium spaces through storeys, smoke vents and the code summaries; stratification and stack
-   ventilation. *Sample: a hotel atrium.*
+   ventilation. *Sample: a hotel atrium.* *Begun 2026-11-12: `atrium.create` and `atrium.check`
+   (ARC-GLZ-018): the void, guards and a ridge, pyramid, barrel or flat glazed roof that may reach
+   past the void; IBC 404 and the NFPA 92B plume. Owner's hotel scenario (2026-11-12).*
 5. **Loads, energy and structure.** Full load modelling, integrated with the environmental,
    sustainability and structural analysis tools (owner, 2026-10-28): the glazed enclosure in the
    energy model (sloped and curved glazed surfaces, shading devices and their control, vents,
