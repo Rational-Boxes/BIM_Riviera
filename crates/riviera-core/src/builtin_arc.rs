@@ -546,6 +546,12 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(SelectionSetDelete),
         registry.add(SelectionSetRename),
         registry.add(GroupList),
+        registry.add(UnitCreateType),
+        registry.add(UnitArray),
+        registry.add(UnitSetArray),
+        registry.add(UnitList),
+        registry.add(UnitTypes),
+        registry.add(UnitConnect),
         registry.add(SelectionSetLoad),
         registry.add(SelectionSetList),
         registry.add(SelectionSetSetExport),
@@ -6711,6 +6717,72 @@ edit_command!(
     crate::selection_sets::RenameParams,
     (),
     crate::selection_sets::rename
+);
+
+edit_command!(
+    UnitCreateType,
+    "unit.create_type",
+    "Create a unit type",
+    "Makes a modular unit type (ARC-GRP-004) from elements (rooms, walls, floors, furniture, terminals; the doors and windows of its walls come with them) and its bay: `width` along its corridor face from the corner `origin`, in the direction `rotation`, and `depth` back to its left. The elements are taken away unless `keep`. Returns the type's key, its group type and what it took by class.",
+    "Create Unit Type",
+    crate::modular_units::CreateTypeParams,
+    crate::modular_units::CreatedType,
+    crate::modular_units::create_type
+);
+
+edit_command!(
+    UnitArray,
+    "unit.array",
+    "Array units along a corridor",
+    "Copies of a unit type bay to bay along `path` (the corridor's centre line) on each of `levels`, on the `left`, `right` or `both` sides `corridor` apart, from `start` at `pitch` (default the bay's width), at most `count` a side, skipping `exclusions` (stretches along the path), every other copy mirrored (`handing` alternate), with `variants` (another unit type every n-th copy) and numbered by floor (`numbering`). Each copy's walls that lie on the building's walls or a neighbour's are built once, its doors and windows cut into the wall it merges with, and balconies joined to the floor they meet. Returns the array and the copies by level and type, with any faces that found nothing to merge with.",
+    "Unit Array",
+    crate::modular_units::ArrayParams,
+    crate::modular_units::ArrayReport,
+    crate::modular_units::array
+);
+
+edit_command!(
+    UnitSetArray,
+    "unit.set_array",
+    "Change a unit array",
+    "Changes a unit array's path, levels, sides, pitch, count, exclusions, handing, variants, numbering or unit type; its copies are made again.",
+    "Change Unit Array",
+    crate::modular_units::SetArrayParams,
+    crate::modular_units::ArrayReport,
+    crate::modular_units::set_array
+);
+
+read_command!(
+    UnitList,
+    "unit.list",
+    "List units",
+    "The unit copies (of one array, or all) by number: level, type, side, handing, open duct and pipe connectors, and their merges.",
+    [Effect::Read],
+    crate::modular_units::ListParams,
+    Vec<crate::modular_units::Listed>,
+    |store, p| crate::modular_units::list(store, Some(p))
+);
+
+read_command!(
+    UnitTypes,
+    "unit.types",
+    "List unit types",
+    "Unit types with their bays, members and copies.",
+    [Effect::Read],
+    crate::modular_units::ListParams,
+    Vec<crate::modular_units::TypeListed>,
+    |store, p| crate::modular_units::list_types(store, Some(p))
+);
+
+edit_command!(
+    UnitConnect,
+    "unit.connect",
+    "Connect units to services",
+    "Runs a branch from every open duct and pipe connector of an array's copies (or the copies given) into the nearest of `spines` (straight level mains) of the same system on the copy's level, as Connect Into does, joining the main's system. Returns the branches, what could not be connected and why, and each main's branches and the flow they carry.",
+    "Connect Units",
+    crate::modular_units::ConnectParams,
+    crate::modular_units::Connected,
+    crate::modular_units::connect
 );
 
 read_command!(

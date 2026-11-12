@@ -84,6 +84,13 @@ pub struct GroupRecipe {
     /// Members removed in the open editor (GlobalIds): Cancel takes them back.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed: Vec<String>,
+    /// Mirrored across the template frame's y axis before it is turned and moved (modular units'
+    /// handing, ARC-GRP-004).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub mirrored: bool,
+    /// The template's levels (GlobalIds) to this instance's.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub levels: BTreeMap<String, String>,
 }
 
 pub fn recipe(e: &Element) -> Option<GroupRecipe> {
@@ -102,14 +109,14 @@ pub fn types(store: &Store) -> Vec<GroupType> {
         .unwrap_or_default()
 }
 
-fn group_type(store: &Store, r: &str) -> Result<GroupType> {
+pub(crate) fn group_type(store: &Store, r: &str) -> Result<GroupType> {
     types(store)
         .into_iter()
         .find(|t| t.id == r || t.name == r)
         .ok_or_else(|| Error::new("group.no_type", format!("no group type {r}")))
 }
 
-fn write_types(txn: &mut Transaction<'_>, list: &[GroupType]) -> Result<()> {
+pub(crate) fn write_types(txn: &mut Transaction<'_>, list: &[GroupType]) -> Result<()> {
     set_project(
         txn,
         TYPES_KEY,
@@ -192,7 +199,7 @@ fn remap(v: &Value, map: &BTreeMap<String, String>) -> Value {
 }
 
 /// Runs `f` with the group editor open to every group (internal moves of members).
-fn internally<T>(
+pub(crate) fn internally<T>(
     txn: &mut Transaction<'_>,
     f: impl FnOnce(&mut Transaction<'_>) -> Result<T>,
 ) -> Result<T> {
@@ -206,7 +213,7 @@ fn internally<T>(
 }
 
 /// Makes members from a template at an origin and rotation; their GlobalIds by key.
-fn make_members(
+pub(crate) fn make_members(
     txn: &mut Transaction<'_>,
     t: &GroupType,
     keys: &[u32],
@@ -214,6 +221,8 @@ fn make_members(
     rotation: f64,
     instance_guid: &str,
     existing: &[Member],
+    mirrored: bool,
+    levels: &BTreeMap<String, String>,
 ) -> Result<Vec<Member>> {
     let chosen: Vec<&TemplateMember> = t
         .template
@@ -231,6 +240,10 @@ fn make_members(
         .collect();
     for m in &chosen {
         fresh.insert(m.guid.clone(), GlobalId::new().to_string());
+    }
+    // References to the template's levels go to the instance's.
+    for (from, to) in levels {
+        fresh.insert(from.clone(), to.clone());
     }
     let mut made = Vec::new();
     for m in &chosen {
@@ -261,6 +274,11 @@ fn make_members(
         .collect();
     if !ids.is_empty() {
         internally(txn, |txn| {
+            if mirrored {
+                let (s, c) = t.rotation.sin_cos();
+                let a = [t.origin[0], t.origin[1]];
+                crate::modify::transform(txn, &ids, crate::modify::Xform::Mirror { a, b: [a[0] - s, a[1] + c] }, false)?;
+            }
             let angle = rotation - t.rotation;
             if angle.abs() > 1e-12 {
                 crate::modify::transform(
@@ -426,6 +444,8 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Creat
             .collect(),
         excluded: Vec::new(),
         removed: Vec::new(),
+        mirrored: false,
+        levels: BTreeMap::new(),
     };
     let instance = txn.create(
         NewElement::new("IfcGroup")
@@ -470,7 +490,7 @@ pub(crate) fn place(txn: &mut Transaction<'_>, p: PlaceParams) -> Result<Element
     ];
     let guid = GlobalId::new();
     let keys: Vec<u32> = t.template.iter().map(|m| m.key).collect();
-    let members = make_members(txn, &t, &keys, origin, p.rotation, guid.as_str(), &[])?;
+    let members = make_members(txn, &t, &keys, origin, p.rotation, guid.as_str(), &[], false, &BTreeMap::new())?;
     let g = GroupRecipe {
         kind: RECIPE.into(),
         group_type: t.id.clone(),
@@ -479,6 +499,8 @@ pub(crate) fn place(txn: &mut Transaction<'_>, p: PlaceParams) -> Result<Element
         members,
         excluded: Vec::new(),
         removed: Vec::new(),
+        mirrored: false,
+        levels: BTreeMap::new(),
     };
     txn.create(
         NewElement::new("IfcGroup")
@@ -489,8 +511,17 @@ pub(crate) fn place(txn: &mut Transaction<'_>, p: PlaceParams) -> Result<Element
     )
 }
 
+/// A new instance of a type, mirrored and on other levels as asked (modular units).
+pub(crate) fn place_with(txn: &mut Transaction<'_>, t: &GroupType, origin: [f64; 3], rotation: f64, mirrored: bool, levels: BTreeMap<String, String>) -> Result<ElementId> {
+    let guid = GlobalId::new();
+    let keys: Vec<u32> = t.template.iter().map(|m| m.key).collect();
+    let members = make_members(txn, t, &keys, origin, rotation, guid.as_str(), &[], mirrored, &levels)?;
+    let g = GroupRecipe { kind: RECIPE.into(), group_type: t.id.clone(), origin, rotation, members, excluded: Vec::new(), removed: Vec::new(), mirrored, levels };
+    txn.create(NewElement::new("IfcGroup").guid(guid).name(t.name.as_str()).param("@ObjectType", t.name.as_str()).param(RECIPE_KEY, serde_json::to_value(&g).expect("serialises")))
+}
+
 /// Deletes an instance's members.
-fn delete_members(txn: &mut Transaction<'_>, g: &GroupRecipe) -> Result<()> {
+pub(crate) fn delete_members(txn: &mut Transaction<'_>, g: &GroupRecipe) -> Result<()> {
     let store = txn.store().clone();
     for m in &g.members {
         if let Some(id) = find(&store, &m.guid)
@@ -514,9 +545,14 @@ fn remake(txn: &mut Transaction<'_>, id: ElementId, t: &GroupType) -> Result<()>
         .filter(|k| !g.excluded.contains(k))
         .collect();
     let guid = store.get(id).expect("exists").guid().to_string();
-    g.members = make_members(txn, t, &keys, g.origin, g.rotation, &guid, &[])?;
+    g.members = make_members(txn, t, &keys, g.origin, g.rotation, &guid, &[], g.mirrored, &g.levels)?;
     g.group_type = t.id.clone();
-    write_instance(txn, id, &g)
+    write_instance(txn, id, &g)?;
+    // A modular unit's copy merges with the building again (ARC-GRP-004).
+    if txn.store().get(id).and_then(crate::modular_units::copy_info).is_some() {
+        crate::modular_units::merge(txn, id)?;
+    }
+    Ok(())
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -711,6 +747,9 @@ pub struct NoParams {}
 /// `group.finish`: the edited instance becomes the template; every other instance of the type
 /// is remade from it.
 pub(crate) fn finish(txn: &mut Transaction<'_>, _: NoParams) -> Result<()> {
+    // A modular unit's copy gives back what it merged with the building first (ARC-GRP-004).
+    let (id, _) = open_instance(txn.store())?;
+    crate::modular_units::unmerge(txn, id)?;
     let store = txn.store().clone();
     let (id, mut g) = open_instance(&store)?;
     if !g.removed.is_empty() {
@@ -724,6 +763,18 @@ pub(crate) fn finish(txn: &mut Transaction<'_>, _: NoParams) -> Result<()> {
         .filter_map(|m| Some((m.key, find(&store, &m.guid)?)))
         .collect();
     let mut t = group_type(&store, &g.group_type)?;
+    // A mirrored instance is turned back into the template's hand first, and its levels mapped
+    // back to the template's (modular units); it is then remade like the others.
+    let store = if g.mirrored {
+        let ids: Vec<ElementRef> = members.iter().filter(|(_, id)| store.get(*id).is_some_and(|e| crate::inserts::insert_recipe(e).is_none())).map(|(_, id)| ElementRef::Id(*id)).collect();
+        let (s, c) = g.rotation.sin_cos();
+        let a = [g.origin[0], g.origin[1]];
+        internally(txn, |txn| crate::modify::transform(txn, &ids, crate::modify::Xform::Mirror { a, b: [a[0] - s, a[1] + c] }, false))?;
+        txn.store().clone()
+    } else {
+        store
+    };
+    let back: BTreeMap<String, String> = g.levels.iter().map(|(a, b)| (b.clone(), a.clone())).collect();
     // Members excluded from this instance stay in the template as they were.
     let kept: Vec<TemplateMember> = t
         .template
@@ -732,6 +783,13 @@ pub(crate) fn finish(txn: &mut Transaction<'_>, _: NoParams) -> Result<()> {
         .cloned()
         .collect();
     t.template = snapshot(&store, &members);
+    if !back.is_empty() {
+        for m in &mut t.template {
+            for v in m.params.values_mut() {
+                *v = remap(v, &back);
+            }
+        }
+    }
     t.template.extend(kept);
     t.origin = g.origin;
     t.rotation = g.rotation;
@@ -740,9 +798,10 @@ pub(crate) fn finish(txn: &mut Transaction<'_>, _: NoParams) -> Result<()> {
     }
     write_types(txn, &list)?;
     set_project(txn, EDIT_KEY, Value::Null)?;
+    let remade_too = g.mirrored || !g.levels.is_empty() || store.get(id).and_then(crate::modular_units::copy_info).is_some();
     let others: Vec<ElementId> = store
         .iter()
-        .filter(|e| e.id() != id && recipe(e).is_some_and(|x| x.group_type == t.id))
+        .filter(|e| (e.id() != id || remade_too) && recipe(e).is_some_and(|x| x.group_type == t.id))
         .map(Element::id)
         .collect();
     for o in others {
@@ -844,7 +903,7 @@ pub(crate) fn restore_member(txn: &mut Transaction<'_>, p: RestoreParams) -> Res
         .filter(|k| p.member_key.is_none_or(|m| m == *k))
         .collect();
     let guid = store.get(id).expect("resolved").guid().to_string();
-    let made = make_members(txn, &t, &keys, g.origin, g.rotation, &guid, &g.members)?;
+    let made = make_members(txn, &t, &keys, g.origin, g.rotation, &guid, &g.members, g.mirrored, &g.levels)?;
     g.excluded.retain(|k| !keys.contains(k));
     g.members.extend(made);
     write_instance(txn, id, &g)

@@ -51,6 +51,7 @@ mod notes;
 mod openings;
 mod overlaps;
 mod bath_ui;
+mod units_ui;
 mod elevator_ui;
 mod parts;
 mod path_arrays;
@@ -4848,6 +4849,9 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.pool_lanes" => with(gui, Gui::pool_lanes),
         "ui.pool_depth_markings" => with(gui, Gui::pool_depth_markings),
         "ui.pool_plant" => with(gui, Gui::pool_plant),
+        "ui.unit_type" => with(gui, Gui::unit_type),
+        "ui.unit_array" => with(gui, Gui::unit_array),
+        "ui.unit_connect" => with(gui, Gui::unit_connect),
         "ui.gate_hardware" => with(gui, Gui::gate_hardware),
         "ui.pool_entry" => with(gui, |g| {
             g.pool_entry();

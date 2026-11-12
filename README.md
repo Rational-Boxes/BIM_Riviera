@@ -468,6 +468,14 @@ Create … Boundary* tab:
   `IfcGroup` with `IfcRelAssignsToGroup` (`group.create`, `group.place`, `group.edit`,
   `group.finish`, `group.cancel`, `group.exclude_member`, `group.ungroup`, …;
   ARC-GRP-001 … 003).
+- **Modular units** (Architecture › Model › Create Unit Type, Unit Array, Connect Units;
+  ARC-GRP-004): a unit (a hotel room with its walls, door, window, balcony, furniture and
+  diffuser) made a type with its bay, then repeated along a corridor on a range of levels, one or
+  both sides, mirrored in pairs, skipping cores, numbered by floor with every n-th copy a variant
+  (an accessible room). Each copy merges with the building: its walls on the façade, the corridor
+  or a neighbour's are built once, its doors and windows cut into those walls, its balcony joined
+  to the floor. `unit.connect` runs every copy's duct and pipe connectors into the corridor mains
+  of their system and sums the flow each main serves. Editing one copy edits them all.
 - **Saved selections** (Manage › Selection): Save and Load Selection (members hidden in the view
   left out unless asked for), Edit Selection mode (picks and window selections add or remove,
   Finish is one step), and the project option to export sets as `IfcGroup`s
@@ -2002,7 +2010,11 @@ The specification (`design_documents/spec/`) describes the whole application. Of
 architecture requirements (Chapter 3), every area now has a first build; this is what is not built,
 area by area (reviewed against the spec on 2026-10-15).
 
-- **Modular units** (ARC-GRP-004, specified 2026-10-31): a unit designed once (a hotel room or apartment with its services, a gondola aisle, a checkout lane, a racking bay, a production cell, a rack row) and repeated along a path, in a grid or through a volume of floors, handed in pairs, with variants by rule (accessible units, express lanes) and numbering; each copy's connection points routed to shared spines (corridor ducts, risers, busways, refrigeration headers) and the trunks sized from the units they serve; the template edited in isolation in its own views; and an intelligent merge with the building shell (a room's windows, doors and balcony doors cut into the façade or corridor wall at every copy, balconies joined to the floor edge with their railings, walls on building walls merged, demising walls built once).
+- **Modular units** (ARC-GRP-004, first build 2026-11-12; see above): grids and fills through
+  boundaries with exclusion shapes, curved paths, the template edited in its own isolated views,
+  connection points placed by hand, risers and vertical spines, the trunks sized from the units'
+  sums, continuous balconies and thermal breaks, GlobalIds kept when copies are remade, zones and
+  schedules of units.
 
 **Still to build in the areas begun (architecture):**
 

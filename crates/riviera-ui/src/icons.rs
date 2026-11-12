@@ -1466,6 +1466,18 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "pool_structure" => format!(
             r#"<path d="M3 6v18h22V6" {s}/><path d="M5 9h18v13H5z" fill="{a}"/><path d="M27 10l-4 0M27 15h-4M27 20h-4M8 30v-4M14 30v-4M20 30v-4" stroke="{f}" stroke-width="1.5"/>"#
         ),
+        // A room in plan with its bay's corner marked (Create Unit Type).
+        "unit_type" => format!(
+            r#"<rect x="5" y="7" width="22" height="18" fill="{a}" {s}/><path d="M13 7v4M5 18h6" {s}/><circle cx="5" cy="25" r="2.5" fill="{f}"/>"#
+        ),
+        // A row of rooms each side of a corridor (Unit Array).
+        "unit_array" => format!(
+            r#"<path d="M2 14h28M2 18h28" stroke="{f}" stroke-width="1.5"/><path d="M2 4h28v10H2zM2 18h28v10H2z" fill="{a}" {s}/><path d="M9 4v10M16 4v10M23 4v10M9 18v10M16 18v10M23 18v10" {s}/>"#
+        ),
+        // Rooms' branches running into a main (Connect Units).
+        "unit_connect" => format!(
+            r#"<path d="M2 6h28" stroke="{f}" stroke-width="3"/><path d="M8 6v10M16 6v10M24 6v10" {s}/><rect x="4" y="16" width="8" height="12" fill="{a}" {s}/><rect x="12" y="16" width="8" height="12" fill="{a}" {s}/><rect x="20" y="16" width="8" height="12" fill="{a}" {s}/>"#
+        ),
         // A filter vessel and a pump on a plinth beside a tank.
         "pool_plant" => format!(
             r#"<rect x="3" y="12" width="9" height="15" rx="4" fill="{a}" {s}/><rect x="15" y="20" width="8" height="7" {s}/><circle cx="19" cy="23" r="2" fill="{f}"/><rect x="25" y="8" width="5" height="19" {s}/><path d="M7 12V6h21v2M2 28h29" fill="none" {s}/>"#

@@ -167,6 +167,34 @@ curve).</p>
 <code>group.finish</code>, <code>group.cancel</code>, <code>group.exclude_member</code>,
 <code>group.restore_member</code>, <code>group.ungroup</code>, <code>group.swap_type</code></p>
 
+<h2 id="units">Modular units</h2>
+<p>A modular unit is a group designed once (a hotel room, an apartment, a classroom) and
+repeated to fill a building, every copy following its type and merging with the building's
+walls and floors.</p>
+<ul>
+  <li><b>Architecture › Model › Create Unit Type</b>: select the unit's elements (its walls with
+    their doors and windows, its room, floor finishes and balcony, furniture, terminals), give
+    the bay's width along its corridor face and its depth back to the façade, then click the
+    bay's corner where the corridor face starts. The unit lies to the left of that face.</li>
+  <li><b>Unit Array</b>: choose the type, the levels, one or both sides of the corridor, its
+    width, where the first bay starts, stretches to skip (cores and stairs, as
+    <code>12-18</code>), handing (every other copy mirrored so neighbours share walls) and a
+    variant every n-th copy (an accessible room), then click the corridor's centre line start
+    and end. Copies are numbered by floor: 201, 202, … on the second level; their rooms take the
+    numbers.</li>
+  <li>Each copy merges as it is placed. A unit wall lying on a building wall (the façade, the
+    corridor wall) or on a neighbour's (the demising wall) is not built; its doors and windows go
+    into that wall, cutting their openings there. A slab beyond the façade face (a balcony) is
+    joined to the floor it meets. Faces that find nothing are listed.</li>
+  <li><b>Connect Units</b>: select the corridor mains (straight level ducts and pipes) and every
+    copy's open connectors are run into the nearest main of the same system on its level, as
+    Connect Into does, joining its system.</li>
+  <li>To change every copy, select a member of one and <b>Edit Group</b>; <b>Finish</b> remakes
+    every copy and merges them again.</li>
+</ul>
+<p><code>unit.create_type</code>, <code>unit.array</code>, <code>unit.set_array</code>,
+<code>unit.list</code>, <code>unit.types</code>, <code>unit.connect</code></p>
+
 <h2 id="selection-sets">Saved selections</h2>
 <p><b>Manage › Selection › Save Selection</b> names the current selection; <b>Load
 Selection</b> selects a saved set again (deleted members are left out). Members of groups are

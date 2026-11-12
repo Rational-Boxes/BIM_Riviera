@@ -328,6 +328,8 @@ impl Gui {
             Some("pool.create") => self.swimming_pool_finish(args),
             Some("pool.add_entry") => self.pool_entry_finish(args),
             Some("pool.plant") => self.pool_plant_finish(args),
+            Some("unit.create_type") => self.unit_type_finish(args),
+            Some("unit.array") => self.unit_array_finish(args),
             _ => {}
         }
     }

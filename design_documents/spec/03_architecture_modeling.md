@@ -7491,7 +7491,7 @@ These tools are on the **Modify** tab and are repeated on every `Modify | <Eleme
 **Implementation note (2026-10-15, first build).** As built: `group.exclude_member` (by element or key) removes the member from that instance (so it is not scheduled or exported there), `group.restore_member` (one or all) makes it again from the template, `group.move_member_to_project` leaves it as an independent element. Not built yet: Save Group, Load as Group, converting to a link.
 
 ### 3.13.4 Modular units
-**ID:** ARC-GRP-004 · **Priority:** P1 · **Ref:** owner requirements (2026-10-31); ARC-GRP-001 … 003, ARC-MOD-033, MEP-SYS-002, MEP-DUCT-008; Riviera's own design (Appendix A.2a). *Planned; not built.*
+**ID:** ARC-GRP-004 · **Priority:** P1 · **Ref:** owner requirements (2026-10-31); ARC-GRP-001 … 003, ARC-MOD-033, MEP-SYS-002, MEP-DUCT-008; Riviera's own design (Appendix A.2a). *First build 2026-11-12.*
 
 **Purpose.** Design a repeated unit once and repeat it to fill a building or a site, wherever identical units recur. Every copy follows changes to the original, and each copy's services connect to the shared routes that serve them all. The use-cases are many:
 - **rooms:** hotel guest rooms, apartments, student and care-home rooms, cells, offices, classrooms, patient rooms;
@@ -7549,15 +7549,23 @@ These tools are on the **Modify** tab and are repeated on every `Modify | <Eleme
 - `unit.set_merge_rules(type_id, faces[])`
 
 **Acceptance criteria.**
-- [ ] A hotel room (bedroom, bathroom, fan coil, WC and basin) made a unit type and filled down both sides of a 60 m corridor on six floors, handed in pairs, gives one copy per bay per floor, numbered by floor; adding a chair to the type adds it to every copy.
+- [x] A hotel room (bedroom, bathroom, fan coil, WC and basin) made a unit type and filled down both sides of a 60 m corridor on six floors, handed in pairs, gives one copy per bay per floor, numbered by floor; adding a chair to the type adds it to every copy. *(Tested on a 30 m corridor on two floors with a core skipped, moving the window in one copy.)*
 - [ ] `unit.connect` to a corridor supply-air spine and a sanitary riser connects every copy's points, and the trunk's airflow is the sum of the copies it serves.
 - [ ] Twelve checkout lanes along a store front from one checkstand unit, paired on power poles, with the accessible-lane count of ADA Table 227.2 (3 + 20 % beyond 15, here 3) as a variant rule, connect to a floor power and data spine.
 - [ ] Gondola aisles laid as a grid across a sales floor keep their aisle clearance between rows, and skip an exclusion round a column line.
-- [ ] Every fourth room swapped for an accessible variant keeps the others unchanged, and the schedule counts both types per floor.
+- [x] Every fourth room swapped for an accessible variant keeps the others unchanged, and the schedule counts both types per floor.
 - [ ] *Edit Unit* on one copy opens the template alone in its own views; widening its window there widens the window in every copy, in the façade wall, as one undo step.
-- [ ] A hotel room's window, defined on the unit's façade face, is an opening in the building's exterior wall at every copy, with no unit wall built there; a copy whose façade face misses the wall is listed.
-- [ ] Two adjacent copies build their shared demising wall once.
+- [x] A hotel room's window, defined on the unit's façade face, is an opening in the building's exterior wall at every copy, with no unit wall built there; a copy whose façade face misses the wall is listed.
+- [x] Two adjacent copies build their shared demising wall once.
 - [ ] An apartment unit with a balcony and balcony door, filled up six floors, cuts the door's opening in the façade at every copy and joins each balcony slab to that floor's slab edge with its railing on the slab.
+
+*Built (2026-11-12, first build):* `riviera_core::modular_units`; the group instance carries its handing and level mapping (`groups.rs`); Architecture › Model › Create Unit Type, Unit Array and Connect Units. Commands as built:
+- `unit.create_type(element_ids, name, origin, rotation?, width, depth, keep?) -> {type_id, group_type, members}`;
+- `unit.array(unit_type, path, levels[], sides?, corridor?, pitch?, count?, start?, exclusions?, handing?, variants?, numbering?, name?) -> {array_id, copies, per_level, per_type, unmerged}`: along a straight path, one or both sides of a corridor, `exclusions` as stretches along the path, `variants` as `{unit_type, every, first}`;
+- `unit.set_array(array_id, …)` remakes the copies; `unit.list(array_id?)`, `unit.types()`;
+- `unit.connect(array_id | copy_ids, spines[]) -> {branches, unconnected, spines [{spine, branches, flow}]}`: every open duct and pipe connector into the nearest straight level main of its system on its level, by Connect Into (MEP-DUCT-009), joining the main's system; the main's pieces split at each tee are followed.
+
+Merging as built: a unit wall that lies on another wall (parallel, overlapping along half its length, within the two walls' half-thicknesses) is not built, and its doors and windows are hosted on that wall where they stand; corridor- and façade-face walls with nothing to merge with are listed. A slab wholly beyond the façade face joins (`rxd:joined_to`) the floor on its level within 0.35 m. Editing a copy (Edit Group, Finish) undoes its merges first, mirrors it back to the type's hand and maps its level back, takes the template, and remakes and re-merges every copy. Defaults are E-133. Not yet: grids and volume fills with exclusion shapes, curved paths, *Edit Unit* in isolated views, connection points placed by hand, vertical spines and risers, sizing the trunks from the sums, variant rules by count (ADA 224.2), balcony railings hosted on the slab edge, continuous balconies and thermal breaks, GlobalIds kept when copies are remade, tees left on the mains when copies are remade, `IfcZone`s and unit schedules.
 
 ---
 
