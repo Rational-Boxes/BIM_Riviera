@@ -12,14 +12,14 @@ Start with **File › New**.
 2. **The deck.** Draw a floor 34 × 22 m from (0, 0) with **Architecture › Build › Floor**.
 3. **The enclosure.** Make a railing type *Pool enclosure 6 ft*: 1.85 m high, its bottom rail
    50 mm up, 25 mm balusters at 120 mm (**[gap]** `railing_type.create` from a script). Draw it
-   round the deck with **Architecture › Build › Railing**, closed, from (0.3, 0.3) to
+   round the deck with **Architecture › Circulation › Railing**, closed, from (0.3, 0.3) to
    (33.7, 21.7). Add a gate at (17, 0.3) with Modify | Railings › **Gate**; **[gap]** set it to
    swing out from a script (`swing_out = true`). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.372 m (54 in) up: the MAHC asks 54 in at least and the ISPSC 52–54 in, so only 54 in passes both.
-4. **The pool.** Choose **Architecture › Build › Swimming Pool**, type the outline
+4. **The pool.** Choose **Interiors › Pools › Swimming Pool**, type the outline
    `4.5,17; 4.5,5; 29.5,5; 29.5,17` and the depths `0:0.9, 14:0.9, 21.5:1.524, 24:2.0, 25:2.0`:
    0.9 m deep for 14 m from the west wall, 5 ft at 21.5 m (1:12), and 2.0 m from 24 m to the
-   east wall. Add its markings with **Architecture › Build › Pool Depth Markings**.
-5. **The beach.** **Architecture › Build › Pool Entry**: choose *Beach (zero-depth) entry*, type
+   east wall. Add its markings with **Interiors › Pools › Pool Depth Markings**.
+5. **The beach.** **Interiors › Pools › Pool Entry**: choose *Beach (zero-depth) entry*, type
    width 6, then click the west wall at (4.5, 11). The beach rises 1:12 from the floor to the
    deck. The water's edge is 1.8 m out from the wall, and the beach meets the floor 12.6 m out.
    A beach has no handrails unless you ask for them.

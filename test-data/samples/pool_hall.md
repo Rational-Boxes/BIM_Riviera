@@ -11,7 +11,7 @@ Start with **File › New**.
 2. **The hall.** Draw four walls 6 m high on the deck's edges with **Architecture › Build ›
    Wall**, and a door in the west wall 15 m along it. They enclose the pools, the ISPSC's
    barrier for an indoor pool (305.2); **View › Coordination › Pool Barriers** shows it.
-3. **The main pool.** Choose **Architecture › Build › Swimming Pool**, *Competition 25 m*, and
+3. **The main pool.** Choose **Interiors › Pools › Swimming Pool**, *Competition 25 m*, and
    leave the lanes empty for six. Click (15.3, 12) for its centre and a point east of it for its
    deep end. The pool is 25.03 × 15 m (2.5 m lanes and 30 mm for the touch pads) and 2.0 m deep.
    Its six lanes come with it: the middle four 2.5 m, the outer two 2.4 m with 0.1 m gaps at the
@@ -22,7 +22,7 @@ Start with **File › New**.
 4. **The teaching pool.** Choose **Swimming Pool** again, *Teaching 12 × 7 m*, and enter the depths
    `0:0.6, 12:0.9`. Click (36.05, 20) and a point east of it. Its floor falls from 0.6 m to 0.9 m,
    a slope of 1:40.
-5. **Depth markings.** Select each pool in turn and choose **Architecture › Build › Pool Depth
+5. **Depth markings.** Select each pool in turn and choose **Interiors › Pools › Pool Depth
    Markings**, leaving the defaults: markers on the deck and walls at each end's and side's least
    and greatest depth, every slope change and every foot of depth to 5 ft, never more than 25 ft
    apart and moved clear of the platforms and ladders; NO DIVING beside each where the water is
@@ -40,7 +40,7 @@ Start with **File › New**.
    *Lifeguard chair 6 ft* at (16, 21.6), both facing the water.
 9. **Drains.** From *Fittings*, place two *Main drain cover 300 × 300* at (15, 12) and (17, 12),
    2.15 m down on the floor between the lines of lanes 3 and 4.
-10. **The teaching pool's entries.** Select the teaching pool and choose **Architecture › Build ›
+10. **The teaching pool's entries.** Select the teaching pool and choose **Interiors › Pools ›
    Pool Entry**: *Stairs*, clicking by its west wall at (30.05, 18.5), then *Sloped entry (ADA)* at
    (30.05, 21.5), and *Stairs* again by its east wall at (42.05, 20). The stairs step down in equal
    risers on 12 in treads; the sloped entry falls 1:12 for 10 m to 27 in below the water. The
@@ -70,7 +70,7 @@ Start with **File › New**.
 15. **The plant room.** Draw three walls 4.0 m high from (44.1, 0) to (65, 0), (65, 5) and (44.1, 5),
    against the hall's east wall, with a door in the east one, and place a room *Pool plant*
    inside (**Architecture › Room & Area › Room**). Select the main pool and choose
-   **Architecture › Build › Pool Plant**, keep the basis, two filters and the 15 m head, and click
+   **Interiors › Pools › Pool Plant**, keep the basis, two filters and the 15 m head, and click
    inside the room. Along its south wall, 0.5 m off it: the balance tank, a duty and a standby
    pump, the two filters and the hypochlorite and acid tanks 2 m apart. The room's 100 m² is
    inside the 15–30 % of the water Sport England asks for, and the row fits.

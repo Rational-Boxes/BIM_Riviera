@@ -8,7 +8,7 @@ Start with **File › New**. In **Manage › Model Properties**:
 - set the **Building code** to the *IBC* and the **Accessibility rule set** to *2010 ADA Standards*;
 - under **Retail rules**, tick *IBC Group M: aisles* and *Store planning practice*.
 
-1. **The main bank.** In a plan, choose **Architecture › Build › Checkout Bank**, keep the
+1. **The main bank.** In a plan, choose **Interiors › Retail › Checkout Bank**, keep the
    carousel checkstand, *Aisle on the right*, *Checkout* and an 84 in pitch, and leave the lane
    count empty. Click (0, 3) and (20, 3) for the line the exit ends stand on, then a point north
    of it. Nine lanes fit; lanes 2, 5 and 8 (from the west) are accessible, as Table 227.2 asks of

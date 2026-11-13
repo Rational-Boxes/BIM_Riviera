@@ -10,7 +10,7 @@ clearances, shower falls and waterproofing) and `us_spa` (NEC 680 for hot tubs, 
 table). Each room below is four 200 mm walls (**Architecture › Wall**, typing the corners);
 the sizes given are inside the walls, from the inside corner named.
 
-1. **A full bath.** Walls round 1.525 × 2.44 m (5 × 8 ft) from (0, 0). **Architecture › Build ›
+1. **A full bath.** Walls round 1.525 × 2.44 m (5 × 8 ft) from (0, 0). **Interiors › Bath & Toilet ›
    Bathroom Layout**: choose *Full bath (US, 5 × 8 ft)* and click inside the room. The tub goes
    across one end, and the WC and a pedestal lavatory go along a long wall at the IPC's
    spacings: the WC's centre is 15 in from the tub. **View › Coordination › Check Bathrooms**
@@ -22,13 +22,13 @@ the sizes given are inside the walls, from the inside corner named.
    wall.
 3. **A level-access shower room.** Walls round 2.4 × 2.5 m from (6, 0), and an
    **Architecture › Floor** over the inside.
-   1. **Architecture › Build › Bathroom**: choose *Roll-in shower, 60 × 30 in* and click near the
+   1. **Interiors › Bath & Toilet › Bathroom**: choose *Roll-in shower, 60 × 30 in* and click near the
       south wall at x = 7.2. The 13 mm former goes against the wall.
-   2. Select the shower, then use **Architecture › Build › Shower Falls**. Leave the fall empty,
+   2. Select the shower, then use **Interiors › Bath & Toilet › Shower Falls**. Leave the fall empty,
       for the IPC's ¼ in per foot, and choose *Linear, along the back*. A floor drain goes 100 mm
       in from the back wall. The floor under the shower now falls to it: the front edge stays
       level and the back drops 16 mm. The floor's shape-editing points show the warp.
-   3. **Architecture › Build › Waterproofing** lists the shower's walls to 6 ft and its floor,
+   3. **Interiors › Bath & Toilet › Waterproofing** lists the shower's walls to 6 ft and its floor,
       with areas. Answer *Yes* to copy the list as CSV.
 4. **A hot tub room.** Walls round 5 × 4 m from (10, 0), and a floor.
    1. **Bathroom**: *Hot tub, 2.0 × 2.0 m*. Place it away from the walls, at the room's middle
@@ -39,7 +39,7 @@ the sizes given are inside the walls, from the inside corner named.
       the note asks for a 100 mm reinforced concrete pad. Upstairs, the same load would be
       reported against the 40 psf floors are commonly designed for.
 5. **A sauna.** Walls 2.2 m high round 2.4 × 2.0 m from (17, 0).
-   1. Put a door in the north wall (**Architecture › Door**). **Architecture › Build › Sauna**:
+   1. Put a door in the north wall (**Architecture › Door**). **Interiors › Gym & Spa › Sauna**:
       two tiers, no uninsulated surface, insulated walls, and the heater left empty. Click inside
       the room.
    2. Bench modules 600 mm long go along a long wall in two tiers. The upper tops are 1.05 m up,
@@ -53,7 +53,7 @@ the sizes given are inside the walls, from the inside corner named.
       doors open outward, with no lock.
 
 6. **A steam room.** Walls 2.4 m high round 2.4 × 1.8 m from (21, 0), and a floor.
-   1. **Architecture › Build › Steam Room**: the ceiling's high side 2130 mm, ceramic tile, no
+   1. **Interiors › Gym & Spa › Steam Room**: the ceiling's high side 2130 mm, ceramic tile, no
       outside wall, Walls *Vapour-proof*. Click inside the room. The four walls take the *Steam
       Room Wall (TCNA SR614)* type, thinner than 200 mm, so the room grows a little.
    2. The ceiling goes over the room: 2.13 m over the south wall, falling 1:6 to 1.83 m at the

@@ -300,7 +300,7 @@ fn plain_html(html: &str, dark: bool) -> String {
         "<html><head><title>{title}</title></head>\
          <body bgcolor=\"{paper}\" text=\"{ink}\" link=\"{accent}\">\
          <table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" bgcolor=\"{card}\"><tr><td>\
-         &nbsp;&nbsp;<a href=\"riviera:help/index\">Home</a>{back}&nbsp;&nbsp;&nbsp;<font color=\"{muted}\">{title}</font>\
+         &nbsp;&nbsp;<a href=\"riviera:help/index\">Home</a>{back}&nbsp;&nbsp;<a href=\"riviera:help-search\">Search</a>&nbsp;&nbsp;&nbsp;<font color=\"{muted}\">{title}</font>\
          </td></tr></table>\
          <table width=\"100%\" cellpadding=\"20\" cellspacing=\"0\"><tr><td>{body}</td></tr></table>\
          </body></html>",
@@ -321,6 +321,8 @@ pub(crate) enum Link {
     Help(Place),
     /// The help page shown before.
     HelpBack,
+    /// Search the help, asking for the words (`riviera:help-search`).
+    HelpSearch,
     External(String),
     /// Within the page (anchors), or the page itself.
     Page,
@@ -339,6 +341,9 @@ pub(crate) fn classify(url: &str) -> Link {
     }
     if url == "riviera:help-back" {
         return Link::HelpBack;
+    }
+    if url == "riviera:help-search" {
+        return Link::HelpSearch;
     }
     if let Some(rest) = url.strip_prefix("riviera:help/") {
         let (slug, anchor) = match rest.split_once('#') {
@@ -480,7 +485,7 @@ pub(crate) fn samples(dir: &Path) -> Vec<Sample> {
         .collect()
 }
 
-fn escape(s: &str) -> String {
+pub(crate) fn escape(s: &str) -> String {
     s.replace('&', "&amp;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
@@ -577,6 +582,11 @@ pub(crate) fn page_html(place: &Place, samples: &[Sample], back: bool) -> Option
         let body = walkthrough_html(s)?;
         return Some(frame(&format!("{}: walkthrough", s.title), &body, place, back));
     }
+    if let Some(q) = place.slug.strip_prefix(super::help_search::SEARCH) {
+        let q = super::help_search::decode(q);
+        let body = super::help_search::results_html(&q, samples);
+        return Some(frame(&format!("Search: {q}"), &body, place, back));
+    }
     let p = page(&place.slug)?;
     let body = if p.slug == "index" {
         p.body
@@ -601,11 +611,14 @@ fn frame(title: &str, body: &str, place: &Place, back: bool) -> String {
         .as_deref()
         .map(clean_anchor)
         .unwrap_or_default();
+    // The search box keeps the words searched for.
+    let query = place.slug.strip_prefix(super::help_search::SEARCH).map(super::help_search::decode).unwrap_or_default();
     // The body goes in last, so nothing in it is taken for a placeholder.
     SHELL
         .replace("{{TITLE}}", &escape(title))
         .replace("{{BACK}}", back)
         .replace("{{ANCHOR}}", &anchor)
+        .replace("{{QUERY}}", &escape(&query))
         .replace("{{BODY}}", body)
 }
 
@@ -691,6 +704,7 @@ impl Gui {
                 Link::Action(action) => super::perform(&gui, &frame, &action),
                 Link::Help(place) => with(&gui, |g| g.help_go(place)),
                 Link::HelpBack => with(&gui, Gui::help_back),
+                Link::HelpSearch => with(&gui, Gui::help_search),
                 Link::External(url) => {
                     launch_default_browser(&url, BrowserLaunchFlags::Default);
                 }
@@ -731,7 +745,7 @@ impl Gui {
     /// Shows the help page at `place` in the help tab, remembering the page shown for Back.
     pub(crate) fn help_go(&mut self, place: Place) {
         let Some(h) = &mut self.help else { return };
-        if page(&place.slug).is_none() && !place.slug.starts_with(WALKTHROUGH) {
+        if page(&place.slug).is_none() && !place.slug.starts_with(WALKTHROUGH) && !place.slug.starts_with(super::help_search::SEARCH) {
             self.frame
                 .set_status_text(&format!("There is no help page {}", place.slug), 0);
             return;
@@ -742,6 +756,17 @@ impl Gui {
             h.back.remove(0);
         }
         self.help_show_page();
+    }
+
+    /// Asks for words to search the help for, and shows what is found (`riviera:help-search`,
+    /// for the HTML window, which has no search box).
+    pub(crate) fn help_search(&mut self) {
+        let d = TextEntryDialog::builder(&self.frame, "Search the help pages, walkthroughs and tools for:", "Search Help").build();
+        if d.show_modal() != ID_OK {
+            return;
+        }
+        let Some(q) = d.get_value().filter(|q| !q.trim().is_empty()) else { return };
+        self.help_go(Place { slug: format!("{}{}", super::help_search::SEARCH, super::help_search::encode(q.trim())), anchor: None });
     }
 
     /// Goes back to the help page shown before.
@@ -755,7 +780,7 @@ impl Gui {
     /// Loads the help tab's current page into its webview.
     fn help_show_page(&self) {
         let Some(h) = &self.help else { return };
-        let samples = if h.here.slug == "index" || h.here.slug.starts_with(WALKTHROUGH) {
+        let samples = if h.here.slug == "index" || h.here.slug.starts_with(WALKTHROUGH) || h.here.slug.starts_with(super::help_search::SEARCH) {
             samples_dir().map(|d| samples(&d)).unwrap_or_default()
         } else {
             Vec::new()
@@ -1008,7 +1033,7 @@ mod tests {
                         let n = to.slug.strip_prefix(WALKTHROUGH).unwrap_or_else(|| panic!("{}: {href}", s.name));
                         assert!(list.iter().any(|x| x.name == n && x.walkthrough.is_some()), "{}: no walkthrough {n}", s.name);
                     }
-                    Link::HelpBack | Link::External(_) => {}
+                    Link::HelpBack | Link::HelpSearch | Link::External(_) => {}
                     Link::Action(id) => panic!("{}: action {id}", s.name),
                 }
             }
@@ -1098,7 +1123,7 @@ mod tests {
                             panic!("{}: link {href} goes nowhere", p.slug);
                         }
                     }
-                    Link::HelpBack | Link::External(_) => {}
+                    Link::HelpBack | Link::HelpSearch | Link::External(_) => {}
                 }
             }
             // Every page but the landing page is in the contents.

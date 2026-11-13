@@ -75,6 +75,9 @@ pub struct AtriumRecipe {
     pub roof_outline: Vec<[f64; 2]>,
     #[serde(default)]
     pub roof_offset: f64,
+    /// The glazed walls closing the roof's sides (GlobalIds).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub walls: Vec<String>,
 }
 
 pub fn recipe(e: &Element) -> Option<AtriumRecipe> {
@@ -123,6 +126,9 @@ pub struct CreateParams {
     pub roof_offset: Option<f64>,
     /// A sloped glazing roof type (default *Atrium glazing*, made the first time).
     pub glazing_type: Option<ElementRef>,
+    /// Glazed curtain walls on the top level closing the roof's sides, 0.3 m inside its edges,
+    /// their tops attached to the roof (default false).
+    pub walls: Option<bool>,
     /// The guards' height (default 42 in); 0 for none.
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub guard_height: Option<f64>,
@@ -135,6 +141,8 @@ pub struct Created {
     pub shaft: ElementId,
     pub roof: ElementId,
     pub guards: Vec<ElementId>,
+    /// The glazed walls under the roof's edges.
+    pub walls: Vec<ElementId>,
     /// The levels whose floors it opens.
     pub opened: Vec<String>,
 }
@@ -240,6 +248,26 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Creat
             crate::roofs::create(txn, r)?
         }
     };
+    // The roof's sides closed in glass: curtain walls 0.3 m inside its edges, attached to it.
+    let mut walls = Vec::new();
+    if p.walls.unwrap_or(false) {
+        let inner = crate::pools::offset(&roof_outline, -0.3);
+        let n = inner.len();
+        for k in 0..n {
+            // Every other wall stops short of the corners by a mullion, so the corners meet once.
+            let (mut a, mut b) = (inner[k], inner[(k + 1) % n]);
+            if k % 2 == 1 {
+                let l = (b[0] - a[0]).hypot(b[1] - a[1]).max(1e-9);
+                let d = [(b[0] - a[0]) / l * 0.1, (b[1] - a[1]) / l * 0.1];
+                a = [a[0] + d[0], a[1] + d[1]];
+                b = [b[0] - d[0], b[1] - d[1]];
+            }
+            let c: crate::curtain::CreateParams = serde_json::from_value(json!({ "curve": { "start": a, "end": b }, "base_level": top, "top_constraint": { "unconnected": offset + 1.0 } })).expect("valid");
+            walls.push(crate::curtain::create(txn, c)?);
+        }
+        let a: crate::walls::attach::AttachParams = serde_json::from_value(json!({ "wall_ids": walls, "target_id": roof })).expect("valid");
+        crate::walls::attach::attach(txn, a)?;
+    }
     let s = txn.store().clone();
     let rec = AtriumRecipe {
         kind: RECIPE.into(),
@@ -252,6 +280,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Creat
         guards: guards.iter().map(|g| guid(&s, *g)).collect(),
         roof_outline: roof_outline.clone(),
         roof_offset: offset,
+        walls: walls.iter().map(|w| guid(&s, *w)).collect(),
     };
     let atrium = txn.create(
         NewElement::new("IfcSpace")
@@ -260,7 +289,7 @@ pub(crate) fn create(txn: &mut Transaction<'_>, p: CreateParams) -> Result<Creat
             .param("@ObjectType", "Atrium")
             .param(RECIPE_KEY, serde_json::to_value(&rec).expect("serialises")),
     )?;
-    Ok(Created { atrium, shaft, roof, guards, opened: opened.iter().map(|l| l.name.clone()).collect() })
+    Ok(Created { atrium, shaft, roof, guards, walls, opened: opened.iter().map(|l| l.name.clone()).collect() })
 }
 
 // ---- The check ----

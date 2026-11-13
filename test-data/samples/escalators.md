@@ -10,7 +10,7 @@ rules (at most 30° and 0.5 m/s, 2130 mm headroom, a safety zone at each end, 10
 the handrails) and the makers' generic sizes. Add Levels 2 and 3 at 5.0 and 10.0 m, and a
 40 × 24 m **Architecture › Floor** from (0, 0) on every level.
 
-Every escalator and walk comes from **Architecture › Circulation › Escalator** in the plan of
+Every escalator and walk comes from **Architecture › Lifts & Transport › Escalator** in the plan of
 its lower level. Type the point of the middle of its lower end, or click it. At rotation 0 it
 rises toward the right.
 
@@ -24,7 +24,7 @@ rises toward the right.
    out at 12°.
 4. **A horizontal walk.** In the Level 3 plan: *Moving walk*, *Up to* "None", 1400 mm, walk
    length 30 m, *On the floor*, at `5, 20`.
-5. **Check.** **Architecture › Circulation › Check Escalators** finds no problems, and **View ›
+5. **Check.** **Architecture › Lifts & Transport › Check Escalators** finds no problems, and **View ›
    Coordination › Check Clearances** finds nothing in their headroom, side clearance or landing
    zones. Set a 3D view's virtual volumes to *Translucent* to see them.
 

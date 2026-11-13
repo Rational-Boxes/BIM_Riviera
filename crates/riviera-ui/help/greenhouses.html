@@ -113,7 +113,7 @@ hubs, panels and struts, with the struts by length class (A, B, C, shortest firs
 <code>roof.create_geodesic</code>, <code>roof.set_geodesic</code>, <code>roof.geodesic</code></p>
 
 <h2 id="growing">Growing layouts</h2>
-<p>Select a greenhouse (or a room, for an indoor grow room) and click <b>Architecture › Build › Growing Layout</b>
+<p>Select a greenhouse (or a room, for an indoor grow room) and click <b>Interiors › Glazed Spaces › Growing Layout</b>
 <a class="run" href="riviera:action/growing.layout">Growing Layout</a>. Choose the system and how
 it runs, and the floor is filled, clear of the walls and the posts:</p>
 <table>
@@ -154,7 +154,7 @@ of them there. <i>None</i> removes the climate. <code>growing.crops</code>,
   <li>the <b>Darkest Month</b>'s natural light and what the lamps add, the <b>Lamp PPFD</b> it needs
     over the photoperiod, and the <b>Months Short of Target</b>.</li>
 </ul>
-<p><b>Grow lights.</b> With the greenhouse selected, <b>Architecture › Build › Grow Lights</b>
+<p><b>Grow lights.</b> With the greenhouse selected, <b>Interiors › Glazed Spaces › Grow Lights</b>
 <a class="run" href="riviera:action/growing.lights">Grow Lights</a> hangs LED top-lights under
 the gutters on a grid across each span, enough for the darkest month (110 µmol/m²·s without a
 climate). Each fixture is a light fixture element (1,500 µmol/s at 600 W unless changed); select
@@ -233,11 +233,13 @@ it is in, its pieces, growing area, floor area and share. It then lists each ben
 table, with its own run and area.</p>
 
 <h2 id="atriums">Atriums</h2>
-<p><b>Architecture › Build › Atrium</b> opens a void through a building's floors. Choose the top
+<p><b>Interiors › Glazed Spaces › Atrium</b> opens a void through a building's floors. Choose the top
 level it opens, the roof's form (ridge, pyramid, barrel vault or flat), how high its plate stands
 above that level and how far it reaches past the void (more covers a terrace or a pool), then
 click two opposite corners of the void on the atrium floor's level. Every floor above is cut, a
-42 in guard stands 0.1 m back from each opened floor's edge, and the roof is glazed.</p>
+42 in guard stands 0.1 m back from each opened floor's edge, and the roof is glazed. In a
+script, <code>walls = true</code> closes the roof's sides with glazed curtain walls attached to
+it.</p>
 <p>Its report lists the storeys open to the atrium and IBC 404's requirements: smoke control over
 two storeys, sprinklers (none at a ceiling over 55 ft), separation beyond three open storeys,
 Class B finishes and 200 ft of travel. It sizes the smoke exhaust by the NFPA 92B (1991) plume
@@ -245,7 +247,7 @@ for a 5 MW fire with the layer held 6 ft above the highest walkway, and says whe
 low to hold it. <code>atrium.create</code>, <code>atrium.check</code></p>
 
 <h2 id="baffles">Sun-control baffles</h2>
-<p><b>Architecture › Build › Baffles</b> hangs rows of blades under (or over) a glazed roof: give
+<p><b>Interiors › Glazed Spaces › Baffles</b> hangs rows of blades under (or over) a glazed roof: give
 their height above the level, the direction they run, their spacing, depth and tilt from vertical,
 then click two opposite corners of the region they fill. The status bar gives the blades, their
 length and the cut-off: the angle from vertical, across the blades, beyond which no direct sun

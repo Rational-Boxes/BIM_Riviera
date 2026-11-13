@@ -8,7 +8,7 @@ Start with **File › New**, the **Building Code** at *International Building Co
 level at 7.0 m (the concourse) above the platform, and a 70 × 24 m **Architecture › Floor** from
 (0, 0) on each.
 
-1. **The pair.** In the platform's plan, **Architecture › Circulation › Escalator**:
+1. **The pair.** In the platform's plan, **Architecture › Lifts & Transport › Escalator**:
    - *Up to* the concourse, *Setting* "A station", at `20, 10`.
    - A station's escalator is heavy duty and runs at 0.65 m/s. A 6 m *station run-off* zone is
      kept beyond each end, besides the code's landing zone. Check Clearances reports anything

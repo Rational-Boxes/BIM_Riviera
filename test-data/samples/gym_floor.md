@@ -23,14 +23,14 @@ Start with **File › New**. In **Manage › Model Properties**, set the **Acces
    advisory).
 4. **A ceiling fan.** From **Riviera Interiors › Fans**, place the 52 in ceiling fan at (4.5, 4.5),
    2.5 m up.
-5. **A mirror.** Choose **Architecture › Build › Wall Mirror**, keep 0.4 to 2.1 m and *Safety
+5. **A mirror.** Choose **Interiors › Gym & Spa › Wall Mirror**, keep 0.4 to 2.1 m and *Safety
    glazing*, and click (17.8, 4.5), (17.8, 9) and a point in the room. It faces the strength area,
    away from the treadmills.
-6. **A cycling studio.** Select the *Cycle studio* room and choose **Architecture › Build ›
+6. **A cycling studio.** Select the *Cycle studio* room and choose **Interiors › Gym & Spa ›
    Studio**, *Indoor cycling*. At 1.5 × 2.0 m a bike its 76 m² holds about 25. Twelve bikes go in
    rows 2 m clear of the instructor's wall, facing it. **[gap]** The window takes the longest wall
    as the instructor's; the script picks the east wall with `head`.
-7. **A circuit room.** Select the *Circuit* room and choose **Architecture › Build › Gym Layout**.
+7. **A circuit room.** Select the *Circuit* room and choose **Interiors › Gym & Spa › Gym Layout**.
    Enter 3 commercial treadmills, 2 recumbent bikes, a rower, a leg press and a Smith machine. They
    go in a row along the north wall, each kept clear by its own zones. **[gap]** The window lays the
    rows from the longest wall; the script names the north wall with `head`.

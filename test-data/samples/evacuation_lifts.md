@@ -11,13 +11,13 @@ on each.
 1. **The stairs.** On each floor but the top, **Architecture › Stair**, 1200 mm wide, up to the
    floor above: from `2, 4` to `7.5, 4` on Levels 1, 3 and 5, and from `2, 7` to `7.5, 7` on
    Levels 2 and 4. After each, **Modify | Stairs › Stair Openings**.
-2. **The elevator.** **Architecture › Circulation › Elevator** from Level 1 to the top level, at
+2. **The elevator.** **Architecture › Lifts & Transport › Elevator** from Level 1 to the top level, at
    `26, 9`, its landing toward the south.
 3. **The way down by the stairs.** **Analyze › Route Analysis › Egress Route**:
    - from the top level at `28, 3` to Level 1 at `28, 3`, *Lifts* ticked;
    - the elevator is not marked for evacuation, so the route walks west and takes the five
      flights.
-4. **An evacuation elevator.** Select the elevator's car, then **Architecture › Circulation ›
+4. **An evacuation elevator.** Select the elevator's car, then **Architecture › Lifts & Transport ›
    Egress Role** and *Occupant evacuation elevator*.
    - Egress Route again with *Lifts* ticked: the route walks to the elevator's landing and rides
      it down.
@@ -33,7 +33,7 @@ on each.
 7. **Its lobbies.** On the top floor, three **Walls** carrying the hoistway's side walls on 3 m
    from its front wall, and one across, enclosing the landing. Put a **Door** in the middle of the
    wall across, then a **Room** inside them.
-   - **Architecture › Circulation › Check Lobbies**, *Occupants a floor* empty: 512 m² at
+   - **Architecture › Lifts & Transport › Check Lobbies**, *Occupants a floor* empty: 512 m² at
      13.94 m² a person is 37 people.
    - The top lobby must hold a quarter of them, 10, at 0.28 m², and one wheelchair space: 3.7 m².
      At 7.5 m² it is large enough.

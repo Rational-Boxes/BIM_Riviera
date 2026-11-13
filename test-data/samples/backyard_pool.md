@@ -13,12 +13,12 @@ Start with **File › New**.
    Build › Railing**, closed, from (0.3, 0.3) to (15.7, 11.7), and add a gate with Modify | Railings › **Gate**, swinging out, away from the pool
    (**[gap]** its swing is set from a script, `swing_out = true`), at (8, 0.3). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.40 m (55 in) up.
    **View › Coordination › Pool Barriers** shows it enclosing the pool (ISPSC 305).
-3. **The pool.** Choose **Architecture › Build › Swimming Pool**, type the outline
+3. **The pool.** Choose **Interiors › Pools › Swimming Pool**, type the outline
    `3,8.5; 3,3.5; 13,3.5; 13,8.5` (its first edge, the west wall, is the shallow end) and the
    depths `0:1.0, 4:1.4, 5:1.524, 7:2.0`: 1.0 m (39 in) at the shallow end, falling 1:10 to
    1.4 m and 1:8 to the 5 ft break (the ISPSC allows 1:7), then to 2.0 m. **[gap]** Mark it residential with `pool.set{class = "residential"}` from a script:
    the window has no class field yet.
-4. **Stairs and a bench.** Select the pool and choose **Architecture › Build › Pool Entry**:
+4. **Stairs and a bench.** Select the pool and choose **Interiors › Pools › Pool Entry**:
    *Stairs* 1.8 m wide, clicking by the west wall at (3, 7.5); then *Underwater bench*, clicking
    by the south wall at (5.5, 3.5). The stairs step down 1.15 m in five equal risers of 230 mm
    on 12 in treads; the bench's seat is 0.45 m below the water.

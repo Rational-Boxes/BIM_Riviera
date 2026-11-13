@@ -16,7 +16,7 @@ Add Level 2 at 3.0 m. Draw a 32 × 16 m **Architecture › Floor** from (0, 0) o
 Level 2, draw the same floor with two inner loops for the hall's stairwells: (13, 1.8) to
 (17.48, 3.0), and (24, 1.6) to (27.4, 4.86).
 
-Every lift comes from **Architecture › Circulation › Stairlift** with its stair selected.
+Every lift comes from **Architecture › Lifts & Transport › Stairlift** with its stair selected.
 
 1. **The house's stair and its seated lift.**
    - Draw an **Architecture › Stair** on Level 1, 914 mm wide, from `3, 3` to `7.48, 3`: 17
@@ -43,7 +43,7 @@ Every lift comes from **Architecture › Circulation › Stairlift** with its st
    - A stair that turns takes the curved family: an 800 × 1220 mm platform on tubes that follow
      the landing. It needs 1225 mm on the inside of the bend, and the stair has 1300 mm.
 4. **Check.**
-   - **Architecture › Circulation › Check Stairlifts** finds no problems.
+   - **Architecture › Lifts & Transport › Check Stairlifts** finds no problems.
    - **View › Coordination › Check Clearances** finds nothing in the running envelopes, head
      boxes, run-outs or wheelchair spaces.
    - Set a 3D view's virtual volumes to *Translucent* to see them.

@@ -13,7 +13,7 @@ Start with **File › New**. In **Manage › Model Properties** leave the **Buil
 
 1. **Levels and floors.** Add Levels 2–5 at 4.0, 7.5, 11.0 and 14.5 m (**Architecture › Level**).
    On each level draw an **Architecture › Floor** over 24 × 14 m from (0, 0).
-2. **Two passenger elevators.** Open the Level 1 plan. **Architecture › Circulation › Elevator**:
+2. **Two passenger elevators.** Open the Level 1 plan. **Architecture › Lifts & Transport › Elevator**:
    1. Choose *Serves up to* Level 5 and leave the rated load empty.
    2. Leave the drive at *Traction, no machine room*, the speed at 1.0 m/s, the doors *As the car
       comes* and the rotation at 0.
@@ -35,7 +35,7 @@ Start with **File › New**. In **Manage › Model Properties** leave the **Buil
 4. **Schedule.** **View › Create › Schedules**, category *Transport Elements*: one row per car
    with its stops, load, persons, speed, drive, car, hoistway, pit, overhead, motor power and
    heat. Name it *Elevator Schedule*.
-5. **Check.** **Architecture › Circulation › Check Elevators** finds no problems. **View ›
+5. **Check.** **Architecture › Lifts & Transport › Check Elevators** finds no problems. **View ›
    Coordination › Check Clearances** finds nothing in the hoistways or machine spaces. Switch a 3D view's virtual
    volumes to *Translucent* to see each hoistway (violet) from pit to overhead.
 

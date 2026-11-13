@@ -18,14 +18,14 @@ Start with **File › New**.
    swinging out, away from the pool (**[gap]** its swing is set from a script,
    `swing_out = true`). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.38 m (54.3 in) up. **View › Coordination › Pool Barriers** shows it enclosing the pool; the
    MAHC asks for 6 ft (4.8.6).
-4. **The pool.** Choose **Architecture › Build › Swimming Pool**, *Typed outline*, and type the
+4. **The pool.** Choose **Interiors › Pools › Swimming Pool**, *Typed outline*, and type the
    outline `6,15; 6,5; 26,5; 26,15` (its first edge, on x = 6, is the shallow end) and the depths
    `0:0.9, 8:1.524, 11:2.5`. The floor falls 1:12.8 to the 5 ft break and 1:3.1 beyond it.
-5. **Depth markings.** Select the pool and choose **Architecture › Build › Pool Depth Markings**:
+5. **Depth markings.** Select the pool and choose **Interiors › Pools › Pool Depth Markings**:
    markers in feet and inches every foot of depth to 5 ft (the MAHC's step; the ISPSC asks for
    2 ft), at most 25 ft apart, with NO DIVING to 5 ft; and the break-point band 8 m along the pool,
    where the floor reaches 5 ft, with the float line 1 ft shallower.
-6. **Built-in entries.** Select the pool and choose **Architecture › Build › Pool Entry**:
+6. **Built-in entries.** Select the pool and choose **Interiors › Pools › Pool Entry**:
    *Stairs*, then click by the shallow end's wall at (6, 8): five equal risers of 210 mm on 12 in
    treads. Again, *Sloped entry (ADA)*, at (6, 13): a 1:12 ramp 10 m long to 27 in below the
    water.

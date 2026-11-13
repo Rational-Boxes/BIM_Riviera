@@ -118,7 +118,14 @@ ribbon's tools, the command shell, Lua and MCP alike.
   results), MEP and energy, daylight and carbon, and the sample models grouped by the part of the
   application they show, each opened (as a fresh copy, with its weather file) from its link, with
   a Walkthrough page of how it was built. Help › About gives the version and licence; Help › Data
-  Sources the online services' credits.
+  Sources the online services' credits. A **search box** on every help page finds sections of the
+  help pages, the samples and their walkthroughs, and the ribbon's tools (with their *Tab ›
+  Panel* and a Run button) holding all the words typed (UI-SEARCH-001, help part; the title-bar
+  Command Search is not built yet).
+- **Ribbon tabs**: Architecture (shell, circulation, lifts and transport, openings, datums,
+  groups and units), **Interiors** (rooms and furniture, bathrooms and toilets, kitchens and
+  casework, retail, gym and spa, pools, atriums and glazed spaces), Structure, Steel, Concrete,
+  Systems, Analyze, Sustainability, Massing & Site, Annotate, View, Manage and Modify.
 - **Several models at once**: each opens in its own tabs; File › Close Model (Ctrl+Shift+W)
   closes the active one and its views, asking to save changes.
 - **Model Properties** (Manage › Settings, UN; File menu): the model-wide settings in one dialog:
@@ -641,46 +648,46 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   bathroom and vertical transport included (`rules.packs`, `rules.set_packs`, `rules.add_pack`,
   `rules.remove_pack`, `rules.set_accessible`, `rules.check`). Not built yet: room layouts,
   hotel floors, fixture runs, front ends and gym layouts, which the plan goes on to.
-- **Cabinet runs and countertops** (ARC-KIT-001/002). Architecture › Build › Cabinet Run lays
+- **Cabinet runs and countertops** (ARC-KIT-001/002). Interiors › Kitchen & Casework › Cabinet Run lays
   base, wall or tall units along a wall from a clicked start to end, in US (36 in, 9–48 in) or
   EU (600 mm) widths chosen to leave the least filler, facing away from the wall; Countertop
   tops each base run, 1 in past the fronts at 36 in (`cabinet.run`, `cabinet.runs`,
   `countertop.from_runs`). Not built yet: corner units, appliances, islands, backsplashes and
   cut-outs.
-- **Counters** (ARC-INT-004). Architecture › Build › Counter lays a transaction (42 in), service
+- **Counters** (ARC-INT-004). Interiors › Kitchen & Casework › Counter lays a transaction (42 in), service
   (36 in), bar or work (29 in) counter along a wall, with an accessible portion lowered to 36 in
   for a parallel or forward approach. Check Rules checks the portion against the 2010 ADA
   Standards §904.4 and §306 (its length and height, its clear floor space and knee clearance)
   through a new surfaces rule kind (`counter.run`). Not built yet: closets, lowered bar sections
   and check-out aisles.
-- **Closets** (ARC-INT-005). Architecture › Build › Closet fits rods and a shelf along a closet's
+- **Closets** (ARC-INT-005). Interiors › Kitchen & Casework › Closet fits rods and a shelf along a closet's
   back wall: a single rod at 66 in, double hang at 40 and 80 in, or accessible fittings at 42 and
   46 in, which Check Rules holds within the 2010 ADA Standards' side reach (§308.3.2)
   (`closet.create`). Not built yet: closet doors, walk-ins and drawers.
 - **Hotel guest rooms** (ARC-INT-002). Room Layout gains king, two-queen, accessible-king and
-  junior-suite guest rooms, each marking its room as a guest room; Architecture › Build › Guest
+  junior-suite guest rooms, each marking its room as a guest room; Interiors › Rooms & Furniture › Guest
   Room sets a room's class and its mobility, roll-in shower and communication features. View ›
   Coordination › Room Matrix counts the rooms by floor and class and checks them against the 2010
   ADA Standards' Tables 224.2 and 224.4 and §224.5, or Approved Document M's one accessible
   bedroom in twenty (`hotel.set_room`, `hotel.room_matrix`). Not built yet: guest rooms as modular
   units, bathrooms in the templates, and whole floors in one step.
-- **Gondola runs** (ARC-RETAIL-001). Architecture › Build › Gondola Run lays an island run of
+- **Gondola runs** (ARC-RETAIL-001). Interiors › Retail › Gondola Run lays an island run of
   48, 36, 30 and 24 in gondola sections between end caps, or a wall run, at the fixture makers'
   sizes (`retail.run`). Check Rules keeps the aisles clear: the 2010 ADA Standards' 36 in route
   and 48 in turn round an end cap (§403.5), the IBC's 44 in Group M aisle, and a 6 ft practice cart
   aisle as a note. Not built yet: grids of runs and passing spaces.
-- **Store checks** (ARC-RETAIL-002). Architecture › Build › Store Area marks rooms as a sales
+- **Store checks** (ARC-RETAIL-002). Interiors › Retail › Store Area marks rooms as a sales
   floor or stock rooms; View › Coordination › Check Store counts the occupants (60 and 300 ft² a
   person) and checks gondolas and racks: 18 in under sprinkler deflectors (36 in for ESFR), and
   notes for high-piled storage and anchoring (`retail.set_area`, `retail.check`). Not built yet:
   fitting rooms, signs, and the load feeding the egress tools.
-- **Checkout front ends** (ARC-RETAIL-003). Architecture › Build › Checkout Bank lays checkstands
+- **Checkout front ends** (ARC-RETAIL-003). Interiors › Retail › Checkout Bank lays checkstands
   or self-checkout lanes at a pitch along the store front, handed or in tandem pairs, with the
   accessible lanes ADA Table 227.2 asks spread across the bank and their 36 in aisles kept clear
   (`frontend.layout`). Check Checkouts counts each function, each self-checkout bank on its own,
   with the small-store exception (`checkout.check`); Checkout Lanes Estimate sizes a bank from the
   peak hour, as an estimate. Not built yet: parametric checkstands, exit gates.
-- **Self-checkout pods** (ARC-RETAIL-004). Architecture › Build › Self-checkout Pod sets units in
+- **Self-checkout pods** (ARC-RETAIL-004). Interiors › Retail › Self-checkout Pod sets units in
   two rows across a 10–12 ft courtyard with an attendant station at the closed end and a shared
   queue at the open end, a bank of its own under Table 227.2 (`sco.place_pod`). Self-checkout
   Profile states a unit's operable heights, screen and speech, keypad and Braille
@@ -690,18 +697,18 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   service clearances as IFC volumes, queues as `IfcSpatialZone`.
 - **Gyms** (ARC-GYM-001). The `gym_equipment` pack keeps each treadmill's 0.5 m sides and 2 m
   rear clear, a rower's use area, a dumbbell rack's live depth and 0.9 m round strength stations
-  (Check Rules). Architecture › Build › Wall Mirror places a mirror as an `IfcCovering` (MIRROR).
+  (Check Rules). Interiors › Gym & Spa › Wall Mirror places a mirror as an `IfcCovering` (MIRROR).
   View › Coordination › Check Gym checks one accessible machine of each type with its 30 × 48 in
   space (ADA §236.1), the ceiling over each piece, and mirrors at treadmills (`gym.mirror`,
   `gym.check`). A 52 in ceiling fan (`IfcFan`) joins the Interiors library. Not built yet: the
   UK's IFI counts, circuits, heat gains, floor loads and anchors.
-- **Gym layouts and studios** (ARC-GYM-002). Architecture › Build › Gym Layout fills a selected room
+- **Gym layouts and studios** (ARC-GYM-002). Interiors › Gym & Spa › Gym Layout fills a selected room
   in rows from its longest wall, each piece kept clear by its own zones with a 36 in aisle between
   rows (`gym.layout`); Studio sizes a cycling, mat or HIIT studio and lays out a cycling studio's
   bikes facing the instructor (`gym.studio`). Check Gym gives each room's occupant load. Not built
   yet: zoning cardio and strength, the accessible route to accessible machines.
 - **Swimming pools** (ARC-POOL-001…, `POOLS_PLAN.md`, research/23). The pool element is built
-  (Architecture › Build › Swimming Pool; `pool.create`, `pool.set`, `pool.info`, `pool.list`): a
+  (Interiors › Pools › Swimming Pool; `pool.create`, `pool.set`, `pool.info`, `pool.list`): a
   pool from a typed outline or a template (25 yd, 25 m and 50 m competition, teaching, lap):
   - its depth profile with the 5 ft break point, its edge (skimmer, deck-level gutters or an
     infinity edge) and coping;
@@ -711,7 +718,7 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   slopes either side of the break, depths, cove, coping, a clear deck, entries, accessible means of
   entry (ADA §242) and main drains (VGB), against the ISPSC, MAHC, ADA and VGB packs, each citing
   its own clause, with bather loads. Stairs, ADA sloped entries and underwater benches are built
-  into the pool (ARC-POOL-003; Architecture › Build › Pool Entry; `pool.add_entry`), counted and
+  into the pool (ARC-POOL-003; Interiors › Pools › Pool Entry; `pool.add_entry`), counted and
   measured by the checks. The *Riviera Pools* library holds the equipment, each item keeping its
   clear deck (ARC-POOL-004). Competition pools have their lanes and markings (Pool Lanes;
   `pool.lanes`), checked against World Aquatics: the course between the touch pads, lane widths,
@@ -747,9 +754,9 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
 
   Check Rules applies the 2010 ADA Standards' 80 in headroom (§307.4) and 4 in projection
   (§307.2), and practice heights over tables, through new headroom, projection and
-  height-over rule kinds. Architecture › Build › Decorative Lighting works on the selection
+  height-over rule kinds. Interiors › Rooms & Furniture › Decorative Lighting works on the selection
   (`lighting.chandelier`, `lighting.pendants`, `lighting.sconces`).
-- **Room layouts** (ARC-INT-001). Architecture › Build › Room Layout furnishes a room closed by
+- **Room layouts** (ARC-INT-001). Interiors › Rooms & Furniture › Room Layout furnishes a room closed by
   walls from a template:
   - queen, king, twin and UK double bedrooms;
   - a living room, and dining rooms for 4 and 6;
@@ -790,13 +797,13 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   puts the bars the packs ask for at fixtures (the ADA's WC side and rear bars), and Check
   Bathrooms reports a bar missing, short of its stretch, or with its height, diameter or gap out
   of range (`bath.place_grab_bars`, `grab_bar.create`, `grab_bar.set`).
-- **Generic bathroom components** (ARC-BATH-004): Architecture › Build › Bathroom places
+- **Generic bathroom components** (ARC-BATH-004): Interiors › Bath & Toilet › Bathroom places
   placeholder WCs, a urinal, lavatories, a bidet, baths, shower trays, a roll-in shower and
   accessories (mirror, dispensers, hand dryer, baby changing unit, shower seat, towel rail, …) on
   a wall face at their usual sizes and heights, with pipe or power connectors, written to IFC as
   sanitary terminals, furniture with their ObjectType, an electric appliance and a space heater
   (`bath.load_components`, `bath.place_component`).
-- **Bathroom layouts** (ARC-BATH-005): Architecture › Build › Bathroom Layout lays out a full
+- **Bathroom layouts** (ARC-BATH-005): Interiors › Bath & Toilet › Bathroom Layout lays out a full
   bath, three-quarter bath, powder room, UK family bathroom, en-suite, cloakroom or accessible
   toilet in a room closed by walls, spaced by the rule packs in use, or reports how many
   millimetres short the room is (`bath.layouts`, `bath.layout`).
@@ -880,7 +887,7 @@ The Structure epic has begun (spec Chapter 4 §4.1). A **Structure** tab carries
 tools and the datums.
 
 - **Elevators** (ARC-VT-001…004; the first part of the vertical-transport toolset in
-  `design_documents/VERTICAL_TRANSPORT_PLAN.md`): Architecture › Circulation › Elevator sizes an
+  `design_documents/VERTICAL_TRANSPORT_PLAN.md`): Architecture › Lifts & Transport › Elevator sizes an
   elevator under vertical-transport rule packs chosen from the building code (`us_ibc_ada`,
   `us_a17`, `practice_us`; `en81`, `en81_70`, `england_adm`, `practice_en`; MIT schema in
   `schemas/vt/`): the smallest car that meets the accessibility packs and, from four storeys
@@ -904,7 +911,7 @@ tools and the datums.
   (traction). Motor power, full-load current and heat are planning estimates from the load and
   speed, marked as such (no maker tables were found). Schedules of *Transport Elements* list
   each car with its sizes and estimates.
-- **Escalators and moving walks** (ARC-VT-010…012): Architecture › Circulation › Escalator makes
+- **Escalators and moving walks** (ARC-VT-010…012): Architecture › Lifts & Transport › Escalator makes
   an escalator, an inclined walk or a horizontal walk (`IfcTransportElement` ESCALATOR or
   MOVINGWALKWAY) shaped from the rise, sized from makers' generic envelopes (1.732 × rise + 4.70
   m at 30° with 2 flat steps), with shaft openings cutting the lower floor for its pit and the
@@ -933,14 +940,14 @@ tools and the datums.
   notes IBC 2409's fire-rated glazing for glass hoistways over two levels. Not built yet: glazed
   fronts and glass landing doors, partially enclosed hoistways and their guard heights,
   counterweight screens, solar gain of exterior shafts.
-- **Elevator traffic** (ARC-VT-018/019): Architecture › Circulation › Elevator Traffic gives each
+- **Elevator traffic** (ARC-VT-018/019): Architecture › Lifts & Transport › Elevator Traffic gives each
   group of elevators' up-peak round trip, interval, handling capacity in 5 minutes and waiting
   time against the targets for the building's use (office 30 s and 12 %, hotel, residential,
   hospital, clinic), with the population given or estimated from the floors; `escalator.traffic`
   compares escalators' and walks' capacity each way with the peak demand, one unit out. Planning
   check only (coefficients flagged for review). Not built yet: lunchtime and two-way simulation,
   zoned banks. **Egress routes across levels** (ANA-ROUTE-004): Analyze › Route Analysis › *Egress Route* finds the quickest way from a point on one level to an exit on another, each level walked round its obstacles and the stairs taken between them (escalators too under NFPA 130 or SCDF), with each leg's length and the total time, and draws it in the floor plans as paths of travel when asked. **Platform clearing** (ANA-ROUTE-005): *Platform Clearing* checks NFPA 130's two tests, a platform's load (typed, or worked out from the trains entering at once, those waiting and the area) out through its stairs, escalators (and evacuation elevators, when asked) within 4 minutes and its most remote point to a point of safety within 6. **Fare lines** (ARC-VT-022): *Fare Line* puts a row of gates across a concourse (turnstiles, paddle, wide and emergency gates) with its evacuation capacity; routes walk its aisles and Platform Clearing adds the wait at it, and at each later level's way out (a concourse's stairs up to the street). **Lifts in egress** (ANA-ROUTE-006): an elevator's *Egress Role* marks it for occupant evacuation (routes may take it, waiting for the car) or fire service, and *Check Lobbies* checks each evacuation elevator's lobby: its size for a quarter of the floor and its wheelchair spaces, and direct access to an exit stair (ANA-ROUTE-007). **Stations** (ARC-VT-020/021): an escalator's *Setting* may be a station (heavy duty, 0.65 m/s, a 6 m run-off zone beyond each end); `escalator.traffic` gives the units a station needs for its peak with one out, and what escalators add to a level's egress capacity under the IBC (nothing), NFPA 130 or SCDF (at most half, the worst unit out).
-- **Stairlifts and platform stairlifts** (ARC-VT-013…015): Architecture › Circulation › Stairlift
+- **Stairlifts and platform stairlifts** (ARC-VT-013…015): Architecture › Lifts & Transport › Stairlift
   puts a seated stairlift or a wheelchair platform lift (`IfcTransportElement` USERDEFINED
   STAIRLIFT or INCLINEDPLATFORMLIFT) on one side of the selected stair, its rail following the
   flights and landings, sized from makers' generic models (straight rack rails, or curved tubes
@@ -2122,12 +2129,12 @@ area by area (reviewed against the spec on 2026-10-15).
   sizing, following the house (`enclosure.pad_and_fan`, `IfcFan`, `IfcEvaporativeCooler`,
   ARC-GLZ-017); the `greenhouses` sample. Curtain walls' tops attach to one or more roofs
   (`wall.attach`).
-- **Atriums** (Architecture › Build › Atrium; ARC-GLZ-018): a void through the floors above a
+- **Atriums** (Interiors › Glazed Spaces › Atrium; ARC-GLZ-018): a void through the floors above a
   level with 42 in guards on each opened floor and a glazed roof (ridge, pyramid, barrel vault or
   flat) that can reach past the void over a terrace or a roof pool; Check reports the storeys open
   to it, IBC 404's requirements and the NFPA 92B smoke exhaust that holds the layer 6 ft above its
   highest walkway (`atrium.create`, `atrium.check`).
-- **Event and dining seating** (Architecture › Build › Seating Layout; ARC-INT-006): a room set
+- **Event and dining seating** (Interiors › Rooms & Furniture › Seating Layout; ARC-INT-006): a room set
   out as a banquet, theatre, classroom, boardroom, restaurant or reception from new *Events* and
   restaurant library items, with its seats against the IBC occupant load, exits and egress width
   (`seating.layout`).
@@ -2140,7 +2147,7 @@ area by area (reviewed against the spec on 2026-10-15).
 - **Rooftop PV arrays** (Systems › Electrical › PV Array; MEP-ELEC-022): modules filling a roof
   in rows clear of each other's winter shadow, set back from the edge and clear of the glazing,
   plant and lift overruns standing on it, with the array's kWp (`pv.array`).
-- **Sun-control baffles** (Architecture › Build › Baffles, View › Coordination › Sun Check;
+- **Sun-control baffles** (Interiors › Glazed Spaces › Baffles, View › Coordination › Sun Check;
   ARC-GLZ-019): rows of blades under or over a glazed roof, their spacing, depth and tilt setting
   the cut-off; Sun Check follows the sun on the solstices and equinoxes at the project's location
   and reports the share of the direct sun reaching each selected pool or room through them

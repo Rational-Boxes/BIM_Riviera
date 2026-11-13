@@ -820,7 +820,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `assembly.set_type` | 5 | assembly_ids[], assembly_type_id | () | Yes | DOC-ASM-003 |
 | `assemblytemplate.save` | 5 | sheet_id, name | template_id | Yes | DOC-ASM-005 |
 | `atrium.check` | 3 | atrium_id?, fire?, clearance?, ambient? | [atrium_report] | No (query) | ARC-GLZ-018 |
-| `atrium.create` | 3 | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name? | {atrium, shaft, roof, guards, opened} | Yes | ARC-GLZ-018 |
+| `atrium.create` | 3 | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, walls?, guard_height?, name? | {atrium, shaft, roof, guards, walls, opened} | Yes | ARC-GLZ-018 |
 | `bath.add_rule_pack` | 3 | pack | — | Yes | ARC-BATH-001 |
 | `bath.check` | 3 | element_ids? | finding[] | No (query) | ARC-BATH-002 |
 | `bath.elevations` | 3 | point, level, name?, scale?, sheet? | {views, walls, sheet?} | Yes | ARC-BATH-018 |

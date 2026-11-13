@@ -14,7 +14,7 @@ Room layouts fit each room with these packs' clear spaces.
    on their centre lines, so the inside runs 0.1–15.7 × 0.1–4.5. Add partitions at x = 4.2, 9.4
    and 13.0. That gives a 4.0 m bedroom, a 5.0 m living room, a 3.4 m dining room and a 2.6 m
    office, each 4.4 m deep.
-2. **Furnish each room.** For each room, choose **Architecture › Build › Room Layout**, pick the
+2. **Furnish each room.** For each room, choose **Interiors › Rooms & Furniture › Room Layout**, pick the
    template, then click inside the room:
    - *Bedroom, queen bed* in the bedroom: the bed's head on a long wall with a nightstand each
      side, and the dresser opposite. Each side of the bed keeps its 30 × 48 in space (ADA
@@ -28,7 +28,7 @@ Room layouts fit each room with these packs' clear spaces.
    The pieces come from the bundled Interiors library's catalogue. The main piece goes against
    one of the longer walls; the layout may also name the wall.
 3. **Lighting.**
-   - Select the bedroom's west wall and choose **Architecture › Build › Decorative Lighting**.
+   - Select the bedroom's west wall and choose **Interiors › Rooms & Furniture › Decorative Lighting**.
      Sconces go along its room side, one every 8 ft at 63 in. Each projects 4 in, ADA §307.2's
      limit.
    - Select the dining table and choose **Decorative Lighting** › *A chandelier*. The room

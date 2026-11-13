@@ -1252,13 +1252,10 @@ fn default_type(txn: &mut crate::txn::Transaction<'_>, kind: Kind) -> Result<Ele
         Kind::Door => DEFAULT_DOOR_TYPE,
         Kind::Window => DEFAULT_WINDOW_TYPE,
     };
+    // The default type by its name: not just any type of the kind, as others made by tools (a
+    // lift's sliding landing doors) would be taken for it.
     let of_kind = |e: &&Element| insert_type(e).is_some_and(|t| t.kind() == Some(kind));
-    if let Some(e) = txn
-        .store()
-        .iter()
-        .filter(of_kind)
-        .min_by_key(|e| e.name.as_deref() != Some(name))
-    {
+    if let Some(e) = txn.store().iter().filter(of_kind).find(|e| e.name.as_deref() == Some(name)) {
         return Ok(e.id());
     }
     let predefined = match kind {

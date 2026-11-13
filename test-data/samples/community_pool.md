@@ -10,15 +10,15 @@ Start with **File › New**.
    building code. The pool packs are then Sport England's guidance and HSE's HSG179.
 2. **The hall's floor.** Draw a floor from (−2, −2) to (27, 14.5) with **Architecture › Build ›
    Floor**: a 2 m surround round the pool.
-3. **The pool.** Choose **Architecture › Build › Swimming Pool**, type the outline
+3. **The pool.** Choose **Interiors › Pools › Swimming Pool**, type the outline
    `0,12.5; 0,0; 25,0; 25,12.5` and the depths `0:1.0, 6:1.35, 15:1.8, 25:2.0`: Sport England's
    typical 25 m profile, 1 in 17 to the 1.35 m non-swimmer depth.
-4. **Lanes.** Select the pool and choose **Architecture › Build › Pool Lanes**: six lanes 2.0 m
+4. **Lanes.** Select the pool and choose **Interiors › Pools › Pool Lanes**: six lanes 2.0 m
    wide, 0.25 m side gaps, no touch pads.
-5. **Depth markings.** **Architecture › Build › Pool Depth Markings**: under the UK code setting
+5. **Depth markings.** **Interiors › Pools › Pool Depth Markings**: under the UK code setting
    they read in metres, every 0.5 m of depth and at most 7.6 m apart, as HSG179 asks (the actual
    depth, readable from the surround and the water).
-6. **Steps.** **Architecture › Build › Pool Entry**, *Stairs*, with a tread of 0.30 m and the
+6. **Steps.** **Interiors › Pools › Pool Entry**, *Stairs*, with a tread of 0.30 m and the
    highest riser 0.14 m, clicking by the west wall at (0, 10.5): nine risers of 128 mm.
 7. **Hoist, ladders and drains.** From **Insert › Component Libraries › Riviera Pools**, place
    the *Pool lift, 300 lb* turned 180° at (3, −0.6); a *Pool ladder, 3 steps* on the north wall's

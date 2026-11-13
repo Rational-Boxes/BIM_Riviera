@@ -12,7 +12,7 @@ Start with **File › New**. In **Manage › Model Properties**:
    the outer wall from (−0.1, 5.2) to (23.5, 5.2). Their room faces are at y = 0.1 and 5.1. Add
    partitions from y = 0.1 to 5.1 at x = 0, 3.8, 7.6, 11.8, 15.8, 19.6 and 23.4: six rooms 5.0 m
    deep and 3.6, 3.6, 4.0, 3.8, 3.6 and 3.6 m wide between the partitions' faces.
-2. **The kings.** Choose **Architecture › Build › Room Layout**, pick *Hotel room, king*, select
+2. **The kings.** Choose **Interiors › Rooms & Furniture › Room Layout**, pick *Hotel room, king*, select
    the outer wall as the head wall **[gap]**, and click inside the first room. The bed, two
    nightstands, the dresser, the desk and its chair and a luggage rack are placed. The room is
    placed and marked as a guest room (class king, one bed). Repeat in rooms 2, 5 and 6.
@@ -23,7 +23,7 @@ Start with **File › New**. In **Manage › Model Properties**:
    marked with mobility features. The standard rooms' pieces are marked not accessible, so they
    have no ADA bed spaces.
 5. **Communication features.** Select the rooms of rooms 1, 3 and 4 (their room tags) and choose
-   **Architecture › Build › Guest Room**. Tick *Communication* and keep the other values.
+   **Interiors › Rooms & Furniture › Guest Room**. Tick *Communication* and keep the other values.
 6. **Check.** **View › Coordination › Room Matrix** counts six rooms: one with mobility features
    (Table 224.2 asks one for 1–25 rooms), and two with communication features that count (Table
    224.4 asks two). The accessible room has communication features too, as §224.5 asks, but it

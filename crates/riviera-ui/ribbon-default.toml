@@ -3920,52 +3920,18 @@ tools = [
   { action = "wall.create", size = "large" },
   { action = "wall.create_arc", size = "small" },
   { action = "wall.create_spline", size = "small" },
-  { action = "curtain.create", size = "large" },
+  { action = "curtain.create", size = "small" },
   { action = "door.place", size = "large" },
   { action = "window.place", size = "large" },
-  { action = "column.place_architectural", size = "large" },
   { action = "floor.create", size = "large" },
-  { action = "ceiling.create", size = "large" },
+  { action = "ceiling.create", size = "small" },
+  { action = "column.place_architectural", size = "small" },
+  { action = "enclosure.create", size = "small" },
   { action = "roof.create_footprint", size = "large" },
   { action = "roof.create_arched", size = "small" },
   { action = "roof.create_dome", size = "small" },
   { action = "roof.create_extrusion", size = "small" },
-  { action = "enclosure.create", size = "large" },
-  { action = "ui.place_bathroom_component", size = "large" },
-  { action = "ui.bathroom_layout", size = "large" },
-  { action = "ui.room_layout", size = "large" },
-  { action = "ui.guest_room", size = "small" },
-  { action = "ui.decorative_lighting", size = "large" },
-  { action = "ui.cabinet_run", size = "large" },
-  { action = "ui.countertop", size = "small" },
-  { action = "ui.counter_run", size = "small" },
-  { action = "ui.closet", size = "small" },
-  { action = "ui.gondola_run", size = "small" },
-  { action = "ui.store_area", size = "small" },
-  { action = "ui.checkout_bank", size = "small" },
-  { action = "ui.sco_pod", size = "small" },
-  { action = "ui.sco_profile", size = "small" },
-  { action = "ui.swimming_pool", size = "small" },
-  { action = "ui.pool_entry", size = "small" },
-  { action = "ui.pool_lanes", size = "small" },
-  { action = "ui.pool_depth_markings", size = "small" },
-  { action = "ui.pool_plant", size = "small" },
-  { action = "ui.atrium", size = "small" },
-  { action = "ui.baffles", size = "small" },
-  { action = "ui.seating_layout", size = "small" },
-  { action = "ui.gym_layout", size = "small" },
-  { action = "ui.gym_studio", size = "small" },
-  { action = "ui.gym_mirror", size = "small" },
-  { action = "ui.toilet_core", size = "large" },
-  { action = "ui.locker_room", size = "large" },
-  { action = "ui.sauna", size = "large" },
-  { action = "ui.steam_room", size = "small" },
-  { action = "ui.tiles", size = "small" },
-  { action = "ui.shower_falls", size = "small" },
-  { action = "ui.waterproofing", size = "small" },
   { action = "roof.create_geodesic", size = "small" },
-  { action = "growing.layout", size = "small" },
-  { action = "growing.lights", size = "small" },
 ]
 
 [[tab.panel]]
@@ -4007,21 +3973,26 @@ tools = [
   { action = "ramp.create", size = "large" },
   { action = "railing.create", size = "large" },
   { action = "deck.create", size = "large" },
+]
+
+[[tab.panel]]
+label = "Lifts & Transport"
+tools = [
   { action = "ui.elevator", size = "large" },
   { action = "elevator.check", size = "small" },
   { action = "ui.elevator_traffic", size = "small" },
   { action = "ui.elevator_egress_role", size = "small" },
   { action = "ui.check_lobbies", size = "small" },
+  { action = "ui.stairlift", size = "small" },
+  { action = "stairlift.check", size = "small" },
   { action = "ui.escalator", size = "large" },
+  { action = "escalator.check", size = "small" },
   { action = "ui.fare_line", size = "small" },
   { action = "ui.inclined_elevator", size = "small" },
   { action = "ui.funicular", size = "small" },
   { action = "ui.apm_guideway", size = "small" },
   { action = "ui.apm_station", size = "small" },
   { action = "ui.ropeway", size = "small" },
-  { action = "escalator.check", size = "small" },
-  { action = "ui.stairlift", size = "large" },
-  { action = "stairlift.check", size = "small" },
 ]
 
 [[tab.panel]]
@@ -4055,6 +4026,83 @@ tools = [
   { action = "ui.unit_connect", size = "small" },
   { action = "inplace.create", size = "small" },
   { action = "modeltext.create", size = "small" },
+]
+
+[[tab]]
+id = "interiors"
+label = "Interiors"
+
+[[tab.panel]]
+label = "Select"
+tools = [{ action = "tool.modify", size = "large" }]
+
+[[tab.panel]]
+label = "Rooms & Furniture"
+tools = [
+  { action = "ui.room_layout", size = "large" },
+  { action = "ui.guest_room", size = "small" },
+  { action = "ui.seating_layout", size = "small" },
+  { action = "ui.decorative_lighting", size = "small" },
+]
+
+[[tab.panel]]
+label = "Bath & Toilet"
+tools = [
+  { action = "ui.bathroom_layout", size = "large" },
+  { action = "ui.place_bathroom_component", size = "large" },
+  { action = "ui.toilet_core", size = "large" },
+  { action = "ui.tiles", size = "small" },
+  { action = "ui.shower_falls", size = "small" },
+  { action = "ui.waterproofing", size = "small" },
+]
+
+[[tab.panel]]
+label = "Kitchen & Casework"
+tools = [
+  { action = "ui.cabinet_run", size = "large" },
+  { action = "ui.countertop", size = "small" },
+  { action = "ui.counter_run", size = "small" },
+  { action = "ui.closet", size = "small" },
+]
+
+[[tab.panel]]
+label = "Retail"
+tools = [
+  { action = "ui.store_area", size = "large" },
+  { action = "ui.gondola_run", size = "small" },
+  { action = "ui.checkout_bank", size = "small" },
+  { action = "ui.sco_pod", size = "small" },
+  { action = "ui.sco_profile", size = "small" },
+]
+
+[[tab.panel]]
+label = "Gym & Spa"
+tools = [
+  { action = "ui.gym_layout", size = "large" },
+  { action = "ui.gym_studio", size = "small" },
+  { action = "ui.gym_mirror", size = "small" },
+  { action = "ui.locker_room", size = "large" },
+  { action = "ui.sauna", size = "large" },
+  { action = "ui.steam_room", size = "small" },
+]
+
+[[tab.panel]]
+label = "Pools"
+tools = [
+  { action = "ui.swimming_pool", size = "large" },
+  { action = "ui.pool_entry", size = "small" },
+  { action = "ui.pool_lanes", size = "small" },
+  { action = "ui.pool_depth_markings", size = "small" },
+  { action = "ui.pool_plant", size = "small" },
+]
+
+[[tab.panel]]
+label = "Glazed Spaces"
+tools = [
+  { action = "ui.atrium", size = "large" },
+  { action = "ui.baffles", size = "small" },
+  { action = "growing.layout", size = "small" },
+  { action = "growing.lights", size = "small" },
 ]
 
 [[tab]]
@@ -5232,6 +5280,8 @@ items = [
   "view.building_elevations", "view.new_schedule", "view.new_keynote_legend", "view.new_legend", "view.new_sheet", "-",
   "view.zoom_fit", "view.zoom_previous", "view.zoom_next", "-",
   "view.home", "view.set_home", "@orient", "view.set_projection", "-", "view.walk", "-",
+  "ui.discipline_all", "ui.discipline_architecture", "ui.discipline_structure", "ui.discipline_mechanical", "ui.discipline_plumbing",
+  "ui.discipline_electrical", "ui.discipline_site", "ui.discipline_hide", "-",
   "inspect.section_box", "inspect.selection_box", "inspect.slice_horizontal",
   "inspect.slice_vertical", "inspect.clear_slices", "-",
   "inspect.hide", "inspect.hide_subtree", "inspect.hide_category", "inspect.hide_type",
@@ -5248,12 +5298,25 @@ items = [
   "wall.create", "curtain.create", "door.place", "window.place", "column.place_architectural", "floor.create", "floor.edit_boundary",
   "ceiling.create", "ceiling.edit_boundary", "roof.create_footprint", "roof.edit_footprint", "-",
   "room.place", "room.place_automatically", "-",
-  "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "growing.layout", "growing.lights", "-",
-  "ui.place_bathroom_component", "ui.bathroom_layout", "ui.room_layout", "ui.guest_room", "ui.decorative_lighting", "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.gondola_run", "ui.store_area", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.atrium", "ui.baffles", "ui.seating_layout", "ui.pv_array", "ui.sump", "ui.discipline_all", "ui.discipline_architecture", "ui.discipline_structure", "ui.discipline_mechanical", "ui.discipline_plumbing", "ui.discipline_electrical", "ui.discipline_site", "ui.discipline_hide", "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.toilet_core", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.make_product", "ui.swap_for_product", "ui.product_documents", "bath.place_grab_bars", "bath.check", "ui.fixture_count", "ui.room_matrix", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "ui.check_gym", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "ui.sun_check", "-",
+  "roof.create_extrusion", "slabedge.create", "enclosure.create", "roof.create_geodesic", "-",
   "ui.elevator", "elevator.check", "ui.elevator_traffic", "ui.elevator_egress_role", "ui.check_lobbies", "ui.escalator", "ui.fare_line", "ui.inclined_elevator", "ui.funicular", "ui.apm_guideway", "ui.apm_station", "ui.ropeway", "escalator.check", "ui.stairlift", "stairlift.check", "-",
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",
-  "workplane.set", "workplane.show",
+  "workplane.set", "workplane.show", "-",
+  "ui.unit_type", "ui.unit_array", "ui.unit_connect", "-",
+  "ui.make_product", "ui.swap_for_product", "ui.product_documents",
+]
+
+[[menu]]
+label = "&Interiors"
+items = [
+  "ui.room_layout", "ui.guest_room", "ui.seating_layout", "ui.decorative_lighting", "ui.room_matrix", "-",
+  "ui.bathroom_layout", "ui.place_bathroom_component", "ui.toilet_core", "bath.place_grab_bars", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.fixture_count", "bath.check", "-",
+  "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "-",
+  "ui.store_area", "ui.gondola_run", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "-",
+  "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.check_gym", "-",
+  "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "-",
+  "ui.atrium", "ui.baffles", "ui.sun_check", "growing.layout", "growing.lights",
 ]
 
 [[menu]]

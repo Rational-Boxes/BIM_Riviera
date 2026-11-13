@@ -10,7 +10,7 @@ Start with **File › New**. In **Manage › Model Properties**:
 
 1. **The walls.** Draw four walls, 200 mm thick and 3.0 m high, round (0, 0)–(7.8, 5.2) on their
    centre lines. The inside is 7.6 × 5.0 m.
-2. **The transaction counter.** In a plan, choose **Architecture › Build › Counter**, pick
+2. **The transaction counter.** In a plan, choose **Interiors › Kitchen & Casework › Counter**, pick
    *Transaction counter, 42 in* and *Parallel approach at the end*, and click (2.0, 0.1) then
    (6.0, 0.1) on the south wall's face. The counter is a casework body on a 4 in toe kick under a
    1½ in top, 25 in deep. Its last 36 in is lowered to 36 in, ADA §904.4.1's longest and

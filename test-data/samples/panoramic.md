@@ -7,7 +7,7 @@ Start with **File › New** and leave the **Building Code** at *International Bu
 (**Manage › Model Properties**). Add Levels 2 to 4 at 4.5, 8.0 and 11.5 m. Draw a 30 × 20 m
 **Architecture › Floor** from (0, 0) on every level.
 
-Every elevator comes from **Architecture › Circulation › Elevator** in the Level 1 plan. Type the
+Every elevator comes from **Architecture › Lifts & Transport › Elevator** in the Level 1 plan. Type the
 middle of its entrance, or click it.
 
 1. **The atrium's panoramic elevator.**
@@ -26,7 +26,7 @@ middle of its entrance, or click it.
      *Hoistway* "Glass at the sides and rear…", at `24, 12`.
    - A hydraulic car has no counterweight, so its hoistway keeps its size.
 4. **Check.**
-   - **Architecture › Circulation › Check Elevators** gives one note. IBC 2409: the atrium
+   - **Architecture › Lifts & Transport › Check Elevators** gives one note. IBC 2409: the atrium
      elevator's glass hoistway serves four levels, so it needs fire-rated glazing unless the
      authority accepts it unenclosed, as in an atrium.
    - **View › Coordination › Check Clearances** finds nothing in the hoistways, landings or

@@ -229,7 +229,7 @@ wall(l2, { 52.5, 32.5 }, { 60, 32.5 }, 3.2)
 local spa_w = wall(l2, { 52.5, 7.5 }, { 52.5, 32.5 }, 3.2)
 riviera.door.place{ host_wall_id = spa_w, point_along = 12.5 }
 room(l2, { 56, 12 }, "Spa", "201S")
--- A sauna and a steam room in the spa's north end.
+-- A sauna and a steam room in the spa's north end, their doors opening out.
 local function box(level, x, y, w, d, h)
   local c = { { x, y }, { x + w, y }, { x + w, y + d }, { x, y + d } }
   local ws = {}
@@ -237,10 +237,10 @@ local function box(level, x, y, w, d, h)
   return ws
 end
 local sauna = box(l2, 55, 28, 2.4, 2.0, 2.2)
-riviera.door.place{ host_wall_id = sauna[1], point_along = 1.2 }
+riviera.door.place{ host_wall_id = sauna[1], point_along = 1.2, flip_facing = true }
 riviera.bath.sauna{ point = { 56.2, 29.0 }, level = l2, bench_wall_id = sauna[3] }
 local steam = box(l2, 55, 24.5, 2.4, 1.8, 2.4)
-riviera.door.place{ host_wall_id = steam[1], point_along = 1.2 }
+riviera.door.place{ host_wall_id = steam[1], point_along = 1.2, flip_facing = true }
 riviera.bath.steam_room{ point = { 56.2, 25.4 }, level = l2, bench_wall_id = steam[3], material = "tile" }
 
 -- ---- The guest floors: two room units ----

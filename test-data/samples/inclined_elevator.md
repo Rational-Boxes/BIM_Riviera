@@ -7,7 +7,7 @@ commands with exact values.
 Start with **File › New**. Add a level at 12.0 m (the upper terrace). Add a 10 × 8 m
 **Architecture › Floor** from (−10, −4) on Level 1, and another from (30, −4) on the upper level.
 
-1. **The inclined elevator.** **Architecture › Circulation › Inclined Elevator**:
+1. **The inclined elevator.** **Architecture › Lifts & Transport › Inclined Elevator**:
    - bottom landing on Level 1 at `0, 0`, top landing on the upper level at `30, 0`, or leave
      them empty and click them in the two plans;
    - *Car* 5 × 5 ft (accessible), *Use* commercial, enclosed, *Drive* double drum on a slab,

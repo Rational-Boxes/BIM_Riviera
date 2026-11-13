@@ -1573,7 +1573,7 @@ R and U are computed from the layer materials' thermal assets: `R = Rsi + Σ t�
 **Purpose.** Place any loadable family: furniture, fixtures, equipment, planting, specialty items and so on.
 
 **Workflow.**
-1. The user starts Architecture › Build › Component › **Place a Component** (`CM`). The tool is available only in views that suit the family (for example, plan or 3D for furniture).
+1. The user starts Architecture › Component › Component › **Place a Component** (`CM`). The tool is available only in views that suit the family (for example, plan or 3D for furniture).
 2. The user picks a type, or uses Load Family. For face-based and work-plane-based families, the user picks a placement option; the last choice is remembered.
 3. Spacebar cycles the rotation in 90° steps, or aligns the preview to the nearest wall. *Rotate after placement* (on the ribbon) asks for an angle after each click.
 4. A click places the component.
@@ -2938,7 +2938,7 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
 - [x] A Venlo range of tomatoes at 52° N under clear glass is darkest in December and short of its target; grow lights laid out for it bring every month to the target, and a longer range gets more fixtures.
 - [x] With a weather file imported, the outdoor light is the file's global radiation × 1.96.
 
-*Built (2026-10-29):* `riviera_core::hothouse`; `weather.import` keeps each month's mean daily global radiation (`monthly_global`, a file imported before has none and the estimate is used). Architecture › Build › Grow Lights lays them out in the selected enclosure; Properties › Growing Climate shows the darkest month, the roof's transmission, the lamp PPFD needed and laid out, and the months short of target; Properties › Grow Lights edits the fixture, target, height and maintenance factor. Sample: `greenhouses` (lettuce in the Venlo, tomatoes in the sawtooth, at a site in the western Netherlands). Not yet: energy and shade screens in the light path, the glazing's hemispherical (diffuse) transmission, lamps switched off in bright sun (450/400 µmol·m⁻²·s⁻¹ thresholds), a uniformity map from photometry, grow lights in rooms, the lamps' heat in the loads, and photoperiod blackout.
+*Built (2026-10-29):* `riviera_core::hothouse`; `weather.import` keeps each month's mean daily global radiation (`monthly_global`, a file imported before has none and the estimate is used). Interiors › Glazed Spaces › Grow Lights lays them out in the selected enclosure; Properties › Growing Climate shows the darkest month, the roof's transmission, the lamp PPFD needed and laid out, and the months short of target; Properties › Grow Lights edits the fixture, target, height and maintenance factor. Sample: `greenhouses` (lettuce in the Venlo, tomatoes in the sawtooth, at a site in the western Netherlands). Not yet: energy and shade screens in the light path, the glazing's hemispherical (diffuse) transmission, lamps switched off in bright sun (450/400 µmol·m⁻²·s⁻¹ thresholds), a uniformity map from photometry, grow lights in rooms, the lamps' heat in the loads, and photoperiod blackout.
 
 ### 3.6a.10 Energy, shade and blackout screens
 **ID:** ARC-GLZ-010 · **Priority:** P1 · **Ref:** owner requirement (2026-10-28, commercial grows); research/11 §B4, §B10 item 4; research/09 §4.4–4.5
@@ -3122,23 +3122,25 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
   - a shaft opening from 50 mm above the atrium floor through the top level's floor;
   - guards on every opened floor, 0.1 m back from its edge: railings of an *Atrium guard* type, `guard_height` high (default 42 in, IBC 1015.3), balusters 110 mm apart (made once per height);
   - a glazed roof on the top level, its plate `roof_offset` above it (default 0): `form` `ridge` (default; the longest edge and the one opposite slope at `slope`, default 15°), `pyramid` (every edge slopes), `flat`, or `barrel` (a vault springing from those two edges, rising `rise`, default a quarter of the span), of `glazing_type` (default *Atrium glazing*, a sloped glazing type made the first time);
-  - the roof covers the void grown by `overhang` (default 0.3 m, to bear on the floor round it), or `roof_outline` when it reaches further, over a roof terrace or a pool.
+  - the roof covers the void grown by `overhang` (default 0.3 m, to bear on the floor round it), or `roof_outline` when it reaches further, over a roof terrace or a pool;
+  - with `walls`, its sides are closed in glass: curtain walls on the top level 0.3 m inside the roof's edges, their tops attached to the roof so they rise to it, every other wall stopping a mullion short of the corners.
 - **The check** (`atrium.check`), for each atrium:
   - the storeys open to it, its floor's included; its height from its floor to the roof's plate; its area and volume; the roof's area;
   - IBC 404 (2017 public text): smoke control where more than two storeys are open (404.5); sprinklers throughout, and none at a ceiling over 55 ft (404.3); with more than three storeys open, all but three separated by a 1 h barrier or glass wetted by sprinklers (404.6); Class B finishes (404.8); 200 ft of travel within it (404.9), as notes;
   - the smoke: the layer held `clearance` (default 6 ft) above the highest walkway open to it; for a steady design `fire` (default 5,000 kW, convective 0.7), the NFPA 92B (1991) axisymmetric plume's mass flow there (m = 0.071 Q_c^⅓ z^⁵⁄³ + 0.0018 Q_c above the flame, 0.032 Q_c^⅗ z within it), its mean temperature and the exhaust volume that holds the layer, and the time to fill to it with no exhaust (steady filling, where A/H² is 0.9–14);
   - an error where the layer cannot be held under the roof; a note where it is less than 20 % of the height deep (NFPA 92B's layer depth against the 6 ft clearance).
-- **The window:** Architecture › Build › Atrium: the top level, roof form, its height and reach, then two opposite corners of the void on the atrium floor's level; the check is shown.
+- **The window:** Interiors › Glazed Spaces › Atrium: the top level, roof form, its height and reach, then two opposite corners of the void on the atrium floor's level; the check is shown.
 
 **Data (IFC mapping).** The atrium is an `IfcSpace` (USERDEFINED, ObjectType `Atrium`) whose recipe names its shaft (`IfcOpeningElement`s in the floors), guards (`IfcRailing`) and roof (`IfcRoof` of glazing). Each part is saved as itself.
 
-**Commands.** `atrium.create(outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name?) -> {atrium, shaft, roof, guards, opened}`; `atrium.check(atrium_id?, fire?, clearance?, ambient?) -> [{atrium, name, storeys, levels, height, area, volume, roof_area, smoke {fire, convective, clear_height, flame_height, mass_flow, plume_temperature, exhaust, fill_time?}, findings}]`.
+**Commands.** `atrium.create(outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, walls?, guard_height?, name?) -> {atrium, shaft, roof, guards, walls, opened}`; `atrium.check(atrium_id?, fire?, clearance?, ambient?) -> [{atrium, name, storeys, levels, height, area, volume, roof_area, smoke {fire, convective, clear_height, flame_height, mass_flow, plume_temperature, exhaust, fill_time?}, findings}]`.
 
 **Acceptance criteria.**
 - [x] A 10 × 12 m void from level 1 through level 5 of a five-storey building opens four floors with four guards under a glazed ridge roof 4.5 m above level 5. The check gives five storeys, 20.5 m, 120 m², smoke control and separation notes, the layer 6 ft above level 5 at 17.83 m with the plume's mass flow by NFPA 92B, and notes the layer under 20 % of the height. With a flat roof on level 5 the layer cannot be held: an error.
+- [x] With `walls`, a ridge-roofed atrium's roof 1 m past the void has four glazed curtain walls attached to it, and nothing overlaps.
 - [x] A barrel-vaulted atrium through three storeys whose roof reaches 8 m past the void over a terrace reports the roof's 173 m², smoke control but no separation finding, and nothing overlaps; saved and opened, it is still an atrium.
 
-*Built (2026-11-12):* `riviera_core::atriums`, Architecture › Build › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; editing the atrium as one; the atrium space's own volume in schedules.
+*Built (2026-11-12):* `riviera_core::atriums`, Interiors › Glazed Spaces › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; editing the atrium as one; the atrium space's own volume in schedules.
 
 ### Sun-control baffles
 **ID:** ARC-GLZ-019 · **Priority:** P1 · **Ref:** GLAZED_ENCLOSURES_PLAN §5.2, §9 (phase 3); research/10 (A035–A040); ANA-SOLAR-001 (the sun's position); ARC-GLZ-018 (atriums)
@@ -3159,7 +3161,7 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
   - a ray through a baffle array's region above the area is cut to what its blades let through, and rays through several arrays are cut by each; other rays pass;
   - the area's **share** is the hours' admitted shares weighted by the cosine of the sun's zenith (the clear sky's direct sun on a horizontal surface), with the highest hour; it passes at no more than `max_share` (default 0.25).
 - **Areas:** pools (their water's outline and level), rooms (their floor's region), or outlines with a height.
-- **The window:** Architecture › Build › Baffles (the blades, then two corners of the region); View › Coordination › Sun Check (the selected pools and rooms).
+- **The window:** Interiors › Glazed Spaces › Baffles (the blades, then two corners of the region); View › Coordination › Sun Check (the selected pools and rooms).
 
 **Data (IFC mapping).** An `IfcShadingDevice` (USERDEFINED, ObjectType `Baffle`), one faceted B-rep per blade, contained in its level; the recipe in the RXD.
 
@@ -3169,7 +3171,7 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
 - [x] A pool at 25.8° N open to the sky gets all the direct sun and fails 25 %. Vertical blades 0.6 m apart and 0.4 m deep (19 blades over a 16 × 11 m region, cut-off 55.2°) let less through but still fail; blades 0.3 m apart, 0.45 m deep and tilted 40° over the whole terrace pass, with four days of hours. An area clear of the baffles gets all the sun; blades closer than their thickness are refused.
 - [x] Nothing overlaps; saved, the baffles are a Baffle `IfcShadingDevice`; opened again, the check gives the same share.
 
-*Built (2026-11-12):* `riviera_core::sun_control`, Architecture › Build › Baffles, View › Coordination › Sun Check. Defaults are E-135. Not yet: louvres, fins, brise-soleil and screens on façades and windows; operable blades and their control; light shelves; the glazing's transmittance and the building's own shading in the check; diffuse light; the sun-path design aid; the devices in the daylight, solar and energy analyses.
+*Built (2026-11-12):* `riviera_core::sun_control`, Interiors › Glazed Spaces › Baffles, View › Coordination › Sun Check. Defaults are E-135. Not yet: louvres, fins, brise-soleil and screens on façades and windows; operable blades and their control; light shelves; the glazing's transmittance and the building's own shading in the check; diffuse light; the sun-path design aid; the devices in the daylight, solar and energy analyses.
 
 
 ## 3.7 Stairs, railings and ramps
@@ -3775,7 +3777,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 - [x] Under the EN packs at 1.6 m/s, the 630 kg car (1100 × 1400 mm) gets a 1400 mm pit and 3800 mm headroom (2200 mm car + 1600 mm).
 - [x] A four-storey elevator makes a car, a shaft, four walls and four entrances; nothing overlaps; the file has an `IFCTRANSPORTELEMENT` of type ELEVATOR with its property sets; deleting it from a wall removes all ten elements.
 
-*Built (2026-11-03):* `elevator.size`, `elevator.create`, `elevator.list`, `elevator.delete`, and Architecture › Circulation › Elevator. Defaults are recorded as E-83 in `EXPERT_REVIEW.md`. Not yet: editing an elevator in place (delete and make it again), rear and side entrances, freight, hospital and vehicle cars, small lifts, banks, machine and control rooms, pit ladders and sumps, hall fixtures, rails and counterweight, and structural and electrical interfaces (plan §4.4).
+*Built (2026-11-03):* `elevator.size`, `elevator.create`, `elevator.list`, `elevator.delete`, and Architecture › Lifts & Transport › Elevator. Defaults are recorded as E-83 in `EXPERT_REVIEW.md`. Not yet: editing an elevator in place (delete and make it again), rear and side entrances, freight, hospital and vehicle cars, small lifts, banks, machine and control rooms, pit ladders and sumps, hall fixtures, rails and counterweight, and structural and electrical interfaces (plan §4.4).
 
 ### 3.7a.3 Elevator clear zones
 **ID:** ARC-VT-003 · **Priority:** P1 · **Ref:** `VERTICAL_TRANSPORT_PLAN.md` §4.3; research/16 L3 (Z4, Z13, Z14); ARC-MOD-031
@@ -3813,7 +3815,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 - [x] A 1500 × 1200 mm car with an 800 mm door in a four-storey building is reported against ADA 407.4.1 and IBC 3002.4, as errors.
 - [x] Under `en81`, a 630 kg car of 1400 × 1600 mm is a note (advisory), giving 1.66 m² allowed.
 
-*Built (2026-11-03):* `elevator.check`, and Architecture › Circulation › Check Elevators. Not yet: the HTML and BCF report (as `bath.report`), the door in the stretcher test, door widths alone, call buttons.
+*Built (2026-11-03):* `elevator.check`, and Architecture › Lifts & Transport › Check Elevators. Not yet: the HTML and BCF report (as `bath.report`), the door in the stretcher test, door widths alone, call buttons.
 
 ### 3.7a.5 Hospital, freight and vehicle elevators
 **ID:** ARC-VT-005 · **Priority:** P1 · **Ref:** owner requirement (2026-11-01: "both passenger and freight"); `VERTICAL_TRANSPORT_PLAN.md` §4.2 step 3; research/16 B1–B7
@@ -3933,7 +3935,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 - [x] A 30° escalator of 4.5 m rise with 2 flat steps is 1.732 × 4.5 + 4.70 m long, its truss 1540 mm wide, good for 6000 persons an hour; at 7 m rise under EN 115-1 it has 3 flat steps and the longer ends.
 - [x] An escalator between two 300 mm floors 5 m apart cuts both, and nothing overlaps or stands in its zones; a pair 200 mm apart is clean; the file has ESCALATOR and MOVINGWALKWAY elements with `Riviera_Escalator`.
 
-*Built (2026-11-03):* `riviera_core::escalators`; Architecture › Circulation › Escalator; the sample *Escalators and moving walks in a department store*. Not yet: crisscross and scissor arrangements as one command, transition radii, intermediate supports as elements, outdoor units, the airport and transit context (station run-off, unit counts, NFPA 130), wellway protection (draft curtains and sprinklers, shutters), intersection guards and deck barricades.
+*Built (2026-11-03):* `riviera_core::escalators`; Architecture › Lifts & Transport › Escalator; the sample *Escalators and moving walks in a department store*. Not yet: crisscross and scissor arrangements as one command, transition radii, intermediate supports as elements, outdoor units, the airport and transit context (station run-off, unit counts, NFPA 130), wellway protection (draft curtains and sprinklers, shutters), intersection guards and deck barricades.
 
 ### 3.7a.11 Escalator headroom, side clearance and landing zones
 **ID:** ARC-VT-011 · **Priority:** P1 · **Ref:** `VERTICAL_TRANSPORT_PLAN.md` §6; research/16 L3 (Z29–Z32), P2, P4
@@ -3969,7 +3971,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 **Acceptance criteria.**
 - [x] A 35° escalator of 5 m rise at 0.5 m/s is a note under A17.1 and passes under EN 115-1; at 0.65 m/s with 2 flat steps EN 115-1 reports the inclination and the flat steps.
 
-*Built (2026-11-03):* `escalator.check`, and Architecture › Circulation › Check Escalators. Not yet: the transit packs (unit counts from flows, one unit out, NFPA 130 egress credit), US wellway opening limits (IBC 712.1.3).
+*Built (2026-11-03):* `escalator.check`, and Architecture › Lifts & Transport › Check Escalators. Not yet: the transit packs (unit counts from flows, one unit out, NFPA 130 egress credit), US wellway opening limits (IBC 712.1.3).
 
 ### 3.7a.13 Stairlifts and inclined platform lifts
 **ID:** ARC-VT-013 · **Priority:** P1 · **Ref:** owner requirement (2026-11-03: "Include people movers and stairlifts too"); `VERTICAL_TRANSPORT_PLAN.md` §5; research/16 Q2, Q5
@@ -3991,7 +3993,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 - [x] A platform lift on a straight 32.7° stair takes the straight family's 800 × 1250 mm platform, its head box riding on the deck rise interpolated between the 30° and 35° rows; on a turning stair it takes the curved family's 800 × 1220 mm with a 1225 mm inside bend; an unknown platform size is refused.
 - [x] A seated lift on a 1100 mm dwelling stair with its opening for walking headroom overlaps nothing and has nothing in its zones; the file has STAIRLIFT and INCLINEDPLATFORMLIFT elements with `Riviera_Stairlift`.
 
-*Built (2026-11-04):* `riviera_core::stairlifts`; Architecture › Circulation › Stairlift (on the selected stair); the sample *Stairlifts and platform stairlifts in a parish hall and its house*. Not yet: the lift following later changes to its stair (it is made for the stair as it is), outdoor units, the charger outlet or dedicated circuit as an MEP connector, the backrest and footrest clearances (A18.1 values not public), maker products replacing the generic sizes.
+*Built (2026-11-04):* `riviera_core::stairlifts`; Architecture › Lifts & Transport › Stairlift (on the selected stair); the sample *Stairlifts and platform stairlifts in a parish hall and its house*. Not yet: the lift following later changes to its stair (it is made for the stair as it is), outdoor units, the charger outlet or dedicated circuit as an MEP connector, the backrest and footrest clearances (A18.1 values not public), maker products replacing the generic sizes.
 
 ### 3.7a.14 Stairlift running envelope and landings
 **ID:** ARC-VT-014 · **Priority:** P1 · **Ref:** `VERTICAL_TRANSPORT_PLAN.md` §5; research/16 Q2 A3, Q5 (Z26e, Z26f)
@@ -4025,7 +4027,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 - [x] On a 1100 mm stair, a platform lift for 30 people leaves 840 mm, short of 914 mm; parked clear, its 81 mm rail leaves enough; under England's packs an 800 × 1000 mm platform is short of 800 × 1250 mm; a seated lift on an exit stair is noted.
 - [x] A curved platform lift on a 1100 mm turning stair is noted as short of its 1225 mm inside bend.
 
-*Built (2026-11-04):* `stairlift.check`, and Architecture › Circulation › Check Stairlifts. Not yet: the stair width measured between handrails where they project more than 100 mm, the LA plan-check fields (top overrun, footrest gap), per-occupancy NFPA 101 widths, Australia's 810 × 1200 mm platform (NCC), and the Canadian packs.
+*Built (2026-11-04):* `stairlift.check`, and Architecture › Lifts & Transport › Check Stairlifts. Not yet: the stair width measured between handrails where they project more than 100 mm, the LA plan-check fields (top overrun, footrest gap), per-occupancy NFPA 101 widths, Australia's 810 × 1200 mm platform (NCC), and the Canadian packs.
 
 ### 3.7a.16 Panoramic cars and glass hoistways
 **ID:** ARC-VT-016 · **Priority:** P2 · **Ref:** owner requirement (2026-11-01, panoramic and glass elevators added to the research); `VERTICAL_TRANSPORT_PLAN.md` §4.2 (`elevator.panoramic`), §12a answer 8; research/16 Part F, N-P1, N-P2, N-E3
@@ -4080,7 +4082,7 @@ Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-
 **Acceptance criteria.**
 - [x] Four 3500 lb cars at 1.0 m/s over ten 3.5 m office floors miss the 30 s interval; the figures satisfy interval = RTT / 4 and HC5 = 300·P·4 / RTT; the population is estimated from the floors; a residential check without a population is refused; a second group sharing floors raises both groups' handling targets to 14.4 %.
 
-*Built (2026-11-04):* `riviera_core::traffic`, and Architecture › Circulation › Elevator Traffic; the sample *Elevator traffic in an office tower*. Not yet: lunchtime and two-way traffic and destination dispatch (a simulation, a compute-job provider; Question 7), zoned and sky-lobby banks, express zones, the absenteeism and stair allowances, and counting evacuation lifts in egress (§9).
+*Built (2026-11-04):* `riviera_core::traffic`, and Architecture › Lifts & Transport › Elevator Traffic; the sample *Elevator traffic in an office tower*. Not yet: lunchtime and two-way traffic and destination dispatch (a simulation, a compute-job provider; Question 7), zoned and sky-lobby banks, express zones, the absenteeism and stair allowances, and counting evacuation lifts in egress (§9).
 
 ### 3.7a.19 Escalator and walk capacity against demand
 **ID:** ARC-VT-019 · **Priority:** P2 · **Ref:** `VERTICAL_TRANSPORT_PLAN.md` §9; research/16 E2, I4
@@ -4766,7 +4768,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] A mirror placed on a wall is an `IfcFurniture` USERDEFINED with ObjectType "Mirror" in IFC, its bottom 1000 mm up.
 - [x] A WC, close-coupled placed against a wall has its waste connector 305 mm off the wall and gets its clear spaces under the packs in use.
 
-*Built (2026-10-31):* `riviera_core::bath_components` (the catalogue above, shaped from prisms), a new component category *Electric Appliance* (`IfcElectricAppliance`), `ElementType` written for types and `ObjectType` copied to copies of USERDEFINED types, `bath.load_components`, `bath.place_component`, and Architecture › Build › Bathroom, which loads them the first time and places the chosen one at each click (on the nearest wall face). Sizes marked as judgement in research/13 E3 are E-67 in `EXPERT_REVIEW.md`. Not yet: a WC seat as its own accessory, shower screens, cubicle partitions, lockers and benches (with toilet cores and locker rooms), and replacing a placeholder with a product.
+*Built (2026-10-31):* `riviera_core::bath_components` (the catalogue above, shaped from prisms), a new component category *Electric Appliance* (`IfcElectricAppliance`), `ElementType` written for types and `ObjectType` copied to copies of USERDEFINED types, `bath.load_components`, `bath.place_component`, and Interiors › Bath & Toilet › Bathroom, which loads them the first time and places the chosen one at each click (on the nearest wall face). Sizes marked as judgement in research/13 E3 are E-67 in `EXPERT_REVIEW.md`. Not yet: a WC seat as its own accessory, shower screens, cubicle partitions, lockers and benches (with toilet cores and locker rooms), and replacing a placeholder with a product.
 
 ### 3.9a.5 Bathroom layouts
 **ID:** ARC-BATH-005 · **Priority:** P1 · **Ref:** owner requirement (2026-10-31); `BATHROOMS_PLAN.md` §6.1; research/13 A3
@@ -4802,7 +4804,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] `accessible_single_user` under `ada_2010` puts the WC's centreline 16–18 in from the side wall and places its grab bars.
 - [x] `replace` removes the earlier layout's components in the same room and places the new ones.
 
-*Built (2026-10-31):* `riviera_core::bath_layouts`, `bath.layouts`, `bath.layout`, and Architecture › Build › Bathroom Layout (a template, the start end and replace, then a click in a plan, through the Room tool's click). A fixture's clear spaces measured from its side wall (an ADA WC's 60 in) are kept clear by the next fixture. The IRC bath rule (21 in in front of a tub) is marked advisory in `us_plumbing`: its source gives no width, and the whole length is strict where a WC stands beside the tub. Not yet: layouts that re-fit when the room changes, Jack-and-Jill and back-to-back wet walls, doors and their swings in the fit, turning spaces, and shower rooms with the shower across the end.
+*Built (2026-10-31):* `riviera_core::bath_layouts`, `bath.layouts`, `bath.layout`, and Interiors › Bath & Toilet › Bathroom Layout (a template, the start end and replace, then a click in a plan, through the Room tool's click). A fixture's clear spaces measured from its side wall (an ADA WC's 60 in) are kept clear by the next fixture. The IRC bath rule (21 in in front of a tub) is marked advisory in `us_plumbing`: its source gives no width, and the whole length is strict where a WC stands beside the tub. Not yet: layouts that re-fit when the room changes, Jack-and-Jill and back-to-back wet walls, doors and their swings in the fit, turning spaces, and shower rooms with the shower across the end.
 
 ### 3.9a.6 Products in place of placeholders
 **ID:** ARC-BATH-006 · **Priority:** P1 · **Ref:** owner requirement (2026-10-31: "support for specific realized components with provided models and documents"); `BATHROOMS_PLAN.md` §8; research/13 F1–F5
@@ -4879,7 +4881,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] A core asked for 360 occupants in Group B (one sex) gets five WCs, two of them may be urinals when asked.
 - [x] A core that does not fit its wall places nothing and reports the shortfall.
 
-*Built (2026-10-31):* `riviera_core::bath_cores` and `bath.toilet_core`, the *Toilet Partition* wall type (25 mm, PARTITIONING), doors swung out of their compartments, `bath.set_accessible` (the core marks all but the accessible compartment, one urinal and one lavatory), the side-wall search raised to 600 mm so raised partitions count as side walls, and Architecture › Build › Toilet Core (on the selected wall, from numbers or an occupancy). Not yet: ambulatory grab bars (ADA 604.8.2, both sides), toe clearance at the accessible compartment's partitions, family or assisted-use rooms, partition-system types from manufacturers, and cores in two rows facing each other.
+*Built (2026-10-31):* `riviera_core::bath_cores` and `bath.toilet_core`, the *Toilet Partition* wall type (25 mm, PARTITIONING), doors swung out of their compartments, `bath.set_accessible` (the core marks all but the accessible compartment, one urinal and one lavatory), the side-wall search raised to 600 mm so raised partitions count as side walls, and Interiors › Bath & Toilet › Toilet Core (on the selected wall, from numbers or an occupancy). Not yet: ambulatory grab bars (ADA 604.8.2, both sides), toe clearance at the accessible compartment's partitions, family or assisted-use rooms, partition-system types from manufacturers, and cores in two rows facing each other.
 
 ### 3.9a.9 Locker rooms
 **ID:** ARC-BATH-009 · **Priority:** P1 · **Ref:** `BATHROOMS_PLAN.md` §6.3; research/13 C2–C7
@@ -4916,7 +4918,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] Under `england_adm` a 6 × 4 m room is too narrow for two runs with 1500 mm in front of each (4.22 m needed) and the shortfall is reported.
 - [x] Asking for more lockers than fit reports how many fit.
 
-*Built (2026-10-31):* the five components, `locker` and `bench` fixture kinds (from the furniture's ObjectType), the ADA 811.3 and 903.2 zones and Approved Document M §5.18 zone in the packs, `bath.locker_room` (in `riviera_core::bath_layouts`), and Architecture › Build › Locker Room (its numbers, then a click in a plan). Defaults are E-68 in `EXPERT_REVIEW.md`. Not yet: individual shower cubicles and the accessible shower room, the drying area's towel rails, grooming counters, lobbies and screens against sightlines, pool changing villages, team rooms, and lockers in island runs.
+*Built (2026-10-31):* the five components, `locker` and `bench` fixture kinds (from the furniture's ObjectType), the ADA 811.3 and 903.2 zones and Approved Document M §5.18 zone in the packs, `bath.locker_room` (in `riviera_core::bath_layouts`), and Interiors › Gym & Spa › Locker Room (its numbers, then a click in a plan). Defaults are E-68 in `EXPERT_REVIEW.md`. Not yet: individual shower cubicles and the accessible shower room, the drying area's towel rails, grooming counters, lobbies and screens against sightlines, pool changing villages, team rooms, and lockers in island runs.
 
 ### 3.9a.10 Bathroom electrical zones
 **ID:** ARC-BATH-010 · **Priority:** P1 · **Ref:** `BATHROOMS_PLAN.md` §6.5; research/13 A6.2
@@ -4967,7 +4969,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] A level shower on a flat floor is reported as having no fall.
 - [x] Under `england_adm`, falls of 1:20 are reported as too steep.
 
-*Built (2026-10-31):* the `falls` section of the pack schema with `us_plumbing` and `england_adm` values, `bath.shower_falls` (centre or linear drain; Architecture › Build › Shower Falls on the selected showers), and the falls check in `bath.check`. Not yet: the floor's build-up (screed, tanking) shown in section, drains sized or connected to waste pipes, falls for showers on toposolids or on floors other than Riviera floors, and the floor beside a linear drain's ends, which slopes down to it outside the shower area.
+*Built (2026-10-31):* the `falls` section of the pack schema with `us_plumbing` and `england_adm` values, `bath.shower_falls` (centre or linear drain; Interiors › Bath & Toilet › Shower Falls on the selected showers), and the falls check in `bath.check`. Not yet: the floor's build-up (screed, tanking) shown in section, drains sized or connected to waste pipes, falls for showers on toposolids or on floors other than Riviera floors, and the floor beside a linear drain's ends, which slopes down to it outside the shower area.
 
 ---
 
@@ -4993,7 +4995,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
   
   `england_adm`: a level-access shower's room is a wet room, its whole floor tanked and the shower's walls to 1.8 m (advisory, practice sources).
 - **Extents.** A wall bounds a fixture where its face lies along one of the fixture's edges (back or sides) within 50 mm. Each extent is a thin virtual volume on the wall face or the floor (blue, with the other virtual volumes). They are computed from the fixtures as they stand, so they follow them.
-- **Schedule.** `bath.waterproofing` lists each extent: the fixture, the surface (wall or floor) and its element, the size and area, the rule and its class, and totals for walls and floors. Architecture › Build › Waterproofing shows it and copies it as CSV.
+- **Schedule.** `bath.waterproofing` lists each extent: the fixture, the surface (wall or floor) and its element, the size and area, the rule and its class, and totals for walls and floors. Interiors › Bath & Toilet › Waterproofing shows it and copies it as CSV.
 
 **Data (IFC mapping).** Extents are not exported (ARC-MOD-031). The rules are in the pack.
 
@@ -5004,7 +5006,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] A urinal gets a wall strip 1219 mm up and 610 mm past each side, and 610 mm of floor in front.
 - [x] Under `england_adm`, a level-access shower's room has its whole floor in the schedule.
 
-*Built (2026-10-31):* the `waterproofing` section of the pack schema with `us_plumbing` and `england_adm` rules, extents as virtual volumes (`clearance.list`, blue), `bath.waterproofing`, and Architecture › Build › Waterproofing with CSV to the clipboard. Not yet: strips clipped to the wall's ends and openings, overlaps between neighbouring fixtures' extents counted once, rooms other than rectangles for a wet room's floor, DIN 18534 classes in a pack, screened showers in England told from open ones, and extents drawn in elevations and plans (they show with the virtual volumes in 3D only).
+*Built (2026-10-31):* the `waterproofing` section of the pack schema with `us_plumbing` and `england_adm` rules, extents as virtual volumes (`clearance.list`, blue), `bath.waterproofing`, and Interiors › Bath & Toilet › Waterproofing with CSV to the clipboard. Not yet: strips clipped to the wall's ends and openings, overlaps between neighbouring fixtures' extents counted once, rooms other than rectangles for a wet room's floor, DIN 18534 classes in a pack, screened showers in England told from open ones, and extents drawn in elevations and plans (they show with the virtual volumes in 3D only).
 
 ### 3.9a.13 Hot tubs and spas
 **ID:** ARC-BATH-013 · **Priority:** P2 · **Ref:** `BATHROOMS_PLAN.md` §7; research/13 D1
@@ -5087,7 +5089,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] The default vents are two 100 mm vents; `low_outlet` gives a 100 mm inlet and a 200 mm outlet; neither stands in the heater's distances. Without its sensor, the sauna is reported.
 - [x] Outside a dwelling, a sauna laid out after its door is placed has the door's vent and the notice, and nothing is reported; without the vent the door is reported, and without the notice too. In a dwelling the notice is neither asked for nor placed.
 
-*Built (2026-10-31):* the `sauna` section of the pack schema and its `us_spa` values, the heater and bench components, `bath.sauna` (Architecture › Build › Sauna, then a click in the room), the heater's product zone and the checks. *Built (2026-11-01):* the `door` section (IMC 914's vent and notice), the two components, `door_fittings` (the dialog's *Door* choice) and the door checks. Not yet: a vent cut through the door's leaf in its geometry, the notice's text, mechanical exhaust, gas and wood heaters, infrared cabins, BS 7671 Section 703's temperature zones, the heater's guard, rooms other than rectangles, and the door's lock (doors carry no hardware data yet).
+*Built (2026-10-31):* the `sauna` section of the pack schema and its `us_spa` values, the heater and bench components, `bath.sauna` (Interiors › Gym & Spa › Sauna, then a click in the room), the heater's product zone and the checks. *Built (2026-11-01):* the `door` section (IMC 914's vent and notice), the two components, `door_fittings` (the dialog's *Door* choice) and the door checks. Not yet: a vent cut through the door's leaf in its geometry, the notice's text, mechanical exhaust, gas and wood heaters, infrared cabins, BS 7671 Section 703's temperature zones, the heater's guard, rooms other than rectangles, and the door's lock (doors carry no hardware data yet).
 
 ### 3.9a.15 Steam rooms
 **ID:** ARC-BATH-015 · **Priority:** P2 · **Ref:** `BATHROOMS_PLAN.md` §7; research/13 D4
@@ -5137,7 +5139,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - [x] Plain walls are reported as having no membrane; with `wall_assembly` they take the SR614 type, with its two membranes, and nothing is reported.
 - [x] The generator is placed outside the room and nothing is reported; moved into the room, 20 m away or deleted, it is reported; a control lowered to 900 mm is reported.
 
-*Built (2026-11-01):* the `steam` section of the pack schema and its `us_spa` values, the three components, `bath.steam_room` (Architecture › Build › Steam Room, then a click in the room) and the checks. *Built (2026-11-01, later):* the generator (its component, the Humidifier category, `generator` and the dialog's *Generator* choice), `generator_run` and `control_height` and their checks. Not yet: the steam line drawn and pitched back to the generator, generator sizing in kW (makers' tables were not read), a vapour-tight door, steam showers in bathrooms, and the shape commands on ceilings.
+*Built (2026-11-01):* the `steam` section of the pack schema and its `us_spa` values, the three components, `bath.steam_room` (Interiors › Gym & Spa › Steam Room, then a click in the room) and the checks. *Built (2026-11-01, later):* the generator (its component, the Humidifier category, `generator` and the dialog's *Generator* choice), `generator_run` and `control_height` and their checks. Not yet: the steam line drawn and pitched back to the generator, generator sizing in kW (makers' tables were not read), a vapour-tight door, steam showers in bathrooms, and the shape commands on ceilings.
 
 ### 3.9a.16 Accessible saunas, steam rooms and spas
 **ID:** ARC-BATH-016 · **Priority:** P2 · **Ref:** `BATHROOMS_PLAN.md` §7; research/13 D6
@@ -5273,7 +5275,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 - **Counts**: `tile.summary` gives each layout's full and cut tiles, the tiles to order (every piece takes a tile, then the waste allowance, rounded up) and the area.
 - **Drawing**: the pieces are thin boxes with the joints left open, so full and cut tiles show in plans, elevations (ARC-BATH-018) and 3D.
 - **Overlaps**: a layout is a finish, so the overlap checks pass it with what stands on its wall or floor.
-- **UI**: Architecture › Build › Tiles, then a click on the side of the selected wall, or on a floor. The status bar gives the counts.
+- **UI**: Interiors › Bath & Toilet › Tiles, then a click on the side of the selected wall, or on a floor. The status bar gives the counts.
 
 **Data (IFC mapping).** `IfcCovering` CLADDING or FLOORING, one faceted B-rep per piece, contained in its level; the recipe as RXD element data (`rxd:tile_layout`).
 
@@ -5333,7 +5335,7 @@ Owner requirement (2026-10-31), planned in `BATHROOMS_PLAN.md` and researched in
 **Purpose.** Unique, free-form elements modelled in the context of the project.
 
 **Workflow.**
-1. The user starts Architecture › Build › Component › **Model In-Place** (it is also on the Structure and Systems tabs).
+1. The user starts Architecture › Component › Component › **Model In-Place** (it is also on the Structure and Systems tabs).
 2. The user picks a category in the *Family Category and Parameters* dialog. The category decides where the element appears in the Project Browser and how it is scheduled, shown and exported. The user then gives it a **Name**.
 3. The in-place family editor opens inside the project. Other elements are shown in half-tone but can still be snapped to. The available tools are:
    - solid forms: **Extrusion**, **Blend**, **Revolve**, **Sweep** and **Swept Blend**;
@@ -5567,7 +5569,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] Every template fits a 6 × 6 m room with Check Rules finding nothing in its pieces' zones.
 - [x] The sample *A furnished apartment* furnishes four rooms with no overlaps or clearance intrusions.
 
-*Built (2026-11-06):* `riviera_core::interior_layouts`, Architecture › Build › Room Layout (a template, then a click in the room). Defaults are E-104. Not yet: furniture already in the room (other than an earlier layout) is not avoided, doors' clearances are not part of the fit, and rooms must be rectangles. Hotel rooms are ARC-INT-002.
+*Built (2026-11-06):* `riviera_core::interior_layouts`, Interiors › Rooms & Furniture › Room Layout (a template, then a click in the room). Defaults are E-104. Not yet: furniture already in the room (other than an earlier layout) is not avoided, doors' clearances are not part of the fit, and rooms must be rectangles. Hotel rooms are ARC-INT-002.
 
 ### 3.9b.5 Decorative lighting
 **ID:** ARC-INT-003 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.5; research/15 D4 (S1471–S1473, S1354); ARC-RULE-002; ARC-FURN-001
@@ -5599,7 +5601,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] Sconces on a 4.2 m wall are two, on the room's side, centred at 63 in, and §307.2 is met.
 - [x] The furnished apartment sample's sconces and chandelier pass every check, and the FF&E schedule counts them.
 
-*Built (2026-11-06):* `riviera_core::decorative_lighting`, the mounting rule kinds, the *Lighting* items, and Architecture › Build › Decorative Lighting (on the selected wall or piece). Defaults are E-105. Not yet: ceiling fans (their IFC class is open, `INTERIORS_PLAN.md` Q4), outlet-box weight checks (NEC 314.27), photometric files, and lamps placed on furniture.
+*Built (2026-11-06):* `riviera_core::decorative_lighting`, the mounting rule kinds, the *Lighting* items, and Interiors › Rooms & Furniture › Decorative Lighting (on the selected wall or piece). Defaults are E-105. Not yet: ceiling fans (their IFC class is open, `INTERIORS_PLAN.md` Q4), outlet-box weight checks (NEC 314.27), photometric files, and lamps placed on furniture.
 
 ### 3.9b.6 Cabinet runs
 **ID:** ARC-KIT-001 · **Priority:** P1 · **Ref:** `KITCHENS_PLAN.md` §4.1, §4.3; `INTERIORS_PLAN.md` §4.4 (step 5); research/14 A4, D1
@@ -5629,7 +5631,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A run whose back line lies on a wall's face faces into the room, on either side of the room.
 - [x] Wall units sit at 54 in, 12 in deep. Nothing in the galley kitchen sample overlaps.
 
-*Built (2026-11-06):* `riviera_core::cabinets` and Architecture › Build › Cabinet Run (the kind and sizes, then the start and end picked). Defaults are E-106. Not yet: corner units where runs meet; sink, cooktop and drawer bases and appliance openings; grips that change widths; a shortfall report; the `IfcRelConnectsElements` link to the wall; EU worktop heights other than 910 mm.
+*Built (2026-11-06):* `riviera_core::cabinets` and Interiors › Kitchen & Casework › Cabinet Run (the kind and sizes, then the start and end picked). Defaults are E-106. Not yet: corner units where runs meet; sink, cooktop and drawer bases and appliance openings; grips that change widths; a shortfall report; the `IfcRelConnectsElements` link to the wall; EU worktop heights other than 910 mm.
 
 ### 3.9b.7 Countertops
 **ID:** ARC-KIT-002 · **Priority:** P1 · **Ref:** `KITCHENS_PLAN.md` §4.2, §4.3; research/14 D1, D3
@@ -5647,7 +5649,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A 3.6 m US base run's top is 3.6 m × 25 in, its surface at 36 in, its back on the wall face.
 - [x] The galley kitchen sample's two tops leave 1.23 m between them and overlap nothing.
 
-*Built (2026-11-06):* `riviera_core::cabinets::tops` and Architecture › Build › Countertop (the selected units' runs, or all). Defaults are E-106. Not yet: tops across joined or corner runs, islands and seating overhangs, backsplashes, edge profiles and joints, and sink and cooktop cut-outs.
+*Built (2026-11-06):* `riviera_core::cabinets::tops` and Interiors › Kitchen & Casework › Countertop (the selected units' runs, or all). Defaults are E-106. Not yet: tops across joined or corner runs, islands and seating overhangs, backsplashes, edge profiles and joints, and sink and cooktop cut-outs.
 
 ### 3.9b.8 Counters and accessible portions
 **ID:** ARC-INT-004 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.4 (step 5); research/15 C1–C3; 2010 ADA Standards §904.4, §306, §305 (S1354); ARC-KIT-001; ARC-RULE-002
@@ -5673,7 +5675,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A portion raised to 38 in, or a forward portion 28 in long, is reported (the short one's knee clearance also takes in the body beside it). A portion longer than its counter is refused.
 - [x] The service counters sample's three counters pass every check and overlap nothing.
 
-*Built (2026-11-06):* `riviera_core::counters`, the surfaces rule kind, and Architecture › Build › Counter. Defaults are E-107. Not yet: closets (shelves, rods and doors, §308 reach); bars' lowered dining sections (§902) and check-out aisles (§904.3); toe clearance as its own zone; legs, brackets and modesty panels; EU heights.
+*Built (2026-11-06):* `riviera_core::counters`, the surfaces rule kind, and Interiors › Kitchen & Casework › Counter. Defaults are E-107. Not yet: closets (shelves, rods and doors, §308 reach); bars' lowered dining sections (§902) and check-out aisles (§904.3); toe clearance as its own zone; legs, brackets and modesty panels; EU heights.
 
 ### 3.9b.9 Closets
 **ID:** ARC-INT-005 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.4 (step 5); research/15 §8 (S1489, S1404), B11 and G6–G8, G13 (S1354); ARC-RULE-002
@@ -5699,7 +5701,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A rod with no room for hangers under the shelf is refused.
 - [x] The closets sample's three closets pass every check and overlap nothing.
 
-*Built (2026-11-06):* `riviera_core::closets` and Architecture › Build › Closet. Defaults are E-108. Not yet: doors and the 30 × 48 in clear floor space in front of an accessible closet; walk-ins with rods on several walls; drawers, shoe shelves and hooks; closet lighting's storage zone (NEC 410.16).
+*Built (2026-11-06):* `riviera_core::closets` and Interiors › Kitchen & Casework › Closet. Defaults are E-108. Not yet: doors and the 30 × 48 in clear floor space in front of an accessible closet; walk-ins with rods on several walls; drawers, shoe shelves and hooks; closet lighting's storage zone (NEC 410.16).
 
 ### 3.9b.10 Hotel guest rooms
 **ID:** ARC-INT-002 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.3 (step 6; the owner's answer to Q3); research/15 D6, G140–G147 (S1354, S1466, S1498); ARC-INT-001; ARC-RULE-002; ARC-GRP-004 (later)
@@ -5738,7 +5740,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] An accessible room set to roll-in and laid out again stays roll-in and keeps its communication features.
 - [x] The sample *A hotel floor* (six rooms) meets the counts, and Check Rules and overlaps find nothing.
 
-*Built (2026-11-07):* `riviera_core::hotels`, the hotel templates in `riviera_core::interior_layouts`, Architecture › Build › Guest Room (the selected rooms) and View › Coordination › Room Matrix (with Save Report). Defaults are E-109. Not yet: guest rooms as modular units with the matrix assigning typicals to bays (ARC-GRP-004); the bathroom in the template; roll-in showers found from the bathroom rather than marked; §224.3 beds in dormitories, §224.1.2 doors and §806.2.6 turning spaces; the UK room's transfer space and pull cord; hotel floors drawn along a corridor in one step.
+*Built (2026-11-07):* `riviera_core::hotels`, the hotel templates in `riviera_core::interior_layouts`, Interiors › Rooms & Furniture › Guest Room (the selected rooms) and View › Coordination › Room Matrix (with Save Report). Defaults are E-109. Not yet: guest rooms as modular units with the matrix assigning typicals to bays (ARC-GRP-004); the bathroom in the template; roll-in showers found from the bathroom rather than marked; §224.3 beds in dormitories, §224.1.2 doors and §806.2.6 turning spaces; the UK room's transfer space and pull cord; hotel floors drawn along a corridor in one step.
 
 ### 3.9b.11 Gondola runs
 **ID:** ARC-RETAIL-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §5.2 (step 7); research/15 B1, B10, G1–G2, G73 (S1400, S1354, S1394, S1419, S1420); ARC-KIT-001; ARC-RULE-001/002; ARC-FURN-001
@@ -5773,7 +5775,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A wall run on a wall's face is 84 in high, its back on the face; nothing overlaps.
 - [x] The sample *Store aisles* (a wall run and three islands 2 m apart) passes every check; an island moved to leave 0.8 m is reported against all three packs.
 
-*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Architecture › Build › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks are ARC-RETAIL-002; shelf lights and loads (`Riviera_RetailFixture`).
+*Built (2026-11-07):* `riviera_core::retail`, the aisle zones in the packs, Interiors › Retail › Gondola Run, and Model Properties › Retail rules. Defaults are E-110. Not yet: aisle widths shown while drawing; runs along polylines and arcs, and grids of runs (ARC-GRP-004); passing spaces on long narrow aisles (§403.5.3); aisles sized from the occupant load; merchandise-pad accessways (§1018.4); store checks are ARC-RETAIL-002; shelf lights and loads (`Riviera_RetailFixture`).
 
 ### 3.9b.12 Store checks
 **ID:** ARC-RETAIL-002 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §5.3 (step 7); research/15 B10, B12, B14, G71–G72 (S1395, S1397, S1398, S1399, S1402); ARC-RETAIL-001; MEP-PIPE-007; ARC-ROOM-001
@@ -5797,7 +5799,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A 16 ft pallet rack on the sales floor is high-piled and needs anchoring; moved into the stock room it is only high-piled.
 - [x] The *Store aisles* sample holds 31 people and its shelving passes.
 
-*Built (2026-11-07):* `retail.set_area` and `retail.check` in `riviera_core::retail`, Architecture › Build › Store Area and View › Coordination › Check Store (with Save Report). Defaults are E-111. Not yet: the occupant load feeding the egress tools (ANA-ROUTE); fitting rooms (§222.1, §803); signs (§307); sidewall heads' reach; commodity classes and high-hazard storage over 6 ft; EAS pedestals on their own circuit; gross areas.
+*Built (2026-11-07):* `retail.set_area` and `retail.check` in `riviera_core::retail`, Interiors › Retail › Store Area and View › Coordination › Check Store (with Save Report). Defaults are E-111. Not yet: the occupant load feeding the egress tools (ANA-ROUTE); fitting rooms (§222.1, §803); signs (§307); sidewall heads' reach; commodity classes and high-hazard storage over 6 ft; EAS pedestals on their own circuit; gross areas.
 
 ### 3.9b.13 Checkout front ends
 **ID:** ARC-RETAIL-003 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §6.1, §6.3 (step 8; the owner's answers to Q5, 2026-11-07); research/15 C2, C4, C10, G100–G104, G109 (S1354, S1411, S1432, S1453, S1457); ARC-RULE-002; ARC-FURN-001
@@ -5827,7 +5829,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] 300 customers an hour with 20 items at 900 items a lane-hour need about 8 lanes, marked an estimate.
 - [x] The sample *A store front* meets Table 227.2 for its three functions.
 
-*Built (2026-11-07):* `riviera_core::checkouts`, Architecture › Build › Checkout Bank, View › Coordination › Check Checkouts and Checkout Lanes Estimate. Defaults are E-112. Not yet: parametric checkstands (§6.1: transport length, bag well, scanner cut-out, card terminal height), the 38 in counter and the check-writing surface (§904.3.2–3), ISA signs (§216.11), queue zones as `IfcSpatialZone` QUEUE, exit gates and the front end's egress checks, lane circuits.
+*Built (2026-11-07):* `riviera_core::checkouts`, Interiors › Retail › Checkout Bank, View › Coordination › Check Checkouts and Checkout Lanes Estimate. Defaults are E-112. Not yet: parametric checkstands (§6.1: transport length, bag well, scanner cut-out, card terminal height), the 38 in counter and the check-writing surface (§904.3.2–3), ISA signs (§216.11), queue zones as `IfcSpatialZone` QUEUE, exit gates and the front end's egress checks, lane circuits.
 
 ### 3.9b.14 Self-checkout pods
 **ID:** ARC-RETAIL-004 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §6.2 (step 9; the owner's answers to Q5, 2026-11-07); research/15 C7–C9, F2 item 10 (S1408, S1424, S1427, S1458); ARC-RETAIL-003; ARC-RULE-002
@@ -5871,7 +5873,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A pod 2.5 m across with no attendant gets both notes, and its bank with no accessible unit is short under Table 227.2.
 - [x] The sample *Self-checkout pods* follows the practice and meets the profile.
 
-*Built (2026-11-08):* `riviera_core::sco`, Architecture › Build › Self-checkout Pod and Self-checkout Profile, View › Coordination › Check Self-checkouts. Defaults are E-113. Not yet: units as `IfcFurniture` SELFCHECKOUT aggregating a terminal, scanner and display; service clearances as `IfcBuildingElementProxy` PROVISIONFORSPACE; the queue as `IfcSpatialZone` QUEUE and serpentine queues; H-pods and straight banks with a station; the units' circuits; the EU and UK profiles (the EAA's dates, Approved Document M's 750–1200 mm controls).
+*Built (2026-11-08):* `riviera_core::sco`, Interiors › Retail › Self-checkout Pod and Self-checkout Profile, View › Coordination › Check Self-checkouts. Defaults are E-113. Not yet: units as `IfcFurniture` SELFCHECKOUT aggregating a terminal, scanner and display; service clearances as `IfcBuildingElementProxy` PROVISIONFORSPACE; the queue as `IfcSpatialZone` QUEUE and serpentine queues; H-pods and straight banks with a station; the units' circuits; the EU and UK profiles (the EAA's dates, Approved Document M's 750–1200 mm controls).
 
 ### 3.9b.15 Gyms
 **ID:** ARC-GYM-001 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §7.1, §7.2 (step 10; the owner's answer to Q4 on mirror and fan classes, 2026-11-08); research/15 A2–A5, G32–G41 (S1354, S1355, S1358, S1359, S1360, S1366, S1370, S1375, S1376, S1388, S1389, S1390, S1474); ARC-FURN-001; ARC-RULE-002
@@ -5899,7 +5901,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A mirror across the treadmills' rear is a note; one without safety glazing is a note. The mirror is an `IfcCovering`.
 - [x] The sample *A fitness room* has one of each type accessible with its clear space, every zone clear and nothing overlapping.
 
-*Built (2026-11-08):* `riviera_core::gym`, the `gym_equipment` pack, the ceiling fan, Architecture › Build › Wall Mirror, View › Coordination › Check Gym. Defaults are E-114. Not yet (gym layouts and studios are ARC-GYM-002): whether the accessible machines are on an accessible route (G33), the UK's inclusive transfer space and IFI counts (G35–G36), and building integration (§7.3): dedicated circuits, heat gains, outdoor air, floor loads, anchors. Also not yet: the fan-light's aggregated light kit and the fan's wall clearance.
+*Built (2026-11-08):* `riviera_core::gym`, the `gym_equipment` pack, the ceiling fan, Interiors › Gym & Spa › Wall Mirror, View › Coordination › Check Gym. Defaults are E-114. Not yet (gym layouts and studios are ARC-GYM-002): whether the accessible machines are on an accessible route (G33), the UK's inclusive transfer space and IFI counts (G35–G36), and building integration (§7.3): dedicated circuits, heat gains, outdoor air, floor loads, anchors. Also not yet: the fan-light's aggregated light kit and the fan's wall clearance.
 
 ### 3.9b.16 Gym layouts and studios
 **ID:** ARC-GYM-002 · **Priority:** P2 · **Ref:** `INTERIORS_PLAN.md` §7.2 (step 10); research/15 A2, A4 (S1372, S1377, S1379, S1380, S1390, S1392); ARC-GYM-001
@@ -5924,7 +5926,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A 10 × 8 m cycling studio holds 10 or more bikes, no more than its capacity, facing the instructor's wall with nothing overlapping. As a mat studio it holds about 30, and nothing is placed.
 - [x] The sample *A fitness room* has a cycling studio and a circuit room laid out this way, with three rooms' occupant loads.
 
-*Built (2026-11-08):* `gym.layout` and `gym.studio`, Architecture › Build › Gym Layout and Studio, the rooms in `gym.check`. Defaults are E-115. Not yet: picking the head wall in the window, zones by type (cardio and strength apart, a circuit holding one of each accessible machine), the accessible route to accessible machines (G33), L-shaped rooms beyond what fits their bounding rows, mat and HIIT studios' storage and instructor zones.
+*Built (2026-11-08):* `gym.layout` and `gym.studio`, Interiors › Gym & Spa › Gym Layout and Studio, the rooms in `gym.check`. Defaults are E-115. Not yet: picking the head wall in the window, zones by type (cardio and strength apart, a circuit holding one of each accessible machine), the accessible route to accessible machines (G33), L-shaped rooms beyond what fits their bounding rows, mat and HIIT studios' storage and instructor zones.
 
 ### 3.9b.3 Generic furniture and equipment
 **ID:** ARC-FURN-001 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.1, §5.1, §7.1, §8.1 (the owner accepted the IFC mapping); research/15 A1, B1–B7, C2, C7, D1, E2; DM-LIB-006
@@ -5978,7 +5980,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - **The library** gains *Events*: banquet rounds 72 and 60 in, a stack chair 18 × 22 in, a seminar table 18 × 72 in, a cocktail table 30 in, a stage deck 4 × 8 ft at 24 in and a lectern; and *Dining*: restaurant two-tops 24 × 30 in and four-tops 36 in.
 - **The occupant load** (IBC Table 1004.5): the room's net area over 15 ft² for tables and chairs, 7 ft² for chairs only (theatre), 5 ft² standing (reception). The set-up is designed for the larger of that and its seats (a reception's standing places at 7 ft², the planning density). More seats than the table's load is a note: an increased occupant load needs an approved plan and egress for it (1004.5.1).
 - **Exits** (Table 1006.3.2): one up to 49, two to 500, three to 1,000, four above, against the doors in the room's walls; too few is an error. **Egress width** (1005.3.2): 0.15 in an occupant sprinklered with voice alarm (`sprinklered`, default), else 0.2, against the doors' widths; too little is an error.
-- **The window:** Architecture › Build › Seating Layout on the selected room: the set-up, rounds, wall clearance, front clearance and sprinklers; the counts and findings are shown.
+- **The window:** Interiors › Rooms & Furniture › Seating Layout on the selected room: the set-up, rounds, wall clearance, front clearance and sprinklers; the counts and findings are shown.
 
 **Data (IFC mapping).** The pieces are ordinary placed library objects (`IfcFurniture` TABLE and CHAIR), each with `rxd:seating` naming its room.
 
@@ -5988,7 +5990,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] A 30 × 20 m ballroom with three doors set out for a banquet holds 35 rounds of ten, its occupant load the net area over 15 ft², two exits needed, no findings. As a theatre it seats over 600, needs three exits, and the banquet's pieces are gone; as a classroom three chairs a table; as a reception its standing load. 60 in rounds 9 ft apart are denser than the table's load: a note. Cleared, nothing is left.
 - [x] A 7 × 5 m boardroom has one table for eight and needs one exit. A 15 × 10 m restaurant with one door has at least twelve four-tops and fails two exits; nothing overlaps.
 
-*Built (2026-11-12):* `riviera_core::seating`, the *Events* and restaurant items, Architecture › Build › Seating Layout. Defaults are E-136. Not yet: U-shapes, hollow squares, crescent rounds and cabaret; booths and banquettes; staging and lecterns placed with a set-up; operable partitions dividing a ballroom (research/20 C3); ADA dining-surface counts (226) and wheelchair spaces; aisle widths by the seats they serve (1029); the main-exit rule for assembly over 300; set-ups as schedules.
+*Built (2026-11-12):* `riviera_core::seating`, the *Events* and restaurant items, Interiors › Rooms & Furniture › Seating Layout. Defaults are E-136. Not yet: U-shapes, hollow squares, crescent rounds and cabaret; booths and banquettes; staging and lecterns placed with a set-up; operable partitions dividing a ballroom (research/20 C3); ADA dining-surface counts (226) and wheelchair spaces; aisle widths by the seats they serve (1029); the main-exit rule for assembly over 300; set-ups as schedules.
 
 ## 3.9c Swimming pools
 
@@ -6056,7 +6058,7 @@ Public and competition pools come first (Q6).
 - [x] Exported to IFC, the pool is an assembly of a wall, a base slab and a covering, with a WATER space carrying its volume. It reads back as one pool, and saving again leaves one water space.
 - [x] The sample *A swimming pool hall* builds a 25 m pool and a teaching pool falling at 1:40.
 
-*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Architecture › Build › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), gate hardware (ARC-POOL-016, built), lane ropes, flags and the false-start rope (ARC-POOL-017, built), each specified as it is built.
+*Built (2026-11-08):* `riviera_core::pools`, its IFC writer, Interiors › Pools › Swimming Pool. Defaults are E-116. Not yet: sketching a freeform outline in the window and editing a pool there, moving or copying a pool with the modify tools, drawing the cove, gutters, basins, raised walls, tiling and membrane. Later steps: `pool.check` and the US packs (ARC-POOL-002, built), entries (ARC-POOL-003, built), the *Riviera Pools* library (ARC-POOL-004, built), competition lanes and the World Aquatics pack (ARC-POOL-005, built), diving envelopes (ARC-POOL-006, built), the UK packs (ARC-POOL-007, built), natatorium air and heat balance (ARC-POOL-008, built), water treatment (ARC-POOL-009, built), structural loads and bonding (ARC-POOL-010, built), depth markings (ARC-POOL-011, built), barriers (ARC-POOL-012, built), handrails, recessed steps and beach entries (ARC-POOL-013, built), the treatment plant as equipment (ARC-POOL-014, built), swimouts and nosing stripes (ARC-POOL-015, built), gate hardware (ARC-POOL-016, built), lane ropes, flags and the false-start rope (ARC-POOL-017, built), each specified as it is built.
 
 ### 3.9c.2 Pool checks and the US packs
 **ID:** ARC-POOL-002 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5 (step 2; the owner's answers to Q3 and Q4, 2026-11-08); research/23 A.2–A.7, A.10, A.11.2, A.15, A.17 (S2762, S2766, S2768, S2771, S2773–S2776); ARC-RULE-001 (rule packs), ARC-POOL-001 (the pool)
@@ -6114,7 +6116,7 @@ Public and competition pools come first (Q6).
   - `stair_tread`, `stair_riser`, `stair_width`: the MAHC's 12–18 in treads, 6–12 in risers and 24 in width; the ISPSC's 10 in treads, 12 in risers and 24 in (public, secondary), 10 in residential treads (809.5).
   - `sloped_entry_slope`, `sloped_entry_depth`: the ADA's 1:12 and 24–30 in (1009.3).
   - `bench_seat`: the MAHC's seat 20 in below the water at most, in water 5 ft deep at most (4.5.16); the ISPSC's 20 in (411.5, secondary).
-- **The window:** Architecture › Build › Pool Entry, on the selected pool (or the only one), then a click by the wall.
+- **The window:** Interiors › Pools › Pool Entry, on the selected pool (or the only one), then a click by the wall.
 
 **Data (IFC mapping).** Each kind is one more part aggregated under the pool: `IfcStair` STRAIGHT_RUN_STAIR, `IfcRamp` STRAIGHT_RUN_RAMP and `IfcBuildingElementProxy` USERDEFINED ("POOLBENCH"), faceted B-reps marked `rxd:pool` like the shell. The entries are in the recipe.
 
@@ -6127,7 +6129,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the entries are an `IfcStair` and a POOLBENCH proxy in the pool's assembly; reopened, the pool has its two entries and the same volume, and they are not loaded as elements.
 - [x] The sample *A public pool checked against the codes* has stairs and a sloped entry at its shallow end and passes its packs.
 
-*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Architecture › Build › Pool Entry. Defaults are E-118. Not yet: a sloped entry along the wall with its landings and transfer walls and systems as built entries (recessed steps, beach entries and handrails are ARC-POOL-013, built; swimouts and nosing stripes ARC-POOL-015, built; the *Riviera Pools* library is ARC-POOL-004, built).
+*Built (2026-11-09):* entries in `riviera_core::pools` and its IFC writer, the six rule checks, Interiors › Pools › Pool Entry. Defaults are E-118. Not yet: a sloped entry along the wall with its landings and transfer walls and systems as built entries (recessed steps, beach entries and handrails are ARC-POOL-013, built; swimouts and nosing stripes ARC-POOL-015, built; the *Riviera Pools* library is ARC-POOL-004, built).
 
 ### 3.9c.4 The Riviera Pools library
 **ID:** ARC-POOL-004 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §4, §8 (step 3, second half); research/23 A.7, A.9, A.15.2, D.4, D.5.3 (S2762, S2768, S2773, S2775, S2776, S2791, S2836, S2837, S2840, S2841, S2855, S2856, S2861); DM-LIB-006 (bundled libraries), ARC-FURN-001 (the catalogue), ARC-RULE-002 (use zones)
@@ -6165,7 +6167,7 @@ Public and competition pools come first (Q6).
 **Purpose.** Lay out a competition pool's lanes, draw its markings, and check its course, lanes and starting depths against World Aquatics, each finding saying to verify against the current text.
 
 **Behaviour & rules.**
-- **Lanes** (`pool.lanes`, Architecture › Build › Pool Lanes): `count` lanes across the pool, the middle ones `width` wide (default 2.5 m), the outer two taking what is left after a `gap` at each side wall (default 0.1 m, the 2026 checklist's), and touch pads at `pads` ends (default 2, 10 mm each). The competition templates have their lanes: six (eight for 50 m), so a 15 m wide 25 m pool has four 2.5 m lanes and two of 2.4 m. Lanes that do not fit are refused. `count` 0 takes them away.
+- **Lanes** (`pool.lanes`, Interiors › Pools › Pool Lanes): `count` lanes across the pool, the middle ones `width` wide (default 2.5 m), the outer two taking what is left after a `gap` at each side wall (default 0.1 m, the 2026 checklist's), and touch pads at `pads` ends (default 2, 10 mm each). The competition templates have their lanes: six (eight for 50 m), so a 15 m wide 25 m pool has four 2.5 m lanes and two of 2.4 m. Lanes that do not fit are refused. `count` 0 takes them away.
 - **The course** is the length between the touch pads: wall to wall along the axis less 10 mm a pad. `pool.info` reports it with each lane's width and centre.
 - **Markings** (unless `markings` is false), 0.25 m wide (0.2–0.3 m), dark, 5 mm proud:
   - a line on the floor down each lane's centre, ending 2.0 m from each end wall in a 1.0 m cross line;
@@ -6191,7 +6193,7 @@ Public and competition pools come first (Q6).
 - [x] A 25.000 m rectangle with pads at both ends is 24.980 m between them, short of the course; without pads it passes; without lanes the course is unknown; a 25 yd pool is a note.
 - [x] The sample *A swimming pool hall* has its main pool's lanes and markings, passes World Aquatics with its starting platforms, and nothing overlaps.
 
-*Built (2026-11-09):* lanes and markings in `riviera_core::pools` and its IFC writer, the `world_aquatics` pack and the platform rules, Architecture › Build › Pool Lanes. Defaults are E-120. Not yet: diving envelopes checked with the overlap engine (the rest of step 4), the Olympic and World Championship options (2.5 m deep, 25 m wide, ten lanes), backstroke flags, the false-start rope, lane ropes and anchors, touch pads as objects, water polo and artistic swimming, end-wall verticality and orthogonality, and gutters at the end walls.
+*Built (2026-11-09):* lanes and markings in `riviera_core::pools` and its IFC writer, the `world_aquatics` pack and the platform rules, Interiors › Pools › Pool Lanes. Defaults are E-120. Not yet: diving envelopes checked with the overlap engine (the rest of step 4), the Olympic and World Championship options (2.5 m deep, 25 m wide, ten lanes), backstroke flags, the false-start rope, lane ropes and anchors, touch pads as objects, water polo and artistic swimming, end-wall verticality and orthogonality, and gutters at the end walls.
 
 ### 3.9c.6 Diving envelopes
 **ID:** ARC-POOL-006 · **Priority:** P1 · **Ref:** `POOLS_PLAN.md` §5, §8 (step 4, second part); research/23 A.6.1, B.7.2 (S2762, S2791, S2793); ARC-POOL-002 (the checks), ARC-POOL-003 (entries), ARC-POOL-004 (the diving board)
@@ -6437,7 +6439,7 @@ Public and competition pools come first (Q6).
   - the MAHC: 25 ft, 1 ft, NO DIVING to 5 ft, none needed 6 in deep or less, feet or both; the band;
   - the ISPSC: 25 ft, 2 ft, NO DIVING to 5 ft, any units; the band;
   - HSG179: markings in metres or both, as notes.
-- **The window:** Architecture › Build › Pool Depth Markings. The markers and lines are also in `pool.info`.
+- **The window:** Interiors › Pools › Pool Depth Markings. The markers and lines are also in `pool.info`.
 
 **Data.** `depth_markings` on the pool's recipe; the markers and lines follow from it, the pool's profile and the objects by its edge.
 
@@ -6451,7 +6453,7 @@ Public and competition pools come first (Q6).
 - [x] Under the UK code a 0.9–1.2 m learner pool's markings are in metres with NO DIVING everywhere and no band; HSG179's note goes once they are there.
 - [x] A diving well deeper than 5 ft throughout needs no band.
 
-*Built (2026-11-10):* `riviera_core::pool_markings`, Architecture › Build › Pool Depth Markings, the pool samples marked. Defaults are E-126. Not yet:
+*Built (2026-11-10):* `riviera_core::pool_markings`, Interiors › Pools › Pool Depth Markings, the pool samples marked. Defaults are E-126. Not yet:
 - the labels drawn as text on the tiles and in plan views;
 - the international NO DIVING symbol;
 - markers on spas (at least two);
@@ -6538,7 +6540,7 @@ Public and competition pools come first (Q6).
   - the ISPSC (public, secondary): stair handrails 34–38 in (323.2); recessed steps as the MAHC's but 7–12 in apart (322.4); beaches 1:10 (411.3);
   - the ADA: a sloped entry's two handrails 33–38 in apart (1009.3.3) and 34–38 in high (505.4);
   - recessed steps count as *Recessed Steps* and beaches as *Beach Entry*, entries under the MAHC and the ISPSC.
-- **The window:** Architecture › Build › Pool Entry offers recessed steps and beach entries, and the handrails' count, height and gap.
+- **The window:** Interiors › Pools › Pool Entry offers recessed steps and beach entries, and the handrails' count, height and gap.
 
 **Data (IFC mapping).** The handrails are one more part in the pool's assembly, an `IfcRailing` (HANDRAIL) of faceted B-reps marked `rxd:pool`. A beach is part of the `IfcRamp`. Recessed steps are openings in the shell's `IfcWall`. All of it is in the recipe's entries.
 
@@ -6551,7 +6553,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the handrails are an `IfcRailing` HANDRAIL in the pool's assembly; reopened, the pool has its entries and volume, and the handrails are not loaded as railings.
 - [x] The sample *A resort pool with a beach entry* passes its packs with a beach, wide stairs with three handrails, a sloped entry and recessed steps.
 
-*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the eight rule checks, Architecture › Build › Pool Entry. Defaults are E-128. Swimouts and nosing stripes are ARC-POOL-015 (built). Not yet:
+*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the eight rule checks, Interiors › Pools › Pool Entry. Defaults are E-128. Swimouts and nosing stripes are ARC-POOL-015 (built). Not yet:
 - a sloped entry along the wall with its landings;
 - the beach's trench drain at the waterline;
 - the MAHC's recessed stairs where the water is over 5 ft deep;
@@ -6580,7 +6582,7 @@ Public and competition pools come first (Q6).
   - without a room, a row taking more than 30 % of the water's area.
   - Always: the chemicals' separate ventilated stores, and that the head is an allowance and the pipes are not drawn.
 - **Objects:** each item is a generated object type, made once by name: `IfcTank` (STORAGE), `IfcPump` and `IfcFilter` (WATERFILTER). Each placed item is marked with its pool, and running the command again replaces the pool's plant.
-- **The window:** Architecture › Build › Pool Plant, on the selected pool: basis, filters and head, then a click in the plant room.
+- **The window:** Interiors › Pools › Pool Plant, on the selected pool: basis, filters and head, then a click in the plant room.
 
 **Data (IFC mapping).** Ordinary placed objects (`IfcTank`, `IfcPump`, `IfcFilter` with their types), with `rxd:pool_plant` naming the pool. The new object categories *Tank* and *Filter* are available to imported objects too.
 
@@ -6593,7 +6595,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the items are `IfcTank`s, `IfcPump`s and `IfcFilter`s, their types STORAGE and WATERFILTER.
 - [x] The sample *A swimming pool hall* has its plant in a plant room.
 
-*Built (2026-11-11):* `riviera_core::pool_plant`, the *Tank* and *Filter* object categories, Architecture › Build › Pool Plant. Defaults are E-129. Not yet:
+*Built (2026-11-11):* `riviera_core::pool_plant`, the *Tank* and *Filter* object categories, Interiors › Pools › Pool Plant. Defaults are E-129. Not yet:
 - the pipes between the items and to the pool, with valves and the strainer;
 - heaters or heat exchangers, UV and other secondary treatment;
 - pump curves and heads from the pipework;
@@ -6633,7 +6635,7 @@ Public and competition pools come first (Q6).
 - [x] Saved, the stripes are a NOSING covering in the pool's assembly.
 - [x] The sample *A resort pool with a beach entry* has a swimout and striped stairs and passes its packs.
 
-*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the four rule checks, Architecture › Build › Pool Entry. Defaults are E-130. Not yet:
+*Built (2026-11-11):* in `riviera_core::pools` and its IFC writer, the four rule checks, Interiors › Pools › Pool Entry. Defaults are E-130. Not yet:
 - the coping round a swimout's alcove;
 - swimouts' "outside water currents" (MAHC) and their place relative to the lanes;
 - stripes on the riser faces;
@@ -6712,7 +6714,7 @@ Public and competition pools come first (Q6).
 - [x] Nothing overlaps. Saved, the fittings are LANEROPE, BACKSTROKEFLAGS and FALSESTARTROPE discrete accessories; reopened, the pool keeps them. Taken away, they are notes again.
 - [x] The sample *A swimming pool hall* has its main pool's fittings.
 
-*Built (2026-11-12):* in `riviera_core::pools` and its IFC writer, the three rule checks, Architecture › Build › Pool Lanes. Defaults are E-132. Not yet: rope anchors in the end walls, the ropes' 10 lanes' colours, quick-release on the false-start rope, rope storage reels, and USA Swimming's and NFHS's flag heights.
+*Built (2026-11-12):* in `riviera_core::pools` and its IFC writer, the three rule checks, Interiors › Pools › Pool Lanes. Defaults are E-132. Not yet: rope anchors in the end walls, the ropes' 10 lanes' colours, quick-release on the false-start rope, rope storage reels, and USA Swimming's and NFHS's flag heights.
 
 ## 3.11 Massing and site
 
@@ -8083,7 +8085,7 @@ All commands below are registered once in the command registry and exposed autom
 | `enclosure.heating` | enclosure_id, inside?, outside?, wind?, heater_kw? | heating_report | No (query) | ARC-GLZ-014 |
 | `enclosure.heating_pipes` | enclosure_id, system, runs?, height?, offset?, diameter?, outside?, remove? | {runs, segments, fittings, length, output_kw, replaced} | Yes | ARC-GLZ-016 |
 | `enclosure.pad_and_fan` | enclosure_id, climate?, fan_airflow?, fan_size?, pads?, pad_height?, reversed?, remove? | {layout, fans, fan_airflow, airflow, pad_area, pad_length, notes} | Yes | ARC-GLZ-017 |
-| `atrium.create` | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, guard_height?, name? | {atrium, shaft, roof, guards, opened} | Yes | ARC-GLZ-018 |
+| `atrium.create` | outline, base_level, top_level, form?, slope?, rise?, roof_outline?, overhang?, roof_offset?, glazing_type?, walls?, guard_height?, name? | {atrium, shaft, roof, guards, walls, opened} | Yes | ARC-GLZ-018 |
 | `atrium.check` | atrium_id?, fire?, clearance?, ambient? | [atrium_report] | No (query) | ARC-GLZ-018 |
 | `shading.baffles` | outline, level, height, direction?, spacing?, depth?, thickness?, tilt?, name? | {device, blades, length, cutoff} | Yes | ARC-GLZ-019 |
 | `shading.sun_check` | elements?, areas?, devices?, days?, max_share? | sun_check | No (query) | ARC-GLZ-019 |

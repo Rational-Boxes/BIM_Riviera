@@ -11,7 +11,7 @@ clearances and Table 403.1's counts) and `ada_2010`. Each room is four 200 mm wa
 (**Architecture › Wall**, typing the corners); the sizes given are inside the walls.
 
 1. **A men's room**, 9 × 4 m from (0, 0).
-   1. Select its north wall and use **Architecture › Build › Toilet Core**. Set Room side to
+   1. Select its north wall and use **Interiors › Bath & Toilet › Toilet Core**. Set Room side to
       *Interior face*, Numbers to *Counted for an occupancy*, Occupancy *B*, Occupant load 150
       and Room for *Men*. The core runs along the wall's whole inside face, from (0, 3.9) to
       (9, 3.9).
@@ -29,12 +29,12 @@ clearances and Table 403.1's counts) and `ada_2010`. Each room is four 200 mm wa
       (`bath.set_accessible`), and the door then keeps its swing but no manoeuvring clearances.
    4. **View › Coordination › Fixture Count** with the same occupancy and load gives the whole
       building's sums: the women's room, drinking fountains and a service sink are still short.
-2. **An accessible single-user toilet**, 1.8 × 2.6 m from (11, 0). **Architecture › Build ›
+2. **An accessible single-user toilet**, 1.8 × 2.6 m from (11, 0). **Interiors › Bath & Toilet ›
    Bathroom Layout**: choose *Accessible single-user toilet*, with the west wall as the wet wall.
    Click inside the room. The WC goes 18 in from the side wall with the lavatory beside it, and
    the ADA's side and rear grab bars go on.
 3. **A locker room**, 6 × 5 m from (0, 6).
-   1. **Architecture › Build › Locker Room**: 40 lockers, two tier, six gang showers, accessible.
+   1. **Interiors › Gym & Spa › Locker Room**: 40 lockers, two tier, six gang showers, accessible.
       Click inside the room.
    2. Lockers run along both long walls with the ADA's 30 in in front of them, and benches go
       down the middle. The showers go along one end wall, 750 mm apart, behind a drying zone.

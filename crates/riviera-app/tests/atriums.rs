@@ -91,3 +91,19 @@ fn a_barrel_roof_reaching_over_a_roof_terrace() {
     ok(&mut again, "file.open", json!({ "path": model }));
     assert_eq!(ok(&mut again, "atrium.check", json!({})).as_array().unwrap().len(), 1);
 }
+
+#[test]
+fn the_roofs_sides_closed_in_glass() {
+    let (_dir, mut app, levels) = building();
+    // The roof reaches 1 m past the void; four curtain walls 0.3 m inside its edges, attached to
+    // the ridge roof so they rise to it.
+    let a = ok(&mut app, "atrium.create", json!({ "outline": [[10.0, 9.0], [20.0, 9.0], [20.0, 21.0], [10.0, 21.0]], "base_level": levels[0], "top_level": levels[4], "roof_offset": 4.5, "overhang": 1.0, "walls": true }));
+    let walls = a["walls"].as_array().unwrap();
+    assert_eq!(walls.len(), 4, "{a:#}");
+    let st = store(&app);
+    for w in walls {
+        let e = st.iter().find(|e| json!(e.id()) == *w).unwrap();
+        assert_eq!(e.class, "IfcCurtainWall");
+    }
+    assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
+}

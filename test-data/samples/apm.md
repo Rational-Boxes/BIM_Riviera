@@ -12,7 +12,7 @@ Start with **File › New IFC 4.3 Project**.
    450, 150
    ```
    It runs east, then bends north-east round a 150 m curve: 506 m in all.
-2. **The guideway.** Select the alignment, then **Architecture › Circulation › APM Guideway**:
+2. **The guideway.** Select the alignment, then **Architecture › Lifts & Transport › APM Guideway**:
    two lanes 4.75 m apart with a walkway. The deck is 9.02 m wide, and each lane's 3.66 m dynamic
    envelope is kept clear for **Check Clearances**.
 3. **The stations.** Select the guideway, then **APM Station** three times, at chainages 30

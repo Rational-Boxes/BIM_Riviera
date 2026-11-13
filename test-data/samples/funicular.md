@@ -20,7 +20,7 @@ Start with **File › New IFC 4.3 Project**, so the funicular's line is saved as
    ```
    It bends left round a 300 m curve, and steepens from 20 % to 43.75 % over a 100 m vertical
    curve.
-2. **The funicular.** Select the alignment, then **Architecture › Circulation › Funicular**:
+2. **The funicular.** Select the alignment, then **Architecture › Lifts & Transport › Funicular**:
    - *Track* two rails with an Abt passing loop half way; *Gauge* 1000 mm;
    - cars 12 m long for 60 persons, 5 m/s, a minute at each station, level floors;
    - *Walkway* ticked.

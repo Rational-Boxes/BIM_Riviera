@@ -11,7 +11,7 @@ Start with **File › New**. In **Manage › Model Properties**:
 1. **The walls.** Draw a wall, 200 mm thick and 2.7 m high, from (0, 0) to (4.2, 0). Its face is
    at y = 0.1. Add partitions at x = 0, 1.4, 2.8 and 4.2, from y = 0.1 to 0.71 (24 in deep): three
    closets, each 1.2 m between the partitions' faces.
-2. **A single rod.** In a plan, choose **Architecture › Build › Closet**, pick *Single rod at
+2. **A single rod.** In a plan, choose **Interiors › Kitchen & Casework › Closet**, pick *Single rod at
    66 in, shelf at 68 in*, and click the first closet's back wall face from (0.1, 0.1) to
    (1.3, 0.1). The rod is centred 12 in out from the wall; the shelf is 12 in deep on the wall
    (practice heights, S1489).

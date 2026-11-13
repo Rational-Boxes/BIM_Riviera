@@ -8,7 +8,7 @@ Start with **File › New**. In **Manage › Model Properties**:
 - set the **Building code** to the *IBC* and the **Accessibility rule set** to *2010 ADA Standards*;
 - under **Retail rules**, tick *IBC Group M: aisles* and *Store planning practice*.
 
-1. **A pod of pedestals.** In a plan, choose **Architecture › Build › Self-checkout Pod**, keep
+1. **A pod of pedestals.** In a plan, choose **Interiors › Retail › Self-checkout Pod**, keep
    the pedestal self-checkout, set 6 units and keep the 11 ft courtyard, the 1 ft spacing and
    *Attendant station* ticked. Click (4, 4) for the pod's open end, then a point north of it. Three
    units face three across the courtyard, the attendant station stands at the closed end facing
@@ -17,7 +17,7 @@ Start with **File › New**. In **Manage › Model Properties**:
 2. **A quad pod of lanes.** Choose **Self-checkout Pod** again: *Self-checkout lane*, 4 units,
    a 12 ft courtyard, from (12, 4) toward the north. One unit is accessible.
 3. **State the accessible units' features.** Select the three accessible units and choose
-   **Architecture › Build › Self-checkout Profile**: operable parts from 800 to 1150 mm, a
+   **Interiors › Retail › Self-checkout Profile**: operable parts from 800 to 1150 mm, a
    forward approach reaching 200 mm over the deck, the screen at 1300 mm, and tick *Speech*,
    *Tactile keypad* and *Braille*.
 4. **Check.** **View › Coordination › Check Self-checkouts** lists the two pods, each with its

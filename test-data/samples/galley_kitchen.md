@@ -9,7 +9,7 @@ Start with **File › New**. In **Manage › Model Properties**, set the **Build
 
 1. **The walls.** Draw four walls, 200 mm thick and 2.7 m high, round (0, 0)–(4.0, 2.7) on their
    centre lines. The inside is 3.8 × 2.5 m.
-2. **The south base run.** In a plan, choose **Architecture › Build › Cabinet Run**, pick *Base
+2. **The south base run.** In a plan, choose **Interiors › Kitchen & Casework › Cabinet Run**, pick *Base
    units*, and click the run's start and end on the south wall's inside face, (0.1, 0.1) to
    (3.9, 0.1). The 3.8 m is filled with standard widths, 36 in units and one or two of 9–48 in
    (3 in steps), to leave the least filler: 36 + 36 + 36 + 39 in and a 66 mm filler. The units face away from
@@ -19,7 +19,7 @@ Start with **File › New**. In **Manage › Model Properties**, set the **Build
 4. **The north side.** On the north wall's face (y = 2.6), make a base run from x = 0.1 to 3.1,
    then a run of *Tall units* from 3.1 to 3.9: one 30 in, 84 in high pantry and a 38 mm
    filler.
-5. **Countertops.** Choose **Architecture › Build › Countertop** with nothing selected. Each base
+5. **Countertops.** Choose **Interiors › Kitchen & Casework › Countertop** with nothing selected. Each base
    run gets a top 1½ in thick, its back on the wall and its front 1 in past the units, so 25 in
    deep, with its surface at 36 in. Between the two counters 1.23 m is left clear.
 6. **The room.** Place an **Architecture › Room** inside and name it *Kitchen*. **Analyze › Find

@@ -17,6 +17,14 @@
   header.bar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
     padding: 6px 24px; background: var(--card); border-bottom: 1px solid var(--line); font-size: 14px; }
   header.bar .here { color: var(--muted); }
+  form.search { margin-left: auto; }
+  form.search input { width: 240px; max-width: 60vw; font: inherit; padding: 3px 8px; border: 1px solid var(--line); border-radius: 5px;
+    background: var(--paper); color: var(--ink); }
+  .result { margin: 0 0 16px; }
+  .result .kind { display: inline-block; min-width: 86px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .result .where { color: var(--muted); font-size: 13px; margin-left: 90px; }
+  .result p { margin: 2px 0 0 90px; font-size: 14px; }
+  mark { background: color-mix(in srgb, var(--accent) 28%, transparent); color: inherit; border-radius: 2px; }
   main { max-width: 860px; margin: 0 auto; padding: 24px 24px 48px; }
   [id] { scroll-margin-top: 48px; }
   h1 { font-size: 26px; margin: 0 0 4px; }
@@ -54,6 +62,7 @@
     main { padding: 16px 14px 32px; }
     header.bar { padding: 6px 14px; }
     td:first-child { width: auto; }
+    .result .where, .result p { margin-left: 0; }
   }
 </style>
 </head>
@@ -62,6 +71,7 @@
   <a href="riviera:help/index">Home</a>
   {{BACK}}
   <span class="here">{{TITLE}}</span>
+  <form class="search" role="search"><input type="search" name="q" value="{{QUERY}}" placeholder="Search help and tools" aria-label="Search help and tools"></form>
 </header>
 <main>
 {{BODY}}
@@ -86,6 +96,14 @@
         target.scrollIntoView();
       }
     }
+  });
+  // The search box: its words go to the application as a search link.
+  document.querySelector('form.search').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = e.target.q.value.trim();
+    if (!q) return;
+    clicks += 1;
+    document.title = 'link ' + clicks + ' riviera:help/search?q=' + encodeURIComponent(q);
   });
   // A page opened at an anchor (riviera:help/<page>#<anchor>).
   const anchor = '{{ANCHOR}}';

@@ -16,9 +16,9 @@ Start with **File › New**.
    swinging out, away from the pool (**[gap]** its swing is set from a script,
    `swing_out = true`). Then select the gate and choose Modify | Railings › **Gate Hardware**: self-closing, self-latching and lockable, its latch 1.38 m (54.3 in) up. **View › Coordination › Pool Barriers** shows it enclosing the pool; the
    MAHC asks for 6 ft (4.8.6).
-4. **The well.** Choose **Architecture › Build › Swimming Pool**, type the outline
+4. **The well.** Choose **Interiors › Pools › Swimming Pool**, type the outline
    `0,10; 0,0; 14,0; 14,10` (the west wall first) and the depths `0:3.8, 8:3.8, 14:2.5`.
-5. **Depth markings.** Select the well and choose **Architecture › Build › Pool Depth Markings**.
+5. **Depth markings.** Select the well and choose **Interiors › Pools › Pool Depth Markings**.
    It is deeper than 5 ft throughout, so there is no break-point band and no NO DIVING marker.
 6. **The boards.** From **Insert › Component Libraries › Riviera Pools › Diving**, place two
    *Diving board 1 m, on stand*, turned 90° to point east, at (−0.54, 3.6) and (−0.54, 6.4): each

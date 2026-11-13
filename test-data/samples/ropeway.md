@@ -8,7 +8,7 @@ Start with **File › New**.
 
 1. **The hillside.** **Massing & Site › Toposolid** from the points file in the script.
 2. **The line.** **Massing & Site › Alignment**: `0, 0` and `850, 0`.
-3. **The gondola.** Select the alignment, then **Architecture › Circulation › Ropeway** with the
+3. **The gondola.** Select the alignment, then **Architecture › Lifts & Transport › Ropeway** with the
    defaults:
    - towers 18.3 m high at most 152 m apart: six spans of 141.7 m;
    - the report finds the loaded cabins too close to the rising ground in the last two spans

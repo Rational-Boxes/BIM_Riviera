@@ -20,11 +20,11 @@ script `hotel.lua` builds it; these are the same steps in the window.
    façades at x = 8, 20, 32, 40 and 52, at y = −0.35 and 40.35, between the balconies. Draw
    girders along y = 10 and y = 30 between the columns under each floor, 0.3 m down, W24X84 under
    the roof. None crosses the atrium, and the ballroom and conference rooms are left column-free.
-4. **Lifts** (**Architecture › Circulation › Elevator**). In each corner, a passenger lift from
+4. **Lifts** (**Architecture › Lifts & Transport › Elevator**). In each corner, a passenger lift from
    the ground floor to the roof, its landing turned toward the building: at (2, 4) and (2, 36)
    turned −90°, at (58, 4) and (58, 36) turned 90°. A freight lift beside the south-east one at
    (54.85, 4) and the north-west one at (5.15, 36). All six run from the basement.
-5. **The atrium** (**Architecture › Build › Atrium**). Top level *Roof*, a ridge roof 6 m above
+5. **The atrium** (**Interiors › Glazed Spaces › Atrium**). Top level *Roof*, a ridge roof 6 m above
    it; click the void's corners (18.5, 10.5) and (41.5, 29.5) on the ground floor. Every floor
    above is opened and guarded 42 in high. To reach the roof over the pool and the patio, give
    the roof's outline from (18.2, 10.2) to (58.6, 37.8) (`roof_outline` in a script). The report
@@ -48,7 +48,7 @@ script `hotel.lua` builds it; these are the same steps in the window.
    at y = 30.35, clear of the columns; and the front office's and administration's walls at
    x = 8 and 52. Doors: two in the façade under the canopy, three from the ballroom and two from
    each conference room into the atrium court, two from the restaurant. Place the rooms.
-8. **Set the rooms out** (**Architecture › Build › Seating Layout**, a room selected): the
+8. **Set the rooms out** (**Interiors › Rooms & Furniture › Seating Layout**, a room selected): the
    ballroom for a banquet (24 rounds of ten), Conference A as a theatre, B as a classroom, C as a
    boardroom, the restaurant for dining (30 four-tops). Each report gives the IBC occupant load,
    the exits it needs against the doors, and the egress width; none is short.
@@ -80,7 +80,7 @@ script `hotel.lua` builds it; these are the same steps in the window.
    end and depth markings; a stair up from the terrace at (44.4, 32.4); a 4 ft pool fence round
    the podium with a self-closing gate latched at 54 in. **Pool Structure** weighs it (water
    885 kN, shell 807 kN); an analytical panel on the roof slab under the podium takes its loads.
-16. **Sun control.** Set the location to Miami (25.8° N). **Architecture › Build › Baffles**:
+16. **Sun control.** Set the location to Miami (25.8° N). **Interiors › Glazed Spaces › Baffles**:
    blades 5.6 m above the roof, running north–south, 0.25 m apart, 0.5 m deep, tilted 45°, from
    (18.5, 10.5) to (58.3, 37.5) under the whole glazed roof. **View › Coordination › Sun Check**
    with the pool selected, and the patio from (30, 30.5) to (42, 37.5): about a fifth of the

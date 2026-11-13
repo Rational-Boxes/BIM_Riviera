@@ -35,6 +35,7 @@ mod foundations;
 mod grids;
 mod groups;
 mod help;
+mod help_search;
 mod icons;
 mod in_place;
 mod inserts;

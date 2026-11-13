@@ -8,7 +8,7 @@ Start with **File › New** and leave the **Building Code** at *International Bu
 (**Manage › Model Properties**). Add Levels 2–4 at 3.5, 7.0 and 10.5 m, and a 12 × 10 m
 **Architecture › Floor** from (0, 0) on every level.
 
-Every lift below comes from **Architecture › Circulation › Elevator** in the Level 1 plan. Choose
+Every lift below comes from **Architecture › Lifts & Transport › Elevator** in the Level 1 plan. Choose
 its **Kind**, the level it **serves up to**, and type the entrance point (or click it). Leave the
 load and speed empty: each kind takes the first car of its catalogue and its usual speed. The
 lifts stand close together, so set **Controller and machine** to *None* for each (the sample
@@ -30,7 +30,7 @@ lifts stand close together, so set **Controller and machine** to *None* for each
 7. **Dumbwaiter.** *Dumbwaiter*, up to Level 3, at `11, 8.5`: 500 lb, 36 × 36 × 48 in, its
    openings 762 mm above each floor for loading from a counter.
 
-**Architecture › Circulation › Check Elevators** then gives one note: the makers' 5000 lb hospital
+**Architecture › Lifts & Transport › Check Elevators** then gives one note: the makers' 5000 lb hospital
 car is 4.74 m², a little over the 4.64 m² A17.1's passenger table allows for its load. That rule
 is advisory, because only restatements of A17.1 were read.
 

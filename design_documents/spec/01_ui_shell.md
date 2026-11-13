@@ -418,6 +418,8 @@ The chapter **does not** specify the modelling behaviour behind the tools that a
 - [ ] Typing a view name opens that view.
 - [ ] With networking disabled, search still returns help topics.
 
+*Built (2026-11-12), help search:* a search box in the bar of every help page searches, offline, every help page section by section (from one `<h2 id>` or `<h3 id>` to the next), every sample's description and walkthrough, and every ribbon and menu tool with its help text (`help_search.rs`). A result has all the query's words, each matching the start of a word ("stair" finds stairs and stairlifts); words in a title count most, then in a heading, then in the text, and the whole phrase and an exact title rank first. Results show their kind (Help, Walkthrough, Sample, Tool), where they are (the page and section, or the tool's *Tab › Panel* and menu) and a snippet with the words marked; a page result opens at its section, a sample opens a fresh copy, and a tool has a **Run** button. The query travels as `riviera:help/search?q=<words>`; in the HTML-window fallback (no web view) a **Search** link (`riviera:help-search`) asks for the words in a dialog. *(Owner, 2026-11-12: "a full search for help would be a good idea.")* Not yet: the title-bar Command Search box itself, fuzzy matching, views, recent files and settings in the results.
+
 ### 1.6.2 Help menu and About
 **ID:** UI-HELP-001 · **Priority:** P0 · **Ref:** research/01 §5
 
@@ -733,6 +735,8 @@ The first panel of every permanent and contextual tab.
 | Work Plane | Show | S T | `workplane.show` | ARC | — | P1 |
 | Work Plane | Reference Plane | S | `refplane.create` | ARC | RP | P0 |
 | Work Plane | Viewer | S | `workplane.viewer` | ARC | — | P2 |
+
+*Built (2026-11-12), the Interiors tab:* the Build panel had grown to 49 tools, so wxWidgets folded it to a single button whose drop-down was wider than the screen: Wall, Door, Window, Floor and Roof sat off its left edge and the panel looked empty. Build now holds the shell only (walls, curtain wall, door, window, floor, ceiling, architectural column, glazed enclosure, and the footprint, arched, dome, extrusion and geodesic roofs); stairs, ramps, railings and decks stay in **Circulation**, and the lifts, escalators, inclined lifts, funiculars, people movers and ropeways with their checks moved to their own **Lifts & Transport** panel. A new **Interiors** tab after Architecture holds the fit-out tools: **Rooms & Furniture** (Room Layout, Guest Room, Seating Layout, Decorative Lighting), **Bath & Toilet** (Bathroom Layout, bathroom components, Toilet Core, Tiles, Shower Falls, Waterproofing), **Kitchen & Casework** (Cabinet Run, Countertop, Counter, Closet), **Retail** (Store Area, Gondola Run, Checkout Bank, self-checkout pods and profiles), **Gym & Spa** (Gym Layout, Studio, Mirror, Locker Room, Sauna, Steam Room), **Pools** (Swimming Pool, Pool Entry, Pool Lanes, Depth Markings, Pool Plant) and **Glazed Spaces** (Atrium, Baffles, growing layouts and grow lights), with a matching **Interiors** menu; the discipline views joined the View menu. *(Owner, 2026-11-12: "the basic tools for walls/roofs/windows/etc. seems to be missing. The Build submenu is empty.")*
 
 
 ### 1.8.4 Structure tab
