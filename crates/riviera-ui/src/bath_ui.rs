@@ -1611,6 +1611,82 @@ impl Gui {
         );
     }
 
+    /// Interiors › Kitchen & Casework › Equipment Line-up (ARC-KIT-003): a set of foodservice
+    /// equipment, then its line along a wall clicked from start to end.
+    pub(crate) fn equipment_lineup(&mut self) {
+        let frame = self.frame;
+        let f = super::reinforcement_ui::Form::new(&frame, "Equipment Line-up");
+        let sets: [(&str, &[&str]); 5] = [
+            ("Cook line: fryers, griddle, charbroiler, range, ovens", &["Fryer, 40 lb gas", "Fryer, 40 lb gas", "Griddle 36 in, on stand", "Charbroiler 36 in, on stand", "Range, 6-burner with oven 36 in", "Convection oven, double deck", "Combi oven, 10 pan on stand"]),
+            ("Ware-washing: hand sink, three-compartment sink, dish tables and machine", &["Hand sink, wall-hung", "Three-compartment sink 18 × 18 in", "Dish table, clean 60 in", "Dish machine, door type", "Dish table, soiled 60 in"]),
+            ("Cold storage and prep: reach-ins, prep table, prep sink, hand sink", &["Reach-in refrigerator, 2-door", "Reach-in freezer, 2-door", "Refrigerated prep table 60 in", "Prep sink 18 × 18 in, drainboard", "Hand sink, wall-hung"]),
+            ("Utility: mop sink, shelving, ice machine, Class K extinguisher", &["Mop sink 24 × 24 in", "Shelving 24 × 48 in, 4 tiers", "Ice machine on bin", "Class K extinguisher"]),
+            ("Work tables, 72 in × 2", &["Work table 30 × 72 in", "Work table 30 × 72 in"]),
+        ];
+        let labels: Vec<String> = sets.iter().map(|s| s.0.to_owned()).collect();
+        let set = f.choice("Pieces", &labels, 0);
+        let items = f.lines("Or these pieces, one a line", "", "Names from the Riviera Foodservice Equipment library, from the start of the line; when given they replace the set");
+        let duty = f.check("Order", "Cooking equipment first, the heaviest duty in the middle", false);
+        let gap = f.text("Gap between pieces", "0 mm", "Side by side by default");
+        let ok = f.show("Then click the line's start and end along the wall's face, in a plan. A Type I canopy goes over the cooking, 6 in past it and rated from the CMC table for its heaviest duty; a Type II over a dish machine; a baffle between a fryer and an open flame.", "Pick the Line");
+        let typed: Vec<String> = items.get_value().lines().map(str::trim).filter(|l| !l.is_empty()).map(str::to_owned).collect();
+        let chosen: Vec<String> = if typed.is_empty() { sets[set.get_selection().unwrap_or(0) as usize].1.iter().map(|s| (*s).to_owned()).collect() } else { typed };
+        let order = if duty.get_value() { "duty" } else { "given" };
+        let gap = gap.get_value();
+        f.dialog.destroy();
+        let gap = self.parse_length_text(&gap).unwrap_or(0.0);
+        if !ok {
+            return;
+        }
+        self.start_picking(
+            "foodservice.lineup",
+            vec![json!({ "key": "start", "kind": "at", "prompt": "Line-up: click its start on the wall face" }), json!({ "key": "end", "kind": "point", "prompt": "Line-up: click its end" })],
+            json!({ "items": chosen, "order": order, "gap": gap }),
+        );
+    }
+
+    /// The line-up picked: placed, and reported.
+    pub(crate) fn equipment_lineup_finish(&mut self, mut args: serde_json::Value) {
+        let frame = self.frame;
+        let start = args["start"].take();
+        args["start"] = start["point"].clone();
+        args["level"] = start["level"].clone();
+        match self.run("foodservice.lineup", args) {
+            Ok(v) => {
+                self.refresh_scene(&frame);
+                let hoods: Vec<String> = v["hoods"].as_array().map(|h| h.iter().map(|h| format!("a Type {} hood, {:.0} cfm", h["hood_type"].as_str().unwrap_or("?"), h["exhaust_cfm"].as_f64().unwrap_or(0.0))).collect()).unwrap_or_default();
+                let hoods = if hoods.is_empty() { String::new() } else { format!(" under {}", hoods.join(" and ")) };
+                frame.set_status_text(&format!("{} pieces over {:.2} of {:.2} m{hoods}; Check Kitchen checks them", v["placed"].as_array().map_or(0, Vec::len), v["used"].as_f64().unwrap_or(0.0), v["length"].as_f64().unwrap_or(0.0)), 0);
+            }
+            Err(e) => error(&frame, &format!("The line-up was not placed:\n{e}")),
+        }
+    }
+
+    /// Interiors › Kitchen & Casework › Check Kitchen (ARC-KIT-004).
+    pub(crate) fn check_kitchen(&mut self) {
+        let frame = self.frame;
+        let c = match self.run("foodservice.check", json!({})) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &e),
+        };
+        if c["pieces"].as_u64() == Some(0) {
+            return error(&frame, "No kitchen equipment: line some up with Equipment Line-up, or place it from the Riviera Foodservice Equipment library.");
+        }
+        let head = format!("{} pieces; {} hood(s), {:.0} cfm exhaust and {:.0} cfm makeup air", c["pieces"], c["hoods"].as_array().map_or(0, Vec::len), c["exhaust_cfm"].as_f64().unwrap_or(0.0), c["makeup_cfm"].as_f64().unwrap_or(0.0));
+        let findings = c["findings"].as_array().cloned().unwrap_or_default();
+        if findings.is_empty() {
+            return self.report_message("Check Kitchen", &format!("{head}\n\nThe kitchen passes."), "foodservice.check", json!({}));
+        }
+        let rows: Vec<String> = findings.iter().map(|f| format!("{} {}: {}", match f["severity"].as_str() { Some("error") => "✗", Some("warning") => "!", _ => "•" }, f["rule"].as_str().unwrap_or_default(), f["message"].as_str().unwrap_or_default())).collect();
+        if let Some(k) = self.pick_or_report("Check Kitchen", &head, &rows, "foodservice.check", json!({}))
+            && let Some(id) = findings[k]["element"].as_u64()
+        {
+            let _ = self.run("selection.set", json!({ "ids": [id] }));
+            self.selection_changed();
+            self.zoom_to_fit();
+        }
+    }
+
     /// The counter picked: made, and reported.
     pub(crate) fn counter_run_finish(&mut self, mut args: serde_json::Value) {
         let frame = self.frame;

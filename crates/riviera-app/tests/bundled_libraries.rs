@@ -6,7 +6,8 @@
 //! Create Component) of one generic furnishing, or a set of them. Every catalogue item is in its
 //! library, and every fragment places into a new model as a copy typed for the rule packs.
 //!
-//! With `RIVIERA_REGEN_LIBRARIES=1` the libraries are rebuilt from the catalogue, keeping each
+//! With `RIVIERA_REGEN_LIBRARIES=1` the libraries are rebuilt from the catalogue (or with a list
+//! of folders, `RIVIERA_REGEN_LIBRARIES=foodservice`, only those), keeping each
 //! library's id and each item's GUID so placed copies still find their items.
 
 use std::collections::BTreeMap;
@@ -107,9 +108,10 @@ fn write_fragment(dir: &Path, lib: &Path, folder: &str, file: &str, members: &[(
     made["item"].as_str().unwrap().to_owned()
 }
 
-fn regenerate() {
+/// Rebuilds `only` (library folders), or every library when it is empty.
+fn regenerate(only: &[&str]) {
     let dir = tempfile::tempdir().unwrap();
-    for l in Library::ALL {
+    for l in Library::ALL.into_iter().filter(|l| only.is_empty() || only.contains(&l.dir())) {
         let lib = root().join(l.dir());
         // Keep the library's id and its items' GUIDs.
         let old = Manifest::read(&lib).unwrap();
@@ -153,8 +155,13 @@ fn regenerate() {
                 Library::Gym => "gym equipment",
                 Library::Retail => "retail and checkout fixtures",
                 Library::Pools => "swimming pool equipment",
+                Library::Foodservice => "commercial kitchen equipment",
             },
-            if l == Library::Pools { 23 } else { 15 }
+            match l {
+                Library::Pools => 23,
+                Library::Foodservice => 14,
+                _ => 15,
+            }
         ));
         m.author = Some("Riviera contributors".into());
         m.licence = Some("CC0-1.0".into());
@@ -194,8 +201,10 @@ fn walk(dir: &Path) -> Vec<PathBuf> {
 
 #[test]
 fn the_bundled_libraries_hold_every_item_and_each_places_typed() {
-    if std::env::var("RIVIERA_REGEN_LIBRARIES").is_ok_and(|v| v == "1") {
-        regenerate();
+    // `1` rebuilds them all; a comma-separated list of folders (`foodservice`) only those.
+    if let Ok(v) = std::env::var("RIVIERA_REGEN_LIBRARIES") {
+        let only: Vec<&str> = if v == "1" { Vec::new() } else { v.split(',').collect() };
+        regenerate(&only);
     }
     let dir = tempfile::tempdir().unwrap();
     let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });

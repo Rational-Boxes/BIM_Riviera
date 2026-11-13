@@ -1,0 +1,417 @@
+{
+  "format": "riviera-library",
+  "version": 1,
+  "id": "04df16e8-2df3-438f-a6b2-f4d22b7e64d9",
+  "name": "Riviera Foodservice Equipment",
+  "description": "Generic commercial kitchen equipment that ship with Riviera: placeholders at the sizes research note 14 gives, each a model fragment (IFC) with its IFC class and predefined type or kind, so the rule packs choose it. Generated from riviera_core::furnishings (ARC-FURN-001); regenerate with RIVIERA_REGEN_LIBRARIES=1.",
+  "author": "Riviera contributors",
+  "licence": "CC0-1.0",
+  "defaults": {},
+  "items": {
+    "Cooking/charbroiler_36_in_on_stand.ifc": {
+      "guid": "619a0f1f-a35a-411f-844a-54c3d600e918",
+      "name": "Charbroiler 36 in, on stand",
+      "description": "A 36 in underfired gas charbroiler 30 in deep and 16 in high on a 24 in stand (sizes from the 24–48 in range; no maker's sheet was read). Heavy duty (CMC 508.10: underfired broilers), with open flames.",
+      "tags": [
+        "cooking",
+        "GasCharbroiler",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1225"
+      },
+      "sha256": "25fc9477ba4d4f6e3a13fcdd8563316b62deb4c4184ca817e6a3456b38f7abc7"
+    },
+    "Cooking/combi_oven_10_pan_on_stand.ifc": {
+      "guid": "98ba4bd2-0d78-4ff5-9552-3dbbb0690d75",
+      "name": "Combi oven, 10 pan on stand",
+      "description": "A 10-pan electric combi oven 42.2 × 41 × 41.9 in on a 24 in stand, with cold water and a drain to a floor sink. Light duty, but its steam surges at the door: UK guidance asks 600 mm of hood past its front.",
+      "tags": [
+        "cooking",
+        "electriccooker",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240 S1332"
+      },
+      "sha256": "e08416010ae9c4b423b0c8045a89a2e3d45d1119d1dd021831c30ebeba829008"
+    },
+    "Cooking/convection_oven_double_deck.ifc": {
+      "guid": "0fc0b544-df17-4573-b4c3-15afe953f231",
+      "name": "Convection oven, double deck",
+      "description": "Two full-size electric convection ovens stacked, 38 × 40 in and 70 in high on legs, about 11 kW a deck (judgement from the 36–44 in deep range). Light duty.",
+      "tags": [
+        "cooking",
+        "electriccooker",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1225"
+      },
+      "sha256": "d544bf4bed429e38c1ecdd7886f10fd253c0e320d6b23d52c2b4a2163ed571e8"
+    },
+    "Cooking/fryer_40_lb_gas.ifc": {
+      "guid": "11731bed-1bc4-41b1-b76d-e17c607a4038",
+      "name": "Fryer, 40 lb gas",
+      "description": "A 40 lb gas floor fryer 15.1 × 30.25 in and 47.25 in to its flue, 90,000 Btu/h (Pitco 35C+S); its frying surface at about 36 in. Medium duty; NFPA 96 keeps it 16 in from an adjacent appliance's open flames, or behind a steel baffle.",
+      "tags": [
+        "cooking",
+        "GasFryer",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240 S1225 S1228"
+      },
+      "sha256": "48d8da0e673139cca1352ebff4cd2d6932d27bbc04229d61b899edc2669a1d60"
+    },
+    "Cooking/griddle_36_in_on_stand.ifc": {
+      "guid": "265863e7-8fb9-45c6-9bb4-f35b79fa4b44",
+      "name": "Griddle 36 in, on stand",
+      "description": "A 36 in countertop gas griddle 30 in deep and 16 in high on a 24 in equipment stand (sizes from the 24–48 in range; no maker's sheet was read). Medium duty.",
+      "tags": [
+        "cooking",
+        "GasGriddle",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1225"
+      },
+      "sha256": "81c04d350029c8245e953015414c35bab28892c8ec345f673a5711bdd6f4f48a"
+    },
+    "Cooking/range_6_burner_with_oven_36_in.ifc": {
+      "guid": "b0efd5fe-2143-48fe-b93a-72bf1f4fe484",
+      "name": "Range, 6-burner with oven 36 in",
+      "description": "A 36 in gas range, six open burners over a standard oven, 34 in deep and 58 in to the top of its backguard on 6 in legs, its burners at 36 in; 215,000 Btu/h (63 kW) at a ¾ in connection (Vulcan Endurance 36C). Medium duty (CMC 508.10); gas cookers have no IFC class, so it is an IfcElectricAppliance USERDEFINED with a gas port.",
+      "tags": [
+        "cooking",
+        "GasRange",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1239 S1225"
+      },
+      "sha256": "3dbbf52f54becedf8ad8ed6790a51fbb3b0fe6ac4e4a180d554431fd9d855f48"
+    },
+    "Cooking/tilting_braising_pan_30_gal.ifc": {
+      "guid": "3f884f59-772f-4c23-bf29-5fd3c9e3c74d",
+      "name": "Tilting braising pan 30 gal",
+      "description": "A 30 gal tilting skillet 38.5 × 39.75 in and 43.5 in high, 11.5 kW; it pours forward, so a floor sink goes in front of it. Light duty, but grease-producing: a Type I hood and suppression.",
+      "tags": [
+        "cooking",
+        "electriccooker",
+        "Uniclass Pr_40_70_17"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240 S1231"
+      },
+      "sha256": "8d86f14ad8db7d8b7666458a10e177d102c17cc29f7f7c26ac00508e119568e6"
+    },
+    "Fire safety/class_k_extinguisher.ifc": {
+      "guid": "80e7d5f4-7802-4c31-922c-b0b848ff1a83",
+      "name": "Class K extinguisher",
+      "description": "A 6 L wet-chemical (Class K) extinguisher on a wall bracket, its top 5 ft up at most; within 30 ft of travel of commercial cooking (IFC 904.12.5).",
+      "tags": [
+        "fire safety",
+        "FireExtinguisher"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1230"
+      },
+      "sha256": "feb33dbea604385075bc2b793918202888cd5cd3f4a5cabdcd6974193b905647"
+    },
+    "Fire safety/fryer_baffle.ifc": {
+      "guid": "aef7bf54-195c-42d1-8d0a-7247d7caca8e",
+      "name": "Fryer baffle",
+      "description": "A steel baffle 8 in high on a fryer's side, beside an appliance with open flames closer than 16 in (NFPA 96).",
+      "tags": [
+        "fire safety",
+        "FlameBaffle"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1228"
+      },
+      "sha256": "c824f5c7c570f9a1baabd4959847ca23c13ea83a5cb426e11f8bd165183ab460"
+    },
+    "Prep and storage/shelving_24_x_48_in_4_tiers.ifc": {
+      "guid": "244fe4ec-7645-4dc2-9585-a748120af8d8",
+      "name": "Shelving 24 × 48 in, 4 tiers",
+      "description": "Wire shelving 48 × 24 in and 74 in high, four tiers, the lowest at least 6 in off the floor (Maricopa).",
+      "tags": [
+        "prep and storage",
+        "shelf",
+        "Uniclass Pr_40_30_78_85"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1217"
+      },
+      "sha256": "0d85a93b63af8600ccb725b9a8d3106405a784388ae3814be48a4730ad4f126f"
+    },
+    "Prep and storage/work_table_30_x_48_in.ifc": {
+      "guid": "56128888-88de-4a59-82ea-2922d3cf2ac2",
+      "name": "Work table 30 × 48 in",
+      "description": "A stainless work table 48 × 30 in at 36 in with an undershelf.",
+      "tags": [
+        "prep and storage",
+        "table",
+        "Uniclass Pr_40_30_30_84"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1291"
+      },
+      "sha256": "dae71dcb2e74832d99398bd85fe5321b74d7d0ae0d4a7bad76a8cae71ae4ca79"
+    },
+    "Prep and storage/work_table_30_x_72_in.ifc": {
+      "guid": "25002865-553b-4a70-bfa9-a0274fdfe5c1",
+      "name": "Work table 30 × 72 in",
+      "description": "A stainless work table 72 × 30 in at 36 in with an undershelf (sizes from the 36–96 in range).",
+      "tags": [
+        "prep and storage",
+        "table",
+        "Uniclass Pr_40_30_30_84"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1291"
+      },
+      "sha256": "36a76b3eb9a2aba4c9b57486cf1921fc888f5d92d165c86da8e0140f7ca7689f"
+    },
+    "Refrigeration/ice_machine_on_bin.ifc": {
+      "guid": "a28e8289-9941-46d4-be48-298eeeb8f830",
+      "name": "Ice machine on bin",
+      "description": "A 22 in ice-maker head 27 in deep and 30 in high (Hoshizaki KM-515) on a 30 × 34 in bin 44 in high; its water and drain through an air gap to a floor sink (NSF 12).",
+      "tags": [
+        "refrigeration",
+        "kitchenmachine",
+        "Uniclass Pr_40_70_23_40"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240 S1217"
+      },
+      "sha256": "d9576d5bbbd7a55ba186e17a1ddbf6ea60f8122b20f8cb78e1e3f8c69bffb4e3"
+    },
+    "Refrigeration/reach_in_freezer_2_door.ifc": {
+      "guid": "8807c7f4-90fa-4af9-a1bb-0e21d7241806",
+      "name": "Reach-in freezer, 2-door",
+      "description": "A two-door reach-in freezer the size of the refrigerator, 54.1 × 29.5 × 78.4 in, on 115 V.",
+      "tags": [
+        "refrigeration",
+        "freezer",
+        "Uniclass Pr_40_70_31_11"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240"
+      },
+      "sha256": "67d335688c2bf2f94819d68516473b6103e2141790adaa9de877838ddf91ce2e"
+    },
+    "Refrigeration/reach_in_refrigerator_2_door.ifc": {
+      "guid": "d37cc280-b14c-46c3-a580-d3c30aedb505",
+      "name": "Reach-in refrigerator, 2-door",
+      "description": "A two-door reach-in refrigerator 54.1 × 29.5 × 78.4 in, about 49 ft³ (True T-49), on 115 V.",
+      "tags": [
+        "refrigeration",
+        "refrigerator",
+        "Uniclass Pr_40_70_31_12"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1240"
+      },
+      "sha256": "d44136b770d178978f180409a94715296466ff0cb612f274ed3e0ce331732ea8"
+    },
+    "Refrigeration/refrigerated_prep_table_60_in.ifc": {
+      "guid": "ad29812d-8f47-4094-bc9e-d467cd1598f3",
+      "name": "Refrigerated prep table 60 in",
+      "description": "A 60 in refrigerated sandwich and salad prep table 30 in deep, its work top at 36 in under a pan rail (sizes from the 48–72 in range; no maker's sheet was read).",
+      "tags": [
+        "refrigeration",
+        "refrigerator",
+        "Uniclass Pr_40_70_31_71"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1225"
+      },
+      "sha256": "276ac4006698de6ac5d782352690bc6a449913f8046547f9327ee55eed02d6b8"
+    },
+    "Sinks/floor_sink_12_x_12_in.ifc": {
+      "guid": "74c98bbd-17e1-4a8a-b951-b78bc9b67c21",
+      "name": "Floor sink 12 × 12 in",
+      "description": "A 12 × 12 in floor sink under a grate, set in the floor at an indirect waste: its rim at least 1 in under the pipe ending over it (Food Code 5-202.13).",
+      "tags": [
+        "sinks",
+        "floorwaste"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1216 S1217"
+      },
+      "sha256": "dd8a2129c1350d2923e5e214554c7a9e2837ec10683a01bb1bc288b16e94d573"
+    },
+    "Sinks/hand_sink_wall_hung.ifc": {
+      "guid": "1e6b8798-9d4e-4b3f-89d9-7f806e3159b2",
+      "name": "Hand sink, wall-hung",
+      "description": "A wall-hung hand sink about 17 × 15 in, its rim at 34 in, with water at 85 °F or more (Food Code 5-202.12); within about 25 ft of each workstation, no door between (Maricopa), or 15 ft in the same room (CUPHD).",
+      "tags": [
+        "sinks",
+        "sink",
+        "Uniclass Pr_40_20_96_81"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1216 S1217 S1220"
+      },
+      "sha256": "967796a98141d664d0f7896b49a3397e6e26444ff91297a160c5a1698b42c4f8"
+    },
+    "Sinks/mop_sink_24_x_24_in.ifc": {
+      "guid": "4a4546a1-d986-4749-9338-f84a4b086789",
+      "name": "Mop sink 24 × 24 in",
+      "description": "A floor-mounted mop sink 24 × 24 in with a 10 in curb (Food Code 5-203.13 asks one, or a curbed cleaning area).",
+      "tags": [
+        "sinks",
+        "sink",
+        "Uniclass Pr_40_20_96_44"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1216 S1217"
+      },
+      "sha256": "53c721be324e5fce9aba16438b491ffc8164f8d6b4c7ab3133d7389d85da281b"
+    },
+    "Sinks/prep_sink_18_x_18_in_drainboard.ifc": {
+      "guid": "2c86bda6-8f85-4082-985d-8e04848cfa35",
+      "name": "Prep sink 18 × 18 in, drainboard",
+      "description": "A one-compartment food prep sink 18 × 18 in with an 18 in drainboard, 39 × 24 in, its rim at 36 in; it drains indirectly to a floor sink (CUPHD).",
+      "tags": [
+        "sinks",
+        "sink",
+        "Uniclass Pr_40_20_96_19"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1219 S1220"
+      },
+      "sha256": "18b640590ab4c53822efc202630a026a5d7e648cbc41797f217b12803ad95e92"
+    },
+    "Ware-washing/dish_machine_door_type.ifc": {
+      "guid": "89c8dffa-2169-4b18-9e61-97959d9fb7cc",
+      "name": "Dish machine, door type",
+      "description": "A door-type dish machine about 27 × 27 in and 59 in high closed (78.5 in open) with its booster heater: 7.1 kW booster and 5.4 kW tank on 208 V, hot water in, its drain to a floor sink (Hobart AM16). A high-temperature machine needs a Type II hood unless it is ventless.",
+      "tags": [
+        "ware-washing",
+        "dishwasher",
+        "Uniclass Pr_40_70_21_12"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1238 S1217"
+      },
+      "sha256": "0ae60dfdbd3b22e3c7359a9bf10db58074f017e5d2626495b8315420e8f66eba"
+    },
+    "Ware-washing/dish_table_clean_60_in.ifc": {
+      "guid": "de6abebc-5ac0-4705-b8c0-6236e8ac3fc2",
+      "name": "Dish table, clean 60 in",
+      "description": "A clean dish table 60 × 30 in at 34 in, as large as the soiled table.",
+      "tags": [
+        "ware-washing",
+        "table",
+        "Uniclass Pr_40_30_30_23"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1217"
+      },
+      "sha256": "117288a4311b75b51a8a8a32a2bca5c1cfacd4db407967fbf101ebf720d90a3c"
+    },
+    "Ware-washing/dish_table_soiled_60_in.ifc": {
+      "guid": "3c7619bf-715e-4858-b027-82cbb739a468",
+      "name": "Dish table, soiled 60 in",
+      "description": "A soiled dish table 60 × 30 in at 34 in, sloping to the machine; the clean table should be at least as large.",
+      "tags": [
+        "ware-washing",
+        "table",
+        "Uniclass Pr_40_30_30_22"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1217"
+      },
+      "sha256": "02b604ac4181dc826a10b0a5afdfa463deb8338b318ffb8a67c166d0cabd797f"
+    },
+    "Ware-washing/three_compartment_sink_18_x_18_in.ifc": {
+      "guid": "ab997e34-a306-4a2a-a8a9-e45574aa15eb",
+      "name": "Three-compartment sink 18 × 18 in",
+      "description": "Three 18 × 18 in compartments (wash, rinse, sanitise; Food Code 4-301.12) between two 18 in drainboards, 90 × 24 in, its rim at 36 in; hot and cold water, and all three compartments drain indirectly to a floor sink (sizes derived from the compartments and drainboards).",
+      "tags": [
+        "ware-washing",
+        "sink",
+        "Uniclass Pr_40_20_96_19"
+      ],
+      "provenance": {
+        "author": "Riviera contributors",
+        "generated_by": "riviera_core::furnishings (ARC-FURN-001)",
+        "licence": "CC0-1.0",
+        "sources": "S1216 S1219 S1220"
+      },
+      "sha256": "d58476f64b6541c861f781be15b6cfdfcc052849c9c9dd8e72e7ad49a8be8135"
+    }
+  }
+}

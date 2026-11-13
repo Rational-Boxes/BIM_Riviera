@@ -388,6 +388,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(CabinetRuns),
         registry.add(CountertopFromRuns),
         registry.add(CounterRun),
+        registry.add(FoodserviceLineup),
+        registry.add(FoodserviceCheck),
         registry.add(ClosetCreate),
         registry.add(LibraryList),
         registry.add(LibraryImportFiles),
@@ -4156,7 +4158,7 @@ read_command!(
     "furnishing.catalogue",
     "List the generic furniture and equipment",
     "Lists the generic furniture and equipment the bundled libraries are made from (ARC-FURN-001), or one \
-     library's (`interiors`, `gym`, `retail`): each item's folder, name, IFC predefined type and kind, \
+     library's (`interiors`, `gym`, `retail`, `pools`, `foodservice`): each item's folder, name, IFC predefined type and kind, \
      Uniclass code, size, description and sources.",
     Option<crate::furnishings::CatalogueParams>,
     Vec<crate::furnishings::ItemInfo>,
@@ -4789,6 +4791,44 @@ edit_command!(
     crate::cabinets::TopsParams,
     Vec<crate::cabinets::Top>,
     crate::cabinets::tops
+);
+
+edit_command!(
+    FoodserviceLineup,
+    "foodservice.lineup",
+    "Line up kitchen equipment",
+    "Lines up commercial kitchen equipment from the Riviera Foodservice Equipment library along a back line \
+     from `start` to `end` (ARC-KIT-003), each piece's back on the line and its front away from the wall \
+     behind it (or toward `toward`), side by side unless `gap` is given; `order` `duty` puts the cooking \
+     equipment first with the heaviest duty in the middle. A fryer beside an open flame gets a steel baffle \
+     (NFPA 96's 16 in), unless `baffles` is false. With `hoods` `auto` (the default) a wall-canopy hood \
+     (IfcAirTerminal USERDEFINED KitchenHood) hangs over the cooking equipment, its lip at `lip` (default 78 \
+     in), 6 in past it at the ends and the front (IMC 507.12): Type I over grease-producing equipment, with \
+     its exhaust from the CMC 508.10 wall-canopy table for its heaviest duty class (light 200, medium 300, \
+     heavy 400, extra-heavy 550 cfm a foot) and makeup air at 100 % (80 % when `listed`); a Type II hood \
+     goes over a dish machine. Each hood has an exhaust collar sized for 1,500 fpm and a lights circuit. \
+     Fails, placing nothing, when the pieces are longer than the line.",
+    "Equipment Line-up",
+    crate::foodservice::LineupParams,
+    crate::foodservice::Lineup,
+    crate::foodservice::lineup
+);
+
+read_command!(
+    FoodserviceCheck,
+    "foodservice.check",
+    "Check the commercial kitchens",
+    "Checks commercial kitchen equipment (ARC-KIT-004): a Type I hood over each grease-producing appliance, \
+     passing it by 6 in on its open sides, its lip at most 4 ft over the cooking surface (IMC 507.2, 507.11, \
+     507.12), and a Type II hood over a dish machine (Maricopa); fryers 16 in from open flames or behind a \
+     baffle (NFPA 96); a hand sink (Food Code 5-203.11) within `hand_sink_distance` of every workstation \
+     (default 25 ft, Maricopa; straight line, not yet by path); a Class K extinguisher within 30 ft of \
+     cooking (IFC 904.12.5; straight line); a floor sink within 5 ft of each indirect waste; a mop sink \
+     (Food Code 5-203.13); and a work aisle (default 42 in) clear in front of the cooking equipment. Also \
+     totals the hoods' exhaust and makeup air.",
+    Option<crate::foodservice::CheckParams>,
+    crate::foodservice::KitchenCheck,
+    crate::foodservice::check
 );
 
 edit_command!(

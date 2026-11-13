@@ -422,6 +422,14 @@ sheets (Hussmann), not IFC (E3); import stays through meshes and IFC types.
 straight cabinet runs and countertops (ARC-KIT-001/002), on the shared rules schema built as the
 interiors plan's step 1. Corners, cut-outs and appliances in cabinets are next in it.
 
+**Progress (2026-11-13), for the hotel scenario:** step 6's foodservice library (24
+placeholders, with a Gas piping classification) and part of steps 7 and 8 are brought forward:
+`foodservice.lineup` (ARC-KIT-003) lines equipment up along a wall with fryer baffles and wall
+canopy hoods sized and rated from the CMC table, and `foodservice.check` (ARC-KIT-004) checks
+hoods, fryer spacing, hand sinks, the Class K extinguisher, floor sinks, the mop sink and the
+work aisle. Path distances, health-department packs, grease ducts, suppression and the sizing
+helpers are still to come.
+
 Each step gets its spec section first, its samples and a help walkthrough. Every tool is a
 registered command (`kitchen.*`, `cabinet.*`, `countertop.*`, `foodservice.*`, `hood.*`,
 `refrig.*`), exposed to Lua and MCP, and every tool that takes points, paths or outlines

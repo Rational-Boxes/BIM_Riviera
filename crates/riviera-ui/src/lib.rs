@@ -4926,6 +4926,11 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
             g.counter_run();
             focus(g);
         }),
+        "ui.equipment_lineup" => with(gui, |g| {
+            g.equipment_lineup();
+            focus(g);
+        }),
+        "ui.check_kitchen" => with(gui, Gui::check_kitchen),
         "ui.room_layout" => with(gui, |g| {
             g.room_layout();
             focus(g);

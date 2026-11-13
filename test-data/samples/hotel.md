@@ -2,8 +2,8 @@
 
 A 60 × 40 m hotel round a five-storey atrium, over a concrete basement with a sump: guest and
 service lifts in its corners and two enclosed exit stairs from the basement to the roof; a lobby
-with a covered drop-off, public restrooms, a ballroom, three conference rooms and a restaurant on
-the ground floor; a gym and a spa on the second floor; 88 guest rooms, each with its bathroom, on
+with a covered drop-off, public restrooms, a ballroom, three conference rooms and a restaurant with its kitchen
+on the ground floor; a gym and a spa on the second floor; 88 guest rooms, each with its bathroom, on
 four floors from two room units; and a pool
 on a raised podium on the roof under the atrium's glazed roof, with sun-control baffles, solar
 panels on the open roof, and a site with its drive. The
@@ -78,8 +78,19 @@ script `hotel.lua` builds it; these are the same steps in the window.
    by storey with a door onto the corridor's end; on the ground floor a door from the floor
    landing into an exit passage beside the shaft and a door out through the façade; on the roof
    a stair house 2.7 m high with its door and a roof slab.
-12. **Corridors.** On Levels 2–5, corridor walls at y = 7.5 and y = 32.5 from x = 8 to 52.
-13. **The room unit.** Off to the side on Level 2, draw one guest room 4.0 × 7.5 m: its corridor
+12. **The kitchen** (**Interiors › Kitchen & Casework › Equipment Line-up**). A room *Kitchen*
+   (G11) at x = 42–50.4, y = 32.5–40, with a door from the restaurant in the wall at x = 42.
+   Line up, clicking each line on the wall's face: the *Cook line* along the north wall from
+   x = 42.6 to 49.8 (two fryers, griddle, charbroiler, range, convection and combi ovens),
+   which hangs a Type I hood rated for the heavy-duty charbroiler; *Ware-washing* down the east
+   wall from the north corner (hand sink, three-compartment sink, clean table, dish machine,
+   soiled table), with a Type II hood over the machine; *Cold storage and prep* along the south
+   wall with a 100 mm gap; on the west wall a mop sink and shelving south of the door, and the ice
+   machine, a hand sink and a Class K extinguisher north of it; and two work tables back to
+   back in the middle, facing the cook line. Place a *Floor sink* in front of the combi oven,
+   the dish machine, the ice machine and the prep sink. **Check Kitchen** then has no errors.
+13. **Corridors.** On Levels 2–5, corridor walls at y = 7.5 and y = 32.5 from x = 8 to 52.
+14. **The room unit.** Off to the side on Level 2, draw one guest room 4.0 × 7.5 m: its corridor
    wall with the entrance door, its façade wall with a window and a balcony door, two side walls,
    the bathroom in the corner by the corridor (partitions 1.8 m from the side wall and 3 m from
    the corridor, a door into it, and **Interiors › Bath & Toilet › Bathroom Layout** with the
@@ -88,37 +99,37 @@ script `hotel.lua` builds it; these are the same steps in the window.
    floor outside the façade with its railing. Select it all and choose **Architecture › Model ›
    Create Unit Type**: *King room*, 4.0 × 7.5 m, clicking the corridor wall's start as the bay's
    corner. Draw a second with the door further from the corner and make it *Accessible king*.
-14. **Fill the floors** (**Unit Array**). *King room* on Levels 2–5, the right side of the line,
+15. **Fill the floors** (**Unit Array**). *King room* on Levels 2–5, the right side of the line,
    corridor 2.5 m, first bay at 8 m, skipping 0–8 and 52–60, mirrored in pairs, *Accessible
    king* every 8th; click (0, 8.75) and (60, 8.75): 44 rooms 201–211 to 501–511 facing south.
    Again on the left of (0, 31.25)–(60, 31.25), numbered from 51: 44 rooms facing north. Each
    room's corridor and façade walls merge into the building's (its door and window are cut into
    them), neighbours share one demising wall (a bathroom's fixtures hung on a merged side wall move
    onto the face of the wall that stays), and each balcony is joined to its floor.
-15. **Supply air.** On each guest floor draw a 400 mm supply duct down each corridor 2.9 m up
+16. **Supply air.** On each guest floor draw a 400 mm supply duct down each corridor 2.9 m up
    (**Systems › Duct**, system type *Supply Air*). Select the eight mains and choose **Connect
    Units**: 88 branches, one into each room's diffuser.
-16. **The roof pool.** On *Pool podium* draw a 15 × 18 m floor from (43, 11) to (58, 29) and a
+17. **The roof pool.** On *Pool podium* draw a 15 × 18 m floor from (43, 11) to (58, 29) and a
    12 × 6 m pool from (45, 16) to (57, 22), 1.2 m deep falling to 1.35 m, with stairs at its west
    end and depth markings; a stair up from the terrace at (44.4, 32.4); a 4 ft pool fence round
    the podium with a self-closing gate latched at 54 in. **Pool Structure** weighs it (water
    885 kN, shell 807 kN); an analytical panel on the roof slab under the podium takes its loads.
-17. **Sun control.** Set the location to Miami (25.8° N). **Interiors › Glazed Spaces › Baffles**:
+18. **Sun control.** Set the location to Miami (25.8° N). **Interiors › Glazed Spaces › Baffles**:
    blades 5.6 m above the roof, running north–south, 0.25 m apart, 0.5 m deep, tilted 45°, from
    (18.5, 10.5) to (58.3, 37.5) under the whole glazed roof. **View › Coordination › Sun Check**
    with the pool selected, and the patio from (30, 30.5) to (42, 37.5): about a fifth of the
    direct sun reaches each, within the quarter allowed.
-18. **The roof terrace's guard** round its edge.
-19. **Roof plant and solar panels.** Place two *Air Handling Unit*s on the open roof at (9, 16)
+19. **The roof terrace's guard** round its edge.
+20. **Roof plant and solar panels.** Place two *Air Handling Unit*s on the open roof at (9, 16)
    and (9, 24). **Systems › Electrical › PV Array**, clicking on the roof: 237 modules of 400 W in
    17 rows, 94.8 kWp, 4 ft from the edge and 1.2 m clear of the glazed roof, the units and the
    lift overruns.
-20. **The site.** The ground in four toposolids round the building's footprint (the basement
+21. **The site.** The ground in four toposolids round the building's footprint (the basement
    and lift pits stand in the hole): level 0.3 m below the ground floor for 16 m in front,
    falling 0.7 m to the street. **Site › Alignment**: the drive from (6, −49.5) north to (6, −6),
    east under the porte-cochère to (54, −6) and back south, with 10 m curves; its 7 m surface a
    sub-division of the ground 50 mm up, traced from the alignment's offsets. A car park east of
    the drive, a lawn to the north, trees either side, and the property line round the site.
-21. **IFC.** Saved, the units are `IfcGroup`s of their rooms, walls, doors, windows, balconies and
+22. **IFC.** Saved, the units are `IfcGroup`s of their rooms, walls, doors, windows, balconies and
    furniture, the atrium an `IfcSpace` with its shaft, guards and glazed `IfcRoof`, the baffles an
    `IfcShadingDevice`, the pool an `IfcElementAssembly`.

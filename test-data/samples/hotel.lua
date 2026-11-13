@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: An atrium hotel with a roof pool
--- description: A 60 × 40 m hotel on a steel frame round a five-storey atrium, over a concrete basement on strip and pad footings with its plant, laundry, storage and a sump for groundwater: guest and service lifts in its four corners and two enclosed exit stairs from the basement to the roof; a lobby with a covered drop-off, public restrooms, a ballroom, three conference rooms and a restaurant on the ground floor, each set out for its use; a gym and a spa on the second floor; 88 guest rooms, each with its bathroom, on four floors laid out from two room units, merged into the façade and corridor walls with their balconies, every eighth accessible, their diffusers connected to the corridor mains; and on the roof a pool on a raised podium under the atrium's glazed roof, which reaches over the pool and the roof patio, with sun-control baffles over both, and solar panels on the rest of the roof round its air handling units; on its site, a drive from the street under the porte-cochère and back, a car park and a lawn.
+-- description: A 60 × 40 m hotel on a steel frame round a five-storey atrium, over a concrete basement on strip and pad footings with its plant, laundry, storage and a sump for groundwater: guest and service lifts in its four corners and two enclosed exit stairs from the basement to the roof; a lobby with a covered drop-off, public restrooms, a ballroom, three conference rooms and a restaurant on the ground floor, each set out for its use, and the restaurant's kitchen fitted out under its hoods; a gym and a spa on the second floor; 88 guest rooms, each with its bathroom, on four floors laid out from two room units, merged into the façade and corridor walls with their balconies, every eighth accessible, their diffusers connected to the corridor mains; and on the roof a pool on a raised podium under the atrium's glazed roof, which reaches over the pool and the roof patio, with sun-control baffles over both, and solar panels on the rest of the roof round its air handling units; on its site, a drive from the street under the porte-cochère and back, a car park and a lawn.
 --
 -- Riviera sample model (test-data/samples): the hotel scenario (owner, 2026-11-12). Modular
 -- units (ARC-GRP-004): `unit.create_type` makes a guest room a type with its 4.0 × 7.5 m bay,
@@ -189,6 +189,8 @@ for _, x in ipairs({ 28.0, 30.0 }) do riviera.door.place{ host_wall_id = facade[
 for _, a in ipairs({ 14, 20, 26 }) do riviera.door.place{ host_wall_id = ball.e, point_along = a } end
 for _, a in ipairs({ 9.5, 14, 18, 22.5, 26.5, 31 }) do riviera.door.place{ host_wall_id = conf_w, point_along = a } end
 for _, a in ipairs({ 6, 18 }) do riviera.door.place{ host_wall_id = rest_s, point_along = a } end
+-- The kitchen's door from the restaurant, in the wall the restaurant shares with it at x = 42.
+riviera.door.place{ host_wall_id = conf_w, point_along = 36.2 }
 local function room(level, p, name, number) return riviera.room.place{ level_id = level, point = p, name = name, number = number } end
 local ballroom = room(l1, { 9, 20 }, "Ballroom", "G01")
 local conf = { room(l1, { 51, 11.5 }, "Conference A", "G02"), room(l1, { 51, 20 }, "Conference B", "G03"), room(l1, { 51, 28.4 }, "Conference C", "G04") }
@@ -317,6 +319,42 @@ riviera.door.place{ host_wall_id = ne[2].west, point_along = 0.9 }
 riviera.door.place{ host_wall_id = facade[1].north, point_along = 60 - 51.3 }
 room(l1, { 8.55, 3.5 }, "Exit passage", "G09")
 room(l1, { 51.3, 36 }, "Exit passage", "G10")
+
+-- ---- The kitchen ----
+-- The restaurant's kitchen, x 42–50.4 and y 32.5–40 (its faces 0.1 m in from the partitions'
+-- centre lines, 0.15 m in from the façade's), fitted out with equipment line-ups
+-- (`foodservice.lineup`, ARC-KIT-003) and checked (`foodservice.check`, ARC-KIT-004):
+-- the cook line along the north wall under a Type I canopy, rated for its heavy-duty
+-- charbroiler; ware-washing down the east wall, soiled to clean, its dish machine under a Type II
+-- hood; cold storage and prep along the south wall; a mop sink, shelving, the ice machine, a
+-- hand sink and a Class K extinguisher on the west wall either side of the door; prep tables in the
+-- middle; and a floor sink at each indirect waste.
+local KN, KS, KW, KE = 39.85, 32.6, 42.1, 50.3
+room(l1, { 46, 36 }, "Kitchen", "G11")
+local function lineup(a, b, items, more)
+  local args = { start = a, ["end"] = b, level = l1, items = items }
+  for k, v in pairs(more or {}) do args[k] = v end
+  local l = riviera.foodservice.lineup(args)
+  for _, h in ipairs(l.hoods) do
+    print(string.format("Kitchen hood: Type %s, %.2f × %.2f m, %.0f cfm exhaust, %.0f cfm makeup", h.hood_type, h.length, h.depth, h.exhaust_cfm, h.makeup_cfm))
+  end
+  for _, n in ipairs(l.notes) do print("  " .. n) end
+  return l
+end
+lineup({ 42.6, KN }, { 49.8, KN }, { "Fryer, 40 lb gas", "Fryer, 40 lb gas", "Griddle 36 in, on stand", "Charbroiler 36 in, on stand", "Range, 6-burner with oven 36 in", "Convection oven, double deck", "Combi oven, 10 pan on stand" })
+lineup({ KE, 39.75 }, { KE, 32.7 }, { "Hand sink, wall-hung", "Three-compartment sink 18 × 18 in", "Dish table, clean 60 in", "Dish machine, door type", "Dish table, soiled 60 in" })
+lineup({ 42.6, KS }, { 49.5, KS }, { "Reach-in refrigerator, 2-door", "Reach-in freezer, 2-door", "Refrigerated prep table 60 in", "Prep sink 18 × 18 in, drainboard", "Hand sink, wall-hung" }, { gap = 0.1 })
+lineup({ KW, 33.45 }, { KW, 35.4 }, { "Mop sink 24 × 24 in", "Shelving 24 × 48 in, 4 tiers" }, { gap = 0.1 })
+lineup({ KW, 36.95 }, { KW, 38.62 }, { "Ice machine on bin", "Hand sink, wall-hung", "Class K extinguisher" }, { gap = 0.1 })
+lineup({ 44.0, 36.0 }, { 47.8, 36.0 }, { "Work table 30 × 72 in", "Work table 30 × 72 in" }, { toward = { 46, 40 } })
+local fs = riviera.furnishing.load{ names = { "Floor sink 12 × 12 in" } }["Floor sink 12 × 12 in"]
+for _, p in ipairs({ { 47.6, 38.4 }, { 49.3, 36.0 }, { 43.25, 37.33 }, { 47.67, 33.6 } }) do
+  riviera.mesh_object.place{ type_id = fs, point = p, level = l1 }
+end
+local kc = riviera.foodservice.check{}
+print(string.format("Kitchen: %d pieces, %.0f cfm exhaust and %.0f cfm makeup air", kc.pieces, kc.exhaust_cfm, kc.makeup_cfm))
+for _, f in ipairs(kc.findings) do print("  " .. f.severity .. " " .. f.rule .. ": " .. f.message) end
+for _, f in ipairs(kc.findings) do assert(f.severity ~= "error", f.rule .. ": " .. f.message) end
 
 -- ---- The guest floors: two room units ----
 -- Corridor walls on each guest floor, 2.5 m corridors either side of the atrium's galleries.

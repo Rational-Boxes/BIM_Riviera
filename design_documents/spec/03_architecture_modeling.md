@@ -5651,6 +5651,81 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 
 *Built (2026-11-06):* `riviera_core::cabinets::tops` and Interiors › Kitchen & Casework › Countertop (the selected units' runs, or all). Defaults are E-106. Not yet: tops across joined or corner runs, islands and seating overhangs, backsplashes, edge profiles and joints, and sink and cooktop cut-outs.
 
+### 3.9b.7a Commercial kitchen line-ups and hoods
+**ID:** ARC-KIT-003 · **Priority:** P1 · **Ref:** `KITCHENS_PLAN.md` §5.1, §6.2, §7.1 (owner's answer to Q4: hoods are `IfcAirTerminal` USERDEFINED, gas cookers `IfcElectricAppliance` USERDEFINED with a gas port); research/14 B2, B5, B6, B9, B11, D1, D5 (S1216–S1240); ARC-FURN-001; the hotel scenario (owner, 2026-11-12)
+
+**Purpose.** Fit out a commercial kitchen's walls in one action a line: the cook line under its hood, ware-washing, cold storage and prep. Use placeholder equipment typed for IFC and the MEP tools, the hood sized and rated from what is under it.
+
+**Behaviour & rules.**
+- **Equipment** is the *Riviera Foodservice Equipment* library (ARC-FURN-001), 24 placeholders in six folders:
+  - *Cooking*: a 36 in six-burner gas range with oven, a 40 lb gas fryer, a 36 in griddle and charbroiler on stands, a double-deck convection oven, a 10-pan combi oven on a stand, a 30 gal tilting braising pan;
+  - *Refrigeration*: two-door reach-in refrigerator and freezer, a 60 in refrigerated prep table, an ice machine on its bin;
+  - *Ware-washing*: a door-type dish machine, soiled and clean 60 in dish tables, a three-compartment sink;
+  - *Sinks*: a prep sink with drainboard, a wall-hung hand sink, a mop sink, a 12 × 12 in floor sink;
+  - *Prep and storage*: 72 and 48 in work tables, 48 in four-tier shelving;
+  - *Fire safety*: a Class K extinguisher and a fryer baffle.
+- **Sizes** are research/14's (Vulcan, Pitco, True, Hoshizaki and Hobart sheets, health-department guides); those from a range are judgement and say so (E-139).
+- **IFC.** Gas cookers are `IfcElectricAppliance` USERDEFINED (GasRange, GasFryer, GasGriddle, GasCharbroiler) with a **Gas** port: gas cookers have no IFC4 or IFC4.3 class. Electric ovens are ELECTRICCOOKER, refrigerators REFRIGERATOR or FREEZER, the ice machine KITCHENMACHINE and the dish machine DISHWASHER. Sinks are `IfcSanitaryTerminal` SINK, the floor sink an `IfcWasteTerminal` FLOORWASTE, the tables TABLE and the shelving SHELF.
+- **Connectors.** Each piece has the connectors its sheet gives: gas, 208 V three-phase or 115 V power, hot and cold water, and waste. The **Gas** piping classification (`IfcDistributionSystemEnum` GAS) is new with this tool.
+- **Kitchen data.** Each type carries its role, its hood duty class (CMC 508.10), and whether it has open flames or makes grease. It also carries its cooking surface's height, and whether it drains indirectly to a floor sink.
+- **The line-up** runs along a back line from a start to an end, picked in a plan or typed (standing rule). Each piece's back is on the line and its front faces away from the wall behind it, or toward a given point (as ARC-KIT-001).
+  - **Spacing.** Pieces stand side by side unless a gap is given.
+  - **Order.** `order: duty` puts the cooking equipment first, the heaviest duty toward the middle (CEC design guide).
+  - **Too long.** A line-up longer than its line is refused, by how much, and nothing is placed.
+- **Baffles.** A fryer beside an appliance with open flames, closer than 16 in, gets an 8 in steel baffle between them (NFPA 96).
+- **Hoods** (`hoods: auto`, the default). Each is a wall canopy, `IfcAirTerminal` USERDEFINED "KitchenHood": 24 in high, open below, its back on the wall.
+  - **Type I** over grease-producing equipment; **Type II** over cooking that makes none. Each is 6 in longer than the cooking equipment at both ends and 6 in past its front (IMC 507.12), its lip at 78 in.
+  - **Exhaust** is the CMC wall-canopy rate for its heaviest duty class: light 200, medium 300, heavy 400, extra-heavy 550 cfm a foot. **Makeup air** is 100 % of exhaust, or 80 % for listed hoods.
+  - **Dish machine.** A Type II hood also goes over a dish machine (Maricopa), at the light rate (E-139).
+  - **Connections.** Each hood has an exhaust collar sized for 1,500 fpm and a lights circuit. A note warns when the lip is more than 4 ft over the cooking surface, and when a combi oven wants UK guidance's 600 mm front overhang.
+- **Tags.** Every piece, baffle and hood carries its line-up's id.
+
+**Commands.** `foodservice.lineup(start, end, level, items, order?, gap?, toward?, hoods?, listed?, lip?, baffles?)` → `{lineup, length, used, placed: [{name, element, from, to}], baffles, hoods: [{element, hood_type, style, duty, length, depth, lip, exhaust_cfm, makeup_cfm, listed, over}], notes}`.
+
+**Acceptance criteria.**
+- [x] A fryer, range, charbroiler and convection oven stand side by side on a wall's face, a baffle between the fryer and the range, under a heavy-duty Type I hood 12 in longer than the line, rated 400 cfm a foot with as much makeup air; nothing overlaps.
+- [x] A dish machine between its tables gets a Type II hood; a line-up longer than its line is refused.
+- [x] The hotel sample's kitchen is fitted out with six line-ups and passes the kitchen check.
+
+*Built (2026-11-13):* `riviera_core::foodservice`, the Foodservice library and Interiors › Kitchen & Casework › Equipment Line-up (a set of pieces, then the line picked). Defaults are E-139. Not yet:
+- island, eyebrow and backshelf hoods;
+- grease ducts (§7.2) and the suppression system (§7.3);
+- listed hoods' own rates, from a product;
+- corners and line-ups that turn;
+- walk-ins (§8.3);
+- the sizing helpers (dish-machine racks, hot-water demand, grease interceptors);
+- equipment schedules and rough-in plans.
+
+### 3.9b.7b The kitchen check
+**ID:** ARC-KIT-004 · **Priority:** P1 · **Ref:** `KITCHENS_PLAN.md` §6.2, §7.1, §7.3; research/14 B2, B5, B6, B9, Part F (F103–F106, F113–F117, F148–F150, F179–F181)
+
+**Purpose.** Check a commercial kitchen's equipment against the code and health-department rules that set its layout, before plan review.
+
+**Behaviour & rules.**
+- **Hoods.** Each grease-producing appliance must be under a Type I hood that passes it by 6 in on its open sides, and each other cooking appliance under a Type I or II hood (IMC 507.2, 507.12): errors. A lip more than 4 ft over the cooking surface (IMC 507.11) is an error. A dish machine without a Type II hood is a warning (Maricopa; ventless machines need none).
+- **Fryers** less than 16 in from an appliance's open flames, with no baffle between, are an error (NFPA 96).
+- **Hand sinks.** A kitchen with none is an error (Food Code 5-203.11). A workstation farther than 25 ft from one (Maricopa; CUPHD asks 15 ft in the same room) is a warning. Straight-line distance stands in for the path until path distance is built.
+- **Class K extinguisher** within 30 ft of each cooking appliance (IFC 904.12.5): straight line for travel, an error.
+- **Floor sinks.** Each indirect waste with no floor sink within 5 ft is a warning (Food Code 5-402.11, Maricopa).
+- **Mop sink.** A kitchen with none is an error (Food Code 5-203.13).
+- **Aisles.** Equipment within the work aisle in front of cooking equipment (default 42 in; Berkshire, the FDA plan-review guide) is a warning.
+- **Totals.** The check totals the hoods' exhaust and makeup air.
+
+**Commands.** `foodservice.check(hand_sink_distance?, aisle?)` → `{pieces, hoods, exhaust_cfm, makeup_cfm, findings: [{rule, source, severity, element?, message}]}`.
+
+**Acceptance criteria.**
+- [x] A cook line with no hand sink, mop sink or extinguisher has those three findings, and none once they are placed.
+- [x] A work table 0.5 m in front of the range is in its aisle. The fryer without its baffle is too close to the range's flames.
+- [x] A dish machine with no floor sink near it is a warning, and none once one is placed in front of it.
+
+*Built (2026-11-13):* `riviera_core::foodservice::check` and Interiors › Kitchen & Casework › Check Kitchen (each finding selects its element). Defaults are E-139. Not yet:
+- path distances with doors counted (the hand-sink reach map);
+- rule packs per health department (`KITCHENS_PLAN.md` Q2);
+- splash guards at hand sinks;
+- the suppression pull station;
+- grease duct and enclosure checks;
+- receiving-to-service flow notes.
+
 ### 3.9b.8 Counters and accessible portions
 **ID:** ARC-INT-004 · **Priority:** P1 · **Ref:** `INTERIORS_PLAN.md` §4.4 (step 5); research/15 C1–C3; 2010 ADA Standards §904.4, §306, §305 (S1354); ARC-KIT-001; ARC-RULE-002
 
@@ -5934,7 +6009,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 **Purpose.** Stand-in furniture and equipment at their usual sizes, typed for IFC and for the rule packs, until a product is chosen.
 
 **Behaviour & rules.**
-- **The catalogue** (`riviera_core::furnishings`) holds 65 items in three libraries:
+- **The catalogue** (`riviera_core::furnishings`) holds its items in five libraries: the three below, *Pools* (ARC-POOL-004) and *Foodservice* (ARC-KIT-003):
   - *Interiors*: beds (US twin, full, queen and king; Approved Document M's single, double and principal double), nightstand, dresser, chest of drawers, double wardrobe, luggage rack, sofas, armchair, coffee and occasional tables, storage unit, rug, dining tables (4 and 6 seats, round), dining chair, counter stool, desks (fixed and standing), task chair, conference table, bookcase and reception desk;
   - *Gym*: commercial treadmill, elliptical, stair climber, upright and recumbent bikes, indoor cycle, rower, leg press, cable crossover, power and half racks, Smith machine, dumbbell rack, flat bench, plate tree and lifting platform;
   - *Retail*: island, wall and end-cap gondolas, a pallet rack bay, produce table, garment rounder and 4-way, mannequin, counter showcase, cash wrap, shopping cart, EAS pedestal, two checkstands, a compact cash desk, two self-checkouts and an attendant station.
@@ -5958,7 +6033,7 @@ unchanged. The first domain on the shared format is **interiors**: use zones aro
 - [x] Every item has a valid predefined type for its class, a kind when USERDEFINED, sources in `SOURCE_REGISTER.md`, and stands on the floor.
 - [x] A treadmill loaded into a project has a 120 V power connector, and a bed is chosen by the ADA interiors pack.
 
-*Built (2026-11-06):* `riviera_core::furnishings`, made into the bundled libraries (DM-LIB-006). Not yet: kitchen cabinets and appliances (`KITCHENS_PLAN.md`), lighting fixtures for interiors (`INTERIORS_PLAN.md` §4.5), and detailed shapes.
+*Built (2026-11-06):* `riviera_core::furnishings`, made into the bundled libraries (DM-LIB-006). Not yet: residential kitchen appliances (`KITCHENS_PLAN.md`), lighting fixtures for interiors (`INTERIORS_PLAN.md` §4.5), and detailed shapes.
 
 ---
 
@@ -7937,6 +8012,8 @@ All commands below are registered once in the command registry and exposed autom
 | `cabinet.run` | start, end, level, kind, region?, widths?, toward? | {run, region, length, units, filler} | Yes | ARC-KIT-001 |
 | `cabinet.runs` | — | [{run, kind, units}] | No | ARC-KIT-001 |
 | `countertop.from_runs` | runs?, element_ids?, overhang? | [{element, run, length, depth, height}] | Yes | ARC-KIT-002 |
+| `foodservice.lineup` | start, end, level, items, order?, gap?, toward?, hoods?, listed?, lip?, baffles? | {lineup, length, used, placed, baffles, hoods, notes} | Yes | ARC-KIT-003 |
+| `foodservice.check` | hand_sink_distance?, aisle? | {pieces, hoods, exhaust_cfm, makeup_cfm, findings} | No (query) | ARC-KIT-004 |
 | `counter.run` | start, end, level, kind?, height?, depth?, toward?, accessible? | {counter, length, height, elements, portion?} | Yes | ARC-INT-004 |
 | `closet.create` | start, end, level, layout?, depth?, rod_heights?, shelf_height?, toward? | {closet, layout, length, rods, shelves} | Yes | ARC-INT-005 |
 | `interior.layouts` | — | [{id, title, items}] | No (query) | ARC-INT-001 |

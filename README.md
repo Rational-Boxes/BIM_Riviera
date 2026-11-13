@@ -654,6 +654,18 @@ Libraries**: plain folders of ordinary 3D files, readable by any other tool.
   tops each base run, 1 in past the fronts at 36 in (`cabinet.run`, `cabinet.runs`,
   `countertop.from_runs`). Not built yet: corner units, appliances, islands, backsplashes and
   cut-outs.
+- **Commercial kitchens** (ARC-KIT-003/004). Interiors › Kitchen & Casework › Equipment Line-up
+  stands foodservice equipment from the new *Riviera Foodservice Equipment* library (ranges,
+  fryers, griddles, charbroilers, ovens, reach-ins, an ice machine, a dish machine and its tables,
+  three-compartment, prep, hand, mop and floor sinks, work tables, shelving, a Class K
+  extinguisher) along a wall, with their gas, power, water and waste connectors. It puts a baffle
+  between a fryer and an open flame, and hangs a Type I canopy over the cook line and a Type II
+  over the dish machine. Each hood is 6 in past the equipment, rated from the CMC table for its
+  heaviest duty class, with as much makeup air. Check Kitchen checks hood coverage and height,
+  fryer spacing, hand sinks within 25 ft, a Class K extinguisher within 30 ft, floor sinks at
+  indirect wastes, a mop sink and the work aisle (`foodservice.lineup`, `foodservice.check`). The
+  hotel sample's kitchen is fitted out with them. Not built yet: island hoods, grease ducts and
+  suppression, path distances and walk-ins.
 - **Counters** (ARC-INT-004). Interiors › Kitchen & Casework › Counter lays a transaction (42 in), service
   (36 in), bar or work (29 in) counter along a wall, with an accessible portion lowered to 36 in
   for a parallel or forward approach. Check Rules checks the portion against the 2010 ADA

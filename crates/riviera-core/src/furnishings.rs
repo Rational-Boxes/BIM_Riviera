@@ -36,10 +36,11 @@ pub enum Library {
     Gym,
     Retail,
     Pools,
+    Foodservice,
 }
 
 impl Library {
-    pub const ALL: [Library; 4] = [Library::Interiors, Library::Gym, Library::Retail, Library::Pools];
+    pub const ALL: [Library; 5] = [Library::Interiors, Library::Gym, Library::Retail, Library::Pools, Library::Foodservice];
 
     /// Its folder under `libraries/`.
     pub fn dir(self) -> &'static str {
@@ -48,6 +49,7 @@ impl Library {
             Library::Gym => "gym",
             Library::Retail => "retail",
             Library::Pools => "pools",
+            Library::Foodservice => "foodservice",
         }
     }
 
@@ -57,6 +59,7 @@ impl Library {
             Library::Gym => "Riviera Gym Equipment",
             Library::Retail => "Riviera Retail and Checkout Fixtures",
             Library::Pools => "Riviera Pools",
+            Library::Foodservice => "Riviera Foodservice Equipment",
         }
     }
 }
@@ -86,6 +89,10 @@ pub struct Item {
 impl Item {
     pub(crate) fn shape(&self) -> Shape {
         (self.shape)()
+    }
+
+    pub(crate) fn params(&self) -> Vec<(&'static str, serde_json::Value)> {
+        (self.params)()
     }
 }
 
@@ -313,6 +320,65 @@ fn power(va: f64, voltage: f64, z: f64, back: f64) -> Connector {
     crate::mep::power("Power", [0.0, back, z], [0.0, 1.0, 0.0], D::In, voltage, 1, va, "Power")
 }
 
+// Foodservice equipment (ARC-KIT-003): its front, where the cook stands, at −y; its back, with
+// its connections, at +y against the wall.
+
+/// A body from `z0` to `h` on four 6 in legs (or a stand) under it.
+fn on_legs(w: f64, d: f64, z0: f64, h: f64) -> Shape {
+    legs(Shape::default(), w, d, 0.04, z0).cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [z0, h])
+}
+
+/// A cooking appliance on legs: its body up to the cooking surface at `top`, and a backguard or
+/// flue 0.1 m deep at the back up to `back`.
+fn cooker(w: f64, d: f64, legs_h: f64, top: f64, back: f64) -> Shape {
+    on_legs(w, d, legs_h, top).cuboid([-w / 2.0, w / 2.0], [d / 2.0 - 0.1, d / 2.0], [top, back])
+}
+
+/// A countertop appliance `h` tall on a stand whose top is at `stand`.
+fn on_stand(w: f64, d: f64, stand: f64, h: f64) -> Shape {
+    legs(Shape::default().cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [0.15, 0.18]), w, d, 0.04, stand - 0.03)
+        .cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [stand - 0.03, stand])
+        .cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [stand, stand + h])
+}
+
+/// A stainless table: a top at `h` with a 4 in backsplash, an undershelf 8 in up, on legs.
+fn work_table(w: f64, d: f64, h: f64) -> Shape {
+    legs(Shape::default(), w, d, 0.04, h - 0.04)
+        .cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [0.2, 0.22])
+        .cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [h - 0.04, h])
+        .cuboid([-w / 2.0, w / 2.0], [d / 2.0 - 0.02, d / 2.0], [h, h + 4.0 * IN])
+}
+
+/// A stainless sink on legs, its rim at `rim` and a backsplash to `splash`.
+fn sink_table(w: f64, d: f64, rim: f64, splash: f64) -> Shape {
+    legs(Shape::default(), w, d, 0.04, rim - 0.3)
+        .cuboid([-w / 2.0, w / 2.0], [-d / 2.0, d / 2.0], [rim - 0.3, rim])
+        .cuboid([-w / 2.0, w / 2.0], [d / 2.0 - 0.03, d / 2.0], [rim, splash])
+}
+
+fn gas(d: f64, back: f64) -> Connector {
+    crate::mep::pipe("Gas", [0.0, back, 0.3], [0.0, 1.0, 0.0], crate::mep::Classification::Gas, D::In, d, 0.0)
+}
+
+fn water(name: &str, cl: crate::mep::Classification, x: f64, back: f64, z: f64, d: f64, fu: f64) -> Connector {
+    crate::mep::pipe(name, [x, back, z], [0.0, 1.0, 0.0], cl, D::In, d, fu)
+}
+
+fn waste(x: f64, y: f64, z: f64, d: f64, fu: f64) -> Connector {
+    crate::mep::pipe("Waste", [x, y, z], [0.0, 0.0, -1.0], crate::mep::Classification::Sanitary, D::Out, d, fu)
+}
+
+fn three_phase(kw: f64, back: f64) -> Connector {
+    crate::mep::power("Power", [0.0, back, 0.3], [0.0, 1.0, 0.0], D::In, 208.0, 3, kw * 1000.0, "Power")
+}
+
+/// What `foodservice.lineup` and `foodservice.check` need to know of a piece (`rxd:foodservice`
+/// on its type): its role, its hood duty class, whether it has open flames or makes grease
+/// laden vapour, its cooking surface's height, and whether it drains indirectly to a floor sink.
+fn fs(role: &str, duty: Option<&str>, flame: bool, grease: bool, surface: f64, indirect: bool) -> Vec<(&'static str, serde_json::Value)> {
+    vec![(crate::foodservice::KEY, serde_json::json!({ "role": role, "duty": duty, "flame": flame, "grease": grease, "surface": surface, "indirect": indirect }))]
+}
+
 // Pool equipment (ARC-POOL-004): its front, toward the water, at −y.
 
 /// A pool ladder hung on the wall at y = 0: two rails `gap` apart rising `up` over the deck and
@@ -484,6 +550,36 @@ pub fn catalogue() -> Vec<Item> {
         item!(Retail, "Checkouts", "Self-checkout, pedestal", Furniture, "USERDEFINED", Some("SelfCheckout"), Some("Pr_40_30_65_60"), BLACK, "A pedestal self-checkout 440 mm wide, 718 mm deep and 1490 mm high (Diebold Nixdorf EASY eXpress).", "S1439", || block(0.44, 0.718, 0.9).cuboid([-0.22, 0.22], [0.2, 0.359], [0.9, 1.49]), || vec![power(300.0, 120.0, 0.2, 0.359)]),
         item!(Retail, "Checkouts", "Self-checkout lane", Furniture, "USERDEFINED", Some("SelfCheckout"), Some("Pr_40_30_65_60"), BLACK, "A full scan-and-bag lane 3068 × 1359 mm (NCR SelfServ 7350, core with bumper, no bag well); its 915 mm deck height is judgement.", "S1408", || checkstand(3.068, 1.359, 0.915), || vec![power(600.0, 120.0, 0.2, 0.68)]),
         item!(Retail, "Checkouts", "Attendant station", Furniture, "USERDEFINED", Some("AttendantStation"), None, BLACK, "A remote attendant station about 1077 × 660 mm and 1038 mm high (NCR, crated size).", "S1408", || cabinet(1.077, 0.66, 1.038), || vec![power(300.0, 120.0, 0.2, 0.33)]),
+        // ---- Foodservice: cooking (research/14 B5, B6, D5) ----
+        item!(Foodservice, "Cooking", "Range, 6-burner with oven 36 in", ElectricAppliance, "USERDEFINED", Some("GasRange"), Some("Pr_40_70_17"), STEEL, "A 36 in gas range, six open burners over a standard oven, 34 in deep and 58 in to the top of its backguard on 6 in legs, its burners at 36 in; 215,000 Btu/h (63 kW) at a ¾ in connection (Vulcan Endurance 36C). Medium duty (CMC 508.10); gas cookers have no IFC class, so it is an IfcElectricAppliance USERDEFINED with a gas port.", "S1239 S1225", || cooker(36.0 * IN, 34.0 * IN, 6.0 * IN, 36.0 * IN, 58.0 * IN), || vec![gas(0.019, 17.0 * IN)], || fs("cooking", Some("medium"), true, true, 36.0 * IN, false)),
+        item!(Foodservice, "Cooking", "Fryer, 40 lb gas", ElectricAppliance, "USERDEFINED", Some("GasFryer"), Some("Pr_40_70_17"), STEEL, "A 40 lb gas floor fryer 15.1 × 30.25 in and 47.25 in to its flue, 90,000 Btu/h (Pitco 35C+S); its frying surface at about 36 in. Medium duty; NFPA 96 keeps it 16 in from an adjacent appliance's open flames, or behind a steel baffle.", "S1240 S1225 S1228", || cooker(15.1 * IN, 30.25 * IN, 6.0 * IN, 36.0 * IN, 47.25 * IN), || vec![gas(0.019, 15.125 * IN)], || fs("fryer", Some("medium"), false, true, 36.0 * IN, false)),
+        item!(Foodservice, "Cooking", "Griddle 36 in, on stand", ElectricAppliance, "USERDEFINED", Some("GasGriddle"), Some("Pr_40_70_17"), STEEL, "A 36 in countertop gas griddle 30 in deep and 16 in high on a 24 in equipment stand (sizes from the 24–48 in range; no maker's sheet was read). Medium duty.", "S1225", || on_stand(36.0 * IN, 30.0 * IN, 24.0 * IN, 16.0 * IN), || vec![gas(0.019, 15.0 * IN)], || fs("cooking", Some("medium"), false, true, 34.0 * IN, false)),
+        item!(Foodservice, "Cooking", "Charbroiler 36 in, on stand", ElectricAppliance, "USERDEFINED", Some("GasCharbroiler"), Some("Pr_40_70_17"), STEEL, "A 36 in underfired gas charbroiler 30 in deep and 16 in high on a 24 in stand (sizes from the 24–48 in range; no maker's sheet was read). Heavy duty (CMC 508.10: underfired broilers), with open flames.", "S1225", || on_stand(36.0 * IN, 30.0 * IN, 24.0 * IN, 16.0 * IN), || vec![gas(0.019, 15.0 * IN)], || fs("cooking", Some("heavy"), true, true, 36.0 * IN, false)),
+        item!(Foodservice, "Cooking", "Convection oven, double deck", ElectricAppliance, "ELECTRICCOOKER", None, Some("Pr_40_70_17"), STEEL, "Two full-size electric convection ovens stacked, 38 × 40 in and 70 in high on legs, about 11 kW a deck (judgement from the 36–44 in deep range). Light duty.", "S1225", || on_legs(38.0 * IN, 40.0 * IN, 6.0 * IN, 70.0 * IN), || vec![three_phase(22.0, 20.0 * IN)], || fs("cooking", Some("light"), false, false, 0.0, false)),
+        item!(Foodservice, "Cooking", "Combi oven, 10 pan on stand", ElectricAppliance, "ELECTRICCOOKER", None, Some("Pr_40_70_17"), STEEL, "A 10-pan electric combi oven 42.2 × 41 × 41.9 in on a 24 in stand, with cold water and a drain to a floor sink. Light duty, but its steam surges at the door: UK guidance asks 600 mm of hood past its front.", "S1240 S1332", || on_stand(42.2 * IN, 41.0 * IN, 24.0 * IN, 41.9 * IN), || vec![three_phase(18.9, 20.5 * IN), water("Cold", crate::mep::Classification::DomesticColdWater, 0.15, 20.5 * IN, 0.4, 0.015, 1.0), waste(-0.2, 0.3, 0.15, 0.05, 2.0)], || fs("cooking", Some("light"), false, false, 0.0, true)),
+        item!(Foodservice, "Cooking", "Tilting braising pan 30 gal", ElectricAppliance, "ELECTRICCOOKER", None, Some("Pr_40_70_17"), STEEL, "A 30 gal tilting skillet 38.5 × 39.75 in and 43.5 in high, 11.5 kW; it pours forward, so a floor sink goes in front of it. Light duty, but grease-producing: a Type I hood and suppression.", "S1240 S1231", || cooker(38.5 * IN, 39.75 * IN, 6.0 * IN, 36.0 * IN, 43.5 * IN), || vec![three_phase(11.5, 19.875 * IN), water("Cold", crate::mep::Classification::DomesticColdWater, 0.2, 19.875 * IN, 0.4, 0.015, 1.0)], || fs("cooking", Some("light"), false, true, 36.0 * IN, true)),
+        // ---- Foodservice: refrigeration ----
+        item!(Foodservice, "Refrigeration", "Reach-in refrigerator, 2-door", ElectricAppliance, "REFRIGERATOR", None, Some("Pr_40_70_31_12"), STEEL, "A two-door reach-in refrigerator 54.1 × 29.5 × 78.4 in, about 49 ft³ (True T-49), on 115 V.", "S1240", || block(54.1 * IN, 29.5 * IN, 78.4 * IN), || vec![power(600.0, 115.0, 1.8, 14.75 * IN)], || fs("refrigeration", None, false, false, 0.0, false)),
+        item!(Foodservice, "Refrigeration", "Reach-in freezer, 2-door", ElectricAppliance, "FREEZER", None, Some("Pr_40_70_31_11"), STEEL, "A two-door reach-in freezer the size of the refrigerator, 54.1 × 29.5 × 78.4 in, on 115 V.", "S1240", || block(54.1 * IN, 29.5 * IN, 78.4 * IN), || vec![power(900.0, 115.0, 1.8, 14.75 * IN)], || fs("refrigeration", None, false, false, 0.0, false)),
+        item!(Foodservice, "Refrigeration", "Refrigerated prep table 60 in", ElectricAppliance, "REFRIGERATOR", None, Some("Pr_40_70_31_71"), STEEL, "A 60 in refrigerated sandwich and salad prep table 30 in deep, its work top at 36 in under a pan rail (sizes from the 48–72 in range; no maker's sheet was read).", "S1225", || block(60.0 * IN, 30.0 * IN, 36.0 * IN).cuboid([-30.0 * IN, 30.0 * IN], [5.0 * IN, 15.0 * IN], [36.0 * IN, 42.0 * IN]), || vec![power(500.0, 115.0, 0.3, 15.0 * IN)], || fs("prep", None, false, false, 0.0, false)),
+        item!(Foodservice, "Refrigeration", "Ice machine on bin", ElectricAppliance, "KITCHENMACHINE", None, Some("Pr_40_70_23_40"), STEEL, "A 22 in ice-maker head 27 in deep and 30 in high (Hoshizaki KM-515) on a 30 × 34 in bin 44 in high; its water and drain through an air gap to a floor sink (NSF 12).", "S1240 S1217", || block(30.0 * IN, 34.0 * IN, 44.0 * IN).cuboid([-11.0 * IN, 11.0 * IN], [-10.0 * IN, 17.0 * IN], [44.0 * IN, 74.0 * IN]), || vec![power(1100.0, 115.0, 1.5, 17.0 * IN), water("Cold", crate::mep::Classification::DomesticColdWater, 0.1, 17.0 * IN, 1.2, 0.01, 1.0), waste(-0.2, 0.3, 0.0, 0.025, 1.0)], || fs("ice", None, false, false, 0.0, true)),
+        // ---- Foodservice: ware-washing ----
+        item!(Foodservice, "Ware-washing", "Dish machine, door type", ElectricAppliance, "DISHWASHER", None, Some("Pr_40_70_21_12"), STEEL, "A door-type dish machine about 27 × 27 in and 59 in high closed (78.5 in open) with its booster heater: 7.1 kW booster and 5.4 kW tank on 208 V, hot water in, its drain to a floor sink (Hobart AM16). A high-temperature machine needs a Type II hood unless it is ventless.", "S1238 S1217", || block(27.0 * IN, 27.0 * IN, 59.0 * IN), || vec![three_phase(12.5, 13.5 * IN), water("Hot", crate::mep::Classification::DomesticHotWater, 0.1, 13.5 * IN, 0.5, 0.02, 3.0), waste(-0.15, 0.2, 0.0, 0.04, 3.0)], || fs("dish_machine", None, false, false, 0.0, true)),
+        item!(Foodservice, "Ware-washing", "Dish table, soiled 60 in", Furniture, "TABLE", None, Some("Pr_40_30_30_22"), STEEL, "A soiled dish table 60 × 30 in at 34 in, sloping to the machine; the clean table should be at least as large.", "S1217", || work_table(60.0 * IN, 30.0 * IN, 34.0 * IN), none, || fs("dish_table", None, false, false, 0.0, false)),
+        item!(Foodservice, "Ware-washing", "Dish table, clean 60 in", Furniture, "TABLE", None, Some("Pr_40_30_30_23"), STEEL, "A clean dish table 60 × 30 in at 34 in, as large as the soiled table.", "S1217", || work_table(60.0 * IN, 30.0 * IN, 34.0 * IN), none, || fs("dish_table", None, false, false, 0.0, false)),
+        item!(Foodservice, "Ware-washing", "Three-compartment sink 18 × 18 in", PlumbingFixture, "SINK", None, Some("Pr_40_20_96_19"), STEEL, "Three 18 × 18 in compartments (wash, rinse, sanitise; Food Code 4-301.12) between two 18 in drainboards, 90 × 24 in, its rim at 36 in; hot and cold water, and all three compartments drain indirectly to a floor sink (sizes derived from the compartments and drainboards).", "S1216 S1219 S1220", || sink_table(90.0 * IN, 24.0 * IN, 36.0 * IN, 44.0 * IN), || vec![water("Hot", crate::mep::Classification::DomesticHotWater, 0.1, 12.0 * IN, 1.05, 0.015, 4.0), water("Cold", crate::mep::Classification::DomesticColdWater, -0.1, 12.0 * IN, 1.05, 0.015, 4.0), waste(0.0, 0.0, 0.5, 0.05, 4.0)], || fs("ware_sink", None, false, false, 0.0, true)),
+        // ---- Foodservice: sinks ----
+        item!(Foodservice, "Sinks", "Prep sink 18 × 18 in, drainboard", PlumbingFixture, "SINK", None, Some("Pr_40_20_96_19"), STEEL, "A one-compartment food prep sink 18 × 18 in with an 18 in drainboard, 39 × 24 in, its rim at 36 in; it drains indirectly to a floor sink (CUPHD).", "S1219 S1220", || sink_table(39.0 * IN, 24.0 * IN, 36.0 * IN, 44.0 * IN), || vec![water("Hot", crate::mep::Classification::DomesticHotWater, 0.1, 12.0 * IN, 1.05, 0.015, 2.0), water("Cold", crate::mep::Classification::DomesticColdWater, -0.1, 12.0 * IN, 1.05, 0.015, 2.0), waste(0.2, 0.0, 0.5, 0.04, 2.0)], || fs("prep_sink", None, false, false, 0.0, true)),
+        item!(Foodservice, "Sinks", "Hand sink, wall-hung", PlumbingFixture, "SINK", None, Some("Pr_40_20_96_81"), STEEL, "A wall-hung hand sink about 17 × 15 in, its rim at 34 in, with water at 85 °F or more (Food Code 5-202.12); within about 25 ft of each workstation, no door between (Maricopa), or 15 ft in the same room (CUPHD).", "S1216 S1217 S1220", || Shape::default().cuboid([-8.5 * IN, 8.5 * IN], [-7.5 * IN, 7.5 * IN], [26.0 * IN, 34.0 * IN]).cuboid([-8.5 * IN, 8.5 * IN], [6.5 * IN, 7.5 * IN], [34.0 * IN, 40.0 * IN]), || vec![water("Hot", crate::mep::Classification::DomesticHotWater, 0.05, 7.5 * IN, 0.95, 0.015, 1.0), water("Cold", crate::mep::Classification::DomesticColdWater, -0.05, 7.5 * IN, 0.95, 0.015, 1.0), waste(0.0, 0.1, 26.0 * IN, 0.032, 1.0)], || fs("hand_sink", None, false, false, 0.0, false)),
+        item!(Foodservice, "Sinks", "Mop sink 24 × 24 in", PlumbingFixture, "SINK", None, Some("Pr_40_20_96_44"), WHITE, "A floor-mounted mop sink 24 × 24 in with a 10 in curb (Food Code 5-203.13 asks one, or a curbed cleaning area).", "S1216 S1217", || Shape::default().cuboid([-12.0 * IN, 12.0 * IN], [-12.0 * IN, 12.0 * IN], [0.0, 10.0 * IN]), || vec![water("Hot", crate::mep::Classification::DomesticHotWater, 0.05, 12.0 * IN, 0.9, 0.015, 3.0), water("Cold", crate::mep::Classification::DomesticColdWater, -0.05, 12.0 * IN, 0.9, 0.015, 3.0), waste(0.0, 0.0, 0.0, 0.075, 3.0)], || fs("mop_sink", None, false, false, 0.0, false)),
+        item!(Foodservice, "Sinks", "Floor sink 12 × 12 in", WasteTerminal, "FLOORWASTE", None, None, RUBBER, "A 12 × 12 in floor sink under a grate, set in the floor at an indirect waste: its rim at least 1 in under the pipe ending over it (Food Code 5-202.13).", "S1216 S1217", || Shape::default().cuboid([-6.0 * IN, 6.0 * IN], [-6.0 * IN, 6.0 * IN], [0.0, 0.01]), || vec![waste(0.0, 0.0, 0.0, 0.075, 3.0)], || fs("floor_sink", None, false, false, 0.0, false)),
+        // ---- Foodservice: prep and storage ----
+        item!(Foodservice, "Prep and storage", "Work table 30 × 72 in", Furniture, "TABLE", None, Some("Pr_40_30_30_84"), STEEL, "A stainless work table 72 × 30 in at 36 in with an undershelf (sizes from the 36–96 in range).", "S1291", || work_table(72.0 * IN, 30.0 * IN, 36.0 * IN), none, || fs("prep", None, false, false, 0.0, false)),
+        item!(Foodservice, "Prep and storage", "Work table 30 × 48 in", Furniture, "TABLE", None, Some("Pr_40_30_30_84"), STEEL, "A stainless work table 48 × 30 in at 36 in with an undershelf.", "S1291", || work_table(48.0 * IN, 30.0 * IN, 36.0 * IN), none, || fs("prep", None, false, false, 0.0, false)),
+        item!(Foodservice, "Prep and storage", "Shelving 24 × 48 in, 4 tiers", Furniture, "SHELF", None, Some("Pr_40_30_78_85"), STEEL, "Wire shelving 48 × 24 in and 74 in high, four tiers, the lowest at least 6 in off the floor (Maricopa).", "S1217", || shelves(48.0 * IN, 24.0 * IN, 74.0 * IN, 4), none, || fs("storage", None, false, false, 0.0, false)),
+        // ---- Foodservice: fire safety ----
+        item!(Foodservice, "Fire safety", "Class K extinguisher", Furniture, "USERDEFINED", Some("FireExtinguisher"), None, [0.8, 0.12, 0.1, 1.0], "A 6 L wet-chemical (Class K) extinguisher on a wall bracket, its top 5 ft up at most; within 30 ft of travel of commercial cooking (IFC 904.12.5).", "S1230", || Shape::default().prism(&rounded([0.0, 0.0], 0.17, 0.17, 0.085), 0.95, 1.5).cuboid([-0.04, 0.04], [0.085, 0.1], [1.2, 1.4]), none, || fs("extinguisher", None, false, false, 0.0, false)),
+        item!(Foodservice, "Fire safety", "Fryer baffle", Furniture, "USERDEFINED", Some("FlameBaffle"), None, STEEL, "A steel baffle 8 in high on a fryer's side, beside an appliance with open flames closer than 16 in (NFPA 96).", "S1228", || Shape::default().cuboid([-0.003, 0.003], [-15.0 * IN, 15.0 * IN], [36.0 * IN, 44.0 * IN]), none, || fs("baffle", None, false, false, 0.0, false)),
     ]
 }
 

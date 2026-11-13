@@ -102,6 +102,8 @@ pub enum Classification {
     Vent,
     /// Rainwater from roofs: gutters and downspouts (MEP-PIPE-010).
     StormDrainage,
+    /// Fuel gas to cooking appliances and boilers (ARC-KIT-003).
+    Gas,
     FireProtectionWet,
     FireProtectionDry,
     FireProtectionPreAction,
@@ -113,7 +115,7 @@ pub enum Classification {
 }
 
 impl Classification {
-    pub const ALL: [Classification; 18] = [
+    pub const ALL: [Classification; 19] = [
         Classification::SupplyAir,
         Classification::ReturnAir,
         Classification::ExhaustAir,
@@ -125,6 +127,7 @@ impl Classification {
         Classification::Sanitary,
         Classification::Vent,
         Classification::StormDrainage,
+        Classification::Gas,
         Classification::FireProtectionWet,
         Classification::FireProtectionDry,
         Classification::FireProtectionPreAction,
@@ -147,6 +150,7 @@ impl Classification {
             Classification::Sanitary => "Sanitary",
             Classification::Vent => "Vent",
             Classification::StormDrainage => "Storm Drainage",
+            Classification::Gas => "Gas",
             Classification::FireProtectionWet => "Fire Protection Wet",
             Classification::FireProtectionDry => "Fire Protection Dry",
             Classification::FireProtectionPreAction => "Fire Protection Pre-Action",
@@ -1315,7 +1319,7 @@ struct Starter {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn duct(name: &str, origin: V3, direction: V3, cl: Classification, dir: FlowDirection, config: FlowConfig, flow: f64, d: f64) -> Connector {
+pub(crate) fn duct(name: &str, origin: V3, direction: V3, cl: Classification, dir: FlowDirection, config: FlowConfig, flow: f64, d: f64) -> Connector {
     Connector {
         name: name.into(),
         origin,

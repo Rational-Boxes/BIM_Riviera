@@ -1442,6 +1442,14 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "cabinet_run" => format!(
             r#"<path d="M2 12h28" {s}/><rect x="3" y="13" width="26" height="14" fill="{f}" {s}/><path d="M11.7 13v14M20.3 13v14M3 25h26" {s}/><circle cx="9" cy="19" r="0.9" fill="{a}"/><circle cx="14" cy="19" r="0.9" fill="{a}"/><circle cx="23" cy="19" r="0.9" fill="{a}"/>"#
         ),
+        // A cook line in elevation under its canopy hood: a range, a fryer and an oven.
+        "equipment_lineup" => format!(
+            r#"<path d="M2 29h28" {s}/><path d="M3 4h26l-2 7H5z" fill="{a}" {s}/><rect x="3" y="16" width="10" height="13" fill="{f}" {s}/><rect x="13" y="18" width="5" height="11" fill="{f}" {s}/><rect x="18" y="14" width="11" height="15" fill="{f}" {s}/><path d="M5 16h2M9 16h2" stroke="{a}" stroke-width="2"/>"#
+        ),
+        // A canopy hood over a range, with a tick.
+        "check_kitchen" => format!(
+            r#"<path d="M2 29h28" {s}/><path d="M2 5h18l-2 6H4z" fill="{f}" {s}/><rect x="4" y="17" width="12" height="12" fill="{f}" {s}/><path d="M18 20l3 4 7-10" stroke="{a}" stroke-width="2.5" fill="none"/>"#
+        ),
         // A service counter in elevation with a lowered accessible portion at its right.
         "counter_run" => format!(
             r#"<path d="M2 10h18v18H2zM20 15h10v13" fill="{f}" {s}/><path d="M2 10h18M20 15h10" stroke="{a}" stroke-width="2.5"/><path d="M24 22a2 2 0 1 0 0.1 0" {s}/>"#

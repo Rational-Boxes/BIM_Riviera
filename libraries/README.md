@@ -1,6 +1,6 @@
 # Riviera's bundled Component Libraries
 
-Four Component Libraries ship with Riviera (DM-LIB-006). Each is a folder of model fragments,
+Five Component Libraries ship with Riviera (DM-LIB-006). Each is a folder of model fragments,
 one IFC4 file an item, with a `riviera-library.json` manifest:
 
 | Library | Folder | Holds |
@@ -9,10 +9,12 @@ one IFC4 file an item, with a `riviera-library.json` manifest:
 | Riviera Gym Equipment | `gym/` | treadmill, elliptical, stair climber, bikes, rower, leg press, cable crossover, racks, Smith machine, dumbbell rack, bench, plate tree, lifting platform |
 | Riviera Pools | `pools/` | a pool lift, a ladder, a grab rail, a starting platform, a 1 m diving board, a lifeguard chair, main drain covers, an underwater light |
 | Riviera Retail and Checkout Fixtures | `retail/` | gondolas and end caps, a pallet rack bay, a produce table, garment racks, a mannequin, a showcase, a cash wrap, a shopping cart, an EAS pedestal, checkstands, self-checkouts, an attendant station |
+| Riviera Foodservice Equipment | `foodservice/` | a gas range, fryer, griddle and charbroiler, convection and combi ovens, a braising pan, reach-in refrigerator and freezer, a refrigerated prep table, an ice machine, a dish machine and dish tables, three-compartment, prep, hand and mop sinks, a floor sink, work tables, shelving, a Class K extinguisher and a fryer baffle |
 
 Each item is a generic placeholder at the size research note 15 gives
-(`design_documents/research/15_gyms_retail_interiors.md`), or for pools note 23
-(`design_documents/research/23_swimming_pools.md`). Each manifest entry has a
+(`design_documents/research/15_gyms_retail_interiors.md`), for pools note 23
+(`design_documents/research/23_swimming_pools.md`), and for foodservice note 14
+(`design_documents/research/14_kitchens_refrigeration.md`). Each manifest entry has a
 `provenance.sources` field with the source IDs, which are listed in
 `design_documents/SOURCE_REGISTER.md`. Sizes no source gave are judgement and are marked so in
 the item's description (`design_documents/EXPERT_REVIEW.md`, E-103).

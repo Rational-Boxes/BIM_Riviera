@@ -1742,14 +1742,21 @@ fn the_hotel_sample_has_its_units_atrium_and_roof_pool() {
     }
     // The public restrooms either side of the lobby, and the exit stairs: one a storey in each
     // of two shafts from the basement to the roof.
-    // (Rooms by number: G07 and G08 the restrooms, G09 and G10 the exit passages, 1 and 2 the
-    // stairs.)
+    // (Rooms by number: G07 and G08 the restrooms, G09 and G10 the exit passages, G11 the
+    // kitchen, 1 and 2 the stairs.)
     let numbers: Vec<String> = st.iter().filter(|e| e.class == "IfcSpace").filter_map(|e| e.name.clone()).collect();
-    for n in ["G07", "G08", "G09", "G10", "1", "2"] {
+    for n in ["G07", "G08", "G09", "G10", "G11", "1", "2"] {
         assert!(numbers.iter().any(|x| x == n), "{n}: {numbers:?}");
     }
     assert!(st.iter().filter(|e| e.class == "IfcSanitaryTerminal" && riviera_core::groups::instance_of(e).is_none()).count() >= 4 + 3 + 2 + 3 + 3);
     assert_eq!(st.iter().filter(|e| e.class == "IfcStair").count(), 2 * 6 + 1, "two exit stairs of six storeys, and the pool podium's");
+    // The kitchen: its equipment under a Type I hood over the cook line and a Type II over the
+    // dish machine, and no errors.
+    let k = ok(&mut app, "foodservice.check", json!({}));
+    let mut hoods: Vec<&str> = k["hoods"].as_array().unwrap().iter().map(|h| h["hood_type"].as_str().unwrap()).collect();
+    hoods.sort_unstable();
+    assert_eq!(hoods, vec!["I", "II"], "{k:#}");
+    assert!(k["pieces"].as_u64().unwrap() >= 23 && k["findings"].as_array().unwrap().iter().all(|f| f["severity"] != "error"), "{k:#}");
     // The atrium's glazed roof closed in by four curtain walls.
     assert_eq!(st.iter().filter(|e| e.class == "IfcCurtainWall").count(), 4);
     // The atrium through six storeys under its glazed roof.

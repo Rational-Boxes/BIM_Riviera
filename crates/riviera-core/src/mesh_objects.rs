@@ -297,6 +297,14 @@ impl Category {
         let mut out = match self {
             Category::Furniture => vec!["CHAIR", "TABLE", "DESK", "BED", "FILECABINET", "SHELF", "SOFA"],
             Category::SystemFurniture => vec!["PANEL", "WORKSURFACE"],
+            // IFC4's IfcElectricApplianceTypeEnum, IfcSanitaryTerminalTypeEnum and
+            // IfcWasteTerminalTypeEnum.
+            Category::ElectricAppliance => vec![
+                "DISHWASHER", "ELECTRICCOOKER", "FREESTANDINGELECTRICHEATER", "FREESTANDINGFAN", "FREESTANDINGWATERHEATER", "FREESTANDINGWATERCOOLER", "FREEZER", "FRIDGE_FREEZER", "HANDDRYER", "KITCHENMACHINE", "MICROWAVE", "PHOTOCOPIER",
+                "REFRIGERATOR", "TUMBLEDRYER", "VENDINGMACHINE", "WASHINGMACHINE",
+            ],
+            Category::PlumbingFixture => vec!["BATH", "BIDET", "CISTERN", "SHOWER", "SINK", "SANITARYFOUNTAIN", "TOILETPAN", "URINAL", "WASHHANDBASIN", "WCSEAT"],
+            Category::WasteTerminal => vec!["FATTRAP", "FLOORTRAP", "FLOORWASTE", "GULLYSUMP", "GULLYTRAP", "ROOFDRAIN", "WASTEDISPOSALUNIT", "WASTETRAP"],
             _ => vec![self.predefined()],
         };
         out.extend(["USERDEFINED", "NOTDEFINED"]);

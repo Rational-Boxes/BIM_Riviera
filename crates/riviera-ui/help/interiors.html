@@ -14,6 +14,7 @@ that room as <b>rule packs</b>, each from one standard or guide. It shows each p
   <a href="#layouts">Room layouts</a>
   <a href="#lighting">Decorative lighting</a>
   <a href="#cabinets">Cabinet runs and countertops</a>
+  <a href="#kitchens">Commercial kitchens</a>
   <a href="#counters">Counters</a>
   <a href="#closets">Closets</a>
   <a href="#hotels">Hotel guest rooms</a>
@@ -66,7 +67,7 @@ JSON, on this computer or in a FileEngine folder. <b>Manage › Settings › Sav
 same for any check.</p>
 
 <h2 id="layouts">Room layouts</h2>
-<p><b>Interiors › Rooms  › Rooms & Furniture amp; Furniture › Room Layout</b> furnishes a room from a template. The templates are
+<p><b>Interiors › Rooms &amp; Furniture › Room Layout</b> furnishes a room from a template. The templates are
 bedrooms (queen, king, two twins, a UK double), a living room, dining rooms for four and six, a
 home office, a private office and a meeting room for eight. Click inside a room closed by walls.
 The main piece (a bed's head, a sofa's back, a desk) goes against one of the longer walls, and
@@ -79,7 +80,7 @@ out four rooms. (<code>interior.layouts</code>, <code>interior.layout</code>)</p
 
 <h2 id="lighting">Decorative lighting</h2>
 <p>The Interiors library's <i>Lighting</i> folder holds chandeliers, a pendant, a wall sconce and
-lamps. Select a wall, or a table or counter, and choose <b>Interiors › Rooms  › Rooms & Furniture amp; Furniture › Decorative
+lamps. Select a wall, or a table or counter, and choose <b>Interiors › Rooms &amp; Furniture › Decorative
 Lighting</b>:</p>
 <ul>
   <li><b>on a wall</b>, sconces along its room side, one every 8 ft, centred at 63 in;</li>
@@ -94,7 +95,7 @@ practice's heights over tables come as notes. (<code>lighting.chandelier</code>,
 <code>lighting.pendants</code>, <code>lighting.sconces</code>)</p>
 
 <h2 id="cabinets">Cabinet runs and countertops</h2>
-<p>Choose <b>Interiors › Kitchen  › Kitchen & Casework amp; Casework › Cabinet Run</b>, pick <i>Base</i>, <i>Wall</i> or <i>Tall
+<p>Choose <b>Interiors › Kitchen &amp; Casework › Cabinet Run</b>, pick <i>Base</i>, <i>Wall</i> or <i>Tall
 units</i> and the sizes, then click the run's start and end on a wall's face in a plan. The run
 is filled with standard widths so that the least is left, and a filler takes the rest:</p>
 <ul>
@@ -111,8 +112,59 @@ runs: 1½ in thick, 1 in past the fronts (20 mm in the EU), its surface at 36 in
 pantry. Corners, sink and cooktop cut-outs and backsplashes are not made yet.
 (<code>cabinet.run</code>, <code>cabinet.runs</code>, <code>countertop.from_runs</code>)</p>
 
+<h2 id="kitchens">Commercial kitchens</h2>
+<p><b>Interiors › Kitchen &amp; Casework › Equipment Line-up</b> fits out a commercial kitchen a
+wall at a time. Choose a set of pieces, or type their names one a line, then click the line's
+start and end on a wall's face in a plan. The sets are:</p>
+<ul>
+  <li><b>Cook line</b>: two fryers, a griddle, a charbroiler, a six-burner range, a double convection
+  oven and a combi oven;</li>
+  <li><b>Ware-washing</b>: a hand sink, a three-compartment sink, the clean table, a door-type dish
+  machine and the soiled table;</li>
+  <li><b>Cold storage and prep</b>: reach-in refrigerator and freezer, a refrigerated prep table, a prep
+  sink and a hand sink;</li>
+  <li><b>Utility</b>: a mop sink, shelving, an ice machine and a Class K extinguisher;</li>
+  <li><b>Work tables</b> for an island.</li>
+</ul>
+<p>The pieces come from the bundled <b>Riviera Foodservice Equipment</b> library and stand side by
+side, backs to the wall, unless you give a gap. Each carries its connectors: gas for the gas
+cookers (a new <i>Gas</i> piping system), power, hot and cold water, and waste. Tick <i>Order</i> to
+put the cooking first with the heaviest duty in the middle of the hood.</p>
+<p>A fryer next to an open flame, the range or the charbroiler, gets an 8 in steel baffle between
+them (NFPA 96's 16 in). Over the cooking goes a <b>wall canopy hood</b>:</p>
+<ul>
+  <li>Type I over equipment that makes grease, Type II over cooking that makes none;</li>
+  <li>6 in longer than the equipment at each end and 6 in past its front (IMC 507.12), its lip at
+  78 in;</li>
+  <li>rated by its heaviest duty class from the CMC wall-canopy table: light 200, medium 300, heavy
+  400 and extra-heavy 550 cfm a foot, with as much makeup air (80 % for a listed hood);</li>
+  <li>an exhaust collar sized for 1,500 fpm and a lights circuit.</li>
+</ul>
+<p>A dish machine gets a Type II hood of its own. Gas cookers have no IFC class, so they are
+appliances (<code>IfcElectricAppliance</code> USERDEFINED, GasRange, GasFryer, …) with a gas port. The
+hoods are air terminals (<code>IfcAirTerminal</code> USERDEFINED, KitchenHood).</p>
+<p><b>Check Kitchen</b> (also on <b>View › Coordination</b>) lists what the kitchen still needs, and
+selects each finding's element:</p>
+<ul>
+  <li>a Type I hood over each grease-producing appliance, passing it by 6 in, its lip at most 4 ft
+  over the cooking surface (IMC 507.2, 507.11, 507.12); a Type II over a dish machine;</li>
+  <li>fryers 16 in from open flames, or a baffle between (NFPA 96);</li>
+  <li>a hand sink within 25 ft of every workstation (the Food Code, Maricopa County's guide; some
+  departments ask 15 ft in the same room);</li>
+  <li>a Class K extinguisher within 30 ft of the cooking (IFC 904.12.5);</li>
+  <li>a floor sink within 5 ft of each indirect waste: the sinks, the dish machine, the ice machine
+  and the combi oven;</li>
+  <li>a mop sink (Food Code 5-203.13), and a 42 in work aisle in front of the cooking.</li>
+</ul>
+<p>It also totals the hoods' exhaust and makeup air. Distances are straight lines for now, not
+paths round equipment and through doors. Rules differ between health departments, so check
+them against yours. The sample <a href="riviera:sample/hotel">An atrium hotel with a roof
+pool</a> has a kitchen fitted out with six line-ups. Island hoods, grease ducts, the
+suppression system and walk-ins are not made yet.
+(<code>foodservice.lineup</code>, <code>foodservice.check</code>)</p>
+
 <h2 id="counters">Counters</h2>
-<p><b>Interiors › Kitchen  › Kitchen & Casework amp; Casework › Counter</b> lays a counter along a wall the same way, clicked from
+<p><b>Interiors › Kitchen &amp; Casework › Counter</b> lays a counter along a wall the same way, clicked from
 start to end: a <i>transaction</i> or <i>bar</i> counter at 42 in, a <i>service</i> counter at 36 in,
 or a <i>work surface</i> at 29 in, open below. Choose an <b>accessible portion</b> at either end
 and it is lowered to 36 in (2010 ADA Standards §904.4):</p>
@@ -126,7 +178,7 @@ sample <a href="riviera:sample/service_counters">Service counters</a> has a tell
 reception desk and a writing surface. (<code>counter.run</code>)</p>
 
 <h2 id="closets">Closets</h2>
-<p>Choose <b>Interiors › Kitchen  › Kitchen & Casework amp; Casework › Closet</b> and click the closet's back wall face from one side to
+<p>Choose <b>Interiors › Kitchen &amp; Casework › Closet</b> and click the closet's back wall face from one side to
 the other. The rods are centred in a 24 in deep closet and a 12 in shelf goes on the wall:</p>
 <ul>
   <li><b>single:</b> a rod at 66 in under a shelf at 68 in;</li>
@@ -139,12 +191,12 @@ the other. The rods are centred in a 24 in deep closet and a 12 in shelf goes on
 not made yet. (<code>closet.create</code>)</p>
 
 <h2 id="hotels">Hotel guest rooms</h2>
-<p><b>Interiors › Rooms  › Rooms & Furniture amp; Furniture › Room Layout</b> has four guest rooms: a king (3.6 × 4.6 m inside), two
+<p><b>Interiors › Rooms &amp; Furniture › Room Layout</b> has four guest rooms: a king (3.6 × 4.6 m inside), two
 queens (4.0 × 4.6 m), an accessible king (3.6 × 5.0 m, its bed keeping a 30 × 48 in space each
 side) and a junior suite (5.5 × 4.6 m). Each marks its room as a guest room, placing the room when
 there is none. A standard room's pieces are marked not accessible, so only the accessible room has
 the ADA's bed spaces. The bathroom is its own room: lay it out with Bathroom Layout.</p>
-<p>Select rooms and choose <b>Interiors › Rooms  › Rooms & Furniture amp; Furniture › Guest Room</b> to set their class, beds and
+<p>Select rooms and choose <b>Interiors › Rooms &amp; Furniture › Guest Room</b> to set their class, beds and
 features: mobility, mobility with a roll-in shower, and communication (visible alarms and
 notification, §806.3).</p>
 <p><b>View › Coordination › Room Matrix</b> counts the guest rooms by floor and by class and checks
@@ -164,7 +216,7 @@ reading of the tables is provisional (EXPERT_REVIEW.md E-109). The sample
 (<code>hotel.set_room</code>, <code>hotel.room_matrix</code>)</p>
 
 <h2 id="seating">Event and dining seating</h2>
-<p>Select a room and choose <b>Interiors › Rooms  › Rooms & Furniture amp; Furniture › Seating Layout</b>: a banquet of 72 in or
+<p>Select a room and choose <b>Interiors › Rooms &amp; Furniture › Seating Layout</b>: a banquet of 72 in or
 60 in rounds, theatre rows in blocks of 14 between aisles, classroom tables for three, a
 boardroom table for eight, restaurant four-tops, or a standing reception with cocktail tables. The
 set-up keeps 44 in clear of the walls, and theatre and classroom set-ups keep the front clear for
@@ -264,7 +316,7 @@ clearances are always in use:</p>
   <li>a rower keeps its 2.74 × 1.22 m use area, and a dumbbell rack 0.9 m in front;</li>
   <li>strength stations keep 0.9 m round them, as a note.</li>
 </ul>
-<p><b>Interiors › Gym  › Gym & Spa amp; Spa › Wall Mirror</b> puts a mirror along a wall, from 0.4 to 2.1 m, of
+<p><b>Interiors › Gym &amp; Spa › Wall Mirror</b> puts a mirror along a wall, from 0.4 to 2.1 m, of
 safety glazing. <b>View › Coordination › Check Gym</b> checks:</p>
 <ul>
   <li>with the ADA rule set, one of each type of machine accessible, with a 30 × 48 in clear floor
@@ -274,7 +326,7 @@ safety glazing. <b>View › Coordination › Check Gym</b> checks:</p>
   <li>mirrors in line with a treadmill (Sport England keeps them to the free-weight area), and
   mirrors without safety glazing.</li>
 </ul>
-<p>To fill a room, select it and choose <b>Interiors › Gym  › Gym & Spa amp; Spa › Gym Layout</b>. Enter how many of
+<p>To fill a room, select it and choose <b>Interiors › Gym &amp; Spa › Gym Layout</b>. Enter how many of
 each piece you want. They go in rows from the room's longest wall, each kept clear by its own
 zones, with a 36 in aisle between rows; anything that does not fit is reported. <b>Studio</b> gives
 a room's capacity for cycling (1.5 × 2.0 m a bike), mat classes (25 ft² a person) or HIIT (50 ft²)
@@ -314,6 +366,8 @@ elevator tools read them.</p>
   <li>packs: <code>rules.packs</code>, <code>rules.set_packs</code>, <code>rules.add_pack</code>,
   <code>rules.remove_pack</code>, <code>rules.schema</code>;</li>
   <li>checks: <code>rules.set_accessible</code>, <code>rules.check</code>;</li>
+  <li>kitchens: <code>foodservice.lineup</code>, <code>foodservice.check</code>, and
+  <code>furnishing.catalogue</code> with <code>library</code> <code>foodservice</code>;</li>
   <li>types: <code>mesh_object.set_type</code> with <code>predefined_type</code> or
   <code>element_type</code>.</li>
 </ul>
