@@ -525,14 +525,73 @@ pub fn face_point(store: &Store, f: &FaceHost) -> Option<([f64; 2], f64)> {
     Some((at, out[1].atan2(out[0]) + std::f64::consts::FRAC_PI_2))
 }
 
-/// Re-reads a face-hosted copy's place along its wall from its point (after a move), keeping the
+/// The face-hosted copies on wall `wall` (GlobalId).
+pub(crate) fn on_face_of(store: &Store, wall: &str) -> Vec<ElementId> {
+    store.iter().filter(|e| mesh_object_recipe(e).and_then(|r| r.face).is_some_and(|f| f.wall == wall)).map(Element::id).collect()
+}
+
+/// Face-hosted copies whose wall is gone go onto a wall whose face is where they are, if one is
+/// (a modular unit's neighbour remade: the wall they were merged onto made again).
+pub(crate) fn reattach_orphans(txn: &mut crate::txn::Transaction<'_>) -> Result<()> {
+    let store = txn.store().clone();
+    let orphans: Vec<(ElementId, MeshObjectRecipe)> = store
+        .iter()
+        .filter_map(|e| Some((e.id(), mesh_object_recipe(e)?)))
+        .filter(|(_, r)| r.face.as_ref().is_some_and(|f| GlobalId::parse(&f.wall).and_then(|g| store.find_by_guid(&g)).is_none()))
+        .collect();
+    if orphans.is_empty() {
+        return Ok(());
+    }
+    let walls: Vec<(String, String, crate::walls::WallGeometry)> = store
+        .iter()
+        .filter_map(|w| Some((w.guid().to_string(), crate::walls::wall_recipe(w)?.base_level, crate::walls::regenerate(&store, w).ok()?)))
+        .collect();
+    for (id, mut r) in orphans {
+        let found = walls.iter().filter(|(_, level, _)| *level == r.level).find_map(|(guid, _, g)| {
+            let (d, n) = (g.direction(), g.normal());
+            let rel = [r.point[0] - g.start[0], r.point[1] - g.start[1]];
+            let (along, off) = (rel[0] * d[0] + rel[1] * d[1], rel[0] * n[0] + rel[1] * n[1]);
+            ((-1e-6..=g.length() + 1e-6).contains(&along) && (off.abs() - g.width / 2.0).abs() < 0.02).then(|| FaceHost { wall: guid.clone(), side: off.signum(), along })
+        });
+        if let Some(f) = found {
+            r.face = Some(f);
+            write(txn, id, &r)?;
+        }
+    }
+    Ok(())
+}
+
+/// Moves a face-hosted copy onto wall `to` (GlobalId), which lies where its wall is (a modular
+/// unit's wall merged into the building's): the same place, on the face on the same side.
+pub(crate) fn rehost_face(txn: &mut crate::txn::Transaction<'_>, id: ElementId, to: &str) -> Result<()> {
+    let store = txn.store().clone();
+    let Some(mut r) = store.get(id).and_then(mesh_object_recipe) else { return Ok(()) };
+    let Some((at, rotation)) = r.face.as_ref().and_then(|f| face_point(&store, f)) else { return Ok(()) };
+    let Some(w) = GlobalId::parse(to).and_then(|g| store.find_by_guid(&g)).and_then(|w| store.get(w)) else { return Ok(()) };
+    let g = crate::walls::regenerate(&store, w)?;
+    let (d, n) = (g.direction(), g.normal());
+    let rel = [at[0] - g.start[0], at[1] - g.start[1]];
+    let side = if rel[0] * n[0] + rel[1] * n[1] >= 0.0 { 1.0 } else { -1.0 };
+    let along = (rel[0] * d[0] + rel[1] * d[1]).clamp(0.0, g.length());
+    r.point = at;
+    r.rotation = rotation;
+    r.face = Some(FaceHost { wall: to.to_owned(), side, along });
+    write(txn, id, &r)
+}
+
 /// side.
-fn rehost(store: &Store, r: &mut MeshObjectRecipe) {
+fn rehost(store: &Store, r: &mut MeshObjectRecipe, mirrored: bool) {
     let Some(f) = &mut r.face else { return };
     let Some(w) = GlobalId::parse(&f.wall).and_then(|g| store.find_by_guid(&g)).and_then(|id| store.get(id)) else { return };
     let Ok(g) = crate::walls::regenerate(store, w) else { return };
-    let d = g.direction();
-    f.along = ((r.point[0] - g.start[0]) * d[0] + (r.point[1] - g.start[1]) * d[1]).clamp(0.0, g.length());
+    let (d, n) = (g.direction(), g.normal());
+    let rel = [r.point[0] - g.start[0], r.point[1] - g.start[1]];
+    f.along = (rel[0] * d[0] + rel[1] * d[1]).clamp(0.0, g.length());
+    // A mirror turns the wall's sides over; a plain move keeps the face it is on.
+    let off = rel[0] * n[0] + rel[1] * n[1];
+    if mirrored && off.abs() > 1e-6 {
+        f.side = off.signum();
+    }
 }
 
 fn is_one(v: &f64) -> bool {
@@ -1390,7 +1449,7 @@ pub(crate) fn set(txn: &mut crate::txn::Transaction<'_>, p: SetParams) -> Result
     for (id, mut r) in copies(&store, &p.element_ids)? {
         if let Some(v) = p.point {
             r.point = v;
-            rehost(&store, &mut r);
+            rehost(&store, &mut r, false);
         }
         if let Some(l) = &level {
             r.level = l.clone();
@@ -1625,8 +1684,11 @@ pub(crate) fn forget_source_path(
 
 /// Moves, turns or mirrors a copy (Move, Copy, Rotate, Mirror). `mirror` is the mirror line's
 /// angle.
+/// `before` is the model before the move began: a face-hosted copy moves from where it was drawn
+/// then, though its wall may have moved already in the same move.
 pub(crate) fn transform(
     txn: &mut crate::txn::Transaction<'_>,
+    before: &Store,
     id: ElementId,
     x: &dyn Fn([f64; 2]) -> [f64; 2],
     turn: f64,
@@ -1636,18 +1698,27 @@ pub(crate) fn transform(
     let store = txn.store().clone();
     let mut r = mesh_object_recipe(store.get(id).expect("exists")).expect("a custom object");
     // A face-hosted copy moves from where it is drawn, and stays on its face.
-    if let Some((at, rot)) = r.face.as_ref().and_then(|f| face_point(&store, f)) {
+    if let Some((at, rot)) = r.face.as_ref().and_then(|f| face_point(before, f)) {
         r.point = at;
         r.rotation = rot;
     }
     r.point = x(r.point);
-    rehost(&store, &mut r);
+    rehost(&store, &mut r, mirror.is_some());
     match mirror {
+        // On a wall face it keeps facing out from the face: mirroring across its local x axis
+        // would turn its back (and its clear space) through the wall.
+        Some(_) if r.face.is_some() => {}
         Some(axis) => {
             r.rotation = 2.0 * axis - r.rotation;
             r.mirror = !r.mirror;
         }
         None => r.rotation += turn,
+    }
+    // On a face its place and facing are the face's, wherever its wall has gone (a mirror turns
+    // the wall's sides over, not the way it faces).
+    if let Some((at, rot)) = r.face.as_ref().and_then(|f| face_point(&store, f)) {
+        r.point = at;
+        r.rotation = rot;
     }
     r.offset += dz;
     write(txn, id, &r)

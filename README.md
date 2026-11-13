@@ -480,8 +480,8 @@ Create … Boundary* tab:
   diffuser) made a type with its bay, then repeated along a corridor on a range of levels, one or
   both sides, mirrored in pairs, skipping cores, numbered by floor with every n-th copy a variant
   (an accessible room). Each copy merges with the building: its walls on the façade, the corridor
-  or a neighbour's are built once, its doors and windows cut into those walls, its balcony joined
-  to the floor. `unit.connect` runs every copy's duct and pipe connectors into the corridor mains
+  or a neighbour's are built once, its doors and windows cut into those walls (and a bathroom's
+  wall-hung fixtures moved onto them), its balcony joined to the floor. `unit.connect` runs every copy's duct and pipe connectors into the corridor mains
   of their system and sums the flow each main serves. Editing one copy edits them all.
 - **Saved selections** (Manage › Selection): Save and Load Selection (members hidden in the view
   left out unless asked for), Edit Selection mode (picks and window selections add or remove,

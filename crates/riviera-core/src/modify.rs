@@ -151,6 +151,10 @@ pub fn transform(
         }
     }
     let selected: BTreeSet<ElementId> = ids.iter().copied().collect();
+    // Walls first, so what is hosted on their faces finds them where they end up.
+    let before = store.clone();
+    let mut ids = ids;
+    ids.sort_by_key(|id| store.get(*id).is_none_or(|e| walls::wall_recipe(e).is_none()));
     let mut out = Vec::new();
     let host_moves = |guid: &str| {
         crate::id::GlobalId::parse(guid)
@@ -431,7 +435,7 @@ pub fn transform(
                 Xform::Rotate { angle, .. } => (angle, None, 0.0),
                 Xform::Mirror { a, b } => (0.0, Some((b[1] - a[1]).atan2(b[0] - a[0])), 0.0),
             };
-            crate::mesh_objects::transform(txn, target, &|p| x.point(p), turn, mirror, dz)?;
+            crate::mesh_objects::transform(txn, &before, target, &|p| x.point(p), turn, mirror, dz)?;
             out.push(target);
         } else if crate::columns::column_recipe(e).is_some() {
             let target = if copy { txn.create(copied(e))? } else { id };

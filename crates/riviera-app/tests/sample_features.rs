@@ -1723,12 +1723,35 @@ fn the_hotel_sample_has_its_units_atrium_and_roof_pool() {
     for n in ["201", "211", "251", "261", "501", "561"] {
         assert!(numbers.contains(&n), "{n}: {numbers:?}");
     }
-    // Every room merged with the building and connected to its corridor's main.
-    assert!(units.iter().all(|u| u["unmerged"].as_array().unwrap().is_empty() && u["open_connectors"] == 0), "{units:#?}");
+    // Every room merged with the building and its diffuser connected to its corridor's main; its
+    // bathroom's water and drainage connectors (no more than 8) wait for the plumbing mains.
+    assert!(units.iter().all(|u| u["unmerged"].as_array().unwrap().is_empty() && u["open_connectors"].as_u64().unwrap() <= 8), "{units:#?}");
     let st = store(&app);
     let building: Vec<String> = st.iter().filter(|e| riviera_core::walls::wall_recipe(e).is_some() && riviera_core::groups::instance_of(e).is_none()).map(|e| e.guid().to_string()).collect();
     let windows: Vec<_> = st.iter().filter(|e| e.class == "IfcWindow").filter_map(riviera_core::inserts::insert_recipe).collect();
     assert!(windows.len() >= 88 && windows.iter().all(|w| building.contains(&w.host)), "every room's window is in the façade");
+    // And eight more down the ends of each of the five floors.
+    let ends: Vec<String> = st.iter().filter(|e| riviera_core::walls::wall_recipe(e).is_some_and(|r| (r.curve.start[0] - r.curve.end[0]).abs() < 1e-9 && (r.curve.start[0].abs() < 1e-9 || (r.curve.start[0] - 60.0).abs() < 1e-9))).map(|e| e.guid().to_string()).collect();
+    assert_eq!(windows.iter().filter(|w| ends.contains(&w.host)).count(), 5 * 8);
+    // Each room's bathroom: at least three fixtures a room, every one on a wall that is there.
+    let fixtures: Vec<_> = st.iter().filter(|e| e.class == "IfcSanitaryTerminal" && riviera_core::groups::instance_of(e).is_some()).filter_map(riviera_core::mesh_objects::mesh_object_recipe).collect();
+    assert!(fixtures.len() >= 88 * 3, "{}", fixtures.len());
+    for f in &fixtures {
+        let host = f.face.as_ref().map(|h| h.wall.clone());
+        assert!(host.is_none_or(|h| st.iter().any(|w| w.guid().to_string() == h)), "{f:?}");
+    }
+    // The public restrooms either side of the lobby, and the exit stairs: one a storey in each
+    // of two shafts from the basement to the roof.
+    // (Rooms by number: G07 and G08 the restrooms, G09 and G10 the exit passages, 1 and 2 the
+    // stairs.)
+    let numbers: Vec<String> = st.iter().filter(|e| e.class == "IfcSpace").filter_map(|e| e.name.clone()).collect();
+    for n in ["G07", "G08", "G09", "G10", "1", "2"] {
+        assert!(numbers.iter().any(|x| x == n), "{n}: {numbers:?}");
+    }
+    assert!(st.iter().filter(|e| e.class == "IfcSanitaryTerminal" && riviera_core::groups::instance_of(e).is_none()).count() >= 4 + 3 + 2 + 3 + 3);
+    assert_eq!(st.iter().filter(|e| e.class == "IfcStair").count(), 2 * 6 + 1, "two exit stairs of six storeys, and the pool podium's");
+    // The atrium's glazed roof closed in by four curtain walls.
+    assert_eq!(st.iter().filter(|e| e.class == "IfcCurtainWall").count(), 4);
     // The atrium through six storeys under its glazed roof.
     let a = ok(&mut app, "atrium.check", json!({}))[0].clone();
     assert_eq!((a["storeys"].as_u64(), a["levels"].as_array().unwrap().len()), (Some(6), 6), "{a:#}");

@@ -275,7 +275,8 @@ pub struct CopyInfo {
     /// Its walls built into others (by member key), and the faces that found nothing.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub merged: Vec<u32>,
-    /// Doors and windows moved into the wall a merged wall lay on: insert key to wall key.
+    /// Doors, windows and wall-hung fixtures moved into the wall a merged wall lay on: their key
+    /// to the merged wall's key.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub rehosted: BTreeMap<u32, u32>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -598,6 +599,13 @@ pub(crate) fn merge(txn: &mut Transaction<'_>, copy: ElementId) -> Result<CopyIn
                     info.rehosted.insert(*k, *key);
                 }
             }
+            // Fixtures on its faces (a bathroom's on its side wall) onto the same face of the other.
+            for i in crate::mesh_objects::on_face_of(txn.store(), &own_guid) {
+                crate::mesh_objects::rehost_face(txn, i, &host_guid)?;
+                if let Some((k, _)) = mine.iter().find(|(_, x)| *x == i) {
+                    info.rehosted.insert(*k, *key);
+                }
+            }
             txn.delete(*id)?;
             info.merged.push(*key);
         }
@@ -625,7 +633,8 @@ pub(crate) fn merge(txn: &mut Transaction<'_>, copy: ElementId) -> Result<CopyIn
                 None => info.unmerged.push("balcony".into()),
             }
         }
-        Ok(())
+        // Neighbours' fixtures merged onto a wall of this copy that was made again.
+        crate::mesh_objects::reattach_orphans(txn)
     })?;
     let v = serde_json::to_value(&info).expect("serialises");
     txn.modify(copy, |e| {
@@ -671,6 +680,10 @@ pub(crate) fn unmerge(txn: &mut Transaction<'_>, copy: ElementId) -> Result<()> 
             let Some(wa) = wall(txn.store(), wid) else { continue };
             for (ins, _) in info.rehosted.iter().filter(|(_, w)| **w == m.key) {
                 let Some(iid) = g.members.iter().find(|x| x.key == *ins).and_then(|x| find(txn.store(), &x.guid)) else { continue };
+                if txn.store().get(iid).and_then(crate::mesh_objects::mesh_object_recipe).is_some() {
+                    crate::mesh_objects::rehost_face(txn, iid, &m.guid)?;
+                    continue;
+                }
                 let Some(host) = txn.store().get(iid).and_then(crate::inserts::insert_recipe).and_then(|r| find(txn.store(), &r.host)) else { continue };
                 let Some(wb) = wall(txn.store(), host) else { continue };
                 rehost(txn, iid, &wb, &m.guid, &wa)?;

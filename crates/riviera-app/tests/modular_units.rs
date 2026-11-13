@@ -162,3 +162,49 @@ fn alongs(app: &App, class: &str) -> Vec<f64> {
     v.sort_by(f64::total_cmp);
     v
 }
+
+#[test]
+fn fixtures_on_a_shared_side_wall_stay_in_their_rooms() {
+    let (_dir, mut app, levels, all) = setup();
+    let mut members = all[..all.len() - 2].to_vec();
+    // A wall-hung lavatory on the room's right-hand side wall (x = 104), 1.5 m from the corridor:
+    // copies' side walls merge into their neighbours', so it must move onto the wall that stays.
+    let lav = ok(&mut app, "bath.load_components", json!({ "names": ["Lavatory, wall-hung"] }))["Lavatory, wall-hung"].clone();
+    let fixture = ok(&mut app, "plumbing_fixture.place", json!({ "type_id": lav, "point": [103.9, 11.5], "level": levels[0], "host_wall": members[3] }));
+    members.push(fixture);
+    ok(&mut app, "unit.create_type", json!({ "element_ids": members, "name": "King room", "origin": [100.0, 10.0], "width": 4.0, "depth": 6.0 }));
+    let rep = ok(&mut app, "unit.array", json!({ "unit_type": "King room", "path": [[0.0, 9.0], [30.0, 9.0]], "levels": levels, "sides": "both", "corridor": 2.0, "start": 1.0, "exclusions": [[13.0, 17.0]] }));
+    assert_eq!(rep["copies"], 24, "{rep:#}");
+    // Every lavatory inside its own bay, 1.5 m from its corridor, on a wall that is there.
+    let st = riviera_app_store(&app);
+    let fixtures: Vec<riviera_core::mesh_objects::MeshObjectRecipe> = st.iter().filter(|e| e.class == "IfcSanitaryTerminal").filter_map(riviera_core::mesh_objects::mesh_object_recipe).collect();
+    assert_eq!(fixtures.len(), 24);
+    for r in &fixtures {
+        let f = r.face.as_ref().expect("on a wall");
+        assert!(st.find_by_guid(&riviera_core::GlobalId::parse(&f.wall).unwrap()).is_some(), "its wall is there: {r:?}");
+        let [x, y] = r.point;
+        let from_corridor = if y > 9.0 { y - 10.0 } else { 8.0 - y };
+        assert!((from_corridor - 1.5).abs() < 0.01, "{r:?}");
+        assert!(x > 0.9 && x < 29.1 && !(13.0..17.0).contains(&x), "{r:?}");
+    }
+    // Editing a copy undoes its merges and makes them again: the lavatories stay in place.
+    let copy = ok(&mut app, "unit.list", json!({}))[1]["copy"].clone();
+    ok(&mut app, "group.edit", json!({ "instance_id": copy }));
+    ok(&mut app, "group.finish", json!({}));
+    let st = riviera_app_store(&app);
+    let after: Vec<[i64; 2]> = st.iter().filter(|e| e.class == "IfcSanitaryTerminal").filter_map(riviera_core::mesh_objects::mesh_object_recipe).map(|r| r.point.map(|v| (v * 100.0).round() as i64)).collect();
+    let mut before: Vec<[i64; 2]> = fixtures.iter().map(|r| r.point.map(|v| (v * 100.0).round() as i64)).collect();
+    let mut after = after;
+    before.sort();
+    after.sort();
+    assert_eq!(before, after);
+    // None in a wall or in another (a mirrored copy's on the wrong face would meet its neighbour's).
+    let o = ok(&mut app, "overlap.find", json!({}));
+    let fixtures: Vec<&Value> = o["overlaps"].as_array().unwrap().iter().filter(|o| format!("{}{}", o["a_label"], o["b_label"]).contains("IfcSanitaryTerminal")).collect();
+    assert!(fixtures.is_empty(), "{fixtures:#?}");
+    // Their clear spaces in their rooms, not through the walls they hang on.
+    let c = ok(&mut app, "clearance.check", json!({}));
+    let spaces: Vec<&Value> = c.as_array().unwrap().iter().filter(|i| i["kind"] == "fixture_space").collect();
+    assert!(spaces.is_empty(), "{spaces:#?}");
+}
+

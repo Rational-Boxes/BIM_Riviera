@@ -2,7 +2,7 @@
 -- Copyright (C) 2026 Riviera contributors
 
 -- title: An atrium hotel with a roof pool
--- description: A 60 × 40 m hotel on a steel frame round a five-storey atrium, over a concrete basement on strip and pad footings with its plant, laundry, storage and a sump for groundwater: guest and service lifts in its four corners; a lobby with a covered drop-off, a ballroom, three conference rooms and a restaurant on the ground floor, each set out for its use; a gym and a spa on the second floor; 88 guest rooms on four floors laid out from two room units, merged into the façade and corridor walls with their balconies, every eighth accessible, their diffusers connected to the corridor mains; and on the roof a pool on a raised podium under the atrium's glazed roof, which reaches over the pool and the roof patio, with sun-control baffles over both, and solar panels on the rest of the roof round its air handling units; on its site, a drive from the street under the porte-cochère and back, a car park and a lawn.
+-- description: A 60 × 40 m hotel on a steel frame round a five-storey atrium, over a concrete basement on strip and pad footings with its plant, laundry, storage and a sump for groundwater: guest and service lifts in its four corners and two enclosed exit stairs from the basement to the roof; a lobby with a covered drop-off, public restrooms, a ballroom, three conference rooms and a restaurant on the ground floor, each set out for its use; a gym and a spa on the second floor; 88 guest rooms, each with its bathroom, on four floors laid out from two room units, merged into the façade and corridor walls with their balconies, every eighth accessible, their diffusers connected to the corridor mains; and on the roof a pool on a raised podium under the atrium's glazed roof, which reaches over the pool and the roof patio, with sun-control baffles over both, and solar panels on the rest of the roof round its air handling units; on its site, a drive from the street under the porte-cochère and back, a car park and a lawn.
 --
 -- Riviera sample model (test-data/samples): the hotel scenario (owner, 2026-11-12). Modular
 -- units (ARC-GRP-004): `unit.create_type` makes a guest room a type with its 4.0 × 7.5 m bay,
@@ -49,6 +49,14 @@ for k, l in ipairs(floors) do
     south = wall(l, { 0, 0 }, { 60, 0 }, h), east = wall(l, { 60, 0 }, { 60, 40 }, h),
     north = wall(l, { 60, 40 }, { 0, 40 }, h), west = wall(l, { 0, 40 }, { 0, 0 }, h),
   }
+end
+-- Windows down the west and east ends on every floor, clear of the columns at y = 10 and 30 and
+-- of the conference rooms' walls (the west wall runs north to south: along = 40 − y).
+for k = 1, #floors do
+  for _, y in ipairs({ 13, 18, 22, 27 }) do
+    riviera.window.place{ host_wall_id = facade[k].west, point_along = 40 - y }
+    riviera.window.place{ host_wall_id = facade[k].east, point_along = y }
+  end
 end
 
 -- The frame: W14 columns along the atrium's long sides (one a storey, standing between the
@@ -98,11 +106,12 @@ lift(58.0, 36.0, math.rad(90), "passenger")
 
 -- The atrium: a 23 × 19 m void from the ground floor up through the roof, 42 in guards round
 -- every opened floor, and a glazed ridge roof 6 m above the terrace that reaches east and north
--- over the pool podium and the roof patio.
+-- to the building's edges over the pool podium, the roof patio, the north-east lift and exit
+-- stair, its sides closed by glazed curtain walls attached to it.
 local atrium = riviera.atrium.create{
   outline = { { 18.5, 10.5 }, { 41.5, 10.5 }, { 41.5, 29.5 }, { 18.5, 29.5 } },
   base_level = l1, top_level = roof, form = "ridge", roof_offset = 6.0,
-  roof_outline = { { 18.2, 10.2 }, { 58.6, 10.2 }, { 58.6, 37.8 }, { 18.2, 37.8 } },
+  roof_outline = { { 17.5, 9.5 }, { 59.95, 9.5 }, { 59.95, 39.95 }, { 17.5, 39.95 } }, walls = true,
   name = "Atrium",
 }
 for _, r in ipairs(riviera.atrium.check{}) do
@@ -166,10 +175,10 @@ local ball = {
   s = wall(l1, { 0, 7.5 }, { 18, 7.5 }, G), n = wall(l1, { 0, 32.5 }, { 18, 32.5 }, G),
   e = wall(l1, { 18, 0 }, { 18, 40 }, G),
 }
-wall(l1, { 8, 0 }, { 8, 7.5 }, G)
+wall(l1, { 9.6, 0 }, { 9.6, 7.5 }, G)
 wall(l1, { 52, 0 }, { 52, 7.5 }, G)
 local conf_w = wall(l1, { 42, 0 }, { 42, 40 }, G)
-wall(l1, { 42, 7.5 }, { 60, 7.5 }, G)
+local conf_s = wall(l1, { 42, 7.5 }, { 60, 7.5 }, G)
 wall(l1, { 42, 15.8 }, { 60, 15.8 }, G)
 wall(l1, { 42, 24.2 }, { 60, 24.2 }, G)
 wall(l1, { 42, 32.5 }, { 60, 32.5 }, G)
@@ -185,8 +194,16 @@ local ballroom = room(l1, { 9, 20 }, "Ballroom", "G01")
 local conf = { room(l1, { 51, 11.5 }, "Conference A", "G02"), room(l1, { 51, 20 }, "Conference B", "G03"), room(l1, { 51, 28.4 }, "Conference C", "G04") }
 local restaurant = room(l1, { 30, 35 }, "Restaurant", "G05")
 room(l1, { 30, 5 }, "Lobby and atrium court", "G06")
-room(l1, { 13, 4 }, "Front office", "G07")
-room(l1, { 47, 4 }, "Administration", "G08")
+-- The public restrooms either side of the lobby, each with its door from the lobby: the women's
+-- (west) with four compartments, the accessible one first, and three lavatories; the men's
+-- (east) with two compartments, three urinals and three lavatories (`bath.toilet_core`), along
+-- the walls they share with the ballroom and the conference rooms.
+room(l1, { 13, 4 }, "Women's restroom", "G07")
+room(l1, { 47, 4 }, "Men's restroom", "G08")
+riviera.door.place{ host_wall_id = ball.e, point_along = 4.0 }
+riviera.door.place{ host_wall_id = conf_w, point_along = 4.0 }
+riviera.bath.toilet_core{ wall_id = ball.s, start = { 9.8, 7.4 }, ["end"] = { 17.8, 7.4 }, level = l1, wcs = 4, urinals = 0, lavatories = 3, sex = "female" }
+riviera.bath.toilet_core{ wall_id = conf_s, start = { 42.2, 7.4 }, ["end"] = { 51.8, 7.4 }, level = l1, wcs = 2, urinals = 3, lavatories = 3, sex = "male" }
 
 -- Each room set out for its use, checked against the IBC's occupant load, exits and egress.
 local function setup(r, style, more)
@@ -215,9 +232,11 @@ riviera.roof.create_footprint{ curves = { { line = { start = { 20, -11.5 }, ["en
 
 -- ---- Level 2: the gym (west wing) and the spa (east wing) ----
 local l2 = floors[2]
-wall(l2, { 0, 7.5 }, { 7.5, 7.5 }, 3.2)
+-- The gym's south wall at y = 10.35 (past the columns), so the south corridor runs on to the
+-- south-west exit stair; the spa's north wall likewise at y = 29.65 for the north-east one.
+wall(l2, { 0, 10.35 }, { 7.5, 10.35 }, 3.2)
 wall(l2, { 0, 32.5 }, { 7.5, 32.5 }, 3.2)
-local gym_e = wall(l2, { 7.5, 7.5 }, { 7.5, 32.5 }, 3.2)
+local gym_e = wall(l2, { 7.5, 10.35 }, { 7.5, 32.5 }, 3.2)
 riviera.door.place{ host_wall_id = gym_e, point_along = 12.5 }
 local gym = room(l2, { 4, 20 }, "Gym", "201G")
 local g = riviera.gym.layout{ room_id = gym, head = { 7.5, 20 }, pieces = {
@@ -225,8 +244,8 @@ local g = riviera.gym.layout{ room_id = gym, head = { 7.5, 20 }, pieces = {
 } }
 print(string.format("Gym: %d pieces in %d rows", #g.placed, g.rows))
 wall(l2, { 52.5, 7.5 }, { 60, 7.5 }, 3.2)
-wall(l2, { 52.5, 32.5 }, { 60, 32.5 }, 3.2)
-local spa_w = wall(l2, { 52.5, 7.5 }, { 52.5, 32.5 }, 3.2)
+wall(l2, { 52.5, 29.65 }, { 60, 29.65 }, 3.2)
+local spa_w = wall(l2, { 52.5, 7.5 }, { 52.5, 29.65 }, 3.2)
 riviera.door.place{ host_wall_id = spa_w, point_along = 12.5 }
 room(l2, { 56, 12 }, "Spa", "201S")
 -- A sauna and a steam room in the spa's north end, their doors opening out.
@@ -236,12 +255,68 @@ local function box(level, x, y, w, d, h)
   for i = 1, 4 do ws[i] = wall(level, c[i], c[i % 4 + 1], h) end
   return ws
 end
-local sauna = box(l2, 55, 28, 2.4, 2.0, 2.2)
+local sauna = box(l2, 55, 27.4, 2.4, 2.0, 2.2)
 riviera.door.place{ host_wall_id = sauna[1], point_along = 1.2, flip_facing = true }
-riviera.bath.sauna{ point = { 56.2, 29.0 }, level = l2, bench_wall_id = sauna[3] }
+riviera.bath.sauna{ point = { 56.2, 28.4 }, level = l2, bench_wall_id = sauna[3] }
 local steam = box(l2, 55, 24.5, 2.4, 1.8, 2.4)
 riviera.door.place{ host_wall_id = steam[1], point_along = 1.2, flip_facing = true }
 riviera.bath.steam_room{ point = { 56.2, 25.4 }, level = l2, bench_wall_id = steam[3], material = "tile" }
+
+-- ---- The exit stairs ----
+-- Two enclosed exit stairs from the basement to the roof, in the south-west and north-east
+-- corners beside the lifts, at the ends of the corridors: per storey a U stair of two 44 in
+-- flights (risers at most 7 in, split between them) and a half landing against the façade, its
+-- floor landing on the corridor side; each floor opened over the stair to the code's headroom
+-- (`stair.create_openings`). The shafts' walls rise storey by storey with a door onto each
+-- floor's corridor end; on the ground floor the stairs discharge outside along an exit passage
+-- beside the shaft to a door in the façade; on the roof each has a covered stair house.
+local exit_storeys = { basement, l1, floors[2], floors[3], floors[4], floors[5] }
+local heights = { 4.0, 5.0, 3.5, 3.5, 3.5, 3.5 }
+-- x of the flights' centres, the floor landing's edge and the half landing's (y), and the
+-- shaft's walls: west, east, the corridor side and the façade side.
+local function exit_stair(name, up_x, down_x, y_floor, y_half, west, east, y_corridor, y_house)
+  for k, base in ipairs(exit_storeys) do
+    local n = math.ceil(heights[k] / 0.178 - 1e-9)
+    local first = math.ceil(n / 2)
+    local s = riviera.stair.create{ base_level = base, width = 1.12, runs = {
+      { start = { up_x, y_floor }, ["end"] = { up_x, y_half }, risers = first },
+      { start = { down_x, y_half }, ["end"] = { down_x, y_floor }, risers = n - first } } }
+    riviera.stair.create_openings{ stair_id = s }
+  end
+  local shaft = {}
+  for k, base in ipairs(exit_storeys) do
+    local h = heights[k] - 0.3
+    local face = y_corridor > y_house and 7.5 or 32.5
+    shaft[k] = { west = wall(base, { west, y_corridor }, { west, face == 7.5 and 0 or 40 }, h), east = wall(base, { east, y_corridor }, { east, face == 7.5 and 0 or 40 }, h) }
+    -- The corridor side: the ballroom's and the conference rooms' walls on the ground floor.
+    if base ~= l1 then
+      shaft[k].corridor = wall(base, { west, y_corridor }, { east, y_corridor }, h)
+      riviera.door.place{ host_wall_id = shaft[k].corridor, point_along = (east - west) / 2 }
+    end
+  end
+  -- The stair house on the roof: walls 2.7 m high round the top landing and a roof over them.
+  local house = {
+    wall(roof, { west, y_corridor }, { east, y_corridor }, 2.7), wall(roof, { east, y_corridor }, { east, y_house }, 2.7),
+    wall(roof, { east, y_house }, { west, y_house }, 2.7), wall(roof, { west, y_house }, { west, y_corridor }, 2.7),
+  }
+  riviera.door.place{ host_wall_id = house[1], point_along = (east - west) / 2 }
+  local lo, hi = math.min(y_corridor, y_house), math.max(y_corridor, y_house)
+  riviera.floor.create{ loops = { rect(west - 0.1, lo - 0.1, east + 0.1, hi + 0.1) }, level_id = roof, offset = 3.0 }
+  riviera.room.place{ level_id = l1, point = { (west + east) / 2, (y_corridor + y_house) / 2 }, name = name }
+  return shaft
+end
+local sw = exit_stair("Exit stair 1", 6.8, 5.2, 6.2, 1.9, 4.5, 7.5, 7.5, 0.45)
+local ne = exit_stair("Exit stair 2", 52.9, 54.5, 33.8, 38.1, 52.2, 55.2, 32.5, 39.45)
+-- Out on the ground floor: from each shaft's floor landing into an exit passage beside it (the
+-- women's restroom's wall at x = 9.6 bounds the south-west one; a wall at x = 50.4 the
+-- north-east one, by the kitchen) and out through the façade.
+riviera.door.place{ host_wall_id = sw[2].east, point_along = 0.9 }
+riviera.door.place{ host_wall_id = facade[1].south, point_along = 8.6 }
+local ne_passage = wall(l1, { 50.4, 32.5 }, { 50.4, 40 }, G)
+riviera.door.place{ host_wall_id = ne[2].west, point_along = 0.9 }
+riviera.door.place{ host_wall_id = facade[1].north, point_along = 60 - 51.3 }
+room(l1, { 8.55, 3.5 }, "Exit passage", "G09")
+room(l1, { 51.3, 36 }, "Exit passage", "G10")
 
 -- ---- The guest floors: two room units ----
 -- Corridor walls on each guest floor, 2.5 m corridors either side of the atrium's galleries.
@@ -259,16 +334,33 @@ local function guest_room(x0, accessible)
   local f = wall(l2, { x0, 107.5 }, { x0 + 4, 107.5 }, 3.2)
   local a = wall(l2, { x0, 100 }, { x0, 107.5 }, 3.2)
   local b = wall(l2, { x0 + 4, 100 }, { x0 + 4, 107.5 }, 3.2)
-  riviera.door.place{ host_wall_id = c, point_along = accessible and 1.2 or 0.9 }
+  -- The bathroom in the corner by the corridor: 1.6 × 2.8 m clear inside its partitions.
+  local bw = wall(l2, { x0 + 2.2, 100 }, { x0 + 2.2, 103.0 }, 3.2)
+  local bn = wall(l2, { x0 + 2.2, 103.0 }, { x0 + 4, 103.0 }, 3.2)
+  riviera.door.place{ host_wall_id = c, point_along = accessible and 1.1 or 0.9 }
+  riviera.door.place{ host_wall_id = bw, point_along = 2.3 }
   riviera.window.place{ host_wall_id = f, point_along = 1.0 }
   riviera.door.place{ host_wall_id = f, point_along = 2.9 }
-  local r = riviera.room.place{ level_id = l2, point = { x0 + 2, 104 }, name = accessible and "Accessible king" or "King" }
-  local d = riviera.air_terminal.place{ type_id = t["Supply Diffuser 600"], point = { x0 + 2.5, 102.5 }, level = l2, offset = 2.3, flow = 0.06 }.id
-  local bed = riviera.mesh_object.place{ type_id = beds["Bed, king 76 × 80 in"], point = { x0 + 2, 105.2 }, level = l2, rotation = math.pi }
-  local desk = riviera.mesh_object.place{ type_id = beds["Desk 60 × 30 in"], point = { x0 + 3.3, 102.2 }, level = l2, rotation = math.rad(90) }
+  local r = riviera.room.place{ level_id = l2, point = { x0 + 2, 105 }, name = accessible and "Accessible king" or "King" }
+  local br = riviera.room.place{ level_id = l2, point = { x0 + 3.05, 101.5 }, name = "Bathroom" }
+  -- Its fixtures along the side wall: a shower, a WC and a lavatory, or for the accessible room
+  -- the accessible WC and lavatory with their grab bars where they fit.
+  local template = "three_quarter_bath"
+  if accessible and riviera.bath.layout{ template = "accessible_single_user", point = { x0 + 3.05, 101.5 }, level = l2, wet_wall_id = b, fit_only = true }.fit.short == 0 then
+    template = "accessible_single_user"
+  end
+  local bath = riviera.bath.layout{ template = template, point = { x0 + 3.05, 101.5 }, level = l2, wet_wall_id = b }
+  local d = riviera.air_terminal.place{ type_id = t["Supply Diffuser 600"], point = { x0 + 1.0, 101.5 }, level = l2, offset = 2.3, flow = 0.06 }.id
+  local bed = riviera.mesh_object.place{ type_id = beds["Bed, king 76 × 80 in"], point = { x0 + 2.4, 105.6 }, level = l2, rotation = math.pi }
+  local desk = riviera.mesh_object.place{ type_id = beds["Desk 60 × 30 in"], point = { x0 + 0.8, 104.2 }, level = l2, rotation = math.rad(90) }
   local balcony = riviera.floor.create{ loops = { rect(x0 + 0.5, 107.6, x0 + 3.5, 109.1) }, level_id = l2 }
   local rail = riviera.railing.create{ path = { { x0 + 0.55, 107.65 }, { x0 + 0.55, 109.05 }, { x0 + 3.45, 109.05 }, { x0 + 3.45, 107.65 } }, base_level = l2 }
-  return { c, f, a, b, r, d, bed, desk, balcony, rail }
+  local out = { c, f, a, b, bw, bn, r, br, d, bed, desk, balcony, rail }
+  for _, e in ipairs(bath.placed) do out[#out + 1] = e end
+  if bath.grab_bars then
+    for _, e in ipairs(bath.grab_bars.placed or {}) do out[#out + 1] = e end
+  end
+  return out
 end
 local king = riviera.unit.create_type{ element_ids = guest_room(100, false), name = "King room", origin = { 100, 100 }, width = 4.0, depth = 7.5 }
 riviera.unit.create_type{ element_ids = guest_room(110, true), name = "Accessible king", origin = { 110, 100 }, width = 4.0, depth = 7.5 }
@@ -294,14 +386,18 @@ end
 local mains = {}
 for _, l in ipairs(guest_levels) do
   for _, y in ipairs({ 8.75, 31.25 }) do
-    mains[#mains + 1] = riviera.duct.create{ points = { { 8.5, y, 2.9 }, { 51.5, y, 2.9 } }, level = l, shape = "round", diameter = 0.4, system_type_id = "supply_air" }.segments[1]
+    mains[#mains + 1] = riviera.duct.create{ points = { { 8.15, y, 2.9 }, { 51.85, y, 2.9 } }, level = l, shape = "round", diameter = 0.4, system_type_id = "supply_air" }.segments[1]
   end
 end
 for _, a in ipairs({ south, north }) do
   local c = riviera.unit.connect{ array_id = a.array_id, spines = mains }
-  print(string.format("%d branches; %d not connected", c.branches, #c.unconnected))
-  for _, u in ipairs(c.unconnected) do print("  " .. u.number .. ": " .. u.reason) end
-  assert(c.branches == 44 and #c.unconnected == 0, "every room's diffuser is on its corridor main")
+  -- The bathrooms' water and drainage connectors wait for the plumbing mains.
+  local plumbing = 0
+  for _, u in ipairs(c.unconnected) do
+    if u.reason:find("no main of its system") then plumbing = plumbing + 1 else print("  " .. u.number .. ": " .. u.reason) end
+  end
+  print(string.format("%d branches; %d plumbing connectors left for the water and drainage mains", c.branches, plumbing))
+  assert(c.branches == 44 and #c.unconnected == plumbing, "every room's diffuser is on its corridor main")
 end
 
 -- ---- The roof: the pool podium, the patio and the baffles ----
