@@ -120,7 +120,7 @@ fn project(store: &Store) -> Option<&Element> {
 pub fn schemes(store: &Store) -> Vec<AreaScheme> {
     project(store)
         .and_then(|p| p.param(SCHEMES_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_else(defaults)
 }
 
@@ -177,7 +177,7 @@ pub struct BoundaryRecipe {
 
 pub fn boundary_recipe(e: &Element) -> Option<BoundaryRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == BOUNDARY_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == BOUNDARY_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -191,7 +191,7 @@ pub struct AreaRecipe {
 
 pub fn area_recipe(e: &Element) -> Option<AreaRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == AREA_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == AREA_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// An area as it is now.

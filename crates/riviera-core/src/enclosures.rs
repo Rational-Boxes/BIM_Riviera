@@ -460,7 +460,7 @@ impl EnclosureRecipe {
 
 pub fn recipe(e: &Element) -> Option<EnclosureRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The enclosure a part belongs to (GlobalId).

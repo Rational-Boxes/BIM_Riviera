@@ -139,7 +139,7 @@ pub struct NumbersRecipe {
 
 pub fn numbers_recipe(e: &Element) -> Option<NumbersRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == NUMBERS_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == NUMBERS_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A view's tread numbers: each number and where it goes.

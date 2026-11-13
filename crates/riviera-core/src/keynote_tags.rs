@@ -83,7 +83,7 @@ pub fn keynote_data(e: &Element) -> Option<KeynoteData> {
     if v.get("kind")?.as_str()? != KIND_KEYNOTE {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 /// The keynote tags of a view (by its GlobalId).

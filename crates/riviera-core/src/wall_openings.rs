@@ -48,7 +48,7 @@ pub struct WallOpeningRecipe {
 pub fn wall_opening_recipe(e: &Element) -> Option<WallOpeningRecipe> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == WALL_OPENING_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A wall opening as it is now: its wall and the part of it that cuts the wall.

@@ -176,6 +176,23 @@ fn inside(p: [f64; 2], ring: &[[f64; 2]]) -> bool {
 
 /// Every crossing of the model's runs (or those given) with walls, floors, ceilings and beams.
 pub fn crossings(store: &Store, runs: Option<&[ElementId]>) -> Vec<Crossing> {
+    // Every run's crossings are asked for once per slab and wall while a scene is built: kept
+    // for the store they were found in.
+    thread_local! {
+        static LAST: std::cell::RefCell<Option<(Store, Vec<Crossing>)>> = const { std::cell::RefCell::new(None) };
+    }
+    if runs.is_none() {
+        if let Some(c) = LAST.with(|l| l.borrow().as_ref().filter(|(s, _)| s.same_as(store)).map(|(_, c)| c.clone())) {
+            return c;
+        }
+        let c = find_crossings(store, None);
+        LAST.with(|l| *l.borrow_mut() = Some((store.clone(), c.clone())));
+        return c;
+    }
+    find_crossings(store, runs)
+}
+
+fn find_crossings(store: &Store, runs: Option<&[ElementId]>) -> Vec<Crossing> {
     let segs: Vec<(ElementId, SegmentRecipe)> = store
         .iter()
         .filter_map(|e| Some((e.id(), mep_runs::segment_recipe(e)?)))
@@ -187,6 +204,7 @@ pub fn crossings(store: &Store, runs: Option<&[ElementId]>) -> Vec<Crossing> {
     let rules = crate::mep_systems::settings(store).penetration_rules;
     let mut out = Vec::new();
     let walls = crate::walls::solve(store);
+    let curved: std::collections::HashSet<ElementId> = walls.bodies.iter().map(|(w, _)| *w).filter(|w| store.get(*w).and_then(crate::walls::wall_recipe).is_some_and(|r| crate::walls::curved::path_of(&r).is_some())).collect();
     let floors: Vec<(ElementId, HostKind, crate::floors::FloorGeometry)> = store
         .iter()
         .filter_map(|e| {
@@ -203,7 +221,7 @@ pub fn crossings(store: &Store, runs: Option<&[ElementId]>) -> Vec<Crossing> {
         let along = |t: f64| add(s.start, mul(u, t));
         // Walls.
         for (wid, body) in &walls.bodies {
-            if store.get(*wid).and_then(crate::walls::wall_recipe).is_some_and(|r| crate::walls::curved::path_of(&r).is_some()) {
+            if curved.contains(wid) {
                 continue;
             }
             let g = &body.geometry;

@@ -234,7 +234,7 @@ impl Default for CurtainType {
 pub fn curtain_type(e: &Element) -> Option<CurtainType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == CURTAIN_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A direction's instance settings.
@@ -281,7 +281,7 @@ impl CurtainRecipe {
 
 pub fn curtain_recipe(e: &Element) -> Option<CurtainRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == CURTAIN_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == CURTAIN_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {
@@ -1196,7 +1196,7 @@ pub(crate) fn set_type_param(
         }
     };
     let layout = |v: &Value| -> Result<Layout> {
-        serde_json::from_value(v.clone()).map_err(|_| {
+        serde::Deserialize::deserialize(v).map_err(|_| {
             bad("none, fixed_distance, fixed_number, maximum_spacing or minimum_spacing")
         })
     };

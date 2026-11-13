@@ -101,7 +101,7 @@ impl Settings {
 }
 
 pub fn settings(e: &Element) -> Settings {
-    e.param(VIEW_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(VIEW_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A class's name for people: `tags:Doors` is "Door tags".

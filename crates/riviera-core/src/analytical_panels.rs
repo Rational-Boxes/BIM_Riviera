@@ -82,7 +82,7 @@ pub struct PanelRecipe {
 
 pub fn panel_recipe(e: &Element) -> Option<PanelRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == PANEL_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == PANEL_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A panel's PredefinedType.

@@ -80,7 +80,7 @@ pub struct DormerRecipe {
 
 pub fn dormer_recipe(e: &Element) -> Option<DormerRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == DORMER_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == DORMER_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The dormer a part belongs to (GlobalId).

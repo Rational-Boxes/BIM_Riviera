@@ -58,7 +58,7 @@ pub struct GrabBarRecipe {
 
 pub fn recipe(e: &Element) -> Option<GrabBarRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    matches!(v.get("kind")?.as_str()?, KIND | LEGACY_KIND).then(|| serde_json::from_value(v.clone()).ok())?
+    matches!(v.get("kind")?.as_str()?, KIND | LEGACY_KIND).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

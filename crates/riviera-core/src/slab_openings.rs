@@ -69,7 +69,7 @@ pub struct ShaftRecipe {
 
 pub fn shaft_recipe(e: &Element) -> Option<ShaftRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SHAFT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SHAFT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Every shaft that resolves, with its bottom and top elevations.
@@ -138,7 +138,7 @@ pub fn roof_holes(
 
 pub fn opening_recipe(e: &Element) -> Option<OpeningRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == OPENING_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == OPENING_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

@@ -207,7 +207,7 @@ fn project(store: &Store) -> Option<&Element> {
 }
 
 pub fn data(store: &Store) -> CarbonData {
-    project(store).and_then(|p| p.param(KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|p| p.param(KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 fn put(txn: &mut Transaction<'_>, d: &CarbonData) -> Result<()> {

@@ -137,13 +137,13 @@ pub enum FeatureKind {
 
 pub fn railing_recipe(e: &Element) -> Option<RailingRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RAILING_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RAILING_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn railing_type(e: &Element) -> Option<RailingType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == RAILING_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A railing as it is now.

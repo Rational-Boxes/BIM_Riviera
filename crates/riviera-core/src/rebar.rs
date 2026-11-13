@@ -346,7 +346,7 @@ pub(crate) fn project(store: &Store) -> Option<&Element> {
 pub fn settings(store: &Store) -> Settings {
     project(store)
         .and_then(|p| p.param(SETTINGS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_else(|| Settings {
             rounding: Rounding::default(),
             hooks_in_shape: true,
@@ -983,7 +983,7 @@ pub struct Splice {
 
 pub fn rebar_recipe(e: &Element) -> Option<RebarRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == REBAR_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == REBAR_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// One bar: its centreline.

@@ -83,12 +83,12 @@ pub struct CoveringRecipe {
 
 pub fn covering_type(e: &Element) -> Option<CoveringType> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn covering_recipe(e: &Element) -> Option<CoveringRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == COVERING).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == COVERING).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The coverings of a host.

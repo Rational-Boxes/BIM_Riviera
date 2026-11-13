@@ -518,7 +518,7 @@ impl SegmentType {
 
 pub fn segment_type(e: &Element) -> Option<SegmentType> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub(crate) fn type_class(domain: Domain) -> &'static str {
@@ -917,12 +917,12 @@ impl FittingRecipe {
 
 pub fn segment_recipe(e: &Element) -> Option<SegmentRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SEGMENT).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SEGMENT).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn fitting_recipe(e: &Element) -> Option<FittingRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == FITTING).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == FITTING).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether an element is a segment or a fitting.

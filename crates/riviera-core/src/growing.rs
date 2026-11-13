@@ -162,12 +162,12 @@ pub struct PartRecipe {
 
 pub fn recipe(e: &Element) -> Option<LayoutRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn part_recipe(e: &Element) -> Option<PartRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == PART_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == PART_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A box between two plan points, `width` across, its top at `z1` (start, end) and its bottom

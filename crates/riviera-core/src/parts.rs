@@ -105,7 +105,7 @@ fn is_false(b: &bool) -> bool {
 
 pub fn recipe(e: &Element) -> Option<PartRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find<'a>(store: &'a Store, guid: &str) -> Option<&'a Element> {
@@ -511,7 +511,7 @@ pub fn hidden_in(store: &Store, view: Option<ElementId>) -> HashSet<ElementId> {
 pub fn view_mode(store: &Store, view: Option<ElementId>) -> Visibility {
     view.and_then(|v| store.get(v))
         .and_then(|e| e.param(VIEW_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

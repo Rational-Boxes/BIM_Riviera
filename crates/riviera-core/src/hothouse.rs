@@ -467,12 +467,12 @@ pub struct LightRecipe {
 
 pub fn lights_recipe(e: &Element) -> Option<LightsRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == LIGHTS_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == LIGHTS_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn light_recipe(e: &Element) -> Option<LightRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == LIGHT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == LIGHT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A fixture's body: a box `FIXTURE` long, wide and deep.
@@ -922,7 +922,7 @@ pub struct ScreenRecipe {
 
 pub fn screen_recipe(e: &Element) -> Option<ScreenRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SCREEN_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SCREEN_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn screen_mesh(p: &ScreenRecipe, level_z: f64) -> Mesh {
@@ -1695,12 +1695,12 @@ fn pad_thickness() -> f64 {
 
 pub fn cooling_recipe(e: &Element) -> Option<CoolingRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == COOLING_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == COOLING_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn cooling_part(e: &Element) -> Option<CoolingPart> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == COOLING_PART_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == COOLING_PART_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A box: `size[0]` along `rotation`, `size[1]` across it, `size[2]` up from `z0`.

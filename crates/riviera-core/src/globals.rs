@@ -86,7 +86,7 @@ fn numeric(data_type: &str) -> bool {
 // ---- Storage ----
 
 pub fn globals(store: &Store) -> Vec<Global> {
-    store.get(ElementId::PARAMETERS).and_then(|e| e.param(GLOBALS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    store.get(ElementId::PARAMETERS).and_then(|e| e.param(GLOBALS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 fn save(txn: &mut Transaction<'_>, list: &[Global]) -> Result<()> {

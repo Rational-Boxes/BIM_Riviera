@@ -63,7 +63,7 @@ impl Default for Settings {
 }
 
 pub fn settings(store: &Store) -> Settings {
-    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(SETTINGS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(SETTINGS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A path's stored data.

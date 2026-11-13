@@ -241,7 +241,7 @@ impl InsertType {
 /// The values of a door or window type element.
 pub fn insert_type(e: &Element) -> Option<InsertType> {
     let v = e.param(RECIPE_KEY)?;
-    let t: InsertType = serde_json::from_value(v.clone()).ok()?;
+    let t: InsertType = serde::Deserialize::deserialize(v).ok()?;
     t.kind().map(|_| t)
 }
 
@@ -271,7 +271,7 @@ pub struct InsertRecipe {
 
 pub fn insert_recipe(e: &Element) -> Option<InsertRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")? == INSERT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == INSERT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn kind_of(e: &Element) -> Option<Kind> {

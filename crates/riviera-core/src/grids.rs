@@ -306,7 +306,7 @@ impl Default for GridType {
 /// The values of a grid type element.
 pub fn grid_type(e: &Element) -> Option<GridType> {
     let v = e.param(crate::walls::RECIPE_KEY)?;
-    (v.get("kind")? == TYPE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == TYPE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn is_grid_type(e: &Element) -> bool {

@@ -358,7 +358,7 @@ pub fn parse(v: &Value) -> Result<Pack> {
     if !errors.is_empty() {
         return Err(bad("bath.pack_schema", format!("the pack does not follow riviera.bath-rules-1: {}", errors.join("; "))));
     }
-    let pack: Pack = serde_json::from_value(v.clone()).map_err(|e| bad("bath.pack_schema", e.to_string()))?;
+    let pack: Pack = serde::Deserialize::deserialize(v).map_err(|e| bad("bath.pack_schema", e.to_string()))?;
     for d in &pack.distances {
         if let (Some(min), Some(max)) = (d.min, d.max)
             && min > max
@@ -394,7 +394,7 @@ fn project(store: &Store) -> Option<&crate::element::Element> {
 
 /// The project's own packs.
 pub fn project_packs(store: &Store) -> Vec<Pack> {
-    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// Every pack the project can use: the shipped ones, each replaced by a project pack of its id,
@@ -408,7 +408,7 @@ pub fn available(store: &Store) -> Vec<Pack> {
 
 /// The packs the project names, if it names any.
 pub fn chosen(store: &Store) -> Option<Vec<String>> {
-    project(store).and_then(|e| e.param(RULES_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok())
+    project(store).and_then(|e| e.param(RULES_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok())
 }
 
 /// The packs chosen for a project that names none: from its building code and its
@@ -581,7 +581,7 @@ pub fn fixture(store: &Store, e: &crate::element::Element) -> Option<Fixture> {
     let frame = Placement { scale: 1.0, ..g.placement };
     let r = mesh_objects::mesh_object_recipe(e)?;
     let floor = crate::levels::elevation_of(store, &r.level).unwrap_or(g.placement.origin[2]);
-    let hand: Hand = e.param(HAND_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default();
+    let hand: Hand = e.param(HAND_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default();
     // Look sideways from the centreline at mid-depth, 600 mm up: above the gap under toilet
     // partitions (305 mm, ARC-BATH-008).
     let mid = frame.apply([0.0, (y[0] + y[1]) / 2.0, 0.0]);

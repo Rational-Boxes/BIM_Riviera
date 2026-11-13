@@ -129,7 +129,7 @@ fn boundary_of(v: &Option<Value>) -> Result<Option<Vec<[f64; 2]>>> {
         None | Some(Value::Null) => Ok(None),
         Some(Value::String(s)) if s == "whole_host" => Ok(None),
         Some(v) => {
-            let pts: Vec<[f64; 2]> = serde_json::from_value(v.clone())
+            let pts: Vec<[f64; 2]> = serde::Deserialize::deserialize(v)
                 .map_err(|_| Error::new("rebar.boundary", "a boundary is a list of [x, y] points or \"whole_host\""))?;
             let mut a = 0.0;
             for i in 0..pts.len() {

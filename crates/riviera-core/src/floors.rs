@@ -119,7 +119,7 @@ pub fn floor_recipe(e: &Element) -> Option<FloorRecipe> {
 pub fn slab_recipe(e: &Element) -> Option<(SlabKind, FloorRecipe)> {
     let v = e.param(RECIPE_KEY)?;
     let kind = SlabKind::of_recipe(v.get("kind")?.as_str()?)?;
-    Some((kind, serde_json::from_value(v.clone()).ok()?))
+    Some((kind, serde::Deserialize::deserialize(v).ok()?))
 }
 
 /// The kind of a floor or ceiling type.

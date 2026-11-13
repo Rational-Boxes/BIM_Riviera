@@ -81,7 +81,7 @@ pub struct GutterRecipe {
 
 pub fn gutter_recipe(e: &Element) -> Option<GutterRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == GUTTER).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == GUTTER).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Shell thickness of the profile.

@@ -55,7 +55,7 @@ pub struct AlignmentRecipe {
 
 pub fn recipe(e: &crate::element::Element) -> Option<AlignmentRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok()).flatten()
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok()).flatten()
 }
 
 /// A piece of the horizontal layout.

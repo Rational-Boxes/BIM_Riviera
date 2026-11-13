@@ -188,7 +188,7 @@ fn anno<T: serde::de::DeserializeOwned>(e: &Element, kind: &str) -> Option<T> {
         return None;
     }
     let v = e.param(ANNO_KEY)?;
-    (v.get("kind")?.as_str()? == kind).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == kind).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn multi_data(e: &Element) -> Option<MultiData> {

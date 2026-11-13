@@ -258,7 +258,7 @@ fn anno<T: serde::de::DeserializeOwned>(e: &Element, kind: &str) -> Option<T> {
     if v.get("kind")?.as_str()? != kind {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 pub fn tag_data(e: &Element) -> Option<TagData> {

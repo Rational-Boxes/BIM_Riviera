@@ -370,7 +370,7 @@ pub struct CouplerRecipe {
 
 pub fn coupler_recipe(e: &Element) -> Option<CouplerRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == COUPLER_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == COUPLER_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A bar end's point, outward direction and diameter.

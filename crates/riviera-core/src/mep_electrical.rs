@@ -218,7 +218,7 @@ fn project(store: &Store) -> Option<&Element> {
 pub fn settings(store: &Store) -> ElectricalSettings {
     project(store)
         .and_then(|p| p.param(SETTINGS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
@@ -379,7 +379,7 @@ pub fn downstream(store: &Store, e: &Element) -> Option<DistributionSystem> {
 }
 
 pub fn panel(e: &Element) -> Panel {
-    e.param(PANEL_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(PANEL_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A panel's name: its element name, else "Panel" and its id.
@@ -586,7 +586,7 @@ fn one() -> u8 {
 
 pub fn recipe(e: &Element) -> Option<CircuitRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A circuit as it is now.

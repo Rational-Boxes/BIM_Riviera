@@ -299,14 +299,14 @@ fn is_unset(c: &[Option<f64>; 2]) -> bool {
 
 pub fn beam_recipe(e: &Element) -> Option<BeamRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == BEAM_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == BEAM_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A beam type's section (a column type's recipe under its own kind).
 pub fn beam_type(e: &Element) -> Option<ColumnType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == BEAM_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {
@@ -1730,7 +1730,7 @@ pub struct SystemRecipe {
 pub fn system_recipe(e: &Element) -> Option<SystemRecipe> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == BEAM_SYSTEM_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A support's line in plan: a (non-system) beam's location line or a wall's.
@@ -2369,7 +2369,7 @@ pub struct TrussRecipe {
 
 pub fn truss_recipe(e: &Element) -> Option<TrussRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == TRUSS_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == TRUSS_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether a truss member is a chord (`None` when it is not a truss's).

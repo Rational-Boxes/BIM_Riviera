@@ -144,7 +144,7 @@ pub struct CutRecipe {
 
 pub fn cut_recipe(e: &Element) -> Option<CutRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == CUT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == CUT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn is_sub_connection(e: &Element) -> bool {

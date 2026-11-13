@@ -53,6 +53,12 @@ impl Store {
         self.elements.is_empty()
     }
 
+    /// Whether `other` is this very state (a snapshot of it, not changed since): a cheap test
+    /// for caching what is derived from a store.
+    pub fn same_as(&self, other: &Store) -> bool {
+        self.elements.ptr_eq(&other.elements) && self.by_guid.ptr_eq(&other.by_guid)
+    }
+
     pub(crate) fn get_arc(&self, id: ElementId) -> Option<Arc<Element>> {
         self.elements.get(&id).cloned()
     }

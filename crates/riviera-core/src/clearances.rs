@@ -178,7 +178,7 @@ pub fn rule_set(store: &Store) -> RuleSet {
         .iter()
         .find(|e| e.class == "IfcProject")
         .and_then(|e| e.param(RULES_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

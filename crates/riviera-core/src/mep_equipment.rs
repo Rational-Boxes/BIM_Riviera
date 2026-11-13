@@ -297,7 +297,7 @@ pub struct EquipmentSetRecipe {
 
 pub fn set_recipe(e: &crate::element::Element) -> Option<EquipmentSetRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SET_KIND).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SET_KIND).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// An equipment set as listed.

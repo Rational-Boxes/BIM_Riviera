@@ -51,7 +51,7 @@ pub struct MassRecipe {
 
 pub fn recipe(e: &Element) -> Option<MassRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A face an element was made from.
@@ -863,7 +863,7 @@ pub struct SystemRecipe {
 
 pub fn system_recipe(e: &Element) -> Option<SystemRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SYSTEM_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SYSTEM_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A curtain system's panels and mullions (a grid on each face, as sloped glazing).

@@ -447,7 +447,7 @@ pub fn recipe(e: &Element) -> Option<PoolRecipe> {
     if v.get("kind")?.as_str()? != RECIPE {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 /// Whether the pool `e` depends on `guid` (its level).

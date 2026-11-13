@@ -215,7 +215,7 @@ impl RoofRecipe {
 /// The recipe of a Riviera roof.
 pub fn roof_recipe(e: &Element) -> Option<RoofRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")? == ROOF_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == ROOF_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether an element is a roof type.

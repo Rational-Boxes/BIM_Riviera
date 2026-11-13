@@ -62,7 +62,7 @@ pub struct RoomRecipe {
 /// The recipe of a Riviera room.
 pub fn room_recipe(e: &Element) -> Option<RoomRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")? == ROOM_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == ROOM_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A room's Number and Name.

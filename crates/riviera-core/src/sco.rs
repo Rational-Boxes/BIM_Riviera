@@ -424,7 +424,7 @@ pub(crate) fn check(store: &Store, p: Option<CheckParams>) -> Result<ScoCheck> {
             if let Some((by, z)) = over {
                 note("Lane light headroom", NCR, "note", Some(it.element), format!("{} is {z:.2} m up over this unit; NCR keeps 96 in (2.44 m) clear for the lane light", name(store, by)));
             }
-            let profile: Option<Profile> = e.param(PROFILE_KEY).and_then(|v| serde_json::from_value(v.clone()).ok());
+            let profile: Option<Profile> = e.param(PROFILE_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok());
             let Some(mut fails) = profile.as_ref().and_then(shortfalls) else {
                 if it.accessible {
                     note("Self-checkout profile", "S1427", "advisory", Some(it.element), "an accessible unit with no stated profile: state its operable heights and features (sco.set_profile)".into());

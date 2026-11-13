@@ -91,7 +91,7 @@ fn column_foot(store: &Store, id: ElementId) -> Option<V3> {
 
 pub fn recipe(e: &Element) -> Option<ConnectionRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 type V3 = [f64; 3];

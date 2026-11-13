@@ -146,13 +146,13 @@ impl StairRecipe {
 
 pub fn stair_recipe(e: &Element) -> Option<StairRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == STAIR_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == STAIR_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn stair_type(e: &Element) -> Option<StairType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == STAIR_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A stair as it is now.

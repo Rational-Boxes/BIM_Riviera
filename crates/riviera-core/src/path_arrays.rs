@@ -237,7 +237,7 @@ pub struct PathArrayRecipe {
 
 pub fn path_array_recipe(e: &Element) -> Option<PathArrayRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

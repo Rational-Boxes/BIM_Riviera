@@ -73,7 +73,7 @@ pub struct ToposolidRecipe {
 
 pub fn recipe(e: &Element) -> Option<ToposolidRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The excavation a lowered sub-division makes in its parent.
@@ -86,7 +86,7 @@ pub struct CutRecipe {
 
 pub fn cut_recipe(e: &Element) -> Option<CutRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == CUT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == CUT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Site settings (ARC-TOPO-004).
@@ -113,7 +113,7 @@ pub fn settings(store: &Store) -> SiteSettings {
         .iter()
         .find(|e| e.class == "IfcProject")
         .and_then(|p| p.param(SETTINGS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

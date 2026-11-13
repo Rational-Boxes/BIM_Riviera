@@ -235,7 +235,7 @@ fn reclassify(txn: &mut Transaction<'_>, from: &[String], to: &str) -> Result<us
             }
         }
         if let Some(v) = e.param(crate::mep::OVERRIDES_KEY) {
-            let mut over: std::collections::BTreeMap<usize, crate::mep::ConnectorParams> = serde_json::from_value(v.clone()).unwrap_or_default();
+            let mut over: std::collections::BTreeMap<usize, crate::mep::ConnectorParams> = serde::Deserialize::deserialize(v).unwrap_or_default();
             let mut changed = false;
             for o in over.values_mut() {
                 if let Some(el) = o.electrical.as_mut().filter(|el| hit(&el.load_classification)) {
@@ -261,7 +261,7 @@ pub fn users(store: &Store, c: &LoadClassification) -> usize {
             n += t.connectors.iter().filter(|k| k.electrical.as_ref().is_some_and(|el| hit(&el.load_classification))).count();
         }
         if let Some(v) = e.param(crate::mep::OVERRIDES_KEY) {
-            let over: std::collections::BTreeMap<usize, crate::mep::ConnectorParams> = serde_json::from_value(v.clone()).unwrap_or_default();
+            let over: std::collections::BTreeMap<usize, crate::mep::ConnectorParams> = serde::Deserialize::deserialize(v).unwrap_or_default();
             n += over.values().filter(|o| o.electrical.as_ref().is_some_and(|el| hit(&el.load_classification))).count();
         }
     }

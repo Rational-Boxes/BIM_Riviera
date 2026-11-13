@@ -461,7 +461,7 @@ fn one() -> f64 {
 
 pub fn mesh_object_type(e: &Element) -> Option<MeshObjectType> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == TYPE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The stored recipe of a custom object (a placed copy).
@@ -541,7 +541,7 @@ fn is_one(v: &f64) -> bool {
 
 pub fn mesh_object_recipe(e: &Element) -> Option<MeshObjectRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A decoded mesh: positions (metres, insertion point at the origin), triangles, slots.

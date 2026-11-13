@@ -115,7 +115,7 @@ fn default_pane() -> f64 {
 
 pub fn skylight_recipe(e: &Element) -> Option<SkylightRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == SKYLIGHT_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == SKYLIGHT_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

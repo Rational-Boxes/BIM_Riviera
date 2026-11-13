@@ -247,7 +247,7 @@ fn project(store: &Store) -> Option<&Element> {
 pub fn types(store: &Store) -> Vec<CustomType> {
     project(store)
         .and_then(|p| p.param(TYPES_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
@@ -320,7 +320,7 @@ pub struct PartTag {
 }
 
 pub fn part_tag(e: &Element) -> Option<PartTag> {
-    e.param(PART_KEY).and_then(|v| serde_json::from_value(v.clone()).ok())
+    e.param(PART_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok())
 }
 
 /// Whether an element goes with `guid`: a custom instance's child.

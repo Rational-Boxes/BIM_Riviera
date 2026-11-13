@@ -232,7 +232,7 @@ fn level_elevation(store: &Store, guid: &str) -> Result<f64> {
 /// The recipe of an element, if it is a Riviera wall.
 pub fn wall_recipe(e: &Element) -> Option<WallRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")? == WALL_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == WALL_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The width of a wall type (from its `recipe.wall_type`).

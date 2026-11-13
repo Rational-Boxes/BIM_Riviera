@@ -457,7 +457,7 @@ pub struct SolarData {
 }
 
 pub fn data(store: &Store) -> SolarData {
-    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A short hash of anything serialisable (FNV-1a over its JSON).

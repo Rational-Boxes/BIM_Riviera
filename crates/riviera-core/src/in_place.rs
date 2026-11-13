@@ -112,12 +112,12 @@ pub struct VoidRecipe {
 
 pub fn recipe(e: &Element) -> Option<InPlaceRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn void_recipe(e: &Element) -> Option<VoidRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == VOID_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == VOID_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub(crate) fn lift(p: &Plane, u: f64, v: f64, w: f64) -> [f64; 3] {

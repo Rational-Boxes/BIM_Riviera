@@ -110,13 +110,13 @@ pub fn kind_of(e: &Element) -> Option<Kind> {
 
 pub fn extent(e: &Element) -> DatumExtent {
     e.param(EXTENT_KEY)
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
 pub fn views(e: &Element) -> BTreeMap<String, ViewExtent> {
     e.param(VIEWS_KEY)
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

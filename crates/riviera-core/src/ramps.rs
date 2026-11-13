@@ -72,7 +72,7 @@ impl Default for RampType {
 pub fn ramp_type(e: &Element) -> Option<RampType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == RAMP_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// The stored recipe of a ramp.
@@ -88,7 +88,7 @@ pub struct RampRecipe {
 
 pub fn ramp_recipe(e: &Element) -> Option<RampRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RAMP_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RAMP_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

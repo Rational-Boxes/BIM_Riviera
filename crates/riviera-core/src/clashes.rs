@@ -106,7 +106,7 @@ fn project(store: &Store) -> Option<&crate::element::Element> {
 pub fn results(store: &Store) -> Vec<Record> {
     project(store)
         .and_then(|p| p.param(RESULTS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
@@ -114,7 +114,7 @@ pub fn results(store: &Store) -> Vec<Record> {
 pub fn test(store: &Store) -> Option<Test> {
     project(store)
         .and_then(|p| p.param(TEST_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
 }
 
 /// The ID of a pair, the same whichever way round it is given.

@@ -112,7 +112,7 @@ pub struct MountingPartRecipe {
 
 pub fn recipe(e: &Element) -> Option<MountingPartRecipe> {
     let v = e.param(crate::walls::RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether an element goes with `guid`: a part of that assembly.

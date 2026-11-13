@@ -142,7 +142,7 @@ pub fn spot_data(e: &Element) -> Option<SpotData> {
     if v.get("kind")?.as_str()? != KIND_SPOT {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 /// The spots of a view (by its GlobalId).

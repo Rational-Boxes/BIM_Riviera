@@ -84,11 +84,11 @@ pub struct ZoneProps {
 
 pub fn recipe(e: &Element) -> Option<ZoneRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn props(e: &Element) -> ZoneProps {
-    e.param(PROPS_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(PROPS_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// An `IfcZone` from another tool that can be converted.

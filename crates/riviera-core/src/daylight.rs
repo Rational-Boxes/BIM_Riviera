@@ -430,7 +430,7 @@ pub struct DaylightData {
 }
 
 pub fn data(store: &Store) -> DaylightData {
-    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

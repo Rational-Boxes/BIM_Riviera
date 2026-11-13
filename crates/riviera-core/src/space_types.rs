@@ -174,7 +174,7 @@ pub fn analysis(store: &Store) -> Analysis {
     project(store)
         .and_then(|p| store.get(p))
         .and_then(|p| p.param(ANALYSIS_KEY).or_else(|| p.param(OLD_KEY).filter(|v| v.get("space_types").is_some() || v.get("building_types").is_some())))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

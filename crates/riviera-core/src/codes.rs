@@ -303,7 +303,7 @@ pub fn settings(store: &Store) -> CodeSettings {
         .iter()
         .find(|e| e.class == "IfcProject")
         .and_then(|e| e.param(CODE_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

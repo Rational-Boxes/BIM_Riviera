@@ -248,7 +248,7 @@ pub fn config(store: &Store) -> Config {
         .iter()
         .find(|e| e.class == "IfcProject")
         .and_then(|p| p.param(CONFIG_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
@@ -571,7 +571,7 @@ pub struct AssemblyRecipe {
 
 pub fn assembly_recipe(e: &Element) -> Option<AssemblyRecipe> {
     let v = e.param(crate::walls::RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == ASSEMBLY_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == ASSEMBLY_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether an element goes with `guid`: an assembly of it or of one of its parts.

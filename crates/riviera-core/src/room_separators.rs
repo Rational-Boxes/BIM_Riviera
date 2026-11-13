@@ -41,7 +41,7 @@ pub struct SeparatorRecipe {
 /// A room or space separation line's recipe.
 pub fn recipe(e: &Element) -> Option<SeparatorRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    matches!(v.get("kind")?.as_str()?, RECIPE | SPACE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    matches!(v.get("kind")?.as_str()?, RECIPE | SPACE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// Whether a separator bounds spaces only.

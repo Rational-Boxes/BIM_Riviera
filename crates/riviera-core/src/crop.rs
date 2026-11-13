@@ -76,7 +76,7 @@ pub fn crop_of(e: &Element) -> Option<Crop> {
 pub fn annotation_crop_of(e: &Element) -> AnnotationCrop {
     e.param(VIEW_KEY)
         .and_then(|v| v.get("annotationCrop"))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

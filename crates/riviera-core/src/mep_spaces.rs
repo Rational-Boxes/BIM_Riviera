@@ -151,11 +151,11 @@ impl Default for SpaceProps {
 /// The recipe of a space (a room's, of the space kind).
 pub fn space_recipe(e: &Element) -> Option<RoomRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")? == SPACE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")? == SPACE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn props(e: &Element) -> SpaceProps {
-    e.param(PROPS_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(PROPS_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A space's geometry now: none when unplaced.

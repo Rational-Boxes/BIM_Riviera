@@ -79,7 +79,7 @@ pub struct AtriumRecipe {
 
 pub fn recipe(e: &Element) -> Option<AtriumRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn resolve(store: &Store, r: &ElementRef) -> Result<ElementId> {

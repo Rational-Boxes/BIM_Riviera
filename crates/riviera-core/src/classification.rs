@@ -71,7 +71,7 @@ fn project(store: &Store) -> Option<&Element> {
 }
 
 pub fn systems(store: &Store) -> Vec<System> {
-    project(store).and_then(|p| p.param(SYSTEMS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|p| p.param(SYSTEMS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 fn save(txn: &mut Transaction<'_>, key: &str, v: Value) -> Result<()> {
@@ -83,7 +83,7 @@ fn save(txn: &mut Transaction<'_>, key: &str, v: Value) -> Result<()> {
 
 /// An element's codes, by system id.
 pub fn codes(e: &Element) -> BTreeMap<String, String> {
-    e.param(ASSIGN_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(ASSIGN_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// Reads a `code,parent_code,title` table (a header row, if any, is skipped; fields may be quoted).
@@ -418,7 +418,7 @@ pub fn parse_keynotes(text: &str) -> Result<Vec<Keynote>> {
 }
 
 pub fn keynotes(store: &Store) -> KeynoteTable {
-    project(store).and_then(|p| p.param(KEYNOTES_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|p| p.param(KEYNOTES_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A keynote's text.

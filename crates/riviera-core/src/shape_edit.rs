@@ -336,7 +336,7 @@ fn shape_now(store: &Store, id: ElementId) -> Shape {
     store
         .get(id)
         .and_then(|e| e.param(SHAPE_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

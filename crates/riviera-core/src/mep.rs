@@ -535,7 +535,7 @@ pub fn type_connectors(e: &Element) -> Option<Vec<Connector>> {
 
 fn overrides(e: &Element) -> BTreeMap<usize, ConnectorParams> {
     e.param(OVERRIDES_KEY)
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 
@@ -626,7 +626,7 @@ fn project(store: &Store) -> Option<&Element> {
 pub(crate) fn stored_links(store: &Store) -> Vec<Link> {
     project(store)
         .and_then(|p| p.param(CONNECTIONS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

@@ -85,7 +85,7 @@ pub fn recipe(e: &Element) -> Option<WallSweepRecipe> {
     if v.get("kind")?.as_str()? != RECIPE {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 fn wall_by_guid<'a>(store: &'a Store, guid: &str) -> Option<&'a Element> {

@@ -92,7 +92,7 @@ pub fn component_data(e: &Element) -> Option<ComponentData> {
     if v.get("kind")?.as_str()? != KIND_COMPONENT {
         return None;
     }
-    serde_json::from_value(v.clone()).ok()
+    serde::Deserialize::deserialize(v).ok()
 }
 
 /// The legend components of a legend (by its GlobalId).

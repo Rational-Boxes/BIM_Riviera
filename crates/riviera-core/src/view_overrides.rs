@@ -80,7 +80,7 @@ impl Resolved {
 fn map_of(e: &Element, key: &str) -> BTreeMap<String, Override> {
     e.param(VIEW_KEY)
         .and_then(|v| v.get(key))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

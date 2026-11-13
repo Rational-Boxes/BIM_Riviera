@@ -514,7 +514,7 @@ pub struct Run {
 pub fn runs(store: &Store) -> Vec<Run> {
     project(store)
         .and_then(|p| p.param(RUNS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

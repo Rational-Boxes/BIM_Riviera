@@ -124,7 +124,7 @@ pub fn settings_of(store: &crate::store::Store) -> UnitSettings {
     store
         .get(crate::id::ElementId::PROJECT_SETTINGS)
         .and_then(|e| e.param(SETTINGS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

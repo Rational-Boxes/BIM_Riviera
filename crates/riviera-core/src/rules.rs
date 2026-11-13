@@ -441,7 +441,7 @@ pub fn parse(v: &Value) -> Result<Pack> {
     if !errors.is_empty() {
         return Err(bad("rules.pack_schema", format!("the pack does not follow {FORMAT}: {}", errors.join("; "))));
     }
-    serde_json::from_value(v.clone()).map_err(|e| bad("rules.pack_schema", e.to_string()))
+    serde::Deserialize::deserialize(v).map_err(|e| bad("rules.pack_schema", e.to_string()))
 }
 
 /// The shared-format packs that ship with Riviera.
@@ -460,7 +460,7 @@ fn project_id(txn: &Transaction<'_>) -> Result<ElementId> {
 
 /// The project's own shared-format packs.
 pub fn project_packs(store: &Store) -> Vec<Pack> {
-    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// Every shared-format pack of `domain` the project can use: the shipped ones, each replaced by
@@ -482,7 +482,7 @@ pub fn domains(store: &Store) -> Vec<String> {
 }
 
 fn choice(store: &Store) -> BTreeMap<String, Vec<String>> {
-    project(store).and_then(|e| e.param(CHOICE_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|e| e.param(CHOICE_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// The packs the project names for `domain`, if it names any.

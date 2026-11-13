@@ -376,7 +376,7 @@ impl ColumnType {
 pub fn column_type(e: &Element) -> Option<ColumnType> {
     let v = e.param(RECIPE_KEY)?;
     (v.get("kind")?.as_str()? == COLUMN_TYPE_RECIPE)
-        .then(|| serde_json::from_value(v.clone()).ok())?
+        .then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A column or beam type's section.
@@ -439,7 +439,7 @@ pub struct ColumnRecipe {
 
 pub fn column_recipe(e: &Element) -> Option<ColumnRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == COLUMN_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == COLUMN_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 fn find(store: &Store, guid: &str) -> Option<ElementId> {

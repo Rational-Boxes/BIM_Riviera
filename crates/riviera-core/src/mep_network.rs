@@ -307,7 +307,7 @@ fn hash(text: &str, mut h: u64) -> u64 {
 }
 
 pub(crate) fn override_of(e: &crate::element::Element) -> Override {
-    e.param(KEY).and_then(|v| v.get("override")).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    e.param(KEY).and_then(|v| v.get("override")).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A fingerprint of everything a system's results depend on.

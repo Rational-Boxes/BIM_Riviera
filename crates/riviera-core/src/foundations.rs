@@ -181,7 +181,7 @@ pub struct WallFoundationRecipe {
 
 fn of_kind<T: for<'de> Deserialize<'de>>(e: &Element, kind: &str) -> Option<T> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == kind).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == kind).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub fn footing_recipe(e: &Element) -> Option<FootingRecipe> {

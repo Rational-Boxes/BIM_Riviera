@@ -487,7 +487,7 @@ pub struct EnergyData {
 }
 
 pub fn data(store: &Store) -> EnergyData {
-    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    store.iter().find(|e| e.class == "IfcProject").and_then(|p| p.param(KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

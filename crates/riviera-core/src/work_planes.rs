@@ -364,7 +364,7 @@ fn default_grid() -> f64 {
 
 fn view_setting(e: &Element) -> ViewWorkPlane {
     e.param(VIEW_KEY)
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or(ViewWorkPlane {
             plane: None,
             show: false,

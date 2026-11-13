@@ -62,7 +62,7 @@ fn stored(store: &Store) -> Sequences {
         .iter()
         .find(|e| e.class == "IfcProject")
         .and_then(|p| p.param(NUMBERS_KEY))
-        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .and_then(|v| serde::Deserialize::deserialize(v).ok())
         .unwrap_or_default()
 }
 

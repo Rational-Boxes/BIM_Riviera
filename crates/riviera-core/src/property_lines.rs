@@ -67,7 +67,7 @@ pub struct PropertyLineRecipe {
 
 pub fn recipe(e: &Element) -> Option<PropertyLineRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A bearing's direction (unit vector, x east, y north).

@@ -61,7 +61,7 @@ pub fn is_reinforcement(e: &Element) -> bool {
 }
 
 fn states(view: &Element) -> BTreeMap<String, State> {
-    view.param(VIEW_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    view.param(VIEW_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A rebar element's state in a view (`None`: the unsaved default view).

@@ -68,7 +68,7 @@ pub struct LightingData {
 }
 
 pub fn lighting_data(t: &Element) -> LightingData {
-    t.param(LIGHTING_KEY).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    t.param(LIGHTING_KEY).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// A space's target illuminance (lx), from a plain number or a typed IFC value.

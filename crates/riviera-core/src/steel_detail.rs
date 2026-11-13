@@ -232,7 +232,7 @@ pub struct PlateRecipe {
 
 pub fn plate_recipe(e: &Element) -> Option<PlateRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == PLATE_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == PLATE_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 pub(crate) fn plate_plane(store: &Store, r: &PlateRecipe) -> Plane {
@@ -658,7 +658,7 @@ pub struct PatternRecipe {
 
 pub fn pattern_recipe(e: &Element) -> Option<PatternRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == PATTERN_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == PATTERN_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A bolt table's proportions: nut height, washer thickness and the thread beyond the nut, as
@@ -1206,7 +1206,7 @@ fn flat() -> String {
 
 pub fn weld_recipe(e: &Element) -> Option<WeldRecipe> {
     let v = e.param(RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == WELD_RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == WELD_RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// An element's shape, to notice when it changes: its body's box, to 0.1 mm.

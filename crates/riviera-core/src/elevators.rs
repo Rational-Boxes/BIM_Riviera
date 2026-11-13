@@ -534,7 +534,7 @@ pub fn parse(v: &Value) -> Result<Pack> {
     if !errors.is_empty() {
         return Err(bad("vt.pack_schema", format!("the pack does not follow riviera.vt-rules-1: {}", errors.join("; "))));
     }
-    let pack: Pack = serde_json::from_value(v.clone()).map_err(|e| bad("vt.pack_schema", e.to_string()))?;
+    let pack: Pack = serde::Deserialize::deserialize(v).map_err(|e| bad("vt.pack_schema", e.to_string()))?;
     if let Some(a) = &pack.car_area
         && a.rows.windows(2).any(|w| w[1][0] <= w[0][0] || w[1][1] < w[0][1])
     {
@@ -572,7 +572,7 @@ fn project_id(txn: &Transaction<'_>) -> Result<ElementId> {
 
 /// The project's own packs.
 pub fn project_packs(store: &Store) -> Vec<Pack> {
-    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok()).unwrap_or_default()
+    project(store).and_then(|e| e.param(PACKS_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok()).unwrap_or_default()
 }
 
 /// Every pack the project can use: the shipped ones, each replaced by a project pack of its id,
@@ -586,7 +586,7 @@ pub fn available(store: &Store) -> Vec<Pack> {
 
 /// The packs the project names, if it names any.
 pub fn chosen(store: &Store) -> Option<Vec<String>> {
-    project(store).and_then(|e| e.param(RULES_KEY)).and_then(|v| serde_json::from_value(v.clone()).ok())
+    project(store).and_then(|e| e.param(RULES_KEY)).and_then(|v| serde::Deserialize::deserialize(v).ok())
 }
 
 /// The packs chosen for a project that names none, from its building code: the US packs under

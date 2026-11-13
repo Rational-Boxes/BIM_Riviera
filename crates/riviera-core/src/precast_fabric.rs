@@ -123,7 +123,7 @@ pub struct CustomSheetRecipe {
 
 pub fn recipe(e: &Element) -> Option<CustomSheetRecipe> {
     let v = e.param(crate::walls::RECIPE_KEY)?;
-    (v.get("kind")?.as_str()? == RECIPE).then(|| serde_json::from_value(v.clone()).ok())?
+    (v.get("kind")?.as_str()? == RECIPE).then(|| serde::Deserialize::deserialize(v).ok())?
 }
 
 /// A sheet's wires as worked out.
