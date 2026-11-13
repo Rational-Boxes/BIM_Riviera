@@ -217,9 +217,8 @@ impl Gui {
             .map(|view| riviera_app::notes::tagged_rooms(&store, view))
             .unwrap_or_default();
         let mut out = Vec::new();
-        for r in rooms::all(&store)
+        for r in rooms::all_on(&store, Some(&level))
             .into_iter()
-            .filter(|r| r.level == level)
             .filter(|r| {
                 store
                     .get(r.id)

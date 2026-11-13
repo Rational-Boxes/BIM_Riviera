@@ -350,9 +350,15 @@ pub fn regions(edges: &[Edge]) -> Vec<Region> {
 
 /// The region of the arrangement around `p`, with its islands.
 pub fn region_around(edges: &[Edge], p: [f64; 2]) -> Option<Region> {
-    regions(edges)
-        .into_iter()
+    smallest_around(&regions(edges), p)
+}
+
+/// The smallest of `regions` around `p`.
+pub fn smallest_around(regions: &[Region], p: [f64; 2]) -> Option<Region> {
+    regions
+        .iter()
         .filter(|r| inside(p, &r.outer))
+        .cloned()
         .min_by(|a, b| {
             crate::sketch::signed_area(&a.outer_ring())
                 .total_cmp(&crate::sketch::signed_area(&b.outer_ring()))

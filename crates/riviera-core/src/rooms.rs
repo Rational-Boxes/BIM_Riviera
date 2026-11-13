@@ -165,11 +165,34 @@ fn inside(p: [f64; 2], ring: &[[f64; 2]]) -> bool {
 }
 
 /// The room's region in an arrangement, if `p` is in a closed face that is not inside a wall.
-fn region_at(store: &Store, edges: &[arrangement::Edge], z: f64, p: [f64; 2]) -> Option<Region> {
-    if in_wall(store, z, p) {
+fn region_at(store: &Store, level_z: f64, spaces: bool, p: [f64; 2]) -> Option<Region> {
+    if in_wall(store, level_z + COMPUTATION_HEIGHT, p) {
         return None;
     }
-    arrangement::region_around(edges, p)
+    arrangement::smallest_around(&level_regions(store, level_z, spaces), p)
+}
+
+/// The regions of a level's arrangement (rooms', or spaces' with `spaces`): kept for the store
+/// they were found in, as every room on the level is found in the same arrangement.
+fn level_regions(store: &Store, level_z: f64, spaces: bool) -> std::sync::Arc<Vec<Region>> {
+    type Cache = Option<(Store, std::collections::HashMap<(u64, bool), std::sync::Arc<Vec<Region>>>)>;
+    thread_local! {
+        static CACHE: std::cell::RefCell<Cache> = const { std::cell::RefCell::new(None) };
+    }
+    let key = (level_z.to_bits(), spaces);
+    if let Some(r) = CACHE.with(|c| c.borrow().as_ref().filter(|(s, _)| s.same_as(store)).and_then(|(_, m)| m.get(&key).cloned())) {
+        return r;
+    }
+    let edges = if spaces { space_edges(store, level_z) } else { plane_edges(store, level_z) };
+    let regions = std::sync::Arc::new(arrangement::regions(&edges));
+    CACHE.with(|c| {
+        let mut c = c.borrow_mut();
+        if !c.as_ref().is_some_and(|(s, _)| s.same_as(store)) {
+            *c = Some((store.clone(), std::collections::HashMap::new()));
+        }
+        c.as_mut().expect("set").1.insert(key, regions.clone());
+    });
+    regions
 }
 
 /// Regenerates a room from its recipe, levels and the walls around it.
@@ -187,8 +210,7 @@ pub fn regenerate_recipe(store: &Store, r: &RoomRecipe) -> Result<RoomGeometry> 
     };
     let z_base = level_z + r.base_offset;
     let z_top = upper_z + r.limit_offset;
-    let edges = if r.kind == crate::mep_spaces::SPACE_RECIPE { space_edges(store, level_z) } else { plane_edges(store, level_z) };
-    let region = region_at(store, &edges, level_z + COMPUTATION_HEIGHT, r.point);
+    let region = region_at(store, level_z, r.kind == crate::mep_spaces::SPACE_RECIPE, r.point);
     let tag_point = region
         .as_ref()
         .map(|reg| {
@@ -228,10 +250,18 @@ pub struct RoomInfo {
 
 /// Every Riviera room that regenerates, in placement order, with redundant rooms flagged.
 pub fn all(store: &Store) -> Vec<RoomInfo> {
+    all_on(store, None)
+}
+
+/// The rooms on one level (GlobalId), or every room, as [`all`].
+pub fn all_on(store: &Store, level: Option<&str>) -> Vec<RoomInfo> {
     let mut out: Vec<RoomInfo> = store
         .iter()
         .filter_map(|e| {
             let r = room_recipe(e)?;
+            if level.is_some_and(|l| l != r.level) {
+                return None;
+            }
             let geometry = regenerate(store, e).ok()?;
             let (number, name) = number_and_name(e);
             Some(RoomInfo {

@@ -31,6 +31,13 @@ fn timing() {
     for row in &r.rows { println!("ROW {:<40} calls {:>7} total {:>9.1} self {:>9.1}", row.name, row.calls, row.total_ms, row.self_ms); }
     for p in r.paths.iter().take(25) { println!("PATH {:?}", p); }
     println!("render_scene again (UI): {:?}, {} meshes", t.elapsed(), scene.meshes.len());
+    // Every room's boundary, twice (the second from the caches).
+    let store = app.document(id).unwrap().doc.store().clone();
+    for k in 0..2 {
+        let t = Instant::now();
+        let n = riviera_core::rooms::all(&store).len();
+        println!("rooms::all {k}: {:?} for {n} rooms", t.elapsed());
+    }
     riviera_core::profiler::start(50.0);
     let t = Instant::now();
     app.execute("file.save_as", serde_json::json!({ "path": dir.path().join("again.ifc") }), &riviera_core::Caller::user()).unwrap();

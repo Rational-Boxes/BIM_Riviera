@@ -220,6 +220,20 @@ fn angle_ok(a: P, b: P) -> bool {
 /// Regenerates every Riviera wall in `store` and resolves the joins between them. Walls that
 /// cannot regenerate are left out.
 pub fn solve(store: &Store) -> Solved {
+    // Rooms, penetrations, openings and bodies each ask for the joined walls; they are kept for
+    // the store they were solved in (large models ask hundreds of times per redraw).
+    thread_local! {
+        static LAST: std::cell::RefCell<Option<(Store, Solved)>> = const { std::cell::RefCell::new(None) };
+    }
+    if let Some(s) = LAST.with(|l| l.borrow().as_ref().filter(|(s, _)| s.same_as(store)).map(|(_, s)| s.clone())) {
+        return s;
+    }
+    let s = solve_now(store);
+    LAST.with(|l| *l.borrow_mut() = Some((store.clone(), s.clone())));
+    s
+}
+
+fn solve_now(store: &Store) -> Solved {
     let mut walls: Vec<Wall> = store
         .iter()
         .filter_map(|e| {
