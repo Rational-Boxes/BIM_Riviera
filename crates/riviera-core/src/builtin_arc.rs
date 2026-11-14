@@ -557,6 +557,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitEdit),
         registry.add(TypeCatalogue),
         registry.add(TypeLoad),
+        registry.add(LayoutGet),
+        registry.add(LayoutRedo),
         registry.add(AtriumCreate),
         registry.add(AtriumCheck),
         registry.add(ShadingBaffles),
@@ -6878,6 +6880,37 @@ edit_command!(
     crate::modular_units::ArrayReport,
     crate::modular_units::set_array
 );
+
+read_command!(
+    LayoutGet,
+    "layout.get",
+    "What made a layout",
+    "The layout command (a kitchen line-up, cabinet or counter run, closet, gym or studio, seating, interior layout, retail run, sun-control baffles, tile, locker room or self-checkout pod) and the arguments that placed a piece, with all the pieces it placed (EDIT_AUDIT phase 5).",
+    [Effect::Read],
+    crate::layouts::GetParams,
+    crate::layouts::Layout,
+    crate::layouts::get
+);
+
+#[derive(Debug)]
+struct LayoutRedo;
+
+impl Command for LayoutRedo {
+    type Params = crate::layouts::RedoParams;
+    type Output = crate::layouts::Redone;
+    const META: CommandMeta = CommandMeta {
+        name: "layout.redo",
+        version: 1,
+        summary: "Make a layout again",
+        description: "Deletes the pieces a layout command placed (found from any one of them) and runs the command again with its arguments, `params` changed over them (`null` removes one), as one undo step. Returns the command and what it returned, and how many pieces were removed.",
+        effects: &[Effect::Edit],
+        transaction_name: "Edit Layout",
+    };
+
+    fn run(&self, cx: &mut CommandContext<'_>, p: crate::layouts::RedoParams) -> Result<crate::layouts::Redone> {
+        crate::layouts::redo(cx, p)
+    }
+}
 
 read_command!(
     TypeCatalogue,

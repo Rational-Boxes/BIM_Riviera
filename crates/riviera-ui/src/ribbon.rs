@@ -78,6 +78,8 @@ pub const UI_ACTIONS: &[&str] = &[
     "ui.unit_connect",
     "ui.edit_unit",
     "ui.unit_context",
+    "ui.change_unit_array",
+    "ui.edit_layout",
     "ui.atrium",
     "ui.baffles",
     "ui.sun_check",

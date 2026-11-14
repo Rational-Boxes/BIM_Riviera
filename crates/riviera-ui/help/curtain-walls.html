@@ -29,6 +29,14 @@ through the wall. <code>curtain.create</code></p>
 <p>The type also sets the mullions' width and depth (0 for none), whether there are border
 mullions, and the panels: Glazed, Solid or Empty, and their thickness. These are type values, so
 they change every curtain wall of the type; <i>Duplicate Type…</i> makes a new one.
+A selected curtain wall's <b>Manual Grid Lines</b> rows list the lines placed by hand: type a new
+position to move one, or clear it to delete it. <b>Add Vertical Line At</b> and <b>Add Horizontal
+Line At</b> add one. Under <b>Panels</b>, <b>Change Panels</b> takes cells and a panel, for
+example <code>2,0 3,0 door</code>: columns count from the start and rows from the base, both
+from 0. The panel is <i>glazed</i>, <i>solid</i>, <i>empty</i>, <i>door</i>, <i>vent</i> or
+<i>roll_up</i>, or <i>type</i> to go back to the type's (<code>curtain.add_grid</code>,
+<code>curtain.move_grid</code>, <code>curtain.delete_grid</code>,
+<code>curtain.set_panel_type</code>).
 <code>type.set_param</code> (<code>u_layout</code>, <code>u_spacing</code>, <code>u_number</code>,
 <code>v_…</code>, <code>mullion_width</code>, <code>mullion_depth</code>,
 <code>border_mullions</code>, <code>panel</code>, <code>panel_thickness</code>)</p>

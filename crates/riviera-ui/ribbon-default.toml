@@ -1088,6 +1088,18 @@ icon = "unit_edit"
 help = "Edit a unit type in isolation (ARC-GRP-004): the selected copy, or the first copy of a type chosen from a list, opens in the group editor with the rest of the model hidden and the walls it merged into the building's made again; Finish remakes every copy from it, Cancel puts it back"
 
 [[action]]
+id = "ui.edit_layout"
+label = "Edit Layout"
+icon = "edit_layout"
+help = "Make the selected piece's layout again with changed values: a kitchen line-up, cabinet or counter run, closet, gym or studio, seating, interior layout, retail run, sun-control baffles, tile, locker room or self-checkout pod; its pieces are replaced in one undo step"
+
+[[action]]
+id = "ui.change_unit_array"
+label = "Change Unit Array"
+icon = "unit_array"
+help = "Change the selected unit copy's array: its levels, sides, corridor, pitch, count, start, skipped stretches and handing; every copy is made again and merged with the building (ARC-GRP-004)"
+
+[[action]]
 id = "ui.unit_context"
 label = "Show Context"
 icon = "unit_context"
@@ -4108,6 +4120,7 @@ tools = [
   { action = "ui.closet", size = "small" },
   { action = "ui.equipment_lineup", size = "large" },
   { action = "ui.check_kitchen", size = "small" },
+  { action = "ui.edit_layout", size = "small" },
 ]
 
 [[tab.panel]]
@@ -5098,6 +5111,7 @@ panels = [
 category = "ctx.components"
 label = "Components"
 panels = [{ label = "Component", tools = [
+  { action = "ui.edit_layout", size = "large" },
   { action = "array.along_path", size = "large" },
   { action = "component.place", size = "large" },
   { action = "component.create", size = "large" },
@@ -5413,6 +5427,8 @@ panels = [{ label = "Group", tools = [
   { action = "group.swap_type", size = "small" },
   { action = "group.duplicate_type", size = "small" },
   { action = "group.rename_type", size = "small" },
+  { action = "ui.edit_unit", size = "small" },
+  { action = "ui.change_unit_array", size = "small" },
   { action = "group.exclude_member", size = "large" },
   { action = "group.restore_member", size = "large" },
 ] }]
@@ -5478,7 +5494,7 @@ items = [
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",
   "workplane.set", "workplane.show", "-",
-  "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.edit_unit", "-",
+  "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.edit_unit", "ui.change_unit_array", "-",
   "ui.make_product", "ui.swap_for_product", "ui.product_documents",
 ]
 
@@ -5487,7 +5503,7 @@ label = "&Interiors"
 items = [
   "ui.room_layout", "ui.guest_room", "ui.seating_layout", "ui.decorative_lighting", "ui.room_matrix", "-",
   "ui.bathroom_layout", "ui.place_bathroom_component", "ui.toilet_core", "bath.place_grab_bars", "ui.tiles", "ui.shower_falls", "ui.waterproofing", "ui.fixture_count", "bath.check", "-",
-  "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.equipment_lineup", "ui.check_kitchen", "-",
+  "ui.cabinet_run", "ui.countertop", "ui.counter_run", "ui.closet", "ui.equipment_lineup", "ui.check_kitchen", "ui.edit_layout", "-",
   "ui.store_area", "ui.gondola_run", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "-",
   "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.check_gym", "-",
   "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "-",

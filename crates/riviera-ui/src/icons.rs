@@ -1536,6 +1536,10 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "unit_connect" => format!(
             r#"<path d="M2 6h28" stroke="{f}" stroke-width="3"/><path d="M8 6v10M16 6v10M24 6v10" {s}/><rect x="4" y="16" width="8" height="12" fill="{a}" {s}/><rect x="12" y="16" width="8" height="12" fill="{a}" {s}/><rect x="20" y="16" width="8" height="12" fill="{a}" {s}/>"#
         ),
+        // A row of pieces under a pencil (Edit Layout).
+        "edit_layout" => format!(
+            r#"<rect x="2" y="16" width="8" height="10" fill="{a}" {s}/><rect x="12" y="16" width="8" height="10" fill="{a}" {s}/><rect x="22" y="16" width="8" height="10" fill="{a}" {s}/><path d="M10 12l12-10 4 4-12 10h-4z" fill="{f}"/>"#
+        ),
         // One room of a row drawn solid, the others dashed (Edit Unit).
         "unit_edit" => format!(
             r#"<path d="M2 6h28v12H2z" fill="none" stroke-dasharray="2 2" {s}/><rect x="11" y="6" width="10" height="12" fill="{a}" {s}/><path d="M14 26l10-10 3 3-10 10h-3z" fill="{f}"/>"#

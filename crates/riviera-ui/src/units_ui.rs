@@ -123,6 +123,85 @@ impl Gui {
         self.start_picking("unit.array", vec![json!({ "key": "from", "kind": "at", "prompt": "Unit Array: click the corridor line's start" }), json!({ "key": "to", "kind": "point", "prompt": "Unit Array: click its end" })], args);
     }
 
+    /// Modify | Model Groups › Change Unit Array: the selected copy's array, its levels, sides,
+    /// corridor, pitch, count, start, skips and handing changed; every copy is made again
+    /// (`unit.set_array`).
+    pub(crate) fn change_unit_array(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return };
+        let array = self.selection().into_iter().find_map(|id| {
+            let e = store.get(id)?;
+            if riviera_core::modular_units::array_recipe(e).is_some() {
+                return Some(id);
+            }
+            let copy = riviera_core::modular_units::copy_info(e).or_else(|| {
+                let g = riviera_core::groups::instance_of(e)?;
+                riviera_core::modular_units::copy_info(store.get(store.find_by_guid(&riviera_core::GlobalId::parse(&g)?)?)?)
+            })?;
+            store.find_by_guid(&riviera_core::GlobalId::parse(&copy.array)?)
+        });
+        let Some(array) = array else {
+            return error(&frame, "Select a unit copy (any part of it) or a unit array.");
+        };
+        let Some(rec) = store.get(array).and_then(riviera_core::modular_units::array_recipe) else { return };
+        let levels = riviera_core::levels::list(&store);
+        let names: Vec<String> = levels.iter().map(|l| l.name.clone()).collect();
+        let at: Vec<usize> = rec.levels.iter().filter_map(|g| levels.iter().position(|l| l.guid == *g)).collect();
+        let (lo, hi) = (at.iter().copied().min().unwrap_or(0), at.iter().copied().max().unwrap_or(0));
+        let f = super::reinforcement_ui::Form::new(&frame, "Change Unit Array");
+        let from = f.choice("From level", &names, lo);
+        let to = f.choice("To level", &names, hi);
+        let side_at = match rec.sides {
+            riviera_core::modular_units::Sides::Left => 0,
+            riviera_core::modular_units::Sides::Right => 1,
+            riviera_core::modular_units::Sides::Both => 2,
+        };
+        let sides = f.choice("Sides", &["Left of the line".to_owned(), "Right of the line".to_owned(), "Both sides".to_owned()], side_at);
+        let corridor = f.text("Corridor width (m)", &format!("{}", rec.corridor), "The bays start half of it each side of the line");
+        let pitch = f.text("Pitch (m)", &rec.pitch.map(|p| p.to_string()).unwrap_or_default(), "Between bays; empty for the bay's width");
+        let count = f.text("Copies a side, at most", &rec.count.map(|c| c.to_string()).unwrap_or_default(), "Empty to fill the line");
+        let start = f.text("First bay at (m)", &format!("{}", rec.start), "Along the line from its start");
+        let skips: Vec<String> = rec.exclusions.iter().map(|e| format!("{}-{}", e[0], e[1])).collect();
+        let exclusions = f.text("Skip (m)", &skips.join(", "), "Stretches along the line to leave out, as 12-18, 30-34");
+        let mirror = f.check("Handing", "Mirror every other copy so neighbours share walls and services", rec.handing == riviera_core::modular_units::Handing::Alternate);
+        let ok = f.show("Every copy of the array is made again and merged with the building.", "Change");
+        let num = |t: &TextCtrl| t.get_value().trim().replace(',', ".").parse::<f64>().ok();
+        let (a, b) = (from.get_selection().unwrap_or(0) as usize, to.get_selection().unwrap_or(0) as usize);
+        let chosen: Vec<u64> = levels.iter().enumerate().filter(|(k, _)| (a.min(b)..=a.max(b)).contains(k)).map(|(_, l)| l.id.0).collect();
+        let skip: Vec<[f64; 2]> = exclusions.get_value().split(',').filter_map(|r| {
+            let (x, y) = r.trim().split_once('-')?;
+            Some([x.trim().parse().ok()?, y.trim().parse().ok()?])
+        }).collect();
+        let side = ["left", "right", "both"][sides.get_selection().unwrap_or(2).min(2) as usize];
+        let mut args = json!({
+            "array_id": array,
+            "levels": chosen,
+            "sides": side,
+            "corridor": num(&corridor).unwrap_or(rec.corridor),
+            "start": num(&start).unwrap_or(rec.start),
+            "exclusions": skip,
+            "handing": if mirror.get_value() { "alternate" } else { "none" },
+        });
+        if let Some(p) = num(&pitch) {
+            args["pitch"] = json!(p);
+        }
+        if let Ok(c) = count.get_value().trim().parse::<u32>() {
+            args["count"] = json!(c);
+        }
+        f.dialog.destroy();
+        if !ok {
+            return;
+        }
+        match self.run("unit.set_array", args) {
+            Ok(v) => {
+                self.properties_stale = true;
+                self.refresh_scene(&frame);
+                frame.set_status_text(&format!("Unit array changed: {} copies", v["copies"]), 0);
+            }
+            Err(e) => error(&frame, &format!("The unit array was not changed:\n{e}")),
+        }
+    }
+
     pub(crate) fn unit_array_finish(&mut self, mut args: serde_json::Value) {
         let frame = self.frame;
         let from = args["from"].take();

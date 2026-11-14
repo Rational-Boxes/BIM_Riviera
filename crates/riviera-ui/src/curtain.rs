@@ -55,6 +55,16 @@ fn choices<T>(items: &[(&str, T)]) -> Vec<(String, i32)> {
         .collect()
 }
 
+/// Panels a cell can take: the value, its label, and its command word.
+const PANEL_NAMES: [(curtain::Panel, &str, &str); 6] = [
+    (curtain::Panel::Glazed, "Glazed", "glazed"),
+    (curtain::Panel::Solid, "Solid", "solid"),
+    (curtain::Panel::Empty, "Empty", "empty"),
+    (curtain::Panel::Door, "Door", "door"),
+    (curtain::Panel::Vent, "Vent", "vent"),
+    (curtain::Panel::RollUp, "Roll-up", "roll_up"),
+];
+
 impl Gui {
     /// Architecture › Curtain Wall.
     pub(crate) fn start_curtain_tool(&mut self) {
@@ -227,7 +237,9 @@ impl Gui {
             .enumerate()
             .map(|(i, t)| (t.1.clone(), i as i32))
             .collect();
-        names.push((DUPLICATE.to_owned(), names.len() as i32));
+        if current.is_some() {
+            names.push((DUPLICATE.to_owned(), names.len() as i32));
+        }
         let index = current
             .and_then(|c| types.iter().position(|t| t.0 == c))
             .map_or(-1, |i| i as i32);
@@ -350,12 +362,85 @@ impl Gui {
                 o,
             ));
         }
+        // Lines placed by hand (ARC-CW-004): move one, or clear it to delete it; type a position
+        // to add one.
+        grid.append(Property::category("Manual Grid Lines", "c_cw_manual"));
+        for g in &r.grids {
+            let what = if g.dir == curtain::Dir::U { "Vertical" } else { "Horizontal" };
+            let key = format!("cwg:{}", g.key);
+            grid.append(Property::string(format!("{what} Line {}", g.key), &key, self.format_length(g.at)));
+            grid.set_help_string(&key, "From the wall's start (vertical) or base (horizontal); clear it to delete the line");
+        }
+        grid.append(Property::string("Add Vertical Line At", "cwg:add_u", String::new()));
+        grid.set_help_string("cwg:add_u", "A distance from the wall's start: a vertical grid line there");
+        grid.append(Property::string("Add Horizontal Line At", "cwg:add_v", String::new()));
+        grid.set_help_string("cwg:add_v", "A height from the wall's base: a horizontal grid line there");
+        // Panels swapped cell by cell (ARC-CW-006).
+        grid.append(Property::category("Panels", "c_cw_panels"));
+        for (k, o) in r.panels.iter().enumerate() {
+            let key = format!("cwp_o{k}");
+            grid.append(Property::string(format!("Cell {}, {}", o.cell[0], o.cell[1]), &key, PANEL_NAMES.iter().find(|p| p.0 == o.panel).map_or("", |p| p.1)));
+            grid.set_property_read_only(&key, true);
+        }
+        grid.append(Property::string("Change Panels", "cwg:panels", String::new()));
+        grid.set_help_string("cwg:panels", "Cells (column, row from 0 at the start and base) and a panel: glazed, solid, empty, door, vent, roll-up or type. For example: 2,0 3,0 door");
         let current = e
             .param("@type")
             .and_then(Value::as_str)
             .and_then(riviera_core::GlobalId::parse)
             .and_then(|g| store.find_by_guid(&g));
         self.curtain_type_rows(grid, current);
+        true
+    }
+
+    /// An edit of a manual grid line or panel row; `false` if `property` is not one.
+    pub(crate) fn curtain_grid_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(row) = property.strip_prefix("cwg:") else { return false };
+        let frame = self.frame;
+        let text = text.unwrap_or_default();
+        let Some(wall) = self.selected_curtains().first().copied() else { return true };
+        let result = match row {
+            "add_u" | "add_v" => match self.parse_length_text(&text) {
+                Some(v) => self.run("curtain.add_grid", json!({ "curtain_id": wall, "direction": &row[4..], "position": v })),
+                None => return true,
+            },
+            "panels" => {
+                let words: Vec<&str> = text.split_whitespace().collect();
+                let cells: Vec<[usize; 2]> = words.iter().filter_map(|w| {
+                    let mut it = w.split(',').map(|n| n.trim().parse::<usize>());
+                    match (it.next(), it.next()) {
+                        (Some(Ok(c)), Some(Ok(r))) => Some([c, r]),
+                        _ => None,
+                    }
+                }).collect();
+                let panel = words.last().map(|w| w.to_lowercase());
+                let value = match panel.as_deref() {
+                    Some("type") => Some(Value::Null),
+                    Some(p) => PANEL_NAMES.iter().find(|n| n.1.to_lowercase() == p || n.2 == p).map(|n| json!(n.2)),
+                    None => None,
+                };
+                match (cells.is_empty(), value) {
+                    (false, Some(v)) => self.run("curtain.set_panel_type", json!({ "curtain_id": wall, "cells": cells, "panel": v })),
+                    _ => Err("Type cells and a panel, for example: 2,0 3,0 door".to_owned()),
+                }
+            }
+            key => {
+                let Ok(k) = key.parse::<u32>() else { return true };
+                if text.trim().is_empty() {
+                    self.run("curtain.delete_grid", json!({ "curtain_id": wall, "grid_key": k }))
+                } else {
+                    match self.parse_length_text(&text) {
+                        Some(v) => self.run("curtain.move_grid", json!({ "curtain_id": wall, "grid_key": k, "position": v })),
+                        None => return true,
+                    }
+                }
+            }
+        };
+        if let Err(e) = result {
+            error(&frame, &format!("The curtain wall was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
         true
     }
 

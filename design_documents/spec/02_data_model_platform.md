@@ -328,6 +328,29 @@ Stairs now take another stair type in core, and a stair type's rules (`max_riser
 
 *Not yet:* the user catalogue; starter curtain wall types.
 
+### 2.2.4b Layouts made again
+**ID:** DM-TYPE-003 · **Priority:** P1 · **Ref:** owner (2026-11-13); `EDIT_AUDIT.md` phase 5
+
+**Purpose.** A layout tool places many pieces at once: a kitchen line-up with its hoods and baffles, a cabinet run, a gym, banquet seating. Without this requirement, changing it later meant deleting the pieces one by one and running the tool again from scratch.
+
+**Behaviour & rules.**
+- Each piece a layout command places carries `rxd:made_by`: a set key, the command and the arguments it ran with. The tag is written in the command's own transaction. The layout commands are:
+  - `foodservice.lineup`, `cabinet.run`, `counter.run`, `closet.create`;
+  - `gym.layout`, `gym.studio`, `seating.layout`, `interior.layout`;
+  - `retail.run`, `shading.baffles`, `tile.create`, `bath.locker_room`, `sco.place_pod`.
+- **Edit Layout** (Modify | Components and Interiors › Kitchen & Casework) works from any selected piece. It shows the arguments one per row (text bare, lists and points as JSON). Changing any of them deletes the set's pieces and runs the command again with the changed arguments. This is one undo step: the command runs inside the same transaction (`CommandContext::run_nested`).
+- Tools that already replace their own results (bathroom layouts, saunas, steam rooms, toilet cores) keep doing so. Pieces placed before this was built carry no tag and are refused with `layout.none`.
+
+**Commands.**
+- `layout.get(element_id) -> {command, params, elements}`
+- `layout.redo(element_id, params) -> {command, result, removed}`
+
+**Acceptance criteria.**
+- [x] A kitchen line-up re-made with a fryer added gets the fryer and its baffle. Its pieces carry the new arguments, and one undo brings back the first line. *(Test: `foodservice.rs` `a_line_up_is_made_again_with_other_equipment`.)*
+- [ ] Atriums and other layouts that change existing elements (floor openings) as well as add pieces.
+
+*Built (2026-11-13).*
+
 ### 2.2.5 Instances
 **ID:** DM-INST-001 · **Priority:** P0 · **Ref:** research/05 §1.1, §2.2
 
@@ -4817,6 +4840,8 @@ All commands defined in this chapter. Every command in this table is also a Lua 
 | `type.set_param` | type_id, param, value | () | Yes | DM-TYPE-001 |
 | `type.catalogue` | element_id | [{name, source, type_id?}] | No (query) | DM-TYPE-002 |
 | `type.load` | element_id, name | type_id | Yes | DM-TYPE-002 |
+| `layout.get` | element_id | {command, params, elements} | No (query) | DM-TYPE-003 |
+| `layout.redo` | element_id, params | {command, result, removed} | Yes | DM-TYPE-003 |
 | `type.edit_properties` | type_id? | — | No | DM-TYPE-001 |
 | `instance.change_type` | element_ids[], type_id | — | Yes | DM-TYPE-001 |
 | `instance.place` | type_id, placement, host_id?, level_id?, params? | element_id | Yes | DM-INST-001 |

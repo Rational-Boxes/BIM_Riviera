@@ -337,6 +337,21 @@ occupant load at 50 ft² gross.</p>
 cycling studio and a circuit room.
 (<code>gym.mirror</code>, <code>gym.check</code>, <code>gym.layout</code>, <code>gym.studio</code>)</p>
 
+<h2 id="edit-layout">Changing a layout</h2>
+<p>Pieces placed together by a layout tool remember how they were made:
+<ul>
+  <li>a kitchen line-up, a cabinet or counter run, a closet;</li>
+  <li>a gym or studio, seating, a room layout;</li>
+  <li>a retail run, sun-control baffles, tile, a locker room, a self-checkout pod.</li>
+</ul>
+<p>Select any piece and choose <b>Edit Layout</b> (Modify | Components, or Interiors › Kitchen
+&amp; Casework). The form lists what the tool was given, one value per row; lists and points are
+written as JSON, for example <code>["Fryer, 40 lb gas", "Range, 6-burner with oven 36 in"]</code>.
+Change any value and choose <b>Make Again</b>: the old pieces go and the layout is made again, as
+one step that Undo reverses. Bathroom layouts, saunas and steam rooms are changed by running
+their tool again, which offers to replace them. <code>layout.get</code>,
+<code>layout.redo</code></p>
+
 <h2 id="accessible">Accessible and not</h2>
 <p>The ADA asks only some beds and rooms to have their clear spaces. The accessibility pack's rules
 apply to every piece unless it is marked not accessible (<code>rules.set_accessible</code>). Mark

@@ -82,6 +82,7 @@ pub mod id;
 pub mod in_place;
 pub mod inserts;
 pub mod inspect;
+pub mod layouts;
 pub mod levels;
 pub mod library;
 pub mod loads;

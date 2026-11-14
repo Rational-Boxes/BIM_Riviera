@@ -180,3 +180,27 @@ closets, baffles and atriums, then their window forms filled from the last value
 - **Phase 4:**
   - Modify tabs for ramps and openings (no tools for them yet).
 - **Phase 5:** re-editable layouts.
+
+**2026-11-13, continued (phases 3 and 5):**
+- **Arched roofs:** a Spring Edges choice (the opposite footprint edges the arch springs from).
+- **Curtain walls:**
+  - manual grid lines listed (move one, or clear it to delete it), with Add Vertical and Add
+    Horizontal Line At rows;
+  - panel overrides listed, and a Change Panels row (`2,0 3,0 door`);
+  - Duplicate Type is offered only when there is a type.
+- **Sloped glazing types:** grid 1 and grid 2 layouts and spacings, mullion size, and panel
+  (`roof.set_glazing_type`).
+- **Grab bars:** diameter, gap to wall and top height (`grab_bar.set`).
+- **Toposolids:** each point's height (clear it to remove the point), and an Add Point row
+  (`toposolid.set_points`).
+- **Change Unit Array** (`unit.set_array`): levels, sides, corridor, pitch, count, start, skips
+  and handing.
+- **Phase 5, Edit Layout** (DM-TYPE-003): every layout tool's pieces remember the command and its
+  arguments. `layout.get` and `layout.redo` re-make the layout with changed arguments in one undo
+  step. The window has an Edit Layout form on Modify | Components and on Kitchen & Casework.
+
+**Remaining:**
+- Modify tabs for ramps and openings (there are no ramp or opening tools to put on them).
+- Atriums made again as a whole.
+- Placing curtain grid lines and panels by clicking in the view (Properties rows for now).
+- A user type catalogue.

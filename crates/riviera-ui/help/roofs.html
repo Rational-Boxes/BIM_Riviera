@@ -137,9 +137,13 @@ becomes glass panels between mullions: <b>Grid 1</b> lines run parallel to the p
 spaced up the slope from it (Fixed Distance 1.5 m), and <b>Grid 2</b> lines run up the slope
 (at most 1.2 m apart). Hips, valleys and ridges get one mullion each, shared by the two planes.
 The roof keeps its footprint, slopes and joins, so Edit Footprint still works and the glazing
-follows. Change the roof's type back to a basic roof type to undo.
+follows. Change the roof's type back to a basic roof type to undo. A selected glazed roof's
+<b>Sloped Glazing (type)</b> rows change its type's Grid 1 and Grid 2 layouts and spacings, its
+mullions' width and depth and its panel, for every roof of the type.
 <code>roof.create_glazing_type</code>, <code>roof.set_glazing_type</code>,
 <code>element.set_type</code></p>
+<p><b>Arched roofs</b> show <b>Spring Edges</b> in Properties: the pair of opposite footprint
+edges the arch springs from (the others are its ends).</p>
 <p><b>Glazed vaults and domes.</b> An arched roof or dome given a Sloped Glazing type the same
 way is divided on its curved surface: a vault into bays along it and divisions round the arch, a
 dome into meridians and rings, with a ring of triangles at the crown. Properties › <b>Glazing

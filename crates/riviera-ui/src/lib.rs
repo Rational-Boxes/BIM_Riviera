@@ -52,6 +52,8 @@ mod notes;
 mod openings;
 mod overlaps;
 mod bath_ui;
+mod grab_bar_rows;
+mod layout_edit;
 mod pool_rows;
 mod type_picker;
 mod units_ui;
@@ -2722,6 +2724,8 @@ impl Gui {
             self.segment_rows(grid, id);
             self.pool_rows(grid, id);
             self.railing_rows(grid, id);
+            self.grab_bar_rows(grid, id);
+            self.toposolid_rows(grid, id);
             // Annotation, details, parts and datums show their own rows only.
             if self.note_rows(grid, id)
                 || self.legend_rows(grid, id)
@@ -3023,6 +3027,10 @@ impl Gui {
             || self.pool_edit(property, text.clone())
             || self.railing_edit(property, text.clone())
             || self.sprinkler_head_edit(property, text.clone())
+            || self.curtain_grid_edit(property, text.clone())
+            || self.roof_glazing_edit(property, text.clone())
+            || self.grab_bar_edit(property, text.clone())
+            || self.toposolid_edit(property, text.clone())
             || self.grid_type_edit(property, text.clone())
             || self.opening_edit(property, text.clone())
             || self.beam_edit(property, text.clone())
@@ -4893,6 +4901,8 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.unit_connect" => with(gui, Gui::unit_connect),
         "ui.edit_unit" => with(gui, Gui::edit_unit),
         "ui.unit_context" => with(gui, Gui::unit_context),
+        "ui.change_unit_array" => with(gui, Gui::change_unit_array),
+        "ui.edit_layout" => with(gui, Gui::edit_layout),
         "ui.atrium" => with(gui, Gui::atrium),
         "ui.baffles" => with(gui, Gui::baffles),
         "ui.sun_check" => with(gui, Gui::sun_check),

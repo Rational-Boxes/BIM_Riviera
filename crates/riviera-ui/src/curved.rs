@@ -292,6 +292,15 @@ impl Gui {
                 TAPERS,
                 &name(json!(a.taper)),
             ));
+            // The pair of opposite footprint edges the arch springs from (the others are its
+            // ends): each edge with the one across from it.
+            let n = recipe.edges.len().max(a.spring[0].max(a.spring[1]) as usize) as u32;
+            if n >= 4 && n % 2 == 0 {
+                let pairs: Vec<(String, i32)> = (1..=n / 2).map(|k| (format!("Edges {k} and {}", k + n / 2), k as i32 - 1)).collect();
+                let at = (a.spring[0].min(a.spring[1]) as i32 - 1).clamp(-1, n as i32 / 2 - 1);
+                grid.append(Property::enumeration("Spring Edges", "ar_spring", pairs, at));
+                grid.set_help_string("ar_spring", "The opposite footprint edges the arch springs from; the others are its ends");
+            }
             let rows = [
                 ("Rise", "ar_rise", a.rise),
                 ("Overhang", "ar_overhang", a.overhang),
@@ -464,6 +473,10 @@ impl Gui {
             ),
             "ar_taper" => ("roof.set_arch", "taper", choice(TAPERS).map(|v| json!(v))),
             "ar_rise" => ("roof.set_arch", "rise", Some(json!(text))),
+            "ar_spring" => {
+                let nums: Vec<u32> = text.split(|c: char| !c.is_ascii_digit()).filter_map(|s| s.parse().ok()).collect();
+                ("roof.set_arch", "spring_edges", (nums.len() == 2).then(|| json!([nums[0], nums[1]])))
+            }
             "ar_overhang" => ("roof.set_arch", "overhang", Some(json!(text))),
             "ar_end_overhang" => ("roof.set_arch", "end_overhang", Some(json!(text))),
             "do_profile" => (

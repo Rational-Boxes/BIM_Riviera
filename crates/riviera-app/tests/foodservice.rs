@@ -108,3 +108,30 @@ fn a_dish_machine_gets_a_type_ii_hood_and_wants_a_floor_sink() {
     ok(&mut app, "mesh_object.place", json!({ "type_id": t["Floor sink 12 × 12 in"], "point": [x, -1.0], "level": level }));
     assert_eq!(rules(&ok(&mut app, "foodservice.check", json!({}))), vec!["Mop sink"]);
 }
+
+#[test]
+fn a_line_up_is_made_again_with_other_equipment() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });
+    ok(&mut app, "file.new", json!({}));
+    let level = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    let line = ok(&mut app, "foodservice.lineup", json!({ "start": [0.0, 0.0], "end": [6.0, 0.0], "level": level, "toward": [0.0, -1.0], "items": ["Range, 6-burner with oven 36 in", "Convection oven, double deck"] }));
+    let piece = line["placed"][0]["element"].clone();
+    let l = ok(&mut app, "layout.get", json!({ "element_id": piece }));
+    assert_eq!(l["command"], "foodservice.lineup");
+    let before = l["elements"].as_array().unwrap().len();
+    assert!(before >= 3, "two pieces and a hood: {l:#}");
+    // A fryer added: a baffle too, and the line made again in one step.
+    let r = ok(&mut app, "layout.redo", json!({ "element_id": piece, "params": { "items": ["Fryer, 40 lb gas", "Range, 6-burner with oven 36 in", "Convection oven, double deck"] } }));
+    assert_eq!(r["removed"].as_u64().unwrap() as usize, before);
+    assert_eq!(r["result"]["placed"].as_array().unwrap().len(), 3);
+    assert_eq!(r["result"]["baffles"].as_array().unwrap().len(), 1);
+    let again = ok(&mut app, "layout.get", json!({ "element_id": r["result"]["placed"][0]["element"] }));
+    assert_eq!(again["params"]["items"][0], "Fryer, 40 lb gas");
+    // One undo brings the first line back.
+    ok(&mut app, "edit.undo", json!({}));
+    assert_eq!(ok(&mut app, "layout.get", json!({ "element_id": piece }))["elements"].as_array().unwrap().len(), before);
+    // Something no layout placed.
+    let wall = ok(&mut app, "wall.create", json!({ "curve": { "line": { "start": [0.0, 5.0], "end": [4.0, 5.0] } }, "base_level": level, "top_constraint": { "unconnected": 3.0 } }));
+    assert_eq!(app.execute("layout.get", json!({ "element_id": wall }), &Caller::user()).unwrap_err().code, "layout.none");
+}

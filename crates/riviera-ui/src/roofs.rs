@@ -25,6 +25,9 @@ const CUTS: &[(&str, &str)] = &[
 ];
 const SOFFITS: &[(&str, &str)] = &[("Boxed", "boxed"), ("Sloped", "sloped"), ("Open", "open")];
 const YES_NO: &[(&str, &str)] = &[("No", "false"), ("Yes", "true")];
+/// A sloped glazing grid's layouts (ARC-GLZ-001) and panels.
+const GLAZING_LAYOUTS: &[(&str, &str)] = &[("None", "none"), ("Fixed Distance", "fixed_distance"), ("Fixed Number", "fixed_number"), ("Maximum Spacing", "maximum_spacing"), ("Minimum Spacing", "minimum_spacing")];
+const GLAZING_PANELS: &[(&str, &str)] = &[("Glazed", "glazed"), ("Solid", "solid"), ("Empty", "empty"), ("Vent", "vent")];
 
 fn choices(list: &[(&str, &str)]) -> Vec<(String, i32)> {
     list.iter()
@@ -375,6 +378,68 @@ impl Gui {
             thickness,
         ));
         self.type_rows = current;
+        // A sloped glazing type's grids, mullions and panel (`roof.set_glazing_type`).
+        if let Some(g) = roofs::glazing::of_roof(&store, e) {
+            grid.append(Property::category("Sloped Glazing (type)", "c_roof_glazing"));
+            let pick = |list: &[(&str, &str)], v: &str| list.iter().position(|c| c.1 == v).map_or(-1, |i| i as i32);
+            let labels = |list: &[(&str, &str)]| list.iter().enumerate().map(|(i, c)| (c.0.to_owned(), i as i32)).collect::<Vec<_>>();
+            for (rule, k, label) in [(g.u, "grid1", "Grid 1 (up the slope)"), (g.v, "grid2", "Grid 2 (along the eave)")] {
+                let layout = serde_json::to_value(rule.layout).ok().and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default();
+                grid.append(Property::enumeration(format!("{label} Layout"), format!("gz:{k}_layout"), labels(GLAZING_LAYOUTS), pick(GLAZING_LAYOUTS, &layout)));
+                let value = if layout == "fixed_number" { rule.number.to_string() } else { self.format_length(rule.spacing) };
+                grid.append(Property::string(format!("{label} {}", if layout == "fixed_number" { "Number" } else { "Spacing" }), format!("gz:{k}_value"), value));
+            }
+            let m = g.interior.unwrap_or(riviera_core::curtain::Mullion { width: 0.05, depth: 0.15 });
+            grid.append(Property::string("Mullion Width", "gz:mullion_width", self.format_length(m.width)));
+            grid.append(Property::string("Mullion Depth", "gz:mullion_depth", self.format_length(m.depth)));
+            let panel = serde_json::to_value(g.panel).ok().and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default();
+            grid.append(Property::enumeration("Panel", "gz:panel", labels(GLAZING_PANELS), pick(GLAZING_PANELS, &panel)));
+        }
+    }
+
+    /// An edit of a sloped glazing type row; `false` if `property` is not one.
+    pub(crate) fn roof_glazing_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(row) = property.strip_prefix("gz:") else { return false };
+        let frame = self.frame;
+        let text = text.unwrap_or_default();
+        let Some(t) = self.type_rows else { return true };
+        let Some(g) = self.store_now().and_then(|s| s.get(t).and_then(roofs::glazing::of_type)) else { return true };
+        let mut args = json!({ "type_id": t });
+        let rule = |r: riviera_core::curtain::Rule| serde_json::to_value(r).unwrap_or_default();
+        match row {
+            "grid1_layout" | "grid2_layout" => {
+                let Some(l) = GLAZING_LAYOUTS.iter().find(|c| c.0 == text) else { return true };
+                let mut r = rule(if row == "grid1_layout" { g.u } else { g.v });
+                r["layout"] = json!(l.1);
+                args[&row[..5]] = r;
+            }
+            "grid1_value" | "grid2_value" => {
+                let mut r = rule(if row == "grid1_value" { g.u } else { g.v });
+                if r["layout"] == "fixed_number" {
+                    let Ok(n) = text.trim().parse::<u32>() else { return true };
+                    r["number"] = json!(n);
+                } else {
+                    let Some(v) = self.parse_length_text(&text) else { return true };
+                    r["spacing"] = json!(v);
+                }
+                args[&row[..5]] = r;
+            }
+            "mullion_width" | "mullion_depth" => {
+                let Some(v) = self.parse_length_text(&text) else { return true };
+                args[row] = json!(v);
+            }
+            "panel" => {
+                let Some(p) = GLAZING_PANELS.iter().find(|c| c.0 == text) else { return true };
+                args["panel"] = json!(p.1);
+            }
+            _ => return true,
+        }
+        if let Err(e) = self.run("roof.set_glazing_type", args) {
+            error(&frame, &format!("The glazing type was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        true
     }
 
     /// An edit of a roof row; `false` if `property` is not one.

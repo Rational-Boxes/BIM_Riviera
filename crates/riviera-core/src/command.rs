@@ -255,6 +255,18 @@ impl<'a> CommandContext<'a> {
         self.registry
     }
 
+    /// Runs another editing command inside this one's transaction (one undo step for both), with
+    /// the same caller, permission and argument checks (Edit Layout's re-run).
+    pub fn run_nested(&mut self, name: &str, args: Value) -> Result<Value> {
+        let registry = self.registry;
+        let units = crate::units::settings_of(self.store());
+        let (entry, args) = registry.prepare(name, args, self.caller, &units)?;
+        match &entry.handler {
+            Handler::Document { run, direct: false } if entry.spec.edits() => run(self, args),
+            _ => Err(Error::new("registry.not_nested", format!("`{name}` cannot run inside another command"))),
+        }
+    }
+
     /// The model as the command currently sees it, including its own uncommitted edits.
     pub fn store(&self) -> &Store {
         match &self.state {
@@ -488,7 +500,13 @@ impl CommandRegistry {
             state,
             direct_commit: None,
         };
+        let original = crate::layouts::is_layout(name).then(|| args.clone());
         let result = guard(name, || run(&mut cx, args))?;
+        // A layout's pieces remember what made them, so Edit Layout can make them again
+        // (EDIT_AUDIT phase 5).
+        if let (Some(a), State::Edit(txn)) = (original, &mut cx.state) {
+            crate::layouts::tag(txn, name, &a)?;
+        }
         // Constraints hold after every edit (ARC-CNST-002): the solver moves what the edit did
         // not, or the edit fails.
         // Hosted walls follow their hosts (ARC-WALL-016) first.

@@ -482,3 +482,58 @@ mod tests {
         assert_eq!(super::split_row("98' 6\" 120.5"), ("98' 6\"", "120.5"));
     }
 }
+
+impl Gui {
+    /// A selected toposolid's points (SITE-TOPO-001): each point's height above the level and
+    /// offset, changed by typing it or removed by clearing it, and a row to add one as
+    /// `x, y, z` (`toposolid.set_points`).
+    pub(crate) fn toposolid_rows(&mut self, grid: &wxdragon::prelude::PropertyGrid, id: ElementId) {
+        use wxdragon::prelude::Property;
+        let Some(r) = self.store_now().and_then(|s| s.get(id).and_then(riviera_core::toposolids::recipe)) else { return };
+        grid.append(Property::category(format!("Points ({})", r.points.len()), "c_topo_points"));
+        const SHOWN: usize = 80;
+        for (k, p) in r.points.iter().take(SHOWN).enumerate() {
+            let label = format!("{} ({:.2}, {:.2}){}", k + 1, p.x, p.y, if p.locked { " locked" } else { "" });
+            let key = format!("topo:{k}");
+            grid.append(Property::string(label, &key, self.format_length(p.z)));
+            grid.set_help_string(&key, "Its height above the toposolid's level and offset; clear it to remove the point");
+        }
+        if r.points.len() > SHOWN {
+            grid.append(Property::string("More points", "topo_more", format!("{} more (toposolid.set_points)", r.points.len() - SHOWN)));
+            grid.set_property_read_only("topo_more", true);
+        }
+        grid.append(Property::string("Add Point (x, y, z m)", "topo:add", String::new()));
+        grid.set_help_string("topo:add", "A new point inside the boundary, as x, y, z in metres");
+    }
+
+    /// An edit of a toposolid point row; `false` if `property` is not one.
+    pub(crate) fn toposolid_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(row) = property.strip_prefix("topo:") else { return false };
+        let frame = self.frame;
+        let text = text.unwrap_or_default();
+        let Some(id) = self.selection().first().copied() else { return true };
+        let Some(r) = self.store_now().and_then(|s| s.get(id).and_then(riviera_core::toposolids::recipe)) else { return true };
+        let args = if row == "add" {
+            let v: Vec<f64> = text.split(',').filter_map(|n| n.trim().parse().ok()).collect();
+            if v.len() != 3 {
+                super::error(&frame, "Type the point as x, y, z in metres, for example 12.5, 4, 1.2");
+                return true;
+            }
+            json!({ "toposolid_id": id, "points": [[v[0], v[1], v[2]]] })
+        } else {
+            let Some(p) = row.parse::<usize>().ok().and_then(|k| r.points.get(k)) else { return true };
+            if text.trim().is_empty() {
+                json!({ "toposolid_id": id, "remove": [[p.x, p.y]] })
+            } else {
+                let Some(z) = self.parse_length_text(&text) else { return true };
+                json!({ "toposolid_id": id, "points": [[p.x, p.y, z]] })
+            }
+        };
+        if let Err(e) = self.run("toposolid.set_points", args) {
+            super::error(&frame, &format!("The toposolid was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        true
+    }
+}
