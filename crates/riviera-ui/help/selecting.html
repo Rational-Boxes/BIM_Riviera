@@ -189,11 +189,21 @@ walls and floors.</p>
   <li><b>Connect Units</b>: select the corridor mains (straight level ducts and pipes) and every
     copy's open connectors are run into the nearest main of the same system on its level, as
     Connect Into does, joining its system.</li>
-  <li>To change every copy, select a member of one and <b>Edit Group</b>; <b>Finish</b> remakes
-    every copy and merges them again.</li>
+  <li><b>Edit Unit</b> changes every copy by editing one on its own. Select any part of a copy
+    (or nothing, then choose the unit type: its first copy that is not mirrored opens). The copy
+    opens in the group editor with the rest of the model hidden, framed in the view, and the
+    walls it had merged into the building's made again, its door and window back in them, so the
+    whole unit is there to edit. Move, change or delete its members; draw new things and
+    <b>Add</b> them, or <b>Remove</b> members. <b>Show Context</b> on the Edit Group tab fades
+    the building in around it (and hides it again). <b>Finish</b> remakes every copy of the type
+    from it and merges them with the building again; <b>Cancel</b> puts the copy back as it
+    was. Either way the model is shown again.</li>
+  <li>Selecting a member of a copy and <b>Edit Group</b> does the same in place, without hiding
+    the rest.</li>
 </ul>
 <p><code>unit.create_type</code>, <code>unit.array</code>, <code>unit.set_array</code>,
-<code>unit.list</code>, <code>unit.types</code>, <code>unit.connect</code></p>
+<code>unit.list</code>, <code>unit.types</code>, <code>unit.connect</code>,
+<code>unit.edit</code> (then <code>group.finish</code> or <code>group.cancel</code>)</p>
 
 <h2 id="selection-sets">Saved selections</h2>
 <p><b>Manage › Selection › Save Selection</b> names the current selection; <b>Load

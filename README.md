@@ -482,7 +482,9 @@ Create … Boundary* tab:
   (an accessible room). Each copy merges with the building: its walls on the façade, the corridor
   or a neighbour's are built once, its doors and windows cut into those walls (and a bathroom's
   wall-hung fixtures moved onto them), its balcony joined to the floor. `unit.connect` runs every copy's duct and pipe connectors into the corridor mains
-  of their system and sums the flow each main serves. Editing one copy edits them all.
+  of their system and sums the flow each main serves. Editing one copy edits them all: **Edit
+  Unit** (`unit.edit`) opens a copy on its own, the rest of the model hidden or faded and its
+  merged walls made again, and Finish remakes every copy from it.
 - **Saved selections** (Manage › Selection): Save and Load Selection (members hidden in the view
   left out unless asked for), Edit Selection mode (picks and window selections add or remove,
   Finish is one step), and the project option to export sets as `IfcGroup`s
@@ -2030,7 +2032,8 @@ architecture requirements (Chapter 3), every area now has a first build; this is
 area by area (reviewed against the spec on 2026-10-15).
 
 - **Modular units** (ARC-GRP-004, first build 2026-11-12; see above): grids and fills through
-  boundaries with exclusion shapes, curved paths, the template edited in its own isolated views,
+  boundaries with exclusion shapes, curved paths, the template edited in saved views of its own
+  at its origin (Edit Unit isolates a copy in place),
   connection points placed by hand, risers and vertical spines, the trunks sized from the units'
   sums, continuous balconies and thermal breaks, GlobalIds kept when copies are remade, zones and
   schedules of units.

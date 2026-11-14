@@ -31491,8 +31491,9 @@ unchanged. The first domain on the shared format is <strong>interiors</strong>: 
 - <code>unit.create_type(element_ids, name, origin, rotation?, width, depth, keep?) -&gt; {type_id, group_type, members}</code>;
 - <code>unit.array(unit_type, path, levels[], sides?, corridor?, pitch?, count?, start?, exclusions?, handing?, variants?, numbering?, name?) -&gt; {array_id, copies, per_level, per_type, unmerged}</code>: along a straight path, one or both sides of a corridor, <code>exclusions</code> as stretches along the path, <code>variants</code> as <code>{unit_type, every, first}</code>;
 - <code>unit.set_array(array_id, …)</code> remakes the copies; <code>unit.list(array_id?)</code>, <code>unit.types()</code>;
-- <code>unit.connect(array_id | copy_ids, spines[]) -&gt; {branches, unconnected, spines [{spine, branches, flow}]}</code>: every open duct and pipe connector into the nearest straight level main of its system on its level, by Connect Into (MEP-DUCT-009), joining the main's system; the main's pieces split at each tee are followed.</p>
-<p>Merging as built: a unit wall that lies on another wall (parallel, overlapping along half its length, within the two walls' half-thicknesses) is not built, and its doors and windows are hosted on that wall where they stand; corridor- and façade-face walls with nothing to merge with are listed. A slab wholly beyond the façade face joins (<code>rxd:joined_to</code>) the floor on its level within 0.35 m. Editing a copy (Edit Group, Finish) undoes its merges first, mirrors it back to the type's hand and maps its level back, takes the template, and remakes and re-merges every copy. Defaults are E-133. Not yet: grids and volume fills with exclusion shapes, curved paths, <em>Edit Unit</em> in isolated views, connection points placed by hand, vertical spines and risers, sizing the trunks from the sums, variant rules by count (ADA 224.2), balcony railings hosted on the slab edge, continuous balconies and thermal breaks, GlobalIds kept when copies are remade, tees left on the mains when copies are remade, <code>IfcZone</code>s and unit schedules.</p>
+- <code>unit.connect(array_id | copy_ids, spines[]) -&gt; {branches, unconnected, spines [{spine, branches, flow}]}</code>: every open duct and pipe connector into the nearest straight level main of its system on its level, by Connect Into (MEP-DUCT-009), joining the main's system; the main's pieces split at each tee are followed;
+- <code>unit.edit(element_id | unit_type) -&gt; {copy, number, unit_type, copies, members}</code> (2026-11-13): opens a copy in the group editor: the copy given or the one a member belongs to, or the first copy (not mirrored, then lowest number) of an array or a type. The walls it merged into the building's are made again first, its doors, windows and wall-hung fixtures moved back onto them, so the whole unit is there; <code>group.finish</code> remakes every copy and merges them again, <code>group.cancel</code> remakes it as it was.</p>
+<p>Merging as built: a unit wall that lies on another wall (parallel, overlapping along half its length, within the two walls' half-thicknesses) is not built, and its doors and windows are hosted on that wall where they stand; corridor- and façade-face walls with nothing to merge with are listed. A slab wholly beyond the façade face joins (<code>rxd:joined_to</code>) the floor on its level within 0.35 m. Editing a copy (Edit Group, Finish) undoes its merges first, mirrors it back to the type's hand and maps its level back, takes the template, and remakes and re-merges every copy. Defaults are E-133. <em>Edit Unit</em> (2026-11-13; owner: "the parametric duplicate mechanism needs an interface to edit the room in isolation so that all instances update from the original"): Architecture › Model › <strong>Edit Unit</strong> opens the selected copy (or a type's first copy, chosen from a list) by <code>unit.edit</code> and isolates its members in the active view (temporary isolate, DOC-GFX-008, so things drawn while editing stay shown), selected and framed; the Edit Group tab adds <strong>Show Context</strong> (the rest faded at 25 %, or hidden again: the per-view <em>hidden|faded</em> choice), and Finish or Cancel resets the view's isolation. As built the copy is edited where it stands rather than at the type's origin in views of its own, and the bay, clearances and connection points are not drawn. Test: <code>modular_units.rs</code> <code>a_unit_edited_in_isolation_updates_every_copy</code>. Not yet: grids and volume fills with exclusion shapes, curved paths, <em>Edit Unit</em> in saved views of its own at the template's origin with its bay drawn, connection points placed by hand, vertical spines and risers, sizing the trunks from the sums, variant rules by count (ADA 224.2), balcony railings hosted on the slab edge, continuous balconies and thermal breaks, GlobalIds kept when copies are remade, tees left on the mains when copies are remade, <code>IfcZone</code>s and unit schedules.</p>
 <p><em>Fixed (2026-11-13), wall-hung fixtures in copies:</em> a bathroom laid out on a unit's side wall hangs its fixtures on that wall's face (MEP-PIPE-006). Three faults put them outside their rooms in the hotel sample (owner, 2026-11-13: "Restrooms in the rooms" not showing): moving a wall and a fixture on it together moved the fixture twice (it took its place from the wall already moved, then moved by the same vector); a merged side wall left its fixtures hosted on a wall that was gone, so they fell back to stale points; and a mirrored copy turned their backs, and their clear spaces, through the wall. Now a move takes face-hosted copies from where they were drawn before it (walls are moved first), re-reads the face they are on after it, and keeps them facing out from the face through a mirror; a merge moves the fixtures on a merged wall onto the same face of the wall that stays (recorded with the doors and windows, and moved back by <code>unmerge</code>); and fixtures left on a neighbour's wall that was made again (its copy edited) go onto the wall now in its place. Test: <code>modular_units.rs</code> <code>fixtures_on_a_shared_side_wall_stay_in_their_rooms</code> (mirrored pairs both sides of a corridor on two floors, an edit of one copy, no overlaps or fixture-space intrusions).</p>
 
 <h2 id="314-temporary-dimensions-constraints-and-selection">3.14 Temporary dimensions, constraints and selection</h2>
@@ -32888,9 +32889,9 @@ unchanged. The first domain on the shared format is <strong>interiors</strong>: 
 </tr>
 <tr>
 <td><code>unit.edit</code></td>
-<td>type_id | copy_id, context?: hidden|faded</td>
-<td>view_id</td>
-<td>No</td>
+<td>element_id | unit_type</td>
+<td>{copy, number, unit_type, copies, members}</td>
+<td>Yes</td>
 <td>ARC-GRP-004</td>
 </tr>
 <tr>
@@ -77057,10 +77058,10 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 <tr>
 <td><code>unit.edit</code></td>
 <td>3</td>
-<td>type_id \</td>
-<td>copy_id, context?: hidden\</td>
-<td>faded</td>
-<td>view_id</td>
+<td>element_id \</td>
+<td>unit_type</td>
+<td>{copy, number, unit_type, copies, members}</td>
+<td>Yes</td>
 </tr>
 <tr>
 <td><code>unit.fill</code></td>

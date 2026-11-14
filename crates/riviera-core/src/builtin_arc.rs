@@ -554,6 +554,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitList),
         registry.add(UnitTypes),
         registry.add(UnitConnect),
+        registry.add(UnitEdit),
         registry.add(AtriumCreate),
         registry.add(AtriumCheck),
         registry.add(ShadingBaffles),
@@ -6874,6 +6875,17 @@ edit_command!(
     crate::modular_units::SetArrayParams,
     crate::modular_units::ArrayReport,
     crate::modular_units::set_array
+);
+
+edit_command!(
+    UnitEdit,
+    "unit.edit",
+    "Edit a unit type in isolation",
+    "Opens a unit copy in the group editor so its type can be edited on its own (ARC-GRP-004): the copy given (`element_id`: a copy or one of its members), or the first copy of a unit array (`element_id`) or of a `unit_type` (not mirrored, then the lowest number). The walls it merged into the building's are made again so the whole unit is there; its doors and windows go back into them. Change its members in place, add or remove with `group.add_members` and `group.remove_members`, then `group.finish` remakes every copy of the type from it (merged with the building again), or `group.cancel` puts it back. The window isolates the copy while it is edited. Returns the copy, its number, its type, how many copies follow it and its members.",
+    "Edit Unit",
+    crate::modular_units::EditParams,
+    crate::modular_units::Editing,
+    crate::modular_units::edit
 );
 
 read_command!(

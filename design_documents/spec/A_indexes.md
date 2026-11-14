@@ -2867,7 +2867,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `unit.array_path` | 3 | type_id, path, count \ | pitch, handing?, numbering? | array_id | Yes |
 | `unit.connect` | 3 | array_id \ | copy_ids, spines | {branches, unconnected} | Yes |
 | `unit.create_type` | 3 | room_ids \ | element_ids, name, bay? | {type_id, members, left_out} | Yes |
-| `unit.edit` | 3 | type_id \ | copy_id, context?: hidden\ | faded | view_id |
+| `unit.edit` | 3 | element_id \ | unit_type | {copy, number, unit_type, copies, members} | Yes |
 | `unit.fill` | 3 | type_id, path \ | boundary, levels, pitch, exclusions?, handing?, variants?, numbering? | array_id | Yes |
 | `unit.list` | 3 | array_id? | [{copy, number, level, type, handing, connected}] | No (query) | ARC-GRP-004 |
 | `unit.set_array` | 3 | array_id, params | — | Yes | ARC-GRP-004 |

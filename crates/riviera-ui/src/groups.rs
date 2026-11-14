@@ -144,10 +144,12 @@ impl Gui {
             json!({}),
             "Group edited: every instance follows",
         );
+        self.unit_edit_closed(true);
     }
 
     pub(crate) fn group_cancel(&mut self) {
         self.group_run("group.cancel", json!({}), "Group editing cancelled");
+        self.unit_edit_closed(false);
     }
 
     /// Exclude the selected member from its instance.

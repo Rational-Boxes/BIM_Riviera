@@ -1082,6 +1082,18 @@ icon = "unit_connect"
 help = "Run a branch from every unit copy's open duct and pipe connectors into the selected mains of the same system on its level (ARC-GRP-004)"
 
 [[action]]
+id = "ui.edit_unit"
+label = "Edit Unit"
+icon = "unit_edit"
+help = "Edit a unit type in isolation (ARC-GRP-004): the selected copy, or the first copy of a type chosen from a list, opens in the group editor with the rest of the model hidden and the walls it merged into the building's made again; Finish remakes every copy from it, Cancel puts it back"
+
+[[action]]
+id = "ui.unit_context"
+label = "Show Context"
+icon = "unit_context"
+help = "While a unit is edited in isolation, show the building around it faded, or hide it again (ARC-GRP-004)"
+
+[[action]]
 id = "ui.pool_plant"
 label = "Pool Plant"
 icon = "pool_plant"
@@ -4036,6 +4048,7 @@ tools = [
   { action = "ui.unit_type", size = "small" },
   { action = "ui.unit_array", size = "small" },
   { action = "ui.unit_connect", size = "small" },
+  { action = "ui.edit_unit", size = "small" },
   { action = "inplace.create", size = "small" },
   { action = "modeltext.create", size = "small" },
 ]
@@ -5266,6 +5279,7 @@ panels = [{ label = "Edit Group", tools = [
   { action = "group.remove_members", size = "large" },
   { action = "group.finish", size = "large" },
   { action = "group.cancel", size = "large" },
+  { action = "ui.unit_context", size = "large" },
 ] }]
 
 [[context]]
@@ -5318,7 +5332,7 @@ items = [
   "opening.create_wall", "opening.create_vertical", "opening.create_by_face", "opening.create_shaft", "-",
   "grid.create", "level.create", "refplane.create", "modelline.create", "-",
   "workplane.set", "workplane.show", "-",
-  "ui.unit_type", "ui.unit_array", "ui.unit_connect", "-",
+  "ui.unit_type", "ui.unit_array", "ui.unit_connect", "ui.edit_unit", "-",
   "ui.make_product", "ui.swap_for_product", "ui.product_documents",
 ]
 

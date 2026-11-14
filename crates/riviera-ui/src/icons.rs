@@ -1536,6 +1536,14 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "unit_connect" => format!(
             r#"<path d="M2 6h28" stroke="{f}" stroke-width="3"/><path d="M8 6v10M16 6v10M24 6v10" {s}/><rect x="4" y="16" width="8" height="12" fill="{a}" {s}/><rect x="12" y="16" width="8" height="12" fill="{a}" {s}/><rect x="20" y="16" width="8" height="12" fill="{a}" {s}/>"#
         ),
+        // One room of a row drawn solid, the others dashed (Edit Unit).
+        "unit_edit" => format!(
+            r#"<path d="M2 6h28v12H2z" fill="none" stroke-dasharray="2 2" {s}/><rect x="11" y="6" width="10" height="12" fill="{a}" {s}/><path d="M14 26l10-10 3 3-10 10h-3z" fill="{f}"/>"#
+        ),
+        // A room with faded neighbours either side (Show Context).
+        "unit_context" => format!(
+            r#"<rect x="2" y="9" width="8" height="14" fill="{a}" opacity="0.35" {s}/><rect x="22" y="9" width="8" height="14" fill="{a}" opacity="0.35" {s}/><rect x="11" y="7" width="10" height="18" fill="{a}" {s}/>"#
+        ),
         // A filter vessel and a pump on a plinth beside a tank.
         "pool_plant" => format!(
             r#"<rect x="3" y="12" width="9" height="15" rx="4" fill="{a}" {s}/><rect x="15" y="20" width="8" height="7" {s}/><circle cx="19" cy="23" r="2" fill="{f}"/><rect x="25" y="8" width="5" height="19" {s}/><path d="M7 12V6h21v2M2 28h29" fill="none" {s}/>"#

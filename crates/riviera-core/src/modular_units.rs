@@ -854,6 +854,77 @@ pub(crate) fn list_types(store: &Store, _: Option<ListParams>) -> Result<Vec<Typ
         .collect())
 }
 
+// ---- Editing in isolation ----
+
+#[derive(Debug, Default, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct EditParams {
+    /// A copy, one of its members, or a unit array (its first copy) …
+    pub element_id: Option<ElementRef>,
+    /// … or a unit type, by key or name (its first copy).
+    pub unit_type: Option<String>,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct Editing {
+    /// The copy opened in the group editor.
+    pub copy: ElementId,
+    pub number: String,
+    pub unit_type: String,
+    /// The copies that follow it when the edit finishes, this one included.
+    pub copies: usize,
+    /// Its members as they are now, the walls it had merged into the building's made again.
+    pub members: Vec<ElementId>,
+}
+
+/// The copy `unit.edit` opens: the one given, a member's, or the first (not mirrored, then
+/// lowest number) of an array or a type.
+fn copy_to_edit(store: &Store, p: &EditParams) -> Result<ElementId> {
+    let first = |pick: &dyn Fn(&CopyInfo) -> bool| {
+        let mut c: Vec<(bool, String, ElementId)> = store.iter().filter_map(|e| Some((e, copy_info(e)?))).filter(|(_, c)| pick(c)).map(|(e, c)| (c.mirrored, c.number, e.id())).collect();
+        c.sort();
+        c.first().map(|x| x.2).ok_or_else(|| bad("unit.no_copy", "it has no copies to edit"))
+    };
+    if let Some(r) = &p.element_id {
+        let id = resolve(store, r)?;
+        let e = store.get(id).expect("resolved");
+        if copy_info(e).is_some() {
+            return Ok(id);
+        }
+        if array_recipe(e).is_some() {
+            let guid = e.guid().to_string();
+            return first(&|c| c.array == guid);
+        }
+        if let Some(g) = groups::instance_of(e).and_then(|g| find(store, &g)).filter(|g| store.get(*g).and_then(copy_info).is_some()) {
+            return Ok(g);
+        }
+        return Err(bad("unit.no_copy", format!("element {id} is not a unit copy, one of its members or a unit array")));
+    }
+    let Some(t) = &p.unit_type else {
+        return Err(bad("unit.no_copy", "choose a copy, a unit array or a unit type to edit"));
+    };
+    let t = unit_type(store, t)?;
+    first(&|c| c.unit_type == t.id)
+}
+
+/// `unit.edit`: opens a copy in the group editor to edit its type in isolation; the walls it
+/// merged into the building's are made again so the whole unit is there. Finish (`group.finish`)
+/// remakes every copy from it, merged again; Cancel puts it back as it was.
+pub(crate) fn edit(txn: &mut Transaction<'_>, p: EditParams) -> Result<Editing> {
+    let copy = copy_to_edit(txn.store(), &p)?;
+    groups::edit(txn, groups::InstanceParams { instance_id: ElementRef::Id(copy) })?;
+    unmerge(txn, copy)?;
+    let store = txn.store();
+    let info = copy_info(store.get(copy).expect("found")).expect("a copy");
+    Ok(Editing {
+        copy,
+        number: info.number,
+        unit_type: unit_type(store, &info.unit_type).map(|t| t.name).unwrap_or_default(),
+        copies: store.iter().filter(|e| copy_info(e).is_some_and(|c| c.unit_type == info.unit_type)).count(),
+        members: members(store, copy),
+    })
+}
+
 // ---- Services ----
 
 #[derive(Debug, Deserialize, JsonSchema)]

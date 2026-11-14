@@ -3,13 +3,26 @@
 
 //! Modular units (ARC-GRP-004): Create Unit Type makes the selection a unit type with its bay,
 //! its corner clicked in a plan; Unit Array repeats a type along a corridor clicked start to end,
-//! on a range of levels; Connect Units runs every copy's open connectors into the selected mains.
+//! on a range of levels; Connect Units runs every copy's open connectors into the selected mains;
+//! Edit Unit opens a copy in the group editor with the rest of the model hidden (or faded, Show
+//! Context), and Finish or Cancel brings the model back.
 //! Atrium (ARC-GLZ-018): a void clicked corner to corner, opened up to a chosen level and roofed.
 
 use serde_json::json;
 use wxdragon::prelude::*;
 
+use riviera_core::ElementId;
+
 use super::{Gui, error};
+
+/// The unit being edited in isolation: the view isolating it and its members.
+#[derive(Debug, Clone)]
+pub(crate) struct UnitEdit {
+    pub view: Option<ElementId>,
+    pub members: Vec<ElementId>,
+    pub faded: bool,
+    pub copies: u64,
+}
 
 impl Gui {
     /// Architecture › Model › Create Unit Type: the bay's size, then its corridor-face corner.
@@ -167,6 +180,91 @@ impl Gui {
             }
         }
         MessageDialog::builder(&frame, &text, "Connect Units").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build().show_modal();
+    }
+}
+
+impl Gui {
+    /// Architecture › Model › Edit Unit: the selected copy (or one of its members, or an array),
+    /// or a unit type chosen from a list, opened in the group editor with everything else hidden.
+    pub(crate) fn edit_unit(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return };
+        let selected = self.selection().into_iter().find(|id| {
+            store.get(*id).is_some_and(|e| {
+                riviera_core::modular_units::copy_info(e).is_some()
+                    || riviera_core::modular_units::array_recipe(e).is_some()
+                    || riviera_core::groups::instance_of(e).and_then(|g| store.find_by_guid(&riviera_core::GlobalId::parse(&g)?)).and_then(|g| store.get(g)).and_then(riviera_core::modular_units::copy_info).is_some()
+            })
+        });
+        let args = match selected {
+            Some(id) => json!({ "element_id": id }),
+            None => {
+                let types = riviera_core::modular_units::types(&store);
+                if types.is_empty() {
+                    return error(&frame, "There are no unit types: make one with Create Unit Type.");
+                }
+                let labels: Vec<&str> = types.iter().map(|t| t.name.as_str()).collect();
+                let dialog = SingleChoiceDialog::builder(&frame, "Unit type to edit (its first copy opens; every copy follows):", "Edit Unit", &labels).build();
+                if dialog.show_modal() != ID_OK {
+                    return;
+                }
+                let Some(t) = usize::try_from(dialog.get_selection()).ok().and_then(|i| types.get(i)) else { return };
+                json!({ "unit_type": t.id })
+            }
+        };
+        let v = match self.run("unit.edit", args) {
+            Ok(v) => v,
+            Err(e) => return error(&frame, &format!("The unit was not opened:\n{e}")),
+        };
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        let members: Vec<ElementId> = v["members"].as_array().map(|a| a.iter().filter_map(|x| x.as_u64().map(ElementId)).collect()).unwrap_or_default();
+        let copies = v["copies"].as_u64().unwrap_or(0);
+        self.unit_edit = Some(UnitEdit { view: self.active_view().and_then(|v| v.element), members: members.clone(), faded: false, copies });
+        self.isolate_unit();
+        self.select_ids(&members, super::select::Combine::Replace);
+        self.zoom_to_fit();
+        frame.set_status_text(
+            &format!(
+                "Editing unit {} ({}) alone: Finish updates all {copies} copies",
+                v["number"].as_str().unwrap_or("?"),
+                v["unit_type"].as_str().unwrap_or("?"),
+            ),
+            0,
+        );
+    }
+
+    /// The unit being edited isolated in the active view: the rest hidden, or faded.
+    fn isolate_unit(&mut self) {
+        let Some(u) = self.unit_edit.clone() else { return };
+        self.temp("view.temp_isolate", &u.members, json!({ "by": "element", "ghost_others": u.faded }));
+    }
+
+    /// Edit Group › Show Context: the building around the unit being edited faded in, or hidden
+    /// again.
+    pub(crate) fn unit_context(&mut self) {
+        let Some(u) = &mut self.unit_edit else {
+            return self.frame.set_status_text("Show Context: open a unit with Edit Unit first", 0);
+        };
+        u.faded = !u.faded;
+        let faded = u.faded;
+        self.isolate_unit();
+        self.frame.set_status_text(if faded { "The building around the unit is shown faded" } else { "The unit alone" }, 0);
+    }
+
+    /// After Finish or Cancel in the group editor: a unit's isolation ends.
+    pub(crate) fn unit_edit_closed(&mut self, finished: bool) {
+        let Some(u) = self.unit_edit.take() else { return };
+        let args = match u.view {
+            Some(v) => json!({ "view_id": v }),
+            None => json!({}),
+        };
+        let _ = self.run("view.temp_reset", args);
+        self.clear_selection();
+        self.after_temp_change_pub();
+        if finished {
+            self.frame.set_status_text(&format!("Unit edited: all {} copies follow it", u.copies), 0);
+        }
     }
 }
 

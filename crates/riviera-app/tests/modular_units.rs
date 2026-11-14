@@ -208,3 +208,60 @@ fn fixtures_on_a_shared_side_wall_stay_in_their_rooms() {
     assert!(spaces.is_empty(), "{spaces:#?}");
 }
 
+
+#[test]
+fn a_unit_edited_in_isolation_updates_every_copy() {
+    let (_dir, mut app, levels, all) = setup();
+    let members = all[..all.len() - 2].to_vec();
+    ok(&mut app, "unit.create_type", json!({ "element_ids": members, "name": "King room", "origin": [100.0, 10.0], "width": 4.0, "depth": 6.0 }));
+    let rep = ok(&mut app, "unit.array", json!({ "unit_type": "King room", "path": [[0.0, 9.0], [30.0, 9.0]], "levels": levels, "sides": "both", "corridor": 2.0, "start": 1.0, "exclusions": [[13.0, 17.0]] }));
+    let walls = |app: &App| riviera_app_store(app).iter().filter(|e| riviera_core::walls::wall_recipe(e).is_some()).count();
+    let count = |app: &App, class: &str| riviera_app_store(app).iter().filter(|e| e.class == class).count();
+    assert_eq!(walls(&app), 40);
+
+    // Nothing to edit: an element that is not a unit's.
+    let e = app.execute("unit.edit", json!({ "element_id": all[all.len() - 1] }), &Caller::user()).unwrap_err();
+    assert_eq!(e.code, "unit.no_copy");
+
+    // From the type: its first copy not mirrored, with the walls it had merged made again (its
+    // corridor and façade walls), its door and window back in them.
+    let ed = ok(&mut app, "unit.edit", json!({ "unit_type": "King room" }));
+    let copies = ok(&mut app, "unit.list", json!({}));
+    let first = copies.as_array().unwrap().iter().find(|c| c["mirrored"] == false).unwrap();
+    assert_eq!((&ed["copy"], &ed["number"], &ed["unit_type"], &ed["copies"]), (&first["copy"], &first["number"], &json!("King room"), &json!(24)), "{ed:#}");
+    let st = riviera_app_store(&app);
+    let mine: Vec<riviera_core::ElementId> = ed["members"].as_array().unwrap().iter().map(|v| riviera_core::ElementId(v.as_u64().unwrap())).collect();
+    let classes = |c: &str| mine.iter().filter(|id| st.get(**id).is_some_and(|e| e.class == c)).count();
+    assert_eq!((classes("IfcWall"), classes("IfcDoor"), classes("IfcWindow"), classes("IfcSpace")), (4, 1, 1, 1), "{ed:#}");
+    let own: Vec<String> = mine.iter().filter_map(|id| st.get(*id)).filter(|e| e.class == "IfcWall").map(|e| e.guid().to_string()).collect();
+    for id in &mine {
+        if let Some(r) = st.get(*id).and_then(riviera_core::inserts::insert_recipe) {
+            assert!(own.contains(&r.host), "its door and window are in its own walls while it is edited");
+        }
+    }
+    // One editor at a time.
+    assert_eq!(app.execute("unit.edit", json!({ "unit_type": "King room" }), &Caller::user()).unwrap_err().code, "group.editing");
+
+    // A second bed added in the editor: every copy gets one, and merges again.
+    let bed = ok(&mut app, "furnishing.load", json!({ "names": ["Bed, king 76 × 80 in"] }))["Bed, king 76 × 80 in"].clone();
+    let beds = count(&app, "IfcFurniture");
+    let added = ok(&mut app, "mesh_object.place", json!({ "type_id": bed, "point": [3.0, 12.0], "level": levels[0] }));
+    ok(&mut app, "group.add_members", json!({ "element_ids": [added] }));
+    ok(&mut app, "group.finish", json!({}));
+    assert_eq!(count(&app, "IfcFurniture"), beds + 24);
+    assert_eq!(walls(&app), 40);
+    assert_eq!(ok(&mut app, "unit.list", json!({})).as_array().unwrap().iter().filter(|c| !c["unmerged"].as_array().unwrap().is_empty()).count(), 0);
+
+    // From a member of a copy, and cancelled: everything as it was.
+    let window = riviera_app_store(&app).iter().find(|e| e.class == "IfcWindow").map(|e| e.id()).unwrap();
+    let before = riviera_app_store(&app).iter().count();
+    ok(&mut app, "unit.edit", json!({ "element_id": window }));
+    assert_eq!(walls(&app), 42);
+    ok(&mut app, "group.cancel", json!({}));
+    assert_eq!((walls(&app), riviera_app_store(&app).iter().count()), (40, before));
+
+    // From the array.
+    let ed = ok(&mut app, "unit.edit", json!({ "element_id": rep["array_id"] }));
+    assert_eq!(ed["copies"], 24);
+    ok(&mut app, "group.cancel", json!({}));
+}

@@ -106,6 +106,10 @@ script `hotel.lua` builds it; these are the same steps in the window.
    room's corridor and façade walls merge into the building's (its door and window are cut into
    them), neighbours share one demising wall (a bathroom's fixtures hung on a merged side wall move
    onto the face of the wall that stays), and each balcony is joined to its floor.
+   To change every room at once, select any part of one and choose **Edit Unit**: that room
+   opens alone (**Show Context** fades the hotel in around it), its merged walls back; move the
+   desk, say, and **Finish**: every room of its type follows (the accessible rooms are a type of
+   their own).
 16. **Supply air.** On each guest floor draw a 400 mm supply duct down each corridor 2.9 m up
    (**Systems › Duct**, system type *Supply Air*). Select the eight mains and choose **Connect
    Units**: 88 branches, one into each room's diffuser.

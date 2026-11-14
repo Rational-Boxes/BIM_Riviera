@@ -458,6 +458,8 @@ struct Gui {
     text_pick: Option<(String, f64, f64)>,
     /// Place Group: the group type placed at each click.
     group_pick: Option<String>,
+    /// Edit Unit: the unit copy open in the group editor, isolated.
+    unit_edit: Option<units_ui::UnitEdit>,
     /// Site Component: the component type being placed.
     site_pick: Option<ElementId>,
     /// The Area tool: its area plan and the area type it places.
@@ -3990,6 +3992,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 host_pick: None,
                 area_pick: None,
                 group_pick: None,
+                unit_edit: None,
                 site_pick: None,
                 text_pick: None,
                 wall_location: Default::default(),
@@ -4863,6 +4866,8 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "ui.unit_type" => with(gui, Gui::unit_type),
         "ui.unit_array" => with(gui, Gui::unit_array),
         "ui.unit_connect" => with(gui, Gui::unit_connect),
+        "ui.edit_unit" => with(gui, Gui::edit_unit),
+        "ui.unit_context" => with(gui, Gui::unit_context),
         "ui.atrium" => with(gui, Gui::atrium),
         "ui.baffles" => with(gui, Gui::baffles),
         "ui.sun_check" => with(gui, Gui::sun_check),
