@@ -50,8 +50,10 @@ the lowest level, carrying the elevator's capacity, clear size, speed, drive, ho
 overhead as property sets. The <b>shaft</b> is an ordinary shaft opening, so it also cuts floors
 added later. With walls, the shaft follows their outer faces, so the floors stop at the
 hoistway walls. The <b>walls</b> and <b>entrances</b> are ordinary walls and sliding automatic
-doors. Delete an elevator with <code>elevator.delete</code>, given the car or any of its walls or
-entrances; it removes them all.</p>
+doors. Selecting the car and pressing <kbd>Delete</kbd> deletes the whole elevator, as
+<code>elevator.delete</code> does; scripts can give it the car or any of its walls or entrances.
+The car's position rows in Properties are read-only: it stays in its shaft. Modify | Lifts holds
+the checks for a selected car.</p>
 
 <h2 id="kinds">Hospital, freight and small lifts</h2>
 <p>The dialog's <b>Kind</b> chooses what the elevator is for, and sizing then uses only that

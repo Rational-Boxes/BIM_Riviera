@@ -156,19 +156,27 @@ closets, baffles and atriums, then their window forms filled from the last value
   - pools: deck, water level, shallow and deepest depth, cove, class, coping, shell, tile and
     membrane, and entries listed.
 
+**2026-11-13, continued (phase 3 and 4):**
+- **Stair types:** core type swap and `type.set_param`; Properties Type row and the type's
+  rules; four starter stairs.
+- **Rebar:** Shape and Bar type are choices (`rebar.set`).
+- **Analytical members:** Section Type is a choice and Rotation is editable.
+- **Sprinkler types:** the head's mounting, K-factor, temperature, response, activation,
+  coverage and connection size rows (`sprinkler_type.set`).
+- **Generic parameter rows** (Identity Data, project parameters, Psets) now follow every
+  element's own rows, not only walls'.
+- **New Modify tabs:** ducts, pipes, duct and pipe fittings, cable trays, conduits, structural
+  columns, structural framing, pools and lifts.
+- **Lifts:** deleting a lift's car deletes the lift (`elevator.delete`, `escalator.delete`,
+  `stairlift.delete`); the car's offset, rotation, scale and level rows are read-only.
+- **Model groups:** Change, Duplicate and Rename Group Type on Modify | Model Groups.
+
 **Still to do:**
 - **Phase 3:**
-  - stair types (core);
-  - rebar bar type and shape;
-  - analytical section and rotation;
-  - sprinkler types;
   - arch radius and spring edges;
   - curtain grid and panel tools;
   - sloped glazing types;
   - grab bars, toposolid points, unit arrays.
 - **Phase 4:**
-  - generic parameter rows for every category;
-  - missing Modify tabs;
-  - lift assembly deletes;
-  - group type swap.
+  - Modify tabs for ramps and openings (no tools for them yet).
 - **Phase 5:** re-editable layouts.

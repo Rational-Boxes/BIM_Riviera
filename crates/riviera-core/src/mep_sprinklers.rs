@@ -43,7 +43,7 @@ fn bad(code: &'static str, msg: impl Into<String>) -> Error {
     Error::new(code, msg)
 }
 
-fn key(property: &str) -> String {
+pub fn key(property: &str) -> String {
     format!("{PSET}.{property}")
 }
 

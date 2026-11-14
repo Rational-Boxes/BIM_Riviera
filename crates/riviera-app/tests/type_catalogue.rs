@@ -142,3 +142,23 @@ fn a_railing_takes_another_type_and_its_values_change() {
     let e = app.execute("type.set_param", json!({ "type_id": t, "param": "baluster_spacing", "value": 0.01 }), &Caller::user()).unwrap_err();
     assert_eq!(e.code, "type.invalid_value");
 }
+
+#[test]
+fn a_stair_takes_another_type_and_its_rules_change() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });
+    ok(&mut app, "file.new", json!({}));
+    let l1 = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    let l2 = ok(&mut app, "level.create", json!({ "elevation": 3.0, "name": "Level 2" }));
+    let _ = l2;
+    let stair = ok(&mut app, "stair.create", json!({ "base_level": l1, "railings": false, "runs": [{ "start": [0.0, 0.0], "end": [8.0, 0.0] }] }));
+    swap(&mut app, &stair, "Stair - Commercial 178 / 279, 1118 wide");
+    let s = store(&app);
+    let g = riviera_core::stairs::regenerate(&s, s.get(ElementId(stair.as_u64().unwrap())).unwrap()).unwrap();
+    assert!(g.riser_height <= 0.178 + 1e-9, "{}", g.riser_height);
+    let t = s.iter().find(|e| e.name.as_deref() == Some("Stair - Commercial 178 / 279, 1118 wide")).unwrap().id();
+    ok(&mut app, "type.set_param", json!({ "type_id": t, "param": "max_riser", "value": "150 mm" }));
+    let s = store(&app);
+    let g = riviera_core::stairs::regenerate(&s, s.get(ElementId(stair.as_u64().unwrap())).unwrap()).unwrap();
+    assert!(g.riser_height <= 0.15 + 1e-9, "{}", g.riser_height);
+}

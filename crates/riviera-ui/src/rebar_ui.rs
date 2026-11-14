@@ -437,8 +437,18 @@ impl Gui {
         grid.set_help_string("rb_set_type", "Varying: each bar fitted at its own place (Convert to Varying or Standard on the tab)");
         grid.append(Property::string("Partition", "rb_partition", i["partition"].as_str().unwrap_or("").to_owned()));
         grid.set_help_string("rb_partition", "Identical sets share a number within a partition (phase, location, top or bottom, …)");
-        ro(grid, "Shape", "rb_shape", i["shape"].as_str().unwrap_or("").to_owned());
-        ro(grid, "Bar type", "rb_bar", i["bar_type"].as_str().unwrap_or("").to_owned());
+        // The shape code and the bar type, changed with `rebar.set` (a change that doesn't fit is
+        // refused).
+        let shape_now = i["shape"].as_str().unwrap_or("").to_owned();
+        let shapes = riviera_core::rebar::shapes().shapes;
+        let at = shapes.iter().position(|s| s.code == shape_now).map_or(-1, |k| k as i32);
+        let labels: Vec<(String, i32)> = shapes.iter().enumerate().map(|(k, s)| (format!("{} {}", s.code, s.name), k as i32)).collect();
+        grid.append(Property::enumeration("Shape", "rb_shape", labels, at));
+        let bar_now = i["bar_type"].as_str().unwrap_or("").to_owned();
+        let bars = self.store_now().map(|s| riviera_core::rebar::bar_types(&s)).unwrap_or_default();
+        let at = bars.iter().position(|b| b.id == bar_now || b.name == bar_now).map_or(-1, |k| k as i32);
+        let labels: Vec<(String, i32)> = bars.iter().enumerate().map(|(k, b)| (b.name.clone(), k as i32)).collect();
+        grid.append(Property::enumeration("Bar type", "rb_bar", labels, at));
         ro(grid, "Quantity", "rb_count", format!("{}", i["count"].as_u64().unwrap_or(0)));
         ro(grid, "Bar length (mm)", "rb_length", i["length_text"].as_str().unwrap_or("").to_owned());
         ro(grid, "Total bar length", "rb_total", self.format_length(i["total_length"].as_f64().unwrap_or(0.0)));
@@ -499,6 +509,22 @@ impl Gui {
             let length = text.as_deref().and_then(|t| t.trim().parse::<f64>().ok()).map(|v| v / 1000.0);
             if let Err(e) = self.run("rebar.set_segment_length", json!({ "rebar_id": id, "segment": letter, "length": length })) {
                 error(&frame, &format!("The segment was not changed:\n{e}"));
+            }
+            self.refresh_scene(&frame);
+            self.properties_stale = true;
+            return true;
+        }
+        if property == "rb_shape" || property == "rb_bar" {
+            let text = text.unwrap_or_default();
+            let ids: Vec<ElementId> = self.selection();
+            let args = if property == "rb_shape" {
+                json!({ "rebar_ids": ids, "shape": text.split(' ').next().unwrap_or_default() })
+            } else {
+                let id = self.store_now().and_then(|s| riviera_core::rebar::bar_types(&s).into_iter().find(|b| b.name == text)).map(|b| b.id);
+                json!({ "rebar_ids": ids, "bar_type": id.unwrap_or(text) })
+            };
+            if let Err(e) = self.run("rebar.set", args) {
+                error(&frame, &format!("The rebar was not changed:\n{e}"));
             }
             self.refresh_scene(&frame);
             self.properties_stale = true;

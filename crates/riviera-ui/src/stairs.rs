@@ -657,6 +657,23 @@ impl Gui {
         ));
         grid.append(Property::boolean("Auto-Extend to Top", "st_auto_extend", recipe.auto_extend));
         grid.set_help_string("st_auto_extend", "The last run grows or shrinks to place every riser when the levels move (ARC-STAIR-007)");
+        // Its type (DM-TYPE-002) and the type's rules, shared by every stair of it.
+        grid.append(Property::category("Type", "c_stair_type"));
+        let current = e.param("@type").and_then(serde_json::Value::as_str).and_then(riviera_core::GlobalId::parse).and_then(|g| store.find_by_guid(&g));
+        self.type_picker_row(grid, id, current);
+        self.type_name_row(grid, current);
+        if let Some(t) = current.and_then(|t| store.get(t)).and_then(stairs::stair_type) {
+            for (label, key, v) in [
+                ("Maximum Riser Height (type)", "max_riser", t.max_riser),
+                ("Minimum Tread Depth (type)", "min_tread", t.min_tread),
+                ("Minimum Run Width (type)", "min_width", t.min_width),
+                ("Structural Depth (type)", "structural_depth", t.structural_depth),
+                ("Landing Thickness (type)", "landing_thickness", t.landing_thickness),
+            ] {
+                grid.append(Property::string(label, format!("stt:{key}"), self.format_length(v)));
+            }
+            self.type_rows = current;
+        }
         grid.append(Property::category("Dimensions", "c_stair_dims"));
         let desired = recipe
             .desired_risers
@@ -705,6 +722,16 @@ impl Gui {
     pub(crate) fn stair_edit(&mut self, property: &str, text: Option<String>) -> bool {
         let frame = self.frame;
         let text = text.unwrap_or_default();
+        if let Some(param) = property.strip_prefix("stt:") {
+            if let Some(t) = self.type_rows
+                && let Err(e) = self.run("type.set_param", json!({ "type_id": t, "param": param, "value": text.trim() }))
+            {
+                error(&frame, &format!("The stair type was not changed:\n{e}"));
+            }
+            self.properties_stale = true;
+            self.refresh_scene(&frame);
+            return true;
+        }
         let ids: Vec<ElementId> = {
             let store = self
                 .doc

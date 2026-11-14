@@ -276,6 +276,34 @@ impl Gui {
         if !self.confirm_delete(&ids) {
             return;
         }
+        // A lift's car stands for the lift: deleting it takes its shaft, walls, entrances and
+        // equipment too (`elevator.delete`, `escalator.delete`, `stairlift.delete`).
+        let store = self.store_now();
+        let lift = |id: &ElementId| {
+            let e = store.as_ref()?.get(*id)?;
+            if riviera_core::elevators::elevator(e).is_some() {
+                Some(("elevator.delete", "elevator"))
+            } else if riviera_core::escalators::escalator(e).is_some() {
+                Some(("escalator.delete", "escalator"))
+            } else if riviera_core::stairlifts::stairlift(e).is_some() {
+                Some(("stairlift.delete", "stairlift"))
+            } else {
+                None
+            }
+        };
+        let lifts: Vec<(ElementId, &str, &str)> = ids.iter().filter_map(|id| lift(id).map(|(c, k)| (*id, c, k))).collect();
+        let ids: Vec<ElementId> = ids.into_iter().filter(|id| lift(id).is_none()).collect();
+        for (id, command, key) in lifts {
+            if let Err(e) = self.run(command, json!({ key: id })) {
+                return frame.set_status_text(&e, 0);
+            }
+        }
+        if ids.is_empty() {
+            let _ = self.run("selection.clear", json!({}));
+            self.refresh_scene(&frame);
+            self.selection_changed();
+            return frame.set_status_text("Deleted", 0);
+        }
         match self.run("element.delete", json!({ "element_ids": ids })) {
             Ok(v) => {
                 let n = v.as_array().map_or(0, Vec::len);

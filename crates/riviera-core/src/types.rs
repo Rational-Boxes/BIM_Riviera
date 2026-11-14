@@ -225,6 +225,9 @@ pub(crate) fn set_param(txn: &mut crate::txn::Transaction<'_>, p: SetParamParams
     if crate::railings::railing_type(e).is_some() {
         return crate::railings::set_type_param(txn, id, &p.param, &p.value);
     }
+    if crate::stairs::stair_type(e).is_some() {
+        return crate::stairs::set_type_param(txn, id, &p.param, &p.value);
+    }
     if (crate::floors::type_thickness(e).is_some() || crate::roofs::is_roof_type(e))
         && p.param == "thickness"
     {
@@ -344,6 +347,15 @@ pub(crate) fn set_type(txn: &mut crate::txn::Transaction<'_>, p: SetTypeParams) 
                     }
                 }
             })?;
+        } else if crate::stairs::stair_recipe(e).is_some() {
+            if crate::stairs::stair_type(ty).is_none() {
+                return Err(Error::new("type.wrong_family", format!("stair {id} needs a stair type")));
+            }
+            let guid = ty.guid().to_string();
+            txn.modify(id, |w| {
+                w.params.insert("@type".into(), Value::String(guid));
+            })?;
+            crate::stairs::regenerate(txn.store(), txn.store().get(id).expect("exists"))?;
         } else if crate::railings::railing_recipe(e).is_some() {
             if crate::railings::railing_type(ty).is_none() {
                 return Err(Error::new("type.wrong_family", format!("railing {id} needs a railing type")));

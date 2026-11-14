@@ -12312,7 +12312,8 @@ td code { white-space: nowrap; }
   - <strong>floors and ceilings, with their layers:</strong> concrete 150, 200 and 300; tile on screed and concrete; composite metal deck; timber joists; gypsum board; acoustic tile; plaster; timber slats;
   - <strong>walls, with their layers:</strong> stud partition, block, concrete 200 and 300, brick-and-block cavity, insulated stud;
   - <strong>ramps</strong> at 1:12, 1:15 and 1:20;
-  - <strong>railings:</strong> guards 1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence, balusters 20 mm at 120 mm centres.
+  - <strong>railings:</strong> guards 1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence, balusters 20 mm at 120 mm centres;
+  - <strong>stairs</strong> by maximum riser, minimum tread and minimum width: commercial 178 / 279, 1118 wide (IBC 1011.5.2, 44 in egress); residential 196 / 254, 914 wide (IRC R311.7.5); monumental 150 / 300, 1500 wide; generic 180 / 280, 1000 wide.
 - <strong>Components</strong> list the bundled component libraries' types of the element's category: furnishings, gym, retail, pools and foodservice equipment, bathroom components and MEP starter types.
 - <strong>Footings, wall foundations and duct, pipe, cable tray and conduit runs</strong> list only the model's types. Runs list only types of their own domain and shape: a round duct lists round duct types. Changing a run's type checks that its size suits the new type, then re-chooses the fittings joined to it by the new type's routing preferences.
 - <strong>Railings</strong> take another railing type (the core refused this before), and a railing type's values (<code>height</code>, <code>top_rail_width</code>/<code>_depth</code>, <code>bottom_rail_width</code>/<code>_depth</code>, <code>bottom_rail_height</code>, <code>baluster</code>, <code>baluster_spacing</code>, <code>post</code>, <code>post_space</code>) are set with <code>type.set_param</code>. Balusters must be spaced wider than their own size, and the bottom rail must sit below the top rail.
@@ -12333,7 +12334,8 @@ td code { white-space: nowrap; }
 - railing type values, and each opening's or gate's position and width (clear the position to remove it);
 - segment Diameter or Width/Height (<code>duct.set_size</code>, <code>pipe.set_size</code>, <code>cable_tray.set_size</code>, <code>conduit.set_size</code>) and Size Locked (<code>mep_run.lock_size</code>).</p>
 <p>Tests: <code>type_catalogue.rs</code> (every kind, a duct's type and size, a railing's type and values).</p>
-<p><em>Not yet:</em> the user catalogue; starter types for curtain walls and stairs; stair types (no core support).</p>
+<p>Stairs now take another stair type in core, and a stair type's rules (<code>max_riser</code>, <code>min_tread</code>, <code>min_width</code>, <code>structural_depth</code>, <code>landing_thickness</code>) are set with <code>type.set_param</code>; Properties show them under the stair's Type row.</p>
+<p><em>Not yet:</em> the user catalogue; starter curtain wall types.</p>
 <h3 id="225-instances">2.2.5 Instances</h3>
 <p><strong>ID:</strong> <code class="rid" id="DM-INST-001">DM-INST-001</code> · <strong>Priority:</strong> <span class="pri pri-p0">P0</span> · <strong>Ref:</strong> research/05 §1.1, §2.2</p>
 <p><strong>Purpose.</strong> An instance is one placed occurrence of a type, with its own location and instance-parameter values.</p>

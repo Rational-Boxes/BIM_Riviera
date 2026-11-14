@@ -1615,3 +1615,35 @@ mod tests {
         assert!(g.warnings[0].starts_with("Not enough risers"));
     }
 }
+
+/// Sets a stair type's value (`type.set_param`: `max_riser`, `min_tread`, `min_width`,
+/// `structural_depth`, `landing_thickness`); every stair of the type must still regenerate.
+pub(crate) fn set_type_param(txn: &mut crate::txn::Transaction<'_>, id: ElementId, param: &str, value: &Value) -> Result<()> {
+    let store = txn.store().clone();
+    let mut t = stair_type(store.get(id).expect("checked")).expect("a stair type");
+    let x = match value {
+        Value::Number(n) => n.as_f64().unwrap_or(-1.0),
+        Value::String(s) => crate::units::parse(s, "length", &crate::units::settings_of(&store))?,
+        _ => -1.0,
+    };
+    if !(x.is_finite() && x > 0.0) {
+        return Err(Error::new("type.invalid_value", format!("`{param}` must be greater than 0")));
+    }
+    match param {
+        "max_riser" => t.max_riser = x,
+        "min_tread" => t.min_tread = x,
+        "min_width" => t.min_width = x,
+        "structural_depth" => t.structural_depth = x,
+        "landing_thickness" => t.landing_thickness = x,
+        _ => return crate::parameters::set(txn, &[id], param, Some(value)).map(|_| ()),
+    }
+    let v = serde_json::to_value(&t).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })?;
+    let guid = store.get(id).expect("checked").guid().to_string();
+    for s in store.iter().filter(|s| stair_recipe(s).is_some() && s.param("@type").and_then(Value::as_str) == Some(guid.as_str())) {
+        regenerate(txn.store(), txn.store().get(s.id()).expect("exists"))?;
+    }
+    Ok(())
+}

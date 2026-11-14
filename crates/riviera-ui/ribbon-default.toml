@@ -1927,6 +1927,24 @@ icon = "group_ungroup"
 help = "Break the selected member's group into independent elements"
 
 [[action]]
+id = "group.swap_type"
+label = "Change Group Type"
+icon = "group_edit"
+help = "Make the selected member's group instance another group type, at its origin"
+
+[[action]]
+id = "group.duplicate_type"
+label = "Duplicate Group Type"
+icon = "group_create"
+help = "Copy the selected group's type under a new name and give it to this instance, to change it apart from the others"
+
+[[action]]
+id = "group.rename_type"
+label = "Rename Group Type"
+icon = "group_edit"
+help = "Rename the selected group's type (every instance shows the new name)"
+
+[[action]]
 id = "group.add_members"
 label = "Add to Group"
 icon = "group_add"
@@ -5086,6 +5104,131 @@ panels = [{ label = "Component", tools = [
 ] }]
 
 [[context]]
+category = "cat.ducts"
+label = "Ducts"
+panels = [
+  { label = "Run", tools = [
+    { action = "mep_run.justify", size = "large" },
+    { action = "mep.connect_into", size = "small" },
+    { action = "mep_segment.heal", size = "small" },
+    { action = "mep_run.create_riser", size = "small" },
+    { action = "duct.cap_open_ends", size = "small" },
+    { action = "duct.convert_to_flex", size = "small" },
+  ] },
+  { label = "Size", tools = [{ action = "mep.size", size = "large" }] },
+  { label = "Insulation & Lining", tools = [
+    { action = "mep_insulation.add", size = "small" },
+    { action = "mep_insulation.set", size = "small" },
+    { action = "mep_insulation.remove", size = "small" },
+    { action = "duct_lining.add", size = "small" },
+    { action = "duct_lining.set", size = "small" },
+    { action = "duct_lining.remove", size = "small" },
+  ] },
+]
+
+[[context]]
+category = "cat.pipes"
+label = "Pipes"
+panels = [
+  { label = "Run", tools = [
+    { action = "mep_run.justify", size = "large" },
+    { action = "mep_run.set_slope", size = "small" },
+    { action = "pipe.create_parallel", size = "small" },
+    { action = "mep.connect_into", size = "small" },
+    { action = "mep_segment.heal", size = "small" },
+    { action = "mep_run.create_riser", size = "small" },
+  ] },
+  { label = "Size", tools = [{ action = "mep.size", size = "large" }] },
+  { label = "Insulation", tools = [
+    { action = "mep_insulation.add", size = "small" },
+    { action = "mep_insulation.set", size = "small" },
+    { action = "mep_insulation.remove", size = "small" },
+  ] },
+]
+
+[[context]]
+category = "cat.duct_fittings"
+label = "Duct Fittings"
+panels = [{ label = "Fitting", tools = [
+  { action = "mep_fitting.upgrade", size = "large" },
+  { action = "mep_fitting.downgrade", size = "large" },
+  { action = "mep_fitting.tee_to_cross", size = "large" },
+] }]
+
+[[context]]
+category = "cat.pipe_fittings"
+label = "Pipe Fittings"
+panels = [{ label = "Fitting", tools = [
+  { action = "mep_fitting.upgrade", size = "large" },
+  { action = "mep_fitting.downgrade", size = "large" },
+  { action = "mep_fitting.tee_to_cross", size = "large" },
+] }]
+
+[[context]]
+category = "cat.cable_trays"
+label = "Cable Trays"
+panels = [{ label = "Run", tools = [
+  { action = "mep_run.justify", size = "large" },
+  { action = "mep_segment.heal", size = "large" },
+] }]
+
+[[context]]
+category = "cat.conduits"
+label = "Conduits"
+panels = [{ label = "Run", tools = [
+  { action = "mep_run.justify", size = "large" },
+  { action = "conduit.create_parallel", size = "large" },
+  { action = "mep_segment.heal", size = "large" },
+] }]
+
+[[context]]
+category = "cat.structural_columns"
+label = "Structural Columns"
+panels = [
+  { label = "Attach", tools = [
+    { action = "column.attach", size = "large" },
+    { action = "column.detach", size = "large" },
+  ] },
+  { label = "Foundation", tools = [{ action = "footing.place_at_columns", size = "large" }] },
+]
+
+[[context]]
+category = "cat.structural_framing"
+label = "Structural Framing"
+panels = [{ label = "Framing", tools = [
+  { action = "beam_system.remove", size = "large" },
+  { action = "truss.remove", size = "large" },
+] }]
+
+[[context]]
+category = "ctx.pools"
+label = "Pools"
+panels = [
+  { label = "Pool", tools = [
+    { action = "ui.pool_entry", size = "large" },
+    { action = "ui.pool_lanes", size = "small" },
+    { action = "ui.pool_depth_markings", size = "small" },
+    { action = "ui.pool_barriers", size = "small" },
+  ] },
+  { label = "Engineering", tools = [
+    { action = "ui.pool_structure", size = "small" },
+    { action = "ui.pool_plant", size = "small" },
+    { action = "ui.check_pools", size = "small" },
+  ] },
+]
+
+[[context]]
+category = "ctx.lifts"
+label = "Lifts"
+panels = [{ label = "Check", tools = [
+  { action = "elevator.check", size = "large" },
+  { action = "ui.elevator_egress_role", size = "small" },
+  { action = "ui.elevator_traffic", size = "small" },
+  { action = "escalator.check", size = "small" },
+  { action = "stairlift.check", size = "small" },
+] }]
+
+[[context]]
 category = "ctx.path_arrays"
 label = "Path Arrays"
 panels = [{ label = "Array", tools = [
@@ -5267,6 +5410,9 @@ label = "Model Groups"
 panels = [{ label = "Group", tools = [
   { action = "group.edit", size = "large" },
   { action = "group.ungroup", size = "large" },
+  { action = "group.swap_type", size = "small" },
+  { action = "group.duplicate_type", size = "small" },
+  { action = "group.rename_type", size = "small" },
   { action = "group.exclude_member", size = "large" },
   { action = "group.restore_member", size = "large" },
 ] }]

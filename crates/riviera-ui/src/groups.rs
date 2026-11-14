@@ -191,6 +191,67 @@ impl Gui {
         self.group_run("group.ungroup", json!({ "instance_ids": [g] }), "Ungrouped");
     }
 
+    /// Modify | Model Groups › Change Group Type: the selected instances become another type.
+    pub(crate) fn group_swap_type(&mut self) {
+        let frame = self.frame;
+        let Some(g) = self.selected_group() else {
+            return frame.set_status_text("Select a member of the group", 0);
+        };
+        let Some(store) = self.store_now() else { return };
+        let types = groups::types(&store);
+        let labels: Vec<&str> = types.iter().map(|t| t.name.as_str()).collect();
+        let dialog = SingleChoiceDialog::builder(&frame, "Group type:", "Change Group Type", &labels).build();
+        if dialog.show_modal() != ID_OK {
+            return;
+        }
+        let Some(t) = usize::try_from(dialog.get_selection()).ok().and_then(|i| types.get(i)) else { return };
+        self.group_run("group.swap_type", json!({ "instance_ids": [g], "group_type_id": t.id }), "Group type changed");
+    }
+
+    /// The type of the selected group instance.
+    fn selected_group_type(&mut self) -> Option<groups::GroupType> {
+        let g = self.selected_group()?;
+        let store = self.store_now()?;
+        let key = groups::recipe(store.get(g)?)?.group_type;
+        groups::types(&store).into_iter().find(|t| t.id == key)
+    }
+
+    /// Modify | Model Groups › Duplicate Group Type: a copy of the selected instance's type under
+    /// a new name, given to the instance.
+    pub(crate) fn group_duplicate_type(&mut self) {
+        let frame = self.frame;
+        let Some(t) = self.selected_group_type() else {
+            return frame.set_status_text("Select a member of the group", 0);
+        };
+        let dialog = TextEntryDialog::builder(&frame, "Name of the new group type:", "Duplicate Group Type").with_default_value(&format!("{} 2", t.name)).build();
+        if dialog.show_modal() != ID_OK {
+            return;
+        }
+        let Some(name) = dialog.get_value() else { return };
+        match self.run("group.duplicate_type", json!({ "group_type_id": t.id, "name": name.trim() })) {
+            Ok(key) => {
+                if let Some(g) = self.selected_group() {
+                    self.group_run("group.swap_type", json!({ "instance_ids": [g], "group_type_id": key }), "Group type duplicated");
+                }
+            }
+            Err(e) => super::error(&frame, &format!("The group type was not duplicated:\n{e}")),
+        }
+    }
+
+    /// Modify | Model Groups › Rename Group Type.
+    pub(crate) fn group_rename_type(&mut self) {
+        let frame = self.frame;
+        let Some(t) = self.selected_group_type() else {
+            return frame.set_status_text("Select a member of the group", 0);
+        };
+        let dialog = TextEntryDialog::builder(&frame, "New name of the group type:", "Rename Group Type").with_default_value(&t.name).build();
+        if dialog.show_modal() != ID_OK {
+            return;
+        }
+        let Some(name) = dialog.get_value() else { return };
+        self.group_run("group.rename_type", json!({ "group_type_id": t.id, "name": name.trim() }), "Group type renamed");
+    }
+
     /// Manage › Selection › Save Selection.
     pub(crate) fn save_selection(&mut self) {
         let frame = self.frame;

@@ -85,8 +85,14 @@ impl Gui {
                 .and_then(|t| store.get(t))
                 .and_then(|t| t.name.clone())
                 .unwrap_or_else(|| "—".into());
-            grid.append(Property::string("Section Type", "am_section", section));
-            grid.set_property_read_only("am_section", true);
+            // Any column, beam or brace section type in the model.
+            let mut sections: Vec<String> = store.iter().filter(|t| riviera_core::columns::section_type(t).is_some()).filter_map(|t| t.name.clone()).collect();
+            sections.sort();
+            sections.dedup();
+            let at = sections.iter().position(|s| *s == section).map_or(-1, |k| k as i32);
+            let labels: Vec<(String, i32)> = sections.into_iter().enumerate().map(|(k, s)| (s, k as i32)).collect();
+            grid.append(Property::enumeration("Section Type", "am_section", labels, at));
+            grid.append(Property::string("Rotation", "am_rotation", format!("{:.1}°", m.rotation.to_degrees())));
             grid.append(Property::string(
                 "Material",
                 "am_material",
@@ -208,6 +214,14 @@ impl Gui {
             let result = match property {
                 "am_role" => lookup(&ROLES).map(|k| self.run("analytical_member.set", json!({ "member_ids": [id], "role": k }))),
                 "am_material" => Some(self.run("analytical_member.set", json!({ "member_ids": [id], "material": text }))),
+                "am_section" => {
+                    let t = self.store_now().and_then(|s| s.iter().find(|t| riviera_core::columns::section_type(t).is_some() && t.name.as_deref() == Some(text.as_str())).map(|t| t.id()));
+                    t.map(|t| self.run("analytical_member.set", json!({ "member_ids": [id], "section_type_id": t })))
+                }
+                "am_rotation" => {
+                    let deg = text.trim().trim_end_matches('°').trim().replace(',', ".").parse::<f64>().ok();
+                    deg.map(|d| self.run("analytical_member.set", json!({ "member_ids": [id], "rotation": d.to_radians() })))
+                }
                 "am_analyze" => lookup(&ANALYZE).map(|k| self.run("analytical_member.set", json!({ "member_ids": [id], "analyze_as": k }))),
                 "am_start" | "am_end" => {
                     let end = if property == "am_start" { "start" } else { "end" };

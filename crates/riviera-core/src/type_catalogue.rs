@@ -43,6 +43,7 @@ enum Family {
     Footing,
     WallFoundation,
     Railing,
+    Stair,
     /// Duct, pipe, tray and conduit runs: their domain, shape and whether flexible.
     Segment(crate::mep::Domain, crate::mep::Shape, bool),
     Component(Category),
@@ -71,6 +72,9 @@ fn family_of(store: &Store, e: &Element) -> Option<Family> {
     if let Some(s) = crate::mep_runs::segment_recipe(e) {
         let t = store.find_by_guid(&crate::GlobalId::parse(&s.segment_type)?).and_then(|t| store.get(t)).and_then(crate::mep_runs::segment_type);
         return Some(Family::Segment(s.domain, s.size.shape, t.is_some_and(|t| t.flexible)));
+    }
+    if crate::stairs::stair_recipe(e).is_some() || crate::stairs::stair_type(e).is_some() {
+        return Some(Family::Stair);
     }
     if crate::railings::railing_recipe(e).is_some() || crate::railings::railing_type(e).is_some() {
         return Some(Family::Railing);
@@ -200,6 +204,16 @@ const RAILINGS: [(&str, f64, f64, f64); 4] = [
     ("Pool Fence 1219 mm (48 in)", 1.219, 0.02, 0.12),
 ];
 
+/// The starter stairs: maximum riser, minimum tread and minimum width (IBC 1011.5.2 commercial
+/// 7 in / 11 in, 44 in egress width; IRC R311.7.5 dwellings 7¾ in / 10 in, 36 in; a monumental
+/// 150 / 300 mm stair).
+const STAIRS: [(&str, f64, f64, f64); 4] = [
+    ("Stair - Commercial 178 / 279, 1118 wide", 0.178, 0.279, 1.118),
+    ("Stair - Residential 196 / 254, 914 wide", 0.196, 0.254, 0.914),
+    ("Stair - Monumental 150 / 300, 1500 wide", 0.15, 0.3, 1.5),
+    ("Stair - Generic 180 / 280, 1000 wide", 0.18, 0.28, 1.0),
+];
+
 const RAMPS: [(&str, f64); 3] = [(crate::ramps::DEFAULT_TYPE_NAME, 12.0), ("Ramp 1:15", 15.0), ("Ramp 1:20", 20.0)];
 
 /// One entry: its name and where it comes from.
@@ -215,6 +229,7 @@ fn entries_of(family: Family) -> Vec<(String, String)> {
         // Sized to suit: Duplicate Type and its values (no starters).
         Family::Footing | Family::WallFoundation | Family::Segment(..) => Vec::new(),
         Family::Railing => starters(RAILINGS.iter().map(|x| x.0).collect()),
+        Family::Stair => starters(STAIRS.iter().map(|x| x.0).collect()),
         Family::Component(c) => {
             let mut out: Vec<(String, String)> = crate::furnishings::catalogue().into_iter().filter(|i| i.category == c).map(|i| (i.name.to_owned(), i.library.title().to_owned())).collect();
             out.extend(crate::bath_components::catalogue().into_iter().filter(|i| i.category == c).map(|i| (i.name.to_owned(), "Riviera bathroom components".to_owned())));
@@ -316,6 +331,11 @@ pub(crate) fn load(txn: &mut Transaction<'_>, p: LoadParams) -> Result<ElementId
             txn.create(NewElement::new("IfcRampType").name(*name).param("@PredefinedType", "STRAIGHT_RUN_RAMP").param(RECIPE_KEY, serde_json::to_value(t).expect("serialises")))
         }
         Family::Footing | Family::WallFoundation | Family::Segment(..) => Err(missing()),
+        Family::Stair => {
+            let (name, riser, tread, width) = STAIRS.iter().find(|x| x.0 == p.name).ok_or_else(missing)?;
+            let t = crate::stairs::StairType { max_riser: *riser, min_tread: *tread, min_width: *width, ..Default::default() };
+            txn.create(NewElement::new("IfcStairType").name(*name).param("@PredefinedType", "STRAIGHT_RUN_STAIR").param(RECIPE_KEY, serde_json::to_value(t).expect("serialises")))
+        }
         Family::Railing => {
             let (name, height, baluster, spacing) = RAILINGS.iter().find(|x| x.0 == p.name).ok_or_else(missing)?;
             let t = crate::railings::RailingType { height: *height, baluster: *baluster, baluster_spacing: *spacing, ..Default::default() };
@@ -341,7 +361,7 @@ mod tests {
 
     #[test]
     fn starter_names_are_unique_per_family() {
-        let fams = [Family::Door, Family::Window, Family::Roof, Family::Slab(SlabKind::Floor), Family::Slab(SlabKind::Ceiling), Family::Wall, Family::Ramp, Family::Railing];
+        let fams = [Family::Door, Family::Window, Family::Roof, Family::Slab(SlabKind::Floor), Family::Slab(SlabKind::Ceiling), Family::Wall, Family::Ramp, Family::Railing, Family::Stair];
         for f in fams {
             let mut n: Vec<String> = entries_of(f).into_iter().map(|e| e.0).collect();
             let all = n.len();

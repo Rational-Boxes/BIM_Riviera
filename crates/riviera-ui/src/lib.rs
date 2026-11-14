@@ -2459,6 +2459,13 @@ impl Gui {
                         if riviera_core::legends::component_data(e).is_some() {
                             return Some("cat.legend_components");
                         }
+                        // Pools and lifts have their own tools.
+                        if riviera_core::pools::recipe(e).is_some() {
+                            return Some("ctx.pools");
+                        }
+                        if riviera_core::elevators::elevator(e).is_some() || riviera_core::escalators::escalator(e).is_some() || riviera_core::stairlifts::stairlift(e).is_some() {
+                            return Some("ctx.lifts");
+                        }
                         // Placed components and path arrays have their own tools, whatever
                         // category their component gives them.
                         if riviera_core::mesh_objects::mesh_object_recipe(e).is_some() {
@@ -2701,43 +2708,42 @@ impl Gui {
         if self.deck_rows(grid, id) {
             return;
         }
+        // An element's own rows, then (below) the parameters every element has: Mark, Comments,
+        // project parameters and property sets (EDIT_AUDIT phase 4).
         if riviera_core::floors::slab_recipe(&e).is_some() {
             self.floor_rows(grid, id);
-            return;
-        }
-        if riviera_core::roofs::roof_recipe(&e).is_some() {
+        } else if riviera_core::roofs::roof_recipe(&e).is_some() {
             self.roof_rows(grid, id);
-            return;
-        }
-        if riviera_core::rooms::room_recipe(&e).is_some() {
+        } else if riviera_core::rooms::room_recipe(&e).is_some() {
             self.room_rows(grid, id);
-            return;
-        }
-        self.steel_mark_rows(grid, id);
-        self.foundation_rows(grid, id);
-        self.segment_rows(grid, id);
-        self.pool_rows(grid, id);
-        self.railing_rows(grid, id);
-        if self.note_rows(grid, id)
-            || self.legend_rows(grid, id)
-            || self.stair_rows(grid, id)
-            || self.opening_rows(grid, id)
-            || self.column_rows(grid, id)
-            || self.beam_rows(grid, id)
-            || self.analytical_rows(grid, id)
-            || self.connection_rows(grid, id)
-            || self.rebar_rows(grid, id)
-            || self.reinforcement_system_rows(grid, id)
-            || self.detail_rows(grid, id)
-            || self.curtain_rows(grid, id)
-            || self.ramp_rows(grid, id)
-            || self.skylight_rows(grid, id)
-            || self.mesh_object_rows(grid, id)
-            || self.part_rows(grid, id)
-            || self.path_array_rows(grid, id)
-            || self.datum_rows(grid, id)
-        {
-            return;
+        } else {
+            self.steel_mark_rows(grid, id);
+            self.foundation_rows(grid, id);
+            self.segment_rows(grid, id);
+            self.pool_rows(grid, id);
+            self.railing_rows(grid, id);
+            // Annotation, details, parts and datums show their own rows only.
+            if self.note_rows(grid, id)
+                || self.legend_rows(grid, id)
+                || self.detail_rows(grid, id)
+                || self.part_rows(grid, id)
+                || self.path_array_rows(grid, id)
+                || self.datum_rows(grid, id)
+            {
+                return;
+            }
+            let _ = self.stair_rows(grid, id)
+                || self.opening_rows(grid, id)
+                || self.column_rows(grid, id)
+                || self.beam_rows(grid, id)
+                || self.analytical_rows(grid, id)
+                || self.connection_rows(grid, id)
+                || self.rebar_rows(grid, id)
+                || self.reinforcement_system_rows(grid, id)
+                || self.curtain_rows(grid, id)
+                || self.ramp_rows(grid, id)
+                || self.skylight_rows(grid, id)
+                || self.mesh_object_rows(grid, id);
         }
         if let Some(d) = dimension {
             let store = self.app.document(doc).expect("open").doc.store().clone();
@@ -3016,6 +3022,7 @@ impl Gui {
             || self.segment_edit(property, text.clone())
             || self.pool_edit(property, text.clone())
             || self.railing_edit(property, text.clone())
+            || self.sprinkler_head_edit(property, text.clone())
             || self.grid_type_edit(property, text.clone())
             || self.opening_edit(property, text.clone())
             || self.beam_edit(property, text.clone())
@@ -4761,6 +4768,9 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
         "group.exclude_member" => with(gui, Gui::group_exclude),
         "group.restore_member" => with(gui, Gui::group_restore),
         "group.ungroup" => with(gui, Gui::ungroup),
+        "group.swap_type" => with(gui, Gui::group_swap_type),
+        "group.duplicate_type" => with(gui, Gui::group_duplicate_type),
+        "group.rename_type" => with(gui, Gui::group_rename_type),
         "selectionset.save" => with(gui, Gui::save_selection),
         "selectionset.load" => with(gui, Gui::load_selection),
         "selectionset.edit" => with(gui, |g| {

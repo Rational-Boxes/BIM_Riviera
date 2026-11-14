@@ -295,7 +295,8 @@ This chapter is the backbone of the Riviera specification. It defines what a Riv
   - **floors and ceilings, with their layers:** concrete 150, 200 and 300; tile on screed and concrete; composite metal deck; timber joists; gypsum board; acoustic tile; plaster; timber slats;
   - **walls, with their layers:** stud partition, block, concrete 200 and 300, brick-and-block cavity, insulated stud;
   - **ramps** at 1:12, 1:15 and 1:20;
-  - **railings:** guards 1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence, balusters 20 mm at 120 mm centres.
+  - **railings:** guards 1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence, balusters 20 mm at 120 mm centres;
+  - **stairs** by maximum riser, minimum tread and minimum width: commercial 178 / 279, 1118 wide (IBC 1011.5.2, 44 in egress); residential 196 / 254, 914 wide (IRC R311.7.5); monumental 150 / 300, 1500 wide; generic 180 / 280, 1000 wide.
 - **Components** list the bundled component libraries' types of the element's category: furnishings, gym, retail, pools and foodservice equipment, bathroom components and MEP starter types.
 - **Footings, wall foundations and duct, pipe, cable tray and conduit runs** list only the model's types. Runs list only types of their own domain and shape: a round duct lists round duct types. Changing a run's type checks that its size suits the new type, then re-chooses the fittings joined to it by the new type's routing preferences.
 - **Railings** take another railing type (the core refused this before), and a railing type's values (`height`, `top_rail_width`/`_depth`, `bottom_rail_width`/`_depth`, `bottom_rail_height`, `baluster`, `baluster_spacing`, `post`, `post_space`) are set with `type.set_param`. Balusters must be spaced wider than their own size, and the bottom rail must sit below the top rail.
@@ -323,7 +324,9 @@ Other new rows in Properties:
 
 Tests: `type_catalogue.rs` (every kind, a duct's type and size, a railing's type and values).
 
-*Not yet:* the user catalogue; starter types for curtain walls and stairs; stair types (no core support).
+Stairs now take another stair type in core, and a stair type's rules (`max_riser`, `min_tread`, `min_width`, `structural_depth`, `landing_thickness`) are set with `type.set_param`; Properties show them under the stair's Type row.
+
+*Not yet:* the user catalogue; starter curtain wall types.
 
 ### 2.2.5 Instances
 **ID:** DM-INST-001 · **Priority:** P0 · **Ref:** research/05 §1.1, §2.2

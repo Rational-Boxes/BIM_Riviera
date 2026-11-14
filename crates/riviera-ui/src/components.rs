@@ -289,6 +289,18 @@ fn outline_of(points: impl Iterator<Item = [f64; 3]>) -> Vec<[f64; 2]> {
     hull(all.into_iter().step_by(step).collect())
 }
 
+/// Sprinkler mountings: the value `sprinkler_type.set` takes and its label.
+const MOUNTINGS: [(&str, &str); 8] = [
+    ("pendant", "Pendant"),
+    ("recessed_pendant", "Recessed pendant"),
+    ("concealed", "Concealed"),
+    ("ceiling", "Ceiling"),
+    ("upright", "Upright"),
+    ("sidewall", "Sidewall"),
+    ("cutoff", "Cutoff"),
+    ("other", "Other"),
+];
+
 impl Gui {
     // ---- The panel ----
 
@@ -1603,6 +1615,24 @@ impl Gui {
             ));
             grid.set_help_string(&name, "A colour as #rrggbb");
         }
+        // A sprinkler's head (MEP-PIPE-007): its Pset values, set with `sprinkler_type.set`.
+        if t.category == mesh_objects::Category::Sprinkler {
+            use riviera_core::mep_sprinklers::key;
+            let num = |k: &str| e.param(&key(k)).and_then(|v| v.get("value").unwrap_or(v).as_f64());
+            let label = |k: &str| e.param(&key(k)).and_then(|v| v.get("value").unwrap_or(v).as_str().map(str::to_owned)).unwrap_or_default();
+            grid.append(Property::category("Sprinkler Head (type)", "c_sprinkler"));
+            let mounting = label("Type");
+            let at = MOUNTINGS.iter().position(|m| m.0.replace('_', "").to_uppercase() == mounting).map_or(0, |i| i as i32);
+            grid.append(Property::enumeration("Mounting", "sh:mounting", MOUNTINGS.iter().enumerate().map(|(i, m)| (m.1.to_owned(), i as i32)).collect::<Vec<_>>(), at));
+            grid.append(Property::string("K-Factor (L/min/bar½)", "sh:k_factor", num("DischargeCoefficient").map(|k| format!("{k}")).unwrap_or_default()));
+            grid.append(Property::string("Activation Temperature (°C)", "sh:activation_temperature", num("ActivationTemperature").map(|k| format!("{:.0}", k - 273.15)).unwrap_or_default()));
+            let quick = label("Response") != "STANDARD";
+            grid.append(Property::enumeration("Response", "sh:response", vec![("Quick".to_owned(), 0), ("Standard".to_owned(), 1)], if quick { 0 } else { 1 }));
+            let bulb = label("Activation") != "FUSIBLESOLDER";
+            grid.append(Property::enumeration("Activation", "sh:activation", vec![("Bulb".to_owned(), 0), ("Fusible solder".to_owned(), 1)], if bulb { 0 } else { 1 }));
+            grid.append(Property::string("Coverage Area (m²)", "sh:coverage_area", num("CoverageArea").map(|a| format!("{a}")).unwrap_or_default()));
+            grid.append(Property::string("Connection Size", "sh:connection_size", num("ConnectionSize").map(|c| self.format_length(c)).unwrap_or_default()));
+        }
         let triangles = format!("{}", t.triangle_count);
         grid.append(Property::string("Triangles", "mt_tris", triangles));
         grid.set_property_read_only("mt_tris", true);
@@ -1650,7 +1680,39 @@ impl Gui {
             "mo_scale",
             format!("{}", r.scale),
         ));
+        // A lift's car stays in its shaft: it moves with the lift's own tools.
+        if riviera_core::elevators::elevator(e).is_some() || riviera_core::escalators::escalator(e).is_some() || riviera_core::stairlifts::stairlift(e).is_some() {
+            for k in ["mo_level", "mo_offset", "mo_rotation", "mo_mirror", "mo_scale"] {
+                grid.set_property_read_only(k, true);
+            }
+        }
         self.mesh_type_rows(grid, ty);
+        true
+    }
+
+    /// An edit of a sprinkler head row; `false` if `property` is not one.
+    pub(crate) fn sprinkler_head_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(row) = property.strip_prefix("sh:") else { return false };
+        let frame = self.frame;
+        let Some(ty) = self.type_rows else { return true };
+        let text = text.unwrap_or_default();
+        let value = match row {
+            "mounting" => MOUNTINGS.iter().find(|m| m.1 == text).map(|m| json!(m.0)),
+            "response" => Some(json!(if text == "Quick" { "quick" } else { "standard" })),
+            "activation" => Some(json!(if text == "Bulb" { "bulb" } else { "fusible_solder" })),
+            "connection_size" => self.parse_length_text(&text).map(|v| json!(v)),
+            _ => text.trim().replace(',', ".").parse::<f64>().ok().map(|v| json!(v)),
+        };
+        let Some(value) = value else {
+            error(&frame, &format!("{text} is not a value for this row"));
+            return true;
+        };
+        let mut args = json!({ "type_id": ty });
+        args[row] = value;
+        if let Err(e) = self.run("sprinkler_type.set", args) {
+            error(&frame, &format!("The sprinkler type was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
         true
     }
 
