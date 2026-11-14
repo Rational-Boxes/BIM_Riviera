@@ -146,8 +146,14 @@ ribbon's tools, the command shell, Lua and MCP alike.
   (with their type values, openings and gates) and duct, pipe, tray and conduit segments (with
   their size and size lock) have type rows too; stairs, roofs, floors, rooms, components and
   pools gained the level, offset, number, extent and shell rows the core already supported
-  (edit audit 2026-11-13, `design_documents/EDIT_AUDIT.md`). Not yet: a user catalogue, stair
-  types, and the audit's phases 3–5 remainder.
+  (edit audit 2026-11-13, `design_documents/EDIT_AUDIT.md`), as did curtain grid lines and panel
+  overrides, sloped glazing types, arch spring edges, grab bars, toposolid points and unit arrays.
+  Stair types swap and edit like the others. Every Modify tab now ends with the generic parameter
+  rows. **Edit Layout** (DM-TYPE-003): pieces made by a layout tool (line-ups, cabinet runs, gym,
+  closets, baffles, bathroom layouts and others) remember the command and its values, and
+  `layout.get` / `layout.redo` make the layout again with changed values in one undo step. Not
+  yet: a user catalogue, atriums made again as a whole, picking curtain grid lines and panels in
+  the view, ramp and opening Modify tools.
 
 ### Commands, scripting and AI agents
 
