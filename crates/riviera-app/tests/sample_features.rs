@@ -1779,4 +1779,16 @@ fn the_hotel_sample_has_its_units_atrium_and_roof_pool() {
     let pv: Vec<_> = st.iter().filter_map(riviera_core::pv_arrays::recipe).collect();
     assert!(pv.len() == 1 && pv[0].modules.len() > 200, "{}", pv.len());
     assert_eq!(ok(&mut app, "alignment.list", json!({})).as_array().unwrap().len(), 1);
+    // Its layouts can be made again (Edit Layout): every layout tool it ran tagged its pieces.
+    let made_by = |cmd: &str| st.iter().find(|e| e.param("rxd:made_by").and_then(|v| v["command"].as_str()) == Some(cmd)).map(|e| e.id());
+    for cmd in ["foodservice.lineup", "atrium.create", "seating.layout", "shading.baffles"] {
+        let piece = made_by(cmd).unwrap_or_else(|| panic!("nothing in the hotel was made by {cmd}"));
+        let l = ok(&mut app, "layout.get", json!({ "element_id": piece }));
+        assert_eq!(l["command"], cmd, "{l:#}");
+    }
+    // The atrium made again under a barrel vault, in one step.
+    let roof = made_by("atrium.create").unwrap();
+    let r = ok(&mut app, "layout.redo", json!({ "element_id": roof, "params": { "form": "barrel" } }));
+    assert!(r["removed"].as_u64().unwrap() > 6, "{r:#}");
+    assert_eq!(ok(&mut app, "atrium.check", json!({}))[0]["storeys"], 6);
 }
