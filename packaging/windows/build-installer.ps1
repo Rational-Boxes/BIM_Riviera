@@ -37,7 +37,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$Version = '0.1.0-pre.17',
+    [string]$Version = '0.1.0-pre.18',
     [string]$VcpkgRoot = $(if ($env:VCPKG_ROOT) { $env:VCPKG_ROOT } else { 'C:\vcpkg' }),
     [switch]$SkipDeps,
     [switch]$SkipIfcOpenShell,

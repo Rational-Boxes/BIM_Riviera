@@ -78,6 +78,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.0~pre.18" date="2026-11-14" type="development">
+      <description>
+        <p>Eighteenth pre-release (tag 0.1.0-pre.18), for testing. New: every Type list offers types to load (starter doors, windows, walls, floors, ceilings, roofs, ramps, railings and stairs, and component libraries) and your own type catalogue shared between projects; type rows for footings, railings, stairs and duct, pipe, tray and conduit runs, with run sizes; generic parameter rows on every element; Modify tabs for ducts, pipes, structural members, pools, lifts and ramps; Edit Layout to remake kitchen line-ups, cabinet runs, gyms, seating, baffles, atriums and other layouts with changed values; Edit Unit for modular rooms; ramp railings, Edit Path and Flip Direction; curtain grid lines and panels placed by clicking on the wall; a hotel kitchen; and the hotel sample rebuilt so its layouts can be edited.</p>
+      </description>
+    </release>
     <release version="0.1.0~pre.17" date="2026-11-12" type="development">
       <description>
         <p>Seventeenth pre-release (tag 0.1.0-pre.17), for testing. New: modular units (a room designed once and repeated down corridors on many floors, merged into the building's walls and floors and connected to its ducts); atriums with glazed roofs and their fire and smoke checks; sun-control baffles and a sun check; event and dining seating with occupant loads and exits; rooftop solar arrays; basement sumps and groundwater drainage; a discipline selector on the View tab; pool lane ropes and backstroke flags; and a new sample hotel with an atrium, a roof pool, conference rooms, a basement and its site.</p>
