@@ -326,7 +326,7 @@ Tests: `type_catalogue.rs` (every kind, a duct's type and size, a railing's type
 
 Stairs now take another stair type in core, and a stair type's rules (`max_riser`, `min_tread`, `min_width`, `structural_depth`, `landing_thickness`) are set with `type.set_param`; Properties show them under the stair's Type row.
 
-*Not yet:* the user catalogue; starter curtain wall types.
+*Not yet:* starter curtain wall types. (The user catalogue is DM-TYPE-004.)
 
 ### 2.2.4b Layouts made again
 **ID:** DM-TYPE-003 · **Priority:** P1 · **Ref:** owner (2026-11-13); `EDIT_AUDIT.md` phase 5
@@ -348,7 +348,32 @@ Stairs now take another stair type in core, and a stair type's rules (`max_riser
 
 **Acceptance criteria.**
 - [x] A kitchen line-up re-made with a fryer added gets the fryer and its baffle. Its pieces carry the new arguments, and one undo brings back the first line. *(Test: `foodservice.rs` `a_line_up_is_made_again_with_other_equipment`.)*
-- [ ] Atriums and other layouts that change existing elements (floor openings) as well as add pieces.
+- [x] An atrium made again with a lower top level and a barrel roof has two guards instead of four, its old parts are gone, and its guard and glazing types are not made twice. One undo brings back the five-storey atrium. *(Test: `atriums.rs` `an_atrium_is_made_again_as_one`.)*
+
+*Built (2026-11-13).*
+
+### 2.2.4c The user's type catalogue
+**ID:** DM-TYPE-004 · **Priority:** P1 · **Ref:** owner (2026-11-13); `EDIT_AUDIT.md` §6
+
+**Purpose.** An office keeps its own door, wall, floor and roof types and uses them on every project. Without a catalogue of its own, those types were rebuilt or copied in from an old project each time (Transfer Project Standards).
+
+**Behaviour & rules.**
+- **Save Type to My Catalogue…** in a selected element's Type list (or `type.save_to_catalogue`) copies its type to the user's catalogue. That is `type-catalogue.json` in the per-user settings folder (`%APPDATA%\Riviera`, `$XDG_CONFIG_HOME/riviera` or `~/.config/riviera`; `RIVIERA_TYPE_CATALOGUE` overrides it). The commands' `catalogue` names a shared file instead, for example on an office drive. It is a local or network path, not a FileEngine address, because saving reads and rewrites the file.
+- A saved type keeps its IFC class, name and values; layered types keep their layers, with materials by name. An entry of the same name and kind is replaced. The file is written through a temporary file, so a failed write leaves the old one.
+- Refused:
+  - component types, which belong in component libraries (Import into Library);
+  - types that refer to other elements of their project (by GlobalId), which would not resolve elsewhere.
+- In every project the Type list shows the user's entries of the element's kind, marked *from Your catalogue*. They come after the model's types and before the starters, and replace a starter of the same name. Choosing one loads it (`type.load`). **Remove from My Catalogue…** takes an entry out; the model's types are not touched.
+- An unreadable catalogue file leaves the rest of the list shown; saving to it reports the error.
+
+**Commands.**
+- `type.save_to_catalogue(type_id, catalogue?) -> {name, catalogue, replaced}`
+- `type.remove_from_catalogue(element_id, name, catalogue?) -> bool`
+- `type.catalogue` and `type.load` take `catalogue?`.
+
+**Acceptance criteria.**
+- [x] A door type and a layered wall type saved in one project are listed as the user's in another project, and load with their width and layers. A removed entry is no longer listed, and a component type is refused with `type.not_savable`. *(Test: `type_catalogue.rs` `a_type_saved_to_the_users_catalogue_loads_in_another_project`.)*
+- [ ] Types that use other types (stacked walls, curtain walls with panel types) saved together with what they use.
 
 *Built (2026-11-13).*
 
@@ -4843,6 +4868,8 @@ All commands defined in this chapter. Every command in this table is also a Lua 
 | `type.load` | element_id, name | type_id | Yes | DM-TYPE-002 |
 | `layout.get` | element_id | {command, params, elements} | No (query) | DM-TYPE-003 |
 | `layout.redo` | element_id, params | {command, result, removed} | Yes | DM-TYPE-003 |
+| `type.save_to_catalogue` | type_id, catalogue? | {name, catalogue, replaced} | No (writes the user's file) | DM-TYPE-004 |
+| `type.remove_from_catalogue` | element_id, name, catalogue? | bool | No (writes the user's file) | DM-TYPE-004 |
 | `type.edit_properties` | type_id? | — | No | DM-TYPE-001 |
 | `instance.change_type` | element_ids[], type_id | — | Yes | DM-TYPE-001 |
 | `instance.place` | type_id, placement, host_id?, level_id?, params? | element_id | Yes | DM-INST-001 |

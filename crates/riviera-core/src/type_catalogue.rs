@@ -12,9 +12,19 @@
 //! - **Components:** the bundled component libraries (furnishings, bathroom components, MEP
 //!   starters) of the element's category.
 //!
+//! - **The user's own catalogue** (DM-TYPE-004): types saved from any project
+//!   (`type.save_to_catalogue`) to `type-catalogue.json` in the per-user settings folder, or to a
+//!   shared file named by `catalogue` (a local or network path, not a FileEngine address: saving
+//!   reads and rewrites the file). A saved type keeps its class, name and values (layers by
+//!   material name); one that refers to other elements of its project is refused. Its entries come
+//!   before the starters, and replace a starter of the same name.
+//!
 //! `type.catalogue` lists them for an element (or a type), marking those already loaded;
 //! `type.load` loads one by name (a type of that name and family already in the model is reused)
 //! and returns it, for `element.set_type`.
+
+use std::collections::BTreeMap;
+use std::path::{Path, PathBuf};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -23,7 +33,7 @@ use serde_json::{Value, json};
 use crate::element::{Element, NewElement};
 use crate::error::{Error, Result};
 use crate::floors::SlabKind;
-use crate::id::{ElementId, ElementRef};
+use crate::id::{ElementId, ElementRef, GlobalId};
 use crate::inserts::{self, HeadProfile, InsertType, Kind, Shape};
 use crate::inserts::doors::{Operation, Panel};
 use crate::mesh_objects::{self, Category};
@@ -246,12 +256,16 @@ fn entries_of(family: Family) -> Vec<(String, String)> {
 pub struct CatalogueParams {
     /// The element (or a type) whose kind of type to list.
     pub element_id: ElementRef,
+    /// A user catalogue file to list (default the per-user one).
+    #[serde(default)]
+    pub catalogue: Option<String>,
 }
 
 #[derive(Debug, Serialize, JsonSchema)]
 pub struct Entry {
     pub name: String,
-    /// Where it comes from: "In the model", "Riviera starter types" or a component library.
+    /// Where it comes from: "In the model", "Your catalogue", "Riviera starter types" or a
+    /// component library.
     pub source: String,
     /// The type, when it is in the model already.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -268,7 +282,11 @@ pub fn catalogue(store: &Store, p: CatalogueParams) -> Result<Vec<Entry>> {
     let f = family(store, &p.element_id)?;
     let mut out: Vec<Entry> = store.iter().filter(|t| is_of(store, t, f)).map(|t| Entry { name: t.name.clone().unwrap_or_default(), source: "In the model".into(), type_id: Some(t.id()) }).collect();
     out.sort_by(|a, b| a.name.cmp(&b.name));
-    for (name, source) in entries_of(f) {
+    // An unreadable user catalogue leaves the rest listed; saving to it reports the error.
+    let user = read_user(p.catalogue.as_deref()).map(|u| u.1.types).unwrap_or_default();
+    let key = family_key(f);
+    let user = user.into_iter().filter(|t| Some(&t.family) == key.as_ref()).map(|t| (t.name, USER_SOURCE.to_owned()));
+    for (name, source) in user.chain(entries_of(f)) {
         if !out.iter().any(|e| e.name == name) {
             out.push(Entry { name, source, type_id: None });
         }
@@ -283,6 +301,9 @@ pub struct LoadParams {
     pub element_id: ElementRef,
     /// The catalogue entry's name.
     pub name: String,
+    /// A user catalogue file to load from (default the per-user one).
+    #[serde(default)]
+    pub catalogue: Option<String>,
 }
 
 /// `type.load`: loads a catalogue entry (a type of that name already in the model is reused).
@@ -293,6 +314,17 @@ pub(crate) fn load(txn: &mut Transaction<'_>, p: LoadParams) -> Result<ElementId
         return Ok(t.id());
     }
     let missing = || Error::new("type.not_in_catalogue", format!("{:?} is not in the catalogue of this kind of type", p.name));
+    // The user's own first.
+    let key = family_key(f);
+    if let Some(t) = read_user(p.catalogue.as_deref()).ok().and_then(|u| u.1.types.into_iter().find(|t| t.name == p.name && Some(&t.family) == key.as_ref())) {
+        let mut n = NewElement::new(t.class).name(t.name);
+        n.params = t.params;
+        let id = txn.create(n)?;
+        if !txn.store().get(id).and_then(|e| family_of(txn.store(), e)).is_some_and(|g| g == f) {
+            return Err(Error::new("type.wrong_family", format!("{:?} in the user catalogue is no longer a type of this kind", p.name)));
+        }
+        return Ok(id);
+    }
     let layered = |txn: &mut Transaction<'_>, id: ElementId, layers: &[L]| {
         let layers = layers.iter().map(|(f, m, t)| serde_json::from_value(json!({ "function": f, "material": m, "thickness": t, "structural_material": *f == "structure" })).expect("a layer")).collect();
         crate::compound::set_layers(txn, crate::compound::SetLayersParams { type_id: ElementRef::Id(id), layers, core_start: None, core_end: None })?;
@@ -353,6 +385,159 @@ pub(crate) fn load(txn: &mut Transaction<'_>, p: LoadParams) -> Result<ElementId
             loaded.get(&p.name).copied().ok_or_else(missing)
         }
     }
+}
+
+// ---- The user's own catalogue (DM-TYPE-004) ----
+
+const USER_SOURCE: &str = "Your catalogue";
+pub const USER_FILE: &str = "type-catalogue.json";
+
+/// A family's name in the user catalogue file; component types are kept in component libraries.
+fn family_key(f: Family) -> Option<String> {
+    (!matches!(f, Family::Component(_))).then(|| format!("{f:?}"))
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Saved {
+    name: String,
+    family: String,
+    class: String,
+    params: BTreeMap<String, Value>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+struct UserCatalogue {
+    #[serde(default)]
+    types: Vec<Saved>,
+}
+
+/// The per-user catalogue: `RIVIERA_TYPE_CATALOGUE`, else `type-catalogue.json` in `%APPDATA%\Riviera`
+/// or `$XDG_CONFIG_HOME/riviera` (`~/.config/riviera`).
+pub fn user_path() -> Option<PathBuf> {
+    if let Some(p) = std::env::var_os("RIVIERA_TYPE_CATALOGUE") {
+        return Some(PathBuf::from(p));
+    }
+    if let Some(a) = std::env::var_os("APPDATA") {
+        return Some(crate::app_dirs::app_dir(Path::new(&a), "Riviera").join(USER_FILE));
+    }
+    let base = std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).or_else(|| std::env::var_os("HOME").map(|h| Path::new(&h).join(".config")))?;
+    Some(crate::app_dirs::app_dir(&base, "riviera").join(USER_FILE))
+}
+
+/// The catalogue at `path` (default the per-user one); none there yet is an empty one.
+fn read_user(path: Option<&str>) -> Result<(PathBuf, UserCatalogue)> {
+    let path = path.map(PathBuf::from).or_else(user_path).ok_or_else(|| Error::new("type.no_catalogue_file", "there is no per-user settings folder; name a catalogue file"))?;
+    let text = match std::fs::read_to_string(&path) {
+        Ok(t) => t,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok((path, UserCatalogue::default())),
+        Err(e) => return Err(Error::new("type.catalogue_file", format!("{}: {e}", path.display()))),
+    };
+    let c = serde_json::from_str(&text).map_err(|e| Error::new("type.catalogue_file", format!("{} is not a type catalogue: {e}", path.display())))?;
+    Ok((path, c))
+}
+
+/// Writes it through a temporary file, so a failed write leaves the old one.
+fn write_user(path: &Path, c: &UserCatalogue) -> Result<()> {
+    let io = |e: std::io::Error| Error::new("type.catalogue_file", format!("{}: {e}", path.display()));
+    if let Some(d) = path.parent().filter(|d| !d.as_os_str().is_empty()) {
+        std::fs::create_dir_all(d).map_err(io)?;
+    }
+    let tmp = path.with_extension("json.tmp");
+    std::fs::write(&tmp, serde_json::to_string_pretty(c).expect("serialises")).map_err(io)?;
+    std::fs::rename(&tmp, path).map_err(io)
+}
+
+/// The type of `r`: itself when it is a type, else the type it takes.
+fn type_element<'a>(store: &'a Store, r: &ElementRef) -> Result<&'a Element> {
+    let id = store.resolve(r).ok_or_else(|| Error::new("element.not_found", format!("no element {r:?}")))?;
+    let e = store.get(id).expect("resolved");
+    if crate::categories::is_type(e) {
+        return Ok(e);
+    }
+    e.param("@type").and_then(Value::as_str).and_then(GlobalId::parse).and_then(|g| store.find_by_guid(&g)).and_then(|t| store.get(t)).ok_or_else(|| Error::new("type.none", format!("element {id} has no type")))
+}
+
+/// The elements of the project a value names by GlobalId.
+fn refers(store: &Store, v: &Value, out: &mut Vec<String>) {
+    match v {
+        Value::String(s) => {
+            if let Some(n) = GlobalId::parse(s).and_then(|g| store.find_by_guid(&g)).and_then(|id| store.get(id)) {
+                out.push(n.name.clone().unwrap_or_else(|| s.clone()));
+            }
+        }
+        Value::Array(a) => a.iter().for_each(|x| refers(store, x, out)),
+        Value::Object(o) => o.values().for_each(|x| refers(store, x, out)),
+        _ => {}
+    }
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct SaveParams {
+    /// The type, or an element of it.
+    pub type_id: ElementRef,
+    /// A user catalogue file to save to (default the per-user one).
+    #[serde(default)]
+    pub catalogue: Option<String>,
+}
+
+#[derive(Debug, Serialize, JsonSchema)]
+pub struct Saving {
+    pub name: String,
+    /// The catalogue file.
+    pub catalogue: String,
+    /// Whether it replaced an entry of that name and kind.
+    pub replaced: bool,
+}
+
+/// `type.save_to_catalogue`: copies a type into the user's catalogue, replacing one of its name
+/// and kind there.
+pub fn save(store: &Store, p: SaveParams) -> Result<Saving> {
+    let t = type_element(store, &p.type_id)?;
+    let f = family_of(store, t).ok_or_else(|| Error::new("type.no_catalogue", format!("type {} has no type catalogue", t.id())))?;
+    let Some(family) = family_key(f) else {
+        return Err(Error::new("type.not_savable", "component types are kept in component libraries: use Import into Library"));
+    };
+    let name = t.name.clone().filter(|n| !n.trim().is_empty()).ok_or_else(|| Error::new("type.not_savable", "the type has no name"))?;
+    let mut uses = Vec::new();
+    t.params.values().for_each(|v| refers(store, v, &mut uses));
+    if !uses.is_empty() {
+        uses.dedup();
+        return Err(Error::new("type.not_savable", format!("{name} uses other elements of this project ({}), so it can't be loaded elsewhere", uses.join(", "))));
+    }
+    let (path, mut c) = read_user(p.catalogue.as_deref())?;
+    let before = c.types.len();
+    c.types.retain(|x| !(x.name == name && x.family == family));
+    let replaced = c.types.len() < before;
+    c.types.push(Saved { name: name.clone(), family, class: t.class.clone(), params: t.params.clone() });
+    c.types.sort_by(|a, b| (&a.family, &a.name).cmp(&(&b.family, &b.name)));
+    write_user(&path, &c)?;
+    Ok(Saving { name, catalogue: path.display().to_string(), replaced })
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct RemoveParams {
+    /// An element (or a type) of the entry's kind.
+    pub element_id: ElementRef,
+    pub name: String,
+    #[serde(default)]
+    pub catalogue: Option<String>,
+}
+
+/// `type.remove_from_catalogue`: takes an entry out of the user's catalogue (the model's types
+/// are not touched); `false` if it was not there.
+pub fn remove(store: &Store, p: RemoveParams) -> Result<bool> {
+    let f = family(store, &p.element_id)?;
+    let key = family_key(f);
+    let (path, mut c) = read_user(p.catalogue.as_deref())?;
+    let before = c.types.len();
+    c.types.retain(|x| !(x.name == p.name && Some(&x.family) == key.as_ref()));
+    if c.types.len() == before {
+        return Ok(false);
+    }
+    write_user(&path, &c)?;
+    Ok(true)
 }
 
 #[cfg(test)]

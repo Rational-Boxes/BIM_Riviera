@@ -17,8 +17,12 @@ fixtures, equipment, terminals), stairs, railings and grids have types. In Prope
     into the model and gives it to the selection in one step.</li>
   <li>Each kind keeps to its own list. Floors list floor types and ceilings list ceiling types; a
     bed lists furniture, never plumbing fixtures.</li>
-  <li><b>Duplicate Type…</b> (the last entry in the list) copies the current type under a new
-    name and gives it to the selection. Change the new type's values afterwards.</li>
+  <li><b>Duplicate Type…</b> (after the types) copies the current type under a new name and
+    gives it to the selection. Change the new type's values afterwards.</li>
+  <li><b>Save Type to My Catalogue…</b> keeps the current type for every project. From then on,
+    every project lists it with the model's types, marked <i>(from Your catalogue)</i>, and loads
+    it when chosen. <b>Remove from My Catalogue…</b> takes one out; the model keeps its types. See
+    <a href="#my-catalogue">Your own type catalogue</a>.</li>
   <li><b>Type Name</b> renames the type.</li>
   <li>The rows under <b>Type Parameters (<i>n</i> walls)</b> are the type's values. Changing one
     changes every element of that type: the heading says how many there are.</li>
@@ -26,6 +30,15 @@ fixtures, equipment, terminals), stairs, railings and grids have types. In Prope
 <p><b>With a tool running and nothing selected</b>, the Type row chooses the type the tool
 places: start the Wall, Door, Window or Grid tool, then pick the type in Properties before
 clicking in the view.</p>
+<h2 id="my-catalogue">Your own type catalogue</h2>
+<p>Types you save are kept in <code>type-catalogue.json</code> in your settings folder
+(<code>~/.config/riviera</code>, or <code>%APPDATA%\Riviera</code> on Windows). An office can
+share one catalogue: set <code>RIVIERA_TYPE_CATALOGUE</code> to a file on a shared drive, or, in a
+script, pass <code>catalogue</code>. A saved type keeps its values and layers, with each layer's
+material by name. Saving a type again under the same name replaces the saved copy. Two kinds
+can't be saved: component types, which go in a component library (Import into Library), and types
+that use other elements of their project, such as stacked walls. <code>type.save_to_catalogue</code>,
+<code>type.remove_from_catalogue</code></p>
 <p><b>What can be loaded.</b> The <i>Riviera starter types</i> are common sizes and build-ups:
 <ul>
   <li><b>Doors:</b> single, double, glass, automatic sliding, revolving and round-top.</li>

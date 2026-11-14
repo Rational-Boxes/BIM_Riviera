@@ -3,7 +3,8 @@
 
 //! The Type row of a selected element (DM-TYPE-002): the types of its kind in the model, then
 //! those it could load (Riviera's starter types and the component libraries, `type.catalogue`),
-//! then Duplicate Type…. Choosing a type not yet loaded loads it (`type.load`) and gives it to the
+//! then Duplicate Type…, Save Type to My Catalogue… and Remove from My Catalogue… (DM-TYPE-004).
+//! Choosing a type not yet loaded loads it (`type.load`) and gives it to the
 //! selection (`element.set_type`), as one step each.
 
 use riviera_core::ElementId;
@@ -13,6 +14,10 @@ use wxdragon::prelude::*;
 use super::{Gui, error};
 
 const DUPLICATE: &str = "Duplicate Type…";
+const SAVE: &str = "Save Type to My Catalogue…";
+const REMOVE: &str = "Remove from My Catalogue…";
+/// The label suffix of the user's own catalogue's entries.
+const MINE: &str = "(from Your catalogue)";
 
 /// The Type row shown: its entries by label.
 #[derive(Debug, Clone)]
@@ -56,10 +61,16 @@ impl Gui {
         let mut choices: Vec<(String, i32)> = entries.iter().enumerate().map(|(i, e)| (e.0.clone(), i as i32)).collect();
         if current.is_some() {
             choices.push((DUPLICATE.to_owned(), choices.len() as i32));
+            if tool.is_none() {
+                choices.push((SAVE.to_owned(), choices.len() as i32));
+            }
+        }
+        if tool.is_none() && entries.iter().any(|e| e.0.ends_with(MINE)) {
+            choices.push((REMOVE.to_owned(), choices.len() as i32));
         }
         let index = current.and_then(|c| entries.iter().position(|e| e.2 == Some(c))).map_or(-1, |i| i as i32);
         grid.append(Property::enumeration("Type", "tp_type", choices, index));
-        grid.set_help_string("tp_type", "The type: those in the model, then those that can be loaded (starter types and component libraries); Duplicate Type… makes a new one from this one");
+        grid.set_help_string("tp_type", "The type: those in the model, then those that can be loaded (starter types and component libraries); Duplicate Type… makes a new one from this one; Save Type to My Catalogue… keeps it for every project");
         self.type_picker = Some(TypePicker { element, current, tool, entries });
         true
     }
@@ -101,6 +112,25 @@ impl Gui {
 
     fn pick_type(&mut self, p: &TypePicker, label: &str) -> Result<(), String> {
         let frame = self.frame;
+        if label == SAVE {
+            let Some(current) = p.current else { return Ok(()) };
+            let r = self.run("type.save_to_catalogue", json!({ "type_id": current }))?;
+            let how = if r["replaced"].as_bool() == Some(true) { "replaced in" } else { "saved to" };
+            let text = format!("{} {how} your type catalogue:\n{}\n\nEvery project now lists it in the Type list.", r["name"].as_str().unwrap_or(""), r["catalogue"].as_str().unwrap_or(""));
+            MessageDialog::builder(&frame, &text, "Save Type to My Catalogue").with_style(MessageDialogStyle::OK | MessageDialogStyle::IconInformation).build().show_modal();
+            return Ok(());
+        }
+        if label == REMOVE {
+            let mine: Vec<&str> = p.entries.iter().filter(|e| e.0.ends_with(MINE)).map(|e| e.1.as_str()).collect();
+            let d = SingleChoiceDialog::builder(&frame, "Remove from your type catalogue (the model keeps its types):", "Remove from My Catalogue", &mine).build();
+            if d.show_modal() != ID_OK {
+                return Ok(());
+            }
+            let Some(name) = usize::try_from(d.get_selection()).ok().and_then(|k| mine.get(k)) else { return Ok(()) };
+            self.run("type.remove_from_catalogue", json!({ "element_id": p.element, "name": name }))?;
+            frame.set_status_text(&format!("{name} removed from your type catalogue"), 0);
+            return Ok(());
+        }
         let chosen = if label == DUPLICATE {
             let Some(current) = p.current else { return Ok(()) };
             let proposed = self.store_now().map(|s| riviera_core::types::duplicate_name(&s, current)).unwrap_or_default();

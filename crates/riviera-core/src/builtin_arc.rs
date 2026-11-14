@@ -557,6 +557,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitEdit),
         registry.add(TypeCatalogue),
         registry.add(TypeLoad),
+        registry.add(TypeSaveToCatalogue),
+        registry.add(TypeRemoveFromCatalogue),
         registry.add(LayoutGet),
         registry.add(LayoutRedo),
         registry.add(AtriumCreate),
@@ -6916,8 +6918,8 @@ read_command!(
     TypeCatalogue,
     "type.catalogue",
     "List the types an element could take",
-    "The types of an element's kind (or a type's), DM-TYPE-002: those in the model first, then Riviera's starter types (doors, windows, roofs, floors, ceilings, walls and ramps by common size and build-up) and the component libraries' types of its category, each with where it comes from; loaded ones carry their `type_id`. Load one with `type.load`, then `element.set_type`.",
-    [Effect::Read],
+    "The types of an element's kind (or a type's), DM-TYPE-002: those in the model first, then Riviera's starter types (doors, windows, roofs, floors, ceilings, walls and ramps by common size and build-up) and the component libraries' types of its category, with the user's own catalogue (DM-TYPE-004, `catalogue` or the per-user file) before the starters, each with where it comes from; loaded ones carry their `type_id`. Load one with `type.load`, then `element.set_type`.",
+    [Effect::Read, Effect::FileRead],
     crate::type_catalogue::CatalogueParams,
     Vec<crate::type_catalogue::Entry>,
     crate::type_catalogue::catalogue
@@ -6929,9 +6931,32 @@ edit_command!(
     "Load a type from the catalogue",
     "Loads a `type.catalogue` entry of an element's kind (or a type's) into the model by `name`, with its values and layers (DM-TYPE-002); a type of that name and kind already in the model is reused. Returns the type, for `element.set_type`.",
     "Load Type",
+    [Effect::Edit, Effect::FileRead],
     crate::type_catalogue::LoadParams,
     ElementId,
     crate::type_catalogue::load
+);
+
+read_command!(
+    TypeSaveToCatalogue,
+    "type.save_to_catalogue",
+    "Save a type to the user's catalogue",
+    "Copies a type (or an element's type) into the user's own type catalogue (DM-TYPE-004): `type-catalogue.json` in the per-user settings folder, or the shared file `catalogue`. It keeps its class, name and values (layers by material name), replacing an entry of its name and kind; every project then lists it in `type.catalogue` and loads it with `type.load`. Component types belong in component libraries, and a type that refers to other elements of its project is refused.",
+    [Effect::Read, Effect::FileRead, Effect::FileWrite],
+    crate::type_catalogue::SaveParams,
+    crate::type_catalogue::Saving,
+    crate::type_catalogue::save
+);
+
+read_command!(
+    TypeRemoveFromCatalogue,
+    "type.remove_from_catalogue",
+    "Remove a type from the user's catalogue",
+    "Takes the entry `name` of an element's kind out of the user's own type catalogue (DM-TYPE-004); the model's types are not touched. Returns false if it was not there.",
+    [Effect::Read, Effect::FileRead, Effect::FileWrite],
+    crate::type_catalogue::RemoveParams,
+    bool,
+    crate::type_catalogue::remove
 );
 
 edit_command!(

@@ -162,3 +162,56 @@ fn a_stair_takes_another_type_and_its_rules_change() {
     let g = riviera_core::stairs::regenerate(&s, s.get(ElementId(stair.as_u64().unwrap())).unwrap()).unwrap();
     assert!(g.riser_height <= 0.15 + 1e-9, "{}", g.riser_height);
 }
+
+#[test]
+fn a_type_saved_to_the_users_catalogue_loads_in_another_project() {
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("shared/type-catalogue.json");
+    let file = file.to_str().unwrap();
+    let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });
+    ok(&mut app, "file.new", json!({}));
+    let level = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    let wall = ok(&mut app, "wall.create", json!({ "curve": { "line": { "start": [0.0, 0.0], "end": [10.0, 0.0] } }, "base_level": level, "top_constraint": { "unconnected": 3.5 } }));
+    let door = ok(&mut app, "door.place", json!({ "host_wall_id": wall, "point_along": 2.0 }));
+    // A door type of the office's own, saved from a door.
+    let t = ok(&mut app, "type.load", json!({ "element_id": door, "name": "Double Door 1800 x 2100" }));
+    let mine = ok(&mut app, "type.duplicate", json!({ "type_id": t, "new_name": "Office Double Door 1700" }));
+    ok(&mut app, "type.set_param", json!({ "type_id": mine, "param": "width", "value": "1700 mm" }));
+    ok(&mut app, "element.set_type", json!({ "element_ids": [door], "type_id": mine }));
+    let s = ok(&mut app, "type.save_to_catalogue", json!({ "type_id": door, "catalogue": file }));
+    assert_eq!((s["name"].as_str(), s["replaced"].as_bool()), (Some("Office Double Door 1700"), Some(false)));
+    assert_eq!(ok(&mut app, "type.save_to_catalogue", json!({ "type_id": mine, "catalogue": file }))["replaced"], true);
+    // A layered wall type too.
+    let w = ok(&mut app, "type.load", json!({ "element_id": wall, "name": "Exterior - Brick and Block Cavity 300 mm" }));
+    let w = ok(&mut app, "type.duplicate", json!({ "type_id": w, "new_name": "Office Cavity Wall" }));
+    ok(&mut app, "type.save_to_catalogue", json!({ "type_id": w, "catalogue": file }));
+
+    // Another project: listed as the user's, loaded with its width and layers.
+    ok(&mut app, "file.new", json!({}));
+    let level = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    let wall = ok(&mut app, "wall.create", json!({ "curve": { "line": { "start": [0.0, 0.0], "end": [10.0, 0.0] } }, "base_level": level, "top_constraint": { "unconnected": 3.5 } }));
+    let door = ok(&mut app, "door.place", json!({ "host_wall_id": wall, "point_along": 2.0 }));
+    let list = ok(&mut app, "type.catalogue", json!({ "element_id": door, "catalogue": file }));
+    let e = list.as_array().unwrap().iter().find(|e| e["name"] == "Office Double Door 1700").unwrap_or_else(|| panic!("{list:#}"));
+    assert_eq!(e["source"], "Your catalogue");
+    // Walls' entries are not a door's.
+    assert!(list.as_array().unwrap().iter().all(|e| e["name"] != "Office Cavity Wall"));
+    let t = ok(&mut app, "type.load", json!({ "element_id": door, "name": "Office Double Door 1700", "catalogue": file }));
+    ok(&mut app, "element.set_type", json!({ "element_ids": [door], "type_id": t }));
+    let st = store(&app);
+    let it = riviera_core::inserts::insert_type(st.get(ElementId(t.as_u64().unwrap())).unwrap()).unwrap();
+    assert!((it.width - 1.7).abs() < 1e-9, "{}", it.width);
+    let t = ok(&mut app, "type.load", json!({ "element_id": wall, "name": "Office Cavity Wall", "catalogue": file }));
+    ok(&mut app, "element.set_type", json!({ "element_ids": [wall], "type_id": t }));
+    let st = store(&app);
+    let g = riviera_core::walls::regenerate(&st, st.get(ElementId(wall.as_u64().unwrap())).unwrap()).unwrap();
+    assert!((g.width - 0.3).abs() < 1e-9, "{}", g.width);
+    // Removed: no longer listed.
+    assert_eq!(ok(&mut app, "type.remove_from_catalogue", json!({ "element_id": door, "name": "Office Double Door 1700", "catalogue": file })), true);
+    let list = ok(&mut app, "type.catalogue", json!({ "element_id": door, "catalogue": file }));
+    assert!(list.as_array().unwrap().iter().all(|e| e["source"] != "Your catalogue"), "{list:#}");
+    // A component's type: kept in component libraries instead.
+    let bed = ok(&mut app, "furnishing.load", json!({ "names": ["Bed, king 76 × 80 in"] }))["Bed, king 76 × 80 in"].clone();
+    let e = app.execute("type.save_to_catalogue", json!({ "type_id": bed, "catalogue": file }), &Caller::user()).unwrap_err();
+    assert_eq!(e.code, "type.not_savable");
+}

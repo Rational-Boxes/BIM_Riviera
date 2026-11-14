@@ -151,8 +151,10 @@ ribbon's tools, the command shell, Lua and MCP alike.
   Stair types swap and edit like the others. Every Modify tab now ends with the generic parameter
   rows. **Edit Layout** (DM-TYPE-003): pieces made by a layout tool (line-ups, cabinet runs, gym,
   closets, baffles, locker rooms, atriums and others) remember the command and its values, and
-  `layout.get` / `layout.redo` make the layout again with changed values in one undo step. Not
-  yet: a user catalogue, picking curtain grid lines and panels in
+  `layout.get` / `layout.redo` make the layout again with changed values in one undo step.
+  **Your own type catalogue** (DM-TYPE-004): Save Type to My Catalogue… keeps a type in a per-user
+  (or shared) file, and every project lists and loads it (`type.save_to_catalogue`,
+  `type.remove_from_catalogue`). Not yet: picking curtain grid lines and panels in
   the view, ramp and opening Modify tools.
 
 ### Commands, scripting and AI agents

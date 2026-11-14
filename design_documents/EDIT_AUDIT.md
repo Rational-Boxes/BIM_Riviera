@@ -202,7 +202,9 @@ closets, baffles and atriums, then their window forms filled from the last value
 - **Atriums** are made again as a whole by Edit Layout (`atrium.create` is a layout command); Edit
   Layout is also on Glazed Spaces and the Roofs and Railings Modify tabs.
 
+- **The user's type catalogue** (DM-TYPE-004): Save Type to My Catalogue… and Remove from My
+  Catalogue… in every Type list; saved types are listed and loaded in every project.
+
 **Remaining:**
 - Modify tabs for ramps and openings (there are no ramp or opening tools to put on them).
 - Placing curtain grid lines and panels by clicking in the view (Properties rows for now).
-- A user type catalogue.
