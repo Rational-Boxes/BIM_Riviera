@@ -17,6 +17,7 @@ use riviera_core::ElementId;
 use riviera_render::RenderBackend;
 use riviera_render::plan::Lines;
 use serde_json::json;
+use wxdragon::prelude::{Property, PropertyGrid};
 
 use super::{Gui, error};
 
@@ -311,5 +312,80 @@ impl Gui {
         }
         self.refresh_scene(&frame);
         frame.set_status_text(&format!("Placed {n} railing(s) on the stairs"), 0);
+    }
+}
+
+impl Gui {
+    /// A selected railing's rows (ARC-RAIL-001/003): its type (DM-TYPE-002) and the type's sizes
+    /// (`type.set_param`, every railing of the type), then its openings and gates, each moved by
+    /// its position, resized by its width, or removed by clearing its position.
+    pub(crate) fn railing_rows(&mut self, grid: &PropertyGrid, id: ElementId) {
+        let Some(store) = self.store_now() else { return };
+        let Some(e) = store.get(id) else { return };
+        let Some(r) = riviera_core::railings::railing_recipe(e) else { return };
+        let current = e.param("@type").and_then(serde_json::Value::as_str).and_then(riviera_core::GlobalId::parse).and_then(|g| store.find_by_guid(&g));
+        grid.append(Property::category("Railing Type", "c_rail_type"));
+        self.type_picker_row(grid, id, current);
+        self.type_name_row(grid, current);
+        if let Some(t) = current.and_then(|t| store.get(t)).and_then(riviera_core::railings::railing_type) {
+            let rows = [
+                ("Height (type)", "height", t.height),
+                ("Top Rail Width (type)", "top_rail_width", t.top_rail[0]),
+                ("Top Rail Depth (type)", "top_rail_depth", t.top_rail[1]),
+                ("Bottom Rail Width (type)", "bottom_rail_width", t.bottom_rail[0]),
+                ("Bottom Rail Depth (type)", "bottom_rail_depth", t.bottom_rail[1]),
+                ("Bottom Rail Height (type)", "bottom_rail_height", t.bottom_rail_height),
+                ("Baluster Size (type)", "baluster", t.baluster),
+                ("Baluster Spacing (type)", "baluster_spacing", t.baluster_spacing),
+                ("Post Size (type)", "post", t.post),
+                ("Post Space (type)", "post_space", t.post_space),
+            ];
+            for (label, key, v) in rows {
+                grid.append(Property::string(label, format!("rl:{key}"), self.format_length(v)));
+            }
+            self.type_rows = current;
+        }
+        if r.features.is_empty() {
+            return;
+        }
+        grid.append(Property::category("Openings and Gates", "c_rail_features"));
+        for f in &r.features {
+            let what = match &f.kind {
+                riviera_core::railings::FeatureKind::Opening => "Opening".to_owned(),
+                riviera_core::railings::FeatureKind::Gate { leaves, .. } => if *leaves == 2 { "Double Gate".to_owned() } else { "Gate".to_owned() },
+            };
+            grid.append(Property::string(format!("{what} {}: Position", f.key), format!("rf:{}:at", f.key), self.format_length(f.at)));
+            grid.set_help_string(format!("rf:{}:at", f.key), "Its centre's distance along the railing; clear it to remove the opening or gate");
+            grid.append(Property::string(format!("{what} {}: Width", f.key), format!("rf:{}:width", f.key), self.format_length(f.width)));
+        }
+    }
+
+    /// An edit of a railing row; `false` if `property` is not one.
+    pub(crate) fn railing_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let frame = self.frame;
+        let text = text.unwrap_or_default();
+        let result = if let Some(param) = property.strip_prefix("rl:") {
+            let Some(t) = self.type_rows else { return true };
+            self.run("type.set_param", json!({ "type_id": t, "param": param, "value": text.trim() }))
+        } else if let Some(rest) = property.strip_prefix("rf:") {
+            let Some(railing) = self.selection().first().copied() else { return true };
+            let mut parts = rest.split(':');
+            let (Some(key), Some(what)) = (parts.next().and_then(|k| k.parse::<u32>().ok()), parts.next()) else { return true };
+            if what == "at" && text.trim().is_empty() {
+                self.run("railing.remove_feature", json!({ "railing_id": railing, "key": key }))
+            } else {
+                let mut a = json!({ "railing_id": railing, "key": key });
+                a[what] = json!(text.trim());
+                self.run("railing.move_feature", a)
+            }
+        } else {
+            return false;
+        };
+        if let Err(e) = result {
+            error(&frame, &format!("The railing was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        true
     }
 }

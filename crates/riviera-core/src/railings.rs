@@ -1640,3 +1640,47 @@ mod tests {
         assert!((top - 2.0).abs() < 1e-12);
     }
 }
+
+/// Sets a railing type's value (`type.set_param`: `height`, `top_rail_width`, `top_rail_depth`,
+/// `bottom_rail_width`, `bottom_rail_depth`, `bottom_rail_height`, `baluster`,
+/// `baluster_spacing`, `post`, `post_space`); every railing of the type regenerates.
+pub(crate) fn set_type_param(txn: &mut crate::txn::Transaction<'_>, id: ElementId, param: &str, value: &Value) -> Result<()> {
+    let store = txn.store().clone();
+    let mut t = railing_type(store.get(id).expect("checked")).expect("a railing type");
+    let x = match value {
+        Value::Number(n) => n.as_f64().unwrap_or(-1.0),
+        Value::String(s) => crate::units::parse(s, "length", &crate::units::settings_of(&store))?,
+        _ => -1.0,
+    };
+    let min = if param == "bottom_rail_height" { 0.0 } else { 1e-3 };
+    if !(x.is_finite() && x >= min) {
+        return Err(Error::new("type.invalid_value", format!("`{param}` is out of range")));
+    }
+    match param {
+        "height" => t.height = x,
+        "top_rail_width" => t.top_rail[0] = x,
+        "top_rail_depth" => t.top_rail[1] = x,
+        "bottom_rail_width" => t.bottom_rail[0] = x,
+        "bottom_rail_depth" => t.bottom_rail[1] = x,
+        "bottom_rail_height" => t.bottom_rail_height = x,
+        "baluster" => t.baluster = x,
+        "baluster_spacing" => t.baluster_spacing = x,
+        "post" => t.post = x,
+        "post_space" => t.post_space = x,
+        _ => {
+            return crate::parameters::set(txn, &[id], param, Some(value)).map(|_| ());
+        }
+    }
+    if t.baluster_spacing <= t.baluster || t.bottom_rail_height + t.bottom_rail[1] >= t.height {
+        return Err(Error::new("type.invalid_value", "balusters must be spaced wider than they are, and the bottom rail must sit under the top"));
+    }
+    let v = serde_json::to_value(&t).expect("serialises");
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })?;
+    let guid = store.get(id).expect("checked").guid().to_string();
+    for r in store.iter().filter(|r| railing_recipe(r).is_some() && r.param("@type").and_then(Value::as_str) == Some(guid.as_str())) {
+        regenerate(txn.store(), txn.store().get(r.id()).expect("exists"))?;
+    }
+    Ok(())
+}

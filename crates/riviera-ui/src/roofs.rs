@@ -161,12 +161,11 @@ impl Gui {
                 .unwrap_or_else(|| format!("{:.2}°", a.to_degrees()))
         };
         grid.append(Property::category("Constraints", "c_roof"));
-        grid.append(Property::string(
-            "Base Level",
-            "rf_level",
-            level_name(&recipe.level),
-        ));
-        grid.set_property_read_only("rf_level", true);
+        let base = level_name(&recipe.level);
+        let all = self.levels();
+        let names: Vec<(String, i32)> = all.iter().enumerate().map(|(i, l)| (l.name.clone(), i as i32)).collect();
+        let at = all.iter().position(|l| l.name == base).map_or(-1, |i| i as i32);
+        grid.append(Property::enumeration("Base Level", "rf_level", names, at));
         let offset = self.format_length(recipe.base_offset);
         grid.append(Property::string(
             "Base Offset From Level",
@@ -208,7 +207,13 @@ impl Gui {
         }
         // Arched roofs and domes have their own rows; footprint roofs their shape and eaves.
         let glazed = roofs::glazing::of_roof(&store, e).is_some();
-        if !self.curved_roof_rows(grid, &recipe, glazed) {
+        // A roof by extrusion: its extent across the profile's plane (ARC-ROOF-004).
+        if let Some(x) = &recipe.extrusion {
+            grid.append(Property::category("Extrusion", "c_roof_extrusion"));
+            grid.append(Property::string("Extrusion Start", "rx_start", self.format_length(x.start)));
+            grid.append(Property::string("Extrusion End", "rx_end", self.format_length(x.end)));
+            grid.set_help_string("rx_end", "Across the profile's work plane, from it");
+        } else if !self.curved_roof_rows(grid, &recipe, glazed) {
             grid.append(Property::category("Shape", "c_roof_shape"));
             let mut shapes: Vec<(String, i32)> = roofs::ROOF_SHAPES
                 .iter()
@@ -355,7 +360,10 @@ impl Gui {
             .and_then(|c| types.iter().position(|t| t.0 == c))
             .map_or(-1, |i| i as i32);
         grid.append(Property::category("Type", "c_roof_type"));
-        grid.append(Property::enumeration("Type", "rf_type", choices, index));
+        if !self.type_picker_row(grid, id, current) {
+            grid.append(Property::enumeration("Type", "rf_type", choices, index));
+        }
+        self.type_name_row(grid, current);
         let thickness = current
             .and_then(|t| store.get(t))
             .and_then(roofs::type_thickness)
@@ -390,6 +398,23 @@ impl Gui {
                 .collect()
         };
         let result = match property {
+            "rx_start" | "rx_end" => {
+                let Some(v) = self.parse_length_text(&text) else { return true };
+                let key = if property == "rx_start" { "start" } else { "end" };
+                selected
+                    .iter()
+                    .map(|r| {
+                        let mut a = json!({ "roof_id": r });
+                        a[key] = json!(v);
+                        self.run("roof.set_extrusion", a)
+                    })
+                    .find(Result::is_err)
+                    .unwrap_or(Ok(json!(null)))
+            }
+            "rf_level" => match self.levels().into_iter().find(|l| l.name == text) {
+                Some(l) => self.run("roof.set_params", json!({ "roof_ids": selected, "level_id": l.id })),
+                None => return true,
+            },
             "rf_offset" => self.run(
                 "roof.set_params",
                 json!({ "roof_ids": selected, "base_offset": text }),

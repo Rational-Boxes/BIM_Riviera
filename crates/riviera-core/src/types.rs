@@ -222,6 +222,9 @@ pub(crate) fn set_param(txn: &mut crate::txn::Transaction<'_>, p: SetParamParams
     if crate::ramps::ramp_type(e).is_some() {
         return crate::ramps::set_type_param(txn, id, &p.param, &p.value);
     }
+    if crate::railings::railing_type(e).is_some() {
+        return crate::railings::set_type_param(txn, id, &p.param, &p.value);
+    }
     if (crate::floors::type_thickness(e).is_some() || crate::roofs::is_roof_type(e))
         && p.param == "thickness"
     {
@@ -283,11 +286,16 @@ pub(crate) fn set_type(txn: &mut crate::txn::Transaction<'_>, p: SetTypeParams) 
     let t = resolve_type(&store, &p.type_id)?;
     let ty = store.get(t).expect("resolved");
     let mut grid_ids = Vec::new();
+    let mut segment_ids = Vec::new();
     for r in &p.element_ids {
         let id = store
             .resolve(r)
             .ok_or_else(|| Error::new("element.not_found", format!("no element {r:?}")))?;
         let e = store.get(id).expect("resolved");
+        if crate::mep_runs::segment_recipe(e).is_some() {
+            segment_ids.push(id);
+            continue;
+        }
         if grids::is_grid(e) {
             if !grids::is_grid_type(ty) {
                 return Err(Error::new(
@@ -336,6 +344,15 @@ pub(crate) fn set_type(txn: &mut crate::txn::Transaction<'_>, p: SetTypeParams) 
                     }
                 }
             })?;
+        } else if crate::railings::railing_recipe(e).is_some() {
+            if crate::railings::railing_type(ty).is_none() {
+                return Err(Error::new("type.wrong_family", format!("railing {id} needs a railing type")));
+            }
+            let guid = ty.guid().to_string();
+            txn.modify(id, |w| {
+                w.params.insert("@type".into(), Value::String(guid));
+            })?;
+            crate::railings::regenerate(txn.store(), txn.store().get(id).expect("exists"))?;
         } else if crate::roofs::roof_recipe(e).is_some() {
             if !crate::roofs::is_roof_type(ty) {
                 return Err(Error::new(
@@ -459,6 +476,9 @@ pub(crate) fn set_type(txn: &mut crate::txn::Transaction<'_>, p: SetTypeParams) 
                 ),
             ));
         }
+    }
+    if !segment_ids.is_empty() {
+        crate::mep_runs::set_segment_type(txn, &segment_ids, t)?;
     }
     if grid_ids.is_empty() {
         return Ok(());

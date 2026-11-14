@@ -37,6 +37,14 @@ them. They follow the host's outline when it changes.
 landings and round the outside of a turn, and extend when the stair does. To add them to a
 selected stair: <b>Modify | Stairs › Railings</b>. <code>railing.create_on_stair</code></p>
 
+<h2 id="type">Railing types</h2>
+<p>A selected railing's <b>Type</b> row changes its type, or loads a starter one: guards
+1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence (see
+<a href="riviera:help/types">Types</a>). The rows under it are the type's values (Height, the top
+and bottom rails' sizes and the bottom rail's height, Baluster Size and Spacing, Post Size and
+Post Space), shared by every railing of the type. <code>element.set_type</code>,
+<code>type.set_param</code></p>
+
 <h2 id="gates">Openings and gates</h2>
 <ol>
   <li>Select the railing.</li>
@@ -44,6 +52,9 @@ selected stair: <b>Modify | Stairs › Railings</b>. <code>railing.create_on_sta
   <li>Click on the railing where each goes, in a plan or on the railing in 3D. <kbd>Esc</kbd>
     ends.</li>
 </ol>
+<p>The selected railing's Properties list its openings and gates: change one's <b>Position</b>
+(its centre's distance along the railing) or <b>Width</b> to move or resize it, or clear its
+Position to remove it.</p>
 <p>An opening gets a post on each side. A gate fills its opening with one leaf, a double gate
 with two, swinging in or out. A gate is its own door element (<code>IfcDoor</code>, GATE);
 deleting it leaves its opening. The <a href="riviera:sample/house">House</a> sample's front

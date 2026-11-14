@@ -1552,6 +1552,13 @@ impl Gui {
             return;
         };
         grid.append(Property::category("Type", "c_mt"));
+        // A selected component's Type row (DM-TYPE-002); a tool's type has none.
+        let selected = self.selection();
+        if let [one] = selected.as_slice()
+            && store.get(*one).and_then(mesh_objects::mesh_object_recipe).is_some()
+        {
+            self.type_picker_row(grid, *one, Some(ty));
+        }
         grid.append(Property::string(
             "Type Name",
             "mt_name",
@@ -1626,8 +1633,10 @@ impl Gui {
             .and_then(|l| store.get(l))
             .and_then(|l| l.name.clone())
             .unwrap_or_default();
-        grid.append(Property::string("Level", "mo_level", level));
-        grid.set_property_read_only("mo_level", true);
+        let all = self.levels();
+        let names: Vec<(String, i32)> = all.iter().enumerate().map(|(i, l)| (l.name.clone(), i as i32)).collect();
+        let at = all.iter().position(|l| l.name == level).map_or(-1, |i| i as i32);
+        grid.append(Property::enumeration("Level", "mo_level", names, at));
         let offset = self.format_length(r.offset);
         grid.append(Property::string("Offset", "mo_offset", offset));
         grid.append(Property::string(
@@ -1655,12 +1664,22 @@ impl Gui {
         let ids: Vec<ElementId> = self.selection();
         let result = if let Some(row) = property.strip_prefix("mo_") {
             let args = match row {
+                "level" => match self.levels().into_iter().find(|l| l.name == text) {
+                    Some(l) => json!({ "level": l.id }),
+                    None => return true,
+                },
                 "offset" => json!({ "offset": text }),
                 "rotation" => {
                     json!({ "rotation": if text.trim().ends_with('°') { text.clone() } else { format!("{}°", text.trim()) } })
                 }
                 "mirror" => json!({ "mirror": text == "true" || text == "1" }),
-                "scale" => json!({ "scale": text.trim().parse::<f64>().unwrap_or(1.0) }),
+                "scale" => match text.trim().parse::<f64>() {
+                    Ok(s) if s > 0.0 => json!({ "scale": s }),
+                    _ => {
+                        error(&frame, "The scale is a number greater than 0, for example 1.5");
+                        return true;
+                    }
+                },
                 _ => return true,
             };
             let mut a = args;
@@ -1680,7 +1699,13 @@ impl Gui {
             let mut a = json!({ "type_id": ty });
             match row {
                 "name" => a["name"] = json!(text),
-                "scale" => a["scale"] = json!(text.trim().parse::<f64>().unwrap_or(1.0)),
+                "scale" => match text.trim().parse::<f64>() {
+                    Ok(s) if s > 0.0 => a["scale"] = json!(s),
+                    _ => {
+                        error(&frame, "The scale is a number greater than 0, for example 1.5");
+                        return true;
+                    }
+                },
                 "category" => a["category"] = json!(category_value(&text)),
                 "predefined" => a["predefined_type"] = json!(text),
                 "kind" => a["element_type"] = json!(text.trim()),

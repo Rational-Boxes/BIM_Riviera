@@ -1417,3 +1417,54 @@ impl Gui {
         }
     }
 }
+
+impl Gui {
+    /// A selected duct, pipe, cable tray or conduit segment's rows: its type (DM-TYPE-002), its
+    /// size (`duct.set_size`, `pipe.set_size`, `cable_tray.set_size`, `conduit.set_size`; the
+    /// fittings joined to it follow) and its size lock (`mep_run.lock_size`).
+    pub(crate) fn segment_rows(&mut self, grid: &PropertyGrid, id: ElementId) {
+        let Some(store) = self.store_now() else { return };
+        let Some(s) = store.get(id).and_then(riviera_core::mep_runs::segment_recipe) else { return };
+        let current = riviera_core::GlobalId::parse(&s.segment_type).and_then(|g| store.find_by_guid(&g));
+        grid.append(Property::category("Segment", "c_seg"));
+        self.type_picker_row(grid, id, current);
+        if s.size.shape == riviera_core::mep::Shape::Round {
+            grid.append(Property::string("Diameter", "seg:diameter", self.format_length(s.size.diameter)));
+        } else {
+            grid.append(Property::string("Width", "seg:width", self.format_length(s.size.width)));
+            grid.append(Property::string("Height", "seg:height", self.format_length(s.size.height)));
+        }
+        grid.append(Property::boolean("Size Locked", "seg:locked", s.size_locked));
+        grid.set_help_string("seg:locked", "Sizing leaves a locked segment as it is, and its size can't be changed until unlocked");
+    }
+
+    /// An edit of a segment row; `false` if `property` is not one.
+    pub(crate) fn segment_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(row) = property.strip_prefix("seg:") else { return false };
+        let frame = self.frame;
+        let text = text.unwrap_or_default();
+        let Some(store) = self.store_now() else { return true };
+        let ids: Vec<ElementId> = self.selection().into_iter().filter(|i| store.get(*i).and_then(riviera_core::mep_runs::segment_recipe).is_some()).collect();
+        let Some(domain) = ids.first().and_then(|i| store.get(*i)).and_then(riviera_core::mep_runs::segment_recipe).map(|s| s.domain) else { return true };
+        let result = if row == "locked" {
+            self.run("mep_run.lock_size", json!({ "element_ids": ids, "locked": text == "true" || text == "1" }))
+        } else {
+            let command = match domain {
+                riviera_core::mep::Domain::Pipe => "pipe.set_size",
+                riviera_core::mep::Domain::CableTray => "cable_tray.set_size",
+                riviera_core::mep::Domain::Conduit => "conduit.set_size",
+                _ => "duct.set_size",
+            };
+            match self.parse_length_text(&text) {
+                Some(v) => self.run(command, json!({ "element_ids": ids, row: v })),
+                None => Err(format!("{text} is not a length")),
+            }
+        };
+        if let Err(e) = result {
+            super::error(&frame, &format!("The segment was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        true
+    }
+}

@@ -80,6 +80,17 @@ slope. Then click the run's points in a plan:</p>
 <p>A run that meets a connector connects to it, and joins that connector's system when it carries
 the same system type. Pipes drawn with a slope fall along their level legs from the first point.
 <a href="riviera:action/duct.cap_open_ends">Cap Open Ends</a> closes the selection's open ends.</p>
+<p><b>To change a duct, pipe, cable tray or conduit</b> after drawing it, select a segment. Its
+Properties show:
+<ul>
+  <li><b>Type</b>: another type of the same domain and shape (a round duct lists round duct
+    types); its fittings are re-chosen by the new type's routing preferences;</li>
+  <li><b>Diameter</b> (or <b>Width</b> and <b>Height</b>): the fittings joined to it follow;</li>
+  <li><b>Size Locked</b>: sizing then leaves the segment alone.</li>
+</ul>
+<p><code>element.set_type</code>, <code>duct.set_size</code>, <code>pipe.set_size</code>,
+<code>cable_tray.set_size</code>, <code>conduit.set_size</code>,
+<code>mep_run.lock_size</code></p>
 <p>Which elbow, tee, tap or cap is used comes from the type's <b>routing preferences</b>: for each
 role a list of parts with a size range, tried from the top. Where none fits, nothing is inserted,
 the end is left open and a warning says so. <code>routing_preferences.set</code> changes them and

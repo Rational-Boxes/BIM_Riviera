@@ -6,11 +6,17 @@ width or a door's size. Each element also has its own parameters. Both are edite
 Properties palette and saved as ordinary IFC types and property sets.</p>
 
 <h2 id="types">Types</h2>
-<p>Walls, doors, windows, floors, ceilings, roofs, stairs, railings and grids have types. In
-Properties, the <b>Type</b> row of a selected wall, door, window, floor, roof or grid shows its
-type:</p>
+<p>Walls, doors, windows, floors, ceilings, roofs, ramps, foundations, components (furniture,
+fixtures, equipment, terminals), stairs, railings and grids have types. In Properties, the
+<b>Type</b> row of a selected element shows its type:</p>
 <ul>
-  <li><b>Choose another type</b> from the list to change the selected elements' type.</li>
+  <li><b>Choose another type</b> from the list to change the selected elements' type. The list
+    starts with the types already in the model. After them come types that can be loaded, marked
+    with where they come from, for example <i>Double Door 1800 x 2100 (from Riviera starter
+    types)</i> or <i>Desk 60 × 30 in (from Riviera Interiors)</i>. Choosing one of those loads it
+    into the model and gives it to the selection in one step.</li>
+  <li>Each kind keeps to its own list. Floors list floor types and ceilings list ceiling types; a
+    bed lists furniture, never plumbing fixtures.</li>
   <li><b>Duplicate Type…</b> (the last entry in the list) copies the current type under a new
     name and gives it to the selection. Change the new type's values afterwards.</li>
   <li><b>Type Name</b> renames the type.</li>
@@ -20,6 +26,22 @@ type:</p>
 <p><b>With a tool running and nothing selected</b>, the Type row chooses the type the tool
 places: start the Wall, Door, Window or Grid tool, then pick the type in Properties before
 clicking in the view.</p>
+<p><b>What can be loaded.</b> The <i>Riviera starter types</i> are common sizes and build-ups:
+<ul>
+  <li><b>Doors:</b> single, double, glass, automatic sliding, revolving and round-top.</li>
+  <li><b>Windows:</b> 600 × 600 up to 2400 × 1500, a full-height window, a round window and a
+    round-top window.</li>
+  <li><b>Walls:</b> stud partition, block, concrete, brick-and-block cavity and insulated
+    stud.</li>
+  <li><b>Floors and ceilings:</b> concrete, tile on screed, metal deck, timber joists, gypsum
+    board, acoustic tile, plaster and slats.</li>
+  <li><b>Roofs</b> and <b>ramps</b> (1:12, 1:15, 1:20).</li>
+</ul>
+<p>Walls, floors and ceilings come with their layers. Components list every bundled component
+library's types of their category. Footings and wall foundations list the model's types only;
+make new sizes with Duplicate Type and set their Width, Length, Thickness, Toe and Heel rows.
+Stairs, railings and duct and pipe runs cannot change type in Properties yet.
+<code>type.catalogue</code>, <code>type.load</code></p>
 
 <h3 id="duplicate">To make a new door type</h3>
 <ol>

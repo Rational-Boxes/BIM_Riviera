@@ -275,6 +275,56 @@ This chapter is the backbone of the Riviera specification. It defines what a Riv
 - [ ] Swapping a door between two types of the same family keeps its Mark, host and position, and keeps dimensions that point to the "Left" and "Right" named references.
 - [ ] The IFC export of a duplicated type shows two distinct `IfcDoorType` entities, each linked to its own instances through `IfcRelDefinesByType`.
 
+### 2.2.4a Type catalogues
+**ID:** DM-TYPE-002 · **Priority:** P0 · **Ref:** owner (2026-11-13): "I attempted to change the types of roofs, doors, windows, etc. and not all edit tools appear to be complete"; `EDIT_AUDIT.md`; DM-TYPE-001; DM-IMP-015
+
+**Purpose.** Changing a type should not be limited to the few types a project happens to hold. Each kind of element has a catalogue of types it can take, loaded on demand.
+
+**Behaviour & rules.**
+- **The Type row** of a selected element, and of the Door, Window and Wall tools before placing, lists:
+  1. the types of its kind in the model;
+  2. the types it can load, labelled with where they come from;
+  3. *Duplicate Type…* (only when the element has a type).
+  
+  Choosing a type not yet loaded loads it, then gives it to every selected element of the same kind. A type of the same name and kind already in the model is reused rather than loaded twice.
+- **Kinds** are kept apart. Floor and ceiling types are separate lists, and so are doors and windows, and each component category (a bed lists beds, desks and other furniture, never plumbing fixtures).
+- **Riviera's starter types** are values chosen as common practice (EXPERT_REVIEW E-140):
+  - **doors:** single 800, 900 and 1000 × 2100, and 900 × 2400; double 1500 and 1800 × 2100; glass 900 × 2100; glass double 1800 × 2400; automatic sliding 1800 × 2100; revolving 2100 × 2400; round-top 900 × 2400;
+  - **windows:** 600 × 600 up to 2400 × 1500, a full-height 1500 × 2400, a round window and a round-top window, each with its usual sill;
+  - **roofs:** 150 to 350 mm by build-up (thickness only: roof types have no layers yet);
+  - **floors and ceilings, with their layers:** concrete 150, 200 and 300; tile on screed and concrete; composite metal deck; timber joists; gypsum board; acoustic tile; plaster; timber slats;
+  - **walls, with their layers:** stud partition, block, concrete 200 and 300, brick-and-block cavity, insulated stud;
+  - **ramps** at 1:12, 1:15 and 1:20;
+  - **railings:** guards 1067 mm (42 in) and 1100 mm, a 900 mm railing and a 1219 mm (48 in) pool fence, balusters 20 mm at 120 mm centres.
+- **Components** list the bundled component libraries' types of the element's category: furnishings, gym, retail, pools and foodservice equipment, bathroom components and MEP starter types.
+- **Footings, wall foundations and duct, pipe, cable tray and conduit runs** list only the model's types. Runs list only types of their own domain and shape: a round duct lists round duct types. Changing a run's type checks that its size suits the new type, then re-chooses the fittings joined to it by the new type's routing preferences.
+- **Railings** take another railing type (the core refused this before), and a railing type's values (`height`, `top_rail_width`/`_depth`, `bottom_rail_width`/`_depth`, `bottom_rail_height`, `baluster`, `baluster_spacing`, `post`, `post_space`) are set with `type.set_param`. Balusters must be spaced wider than their own size, and the bottom rail must sit below the top rail.
+- **Type Name** rows rename the type for roofs, floors, ceilings, curtain walls, ramps and foundations, as walls, doors, windows and components already have.
+
+**Commands.**
+- `type.catalogue(element_id) -> [{name, source, type_id?}]`: `element_id` may also be a type.
+- `type.load(element_id, name) -> type_id`
+
+**Acceptance criteria.**
+- [x] A door, a window, a wall, a floor, a ceiling, a roof, a ramp and a bed each load a starter or library type from their catalogue and take it. A wall's width becomes its layers' total. Floors never list ceiling types, nor ceilings floor types. A bed never lists plumbing fixtures. *(Test: `type_catalogue.rs`.)*
+- [ ] A user catalogue: types saved from a project into a library folder and loaded into others (with DM-IMP-015's component libraries).
+
+*Built (2026-11-13):* `riviera_core::type_catalogue`, with type changes for segments and railings in `element.set_type`, and `railings::set_type_param`.
+
+The Type row (`type_picker.rs`) now appears for:
+- selected doors, windows, walls, floors, ceilings, roofs, ramps, footings, wall foundations, railings, components, and duct, pipe, tray and conduit segments;
+- the Door, Window and Wall tools before placing.
+
+Other new rows in Properties:
+- Type Name rows;
+- footing and wall foundation type values;
+- railing type values, and each opening's or gate's position and width (clear the position to remove it);
+- segment Diameter or Width/Height (`duct.set_size`, `pipe.set_size`, `cable_tray.set_size`, `conduit.set_size`) and Size Locked (`mep_run.lock_size`).
+
+Tests: `type_catalogue.rs` (every kind, a duct's type and size, a railing's type and values).
+
+*Not yet:* the user catalogue; starter types for curtain walls and stairs; stair types (no core support).
+
 ### 2.2.5 Instances
 **ID:** DM-INST-001 · **Priority:** P0 · **Ref:** research/05 §1.1, §2.2
 
@@ -4762,6 +4812,8 @@ All commands defined in this chapter. Every command in this table is also a Lua 
 | `type.rename` | type_id, name | () | Yes | DM-TYPE-001 |
 | `type.delete` | type_id, delete_instances=false | — | Yes | DM-TYPE-001 |
 | `type.set_param` | type_id, param, value | () | Yes | DM-TYPE-001 |
+| `type.catalogue` | element_id | [{name, source, type_id?}] | No (query) | DM-TYPE-002 |
+| `type.load` | element_id, name | type_id | Yes | DM-TYPE-002 |
 | `type.edit_properties` | type_id? | — | No | DM-TYPE-001 |
 | `instance.change_type` | element_ids[], type_id | — | Yes | DM-TYPE-001 |
 | `instance.place` | type_id, placement, host_id?, level_id?, params? | element_id | Yes | DM-INST-001 |

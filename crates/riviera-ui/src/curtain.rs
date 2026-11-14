@@ -233,6 +233,9 @@ impl Gui {
             .map_or(-1, |i| i as i32);
         grid.append(Property::category("Type", "c_cw_type"));
         grid.append(Property::enumeration("Type", "cwt_type", names, index));
+        if !self.selection().is_empty() {
+            self.type_name_row(grid, current);
+        }
         self.type_rows = current;
         let Some(t) = current
             .and_then(|c| store.get(c))

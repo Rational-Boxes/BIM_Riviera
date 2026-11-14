@@ -1503,8 +1503,10 @@ impl Gui {
             .and_then(|l| store.get(l)?.name.clone())
             .unwrap_or_default();
         grid.append(Property::category("Constraints", "c_floor"));
-        grid.append(Property::string("Level", "fl_level", level));
-        grid.set_property_read_only("fl_level", true);
+        let all = self.levels();
+        let names: Vec<(String, i32)> = all.iter().enumerate().map(|(i, l)| (l.name.clone(), i as i32)).collect();
+        let at = all.iter().position(|l| l.name == level).map_or(-1, |i| i as i32);
+        grid.append(Property::enumeration("Level", "fl_level", names, at));
         let offset = self.format_length(recipe.offset);
         grid.append(Property::string(
             "Height Offset From Level",
@@ -1598,7 +1600,10 @@ impl Gui {
             .and_then(|c| types.iter().position(|t| t.0 == c))
             .map_or(-1, |i| i as i32);
         grid.append(Property::category("Type", "c_floor_type"));
-        grid.append(Property::enumeration("Type", "fl_type", choices, index));
+        if !self.type_picker_row(grid, id, current) {
+            grid.append(Property::enumeration("Type", "fl_type", choices, index));
+        }
+        self.type_name_row(grid, current);
         grid.append(Property::string(
             "Thickness (type)",
             "fl_thickness",
@@ -1647,6 +1652,10 @@ impl Gui {
                     )
                 })
             }
+            "fl_level" => match self.levels().into_iter().find(|l| l.name == text) {
+                Some(l) => self.run("floor.set_level", json!({ "floor_ids": floors, "level_id": l.id })),
+                None => return true,
+            },
             "fl_offset" => self.run(
                 "floor.set_level",
                 json!({ "floor_ids": floors, "offset": text }),

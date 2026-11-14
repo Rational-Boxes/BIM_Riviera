@@ -252,3 +252,64 @@ impl Gui {
         }
     }
 }
+
+impl Gui {
+    /// A selected footing's or wall foundation's rows (STR-FND-001/002): its type, and the type's
+    /// sizes and material (`type.set_param`, every element of the type).
+    pub(crate) fn foundation_rows(&mut self, grid: &PropertyGrid, id: ElementId) {
+        let Some(store) = self.store_now() else { return };
+        let Some(e) = store.get(id) else { return };
+        let footing = riviera_core::foundations::footing_recipe(e).is_some();
+        if !footing && riviera_core::foundations::wall_foundation_recipe(e).is_none() {
+            return;
+        }
+        let current = e.param("@type").and_then(serde_json::Value::as_str).and_then(riviera_core::GlobalId::parse).and_then(|g| store.find_by_guid(&g));
+        grid.append(Property::category("Type", "c_fnd_type"));
+        self.type_picker_row(grid, id, current);
+        self.type_name_row(grid, current);
+        let Some(t) = current.and_then(|t| store.get(t)) else { return };
+        let mut rows: Vec<(&str, &str, String)> = Vec::new();
+        if let Some(ft) = riviera_core::foundations::footing_type(t) {
+            rows.push(("Width (type)", "width", self.format_length(ft.width)));
+            rows.push(("Length (type)", "length", self.format_length(ft.length)));
+            rows.push(("Thickness (type)", "thickness", self.format_length(ft.thickness)));
+            rows.push(("Material (type)", "material", ft.material.clone().unwrap_or_default()));
+        } else if let Some(wt) = riviera_core::foundations::wall_foundation_type(t) {
+            let retaining = serde_json::to_value(wt.function).ok().and_then(|v| v.as_str().map(str::to_owned)).unwrap_or_default();
+            rows.push(("Function (type)", "function", retaining.clone()));
+            if retaining == "retaining" {
+                rows.push(("Toe (type)", "toe", self.format_length(wt.toe)));
+                rows.push(("Heel (type)", "heel", self.format_length(wt.heel)));
+            } else {
+                rows.push(("Width (type)", "width", self.format_length(wt.width)));
+            }
+            rows.push(("Thickness (type)", "thickness", self.format_length(wt.thickness)));
+            rows.push(("End Extension (type)", "end_extension", self.format_length(wt.end_extension)));
+            rows.push(("Material (type)", "material", wt.material.clone().unwrap_or_default()));
+        }
+        for (label, key, value) in rows {
+            if key == "function" {
+                let at = if value == "retaining" { 1 } else { 0 };
+                grid.append(Property::enumeration(label, "fnd:function", vec![("bearing".to_owned(), 0), ("retaining".to_owned(), 1)], at));
+                continue;
+            }
+            grid.append(Property::string(label, format!("fnd:{key}"), value));
+        }
+        self.type_rows = current;
+    }
+
+    /// An edit of a foundation type row; `false` if `property` is not one.
+    pub(crate) fn foundation_edit(&mut self, property: &str, text: Option<String>) -> bool {
+        let Some(param) = property.strip_prefix("fnd:") else { return false };
+        let frame = self.frame;
+        let Some(t) = self.type_rows else { return true };
+        let text = text.unwrap_or_default();
+        let value = if param == "material" && text.trim().is_empty() { serde_json::Value::Null } else { json!(text.trim()) };
+        if let Err(e) = self.run("type.set_param", json!({ "type_id": t, "param": param, "value": value })) {
+            super::error(&frame, &format!("The foundation type was not changed:\n{e}"));
+        }
+        self.properties_stale = true;
+        self.refresh_scene(&frame);
+        true
+    }
+}

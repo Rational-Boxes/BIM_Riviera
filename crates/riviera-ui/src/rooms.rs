@@ -325,7 +325,7 @@ impl Gui {
         let Some(recipe) = rooms::room_recipe(e) else {
             return;
         };
-        let (_, name) = rooms::number_and_name(e);
+        let (number, name) = rooms::number_and_name(e);
         let level_name = |guid: &str| {
             riviera_core::GlobalId::parse(guid)
                 .and_then(|g| store.find_by_guid(&g))
@@ -334,6 +334,7 @@ impl Gui {
         };
         // Number is the element's name, shown with the identity rows above.
         grid.append(Property::category("Room", "c_room_id"));
+        grid.append(Property::string("Number", "rm_number", number));
         grid.append(Property::string("Name", "rm_name", name));
         grid.append(Property::category("Constraints", "c_room"));
         grid.append(Property::string(
@@ -343,8 +344,10 @@ impl Gui {
         ));
         grid.set_property_read_only("rm_level", true);
         let upper = level_name(recipe.upper_level.as_deref().unwrap_or(&recipe.level));
-        grid.append(Property::string("Upper Limit", "rm_upper", upper));
-        grid.set_property_read_only("rm_upper", true);
+        let all = self.levels();
+        let names: Vec<(String, i32)> = all.iter().enumerate().map(|(i, l)| (l.name.clone(), i as i32)).collect();
+        let at = all.iter().position(|l| l.name == upper).map_or(-1, |i| i as i32);
+        grid.append(Property::enumeration("Upper Limit", "rm_upper", names, at));
         let limit = self.format_length(recipe.limit_offset);
         grid.append(Property::string("Limit Offset", "rm_limit", limit));
         let base = self.format_length(recipe.base_offset);
@@ -405,6 +408,15 @@ impl Gui {
                 })
                 .collect()
         };
+        if property == "rm_upper" {
+            let Some(l) = self.levels().into_iter().find(|l| l.name == text) else { return true };
+            if let Err(e) = self.run("room.set", json!({ "room_ids": selected, "upper_limit": l.id })) {
+                error(&frame, &format!("The room was not changed:\n{e}"));
+            }
+            self.properties_stale = true;
+            self.after_room_change();
+            return true;
+        }
         let key = match property {
             "rm_number" => "number",
             "rm_name" => "name",

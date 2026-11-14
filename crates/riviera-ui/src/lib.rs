@@ -52,6 +52,8 @@ mod notes;
 mod openings;
 mod overlaps;
 mod bath_ui;
+mod pool_rows;
+mod type_picker;
 mod units_ui;
 mod sun_ui;
 mod seating_ui;
@@ -418,6 +420,8 @@ struct Gui {
     grid_type: Option<ElementId>,
     /// The grid type whose values the palette shows.
     type_rows: Option<ElementId>,
+    /// The Type row of the selected element (DM-TYPE-002).
+    type_picker: Option<type_picker::TypePicker>,
     /// The type new walls get (Wall tool); `None` for the default.
     wall_type: Option<ElementId>,
     /// The wall type whose values the palette shows.
@@ -2540,6 +2544,7 @@ impl Gui {
         let Some(doc) = self.doc else { return };
         let ids = self.selection();
         self.type_rows = None;
+        self.type_picker = None;
         self.wall_type_row = None;
         if self.sketch_rows(grid) {
             return;
@@ -2709,6 +2714,10 @@ impl Gui {
             return;
         }
         self.steel_mark_rows(grid, id);
+        self.foundation_rows(grid, id);
+        self.segment_rows(grid, id);
+        self.pool_rows(grid, id);
+        self.railing_rows(grid, id);
         if self.note_rows(grid, id)
             || self.legend_rows(grid, id)
             || self.stair_rows(grid, id)
@@ -3002,7 +3011,12 @@ impl Gui {
             }
             return;
         }
-        if self.grid_type_edit(property, text.clone())
+        if self.type_picker_edit(property, text.clone())
+            || self.foundation_edit(property, text.clone())
+            || self.segment_edit(property, text.clone())
+            || self.pool_edit(property, text.clone())
+            || self.railing_edit(property, text.clone())
+            || self.grid_type_edit(property, text.clone())
             || self.opening_edit(property, text.clone())
             || self.beam_edit(property, text.clone())
             || self.analytical_edit(property, text.clone())
@@ -3951,6 +3965,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 insert_types: std::collections::HashMap::new(),
                 grid_type: None,
                 type_rows: None,
+                type_picker: None,
                 wall_type: None,
                 wall_type_row: None,
                 quick_pair: None,

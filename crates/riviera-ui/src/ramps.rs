@@ -268,6 +268,13 @@ impl Gui {
             grid.append(Property::string("Run Needed", "rp_needed", need));
             grid.set_property_read_only("rp_needed", true);
             grid.append(Property::category("Type", "c_ramp_type"));
+            let current = e
+                .param("@type")
+                .and_then(serde_json::Value::as_str)
+                .and_then(riviera_core::GlobalId::parse)
+                .and_then(|g| store.find_by_guid(&g));
+            self.type_picker_row(grid, e.id(), current);
+            self.type_name_row(grid, current);
             let rows = [
                 (
                     "Maximum Slope 1: (type)",

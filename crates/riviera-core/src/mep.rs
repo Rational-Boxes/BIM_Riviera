@@ -1741,6 +1741,11 @@ fn starter_predefined(name: &str) -> Option<&'static str> {
     })
 }
 
+/// The starter types' names and categories.
+pub fn starter_categories() -> Vec<(&'static str, mesh_objects::Category)> {
+    starters().iter().map(|s| (s.name, s.category)).collect()
+}
+
 /// The starter types' names.
 pub fn starter_names() -> Vec<&'static str> {
     starters().iter().map(|s| s.name).collect()

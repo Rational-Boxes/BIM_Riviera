@@ -237,6 +237,7 @@ pub mod structural_model;
 pub mod temp_dims;
 pub mod toposolids;
 pub mod txn;
+pub mod type_catalogue;
 pub mod types;
 pub mod units;
 pub mod vaults;

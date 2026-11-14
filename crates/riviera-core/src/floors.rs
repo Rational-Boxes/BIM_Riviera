@@ -65,14 +65,14 @@ impl SlabKind {
         }
     }
 
-    fn type_class(self) -> &'static str {
+    pub fn type_class(self) -> &'static str {
         match self {
             SlabKind::Floor => "IfcSlabType",
             SlabKind::Ceiling => "IfcCoveringType",
         }
     }
 
-    fn predefined(self) -> &'static str {
+    pub fn predefined(self) -> &'static str {
         match self {
             SlabKind::Floor => "FLOOR",
             SlabKind::Ceiling => "CEILING",

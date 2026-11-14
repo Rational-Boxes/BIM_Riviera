@@ -563,7 +563,15 @@ impl Gui {
         if current.is_some() {
             names.push((DUPLICATE.to_owned(), names.len() as i32));
         }
-        grid.append(Property::enumeration("Type", "it_type", names, index));
+        let selected = self.selection();
+        let picked = match (selected.as_slice(), current) {
+            ([one], Some(_)) => self.type_picker_row(grid, *one, current),
+            ([], Some(c)) => self.type_picker_tool_row(grid, c, "it_type"),
+            _ => false,
+        };
+        if !picked {
+            grid.append(Property::enumeration("Type", "it_type", names, index));
+        }
         let Some((id, name, t)) = current.and_then(|c| types.into_iter().find(|t| t.0 == c)) else {
             return;
         };
@@ -937,7 +945,7 @@ impl Gui {
         true
     }
 
-    fn choose_insert_type(
+    pub(crate) fn choose_insert_type(
         &mut self,
         choice: &str,
         selected: &[ElementId],

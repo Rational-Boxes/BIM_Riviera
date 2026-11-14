@@ -2131,6 +2131,29 @@ pub(crate) fn set_size(txn: &mut Transaction<'_>, p: SetSizeParams) -> Result<()
     Ok(())
 }
 
+/// Gives segments another type of their domain and shape (`element.set_type`, DM-TYPE-002): the
+/// size must suit it; the fittings joined to them are re-chosen by its routing preferences.
+pub(crate) fn set_segment_type(txn: &mut Transaction<'_>, ids: &[ElementId], type_id: ElementId) -> Result<()> {
+    let store = txn.store().clone();
+    let t = store.get(type_id).and_then(segment_type).ok_or_else(|| bad("type.wrong_family", format!("element {type_id} is not a duct, pipe, tray or conduit type")))?;
+    let guid = store.get(type_id).expect("found").guid().to_string();
+    for id in ids {
+        let mut s = store.get(*id).and_then(segment_recipe).ok_or_else(|| bad("mep_run.not_a_segment", format!("element {id} is not a duct or pipe segment")))?;
+        if t.domain != s.domain || t.shape != s.size.shape || t.flexible != type_of_segment(&store, &s).is_some_and(|(_, o)| o.flexible) {
+            return Err(bad("type.wrong_family", format!("segment {id} needs a {:?} {:?} type like its own", s.size.shape, s.domain).to_lowercase()));
+        }
+        t.check_size(&store, &s.size)?;
+        s.segment_type = guid.clone();
+        let v = serde_json::to_value(&s).expect("serialises");
+        let g = guid.clone();
+        txn.modify(*id, |e| {
+            e.params.insert(RECIPE_KEY.into(), v);
+            e.params.insert("@type".into(), Value::String(g));
+        })?;
+    }
+    reapply_type(txn, ReapplyParams { element_ids: ids.iter().map(|i| ElementRef::Id(*i)).collect() }).map(|_| ())
+}
+
 #[derive(Debug, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct CapParams {

@@ -139,7 +139,15 @@ ribbon's tools, the command shell, Lua and MCP alike.
   `param.project.add/modify/remove`, `param.set_ifc_home`, `pset.set`, `pset.remove`).
 - **Types**: wall, door, window, floor, ceiling, roof, stair, railing and grid types, duplicated,
   renamed and edited the same way, from Properties or commands (`type.list`, `type.duplicate`,
-  `type.rename`, `type.set_param`, `element.set_type`).
+  `type.rename`, `type.set_param`, `element.set_type`). **Type catalogues** (DM-TYPE-002): the
+  Type row lists the model's types and then the starter types (doors, windows, walls, floors,
+  ceilings, roofs, ramps by common size and build-up) or component-library types it can load, and
+  loads one when chosen (`type.catalogue`, `type.load`). Footings, wall foundations, railings
+  (with their type values, openings and gates) and duct, pipe, tray and conduit segments (with
+  their size and size lock) have type rows too; stairs, roofs, floors, rooms, components and
+  pools gained the level, offset, number, extent and shell rows the core already supported
+  (edit audit 2026-11-13, `design_documents/EDIT_AUDIT.md`). Not yet: a user catalogue, stair
+  types, and the audit's phases 3–5 remainder.
 
 ### Commands, scripting and AI agents
 

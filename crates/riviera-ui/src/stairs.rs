@@ -637,18 +637,26 @@ impl Gui {
                 .unwrap_or_default()
         };
         grid.append(Property::category("Constraints", "c_stair"));
-        grid.append(Property::string(
-            "Base Level",
-            "st_base",
-            level_name(&recipe.base_level),
-        ));
-        grid.set_property_read_only("st_base", true);
-        let top = match &recipe.top {
-            stairs::StairTop::Level(g) => level_name(g),
-            stairs::StairTop::Unconnected(h) => format!("Unconnected ({})", self.format_length(*h)),
+        // Levels by name; the top's list ends with Unconnected (its height in Top Offset).
+        let levels = self.levels();
+        let names: Vec<(String, i32)> = levels.iter().enumerate().map(|(i, l)| (l.name.clone(), i as i32)).collect();
+        let base_at = levels.iter().position(|l| l.name == level_name(&recipe.base_level)).map_or(-1, |i| i as i32);
+        grid.append(Property::enumeration("Base Level", "st_base", names.clone(), base_at));
+        grid.append(Property::string("Base Offset", "st_base_offset", self.format_length(recipe.base_offset)));
+        let mut tops = names;
+        tops.push(("Unconnected".to_owned(), tops.len() as i32));
+        let (top_at, top_offset) = match &recipe.top {
+            stairs::StairTop::Level(g) => (levels.iter().position(|l| l.name == level_name(g)).map_or(-1, |i| i as i32), recipe.top_offset),
+            stairs::StairTop::Unconnected(h) => (levels.len() as i32, *h),
         };
-        grid.append(Property::string("Top", "st_top", top));
-        grid.set_property_read_only("st_top", true);
+        grid.append(Property::enumeration("Top", "st_top", tops, top_at));
+        grid.append(Property::string(
+            if matches!(recipe.top, stairs::StairTop::Unconnected(_)) { "Unconnected Height" } else { "Top Offset" },
+            "st_top_offset",
+            self.format_length(top_offset),
+        ));
+        grid.append(Property::boolean("Auto-Extend to Top", "st_auto_extend", recipe.auto_extend));
+        grid.set_help_string("st_auto_extend", "The last run grows or shrinks to place every riser when the levels move (ARC-STAIR-007)");
         grid.append(Property::category("Dimensions", "c_stair_dims"));
         let desired = recipe
             .desired_risers
@@ -730,11 +738,32 @@ impl Gui {
             }
             "st_tread" => json!({ "stair_ids": ids, "tread_depth": text }),
             "st_width" => json!({ "stair_ids": ids, "width": text }),
+            "st_base" => match self.levels().into_iter().find(|l| l.name == text) {
+                Some(l) => json!({ "stair_ids": ids, "base_level": l.id }),
+                None => return true,
+            },
+            "st_base_offset" => json!({ "stair_ids": ids, "base_offset": text }),
+            "st_top" => {
+                // Unconnected keeps the stair's current height.
+                let unconnected = text == "Unconnected";
+                let height = self.store_now().and_then(|s| ids.first().and_then(|i| s.get(*i)).and_then(|e| stairs::regenerate(&s, e).ok())).map(|g| g.riser_height * g.placed as f64);
+                match self.levels().into_iter().find(|l| l.name == text) {
+                    Some(l) => json!({ "stair_ids": ids, "top": { "level": l.id } }),
+                    None if unconnected => json!({ "stair_ids": ids, "top": { "unconnected": height.unwrap_or(3.0) } }),
+                    None => return true,
+                }
+            }
+            "st_top_offset" => {
+                let unconnected = self.store_now().and_then(|s| ids.first().and_then(|i| s.get(*i)).and_then(stairs::stair_recipe)).is_some_and(|r| matches!(r.top, stairs::StairTop::Unconnected(_)));
+                if unconnected { json!({ "stair_ids": ids, "top": { "unconnected": text } }) } else { json!({ "stair_ids": ids, "top_offset": text }) }
+            }
+            "st_auto_extend" => json!({ "stair_ids": ids, "auto_extend": text == "true" || text == "1" }),
             _ => return false,
         };
         if let Err(e) = self.run("stair.set_params", args) {
             error(&frame, &format!("The stair was not changed:\n{e}"));
         }
+        self.properties_stale = true;
         self.refresh_scene(&frame);
         true
     }

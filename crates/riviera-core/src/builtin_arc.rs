@@ -555,6 +555,8 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(UnitTypes),
         registry.add(UnitConnect),
         registry.add(UnitEdit),
+        registry.add(TypeCatalogue),
+        registry.add(TypeLoad),
         registry.add(AtriumCreate),
         registry.add(AtriumCheck),
         registry.add(ShadingBaffles),
@@ -6875,6 +6877,28 @@ edit_command!(
     crate::modular_units::SetArrayParams,
     crate::modular_units::ArrayReport,
     crate::modular_units::set_array
+);
+
+read_command!(
+    TypeCatalogue,
+    "type.catalogue",
+    "List the types an element could take",
+    "The types of an element's kind (or a type's), DM-TYPE-002: those in the model first, then Riviera's starter types (doors, windows, roofs, floors, ceilings, walls and ramps by common size and build-up) and the component libraries' types of its category, each with where it comes from; loaded ones carry their `type_id`. Load one with `type.load`, then `element.set_type`.",
+    [Effect::Read],
+    crate::type_catalogue::CatalogueParams,
+    Vec<crate::type_catalogue::Entry>,
+    crate::type_catalogue::catalogue
+);
+
+edit_command!(
+    TypeLoad,
+    "type.load",
+    "Load a type from the catalogue",
+    "Loads a `type.catalogue` entry of an element's kind (or a type's) into the model by `name`, with its values and layers (DM-TYPE-002); a type of that name and kind already in the model is reused. Returns the type, for `element.set_type`.",
+    "Load Type",
+    crate::type_catalogue::LoadParams,
+    ElementId,
+    crate::type_catalogue::load
 );
 
 edit_command!(
