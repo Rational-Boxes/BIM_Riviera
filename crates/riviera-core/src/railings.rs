@@ -89,8 +89,9 @@ pub enum RailPath {
         closed: bool,
         setback: f64,
     },
-    /// Along one side of a stair (`left` or `right` going up), `inset` in from its edge,
-    /// following the nosing line and the landings.
+    /// Along one side of a stair or a ramp (`stair` is either; `left` or `right` going up),
+    /// `inset` in from its edge, following the nosing line or the ramp's surface and the
+    /// landings.
     Stair {
         stair: String,
         left: bool,
@@ -724,6 +725,9 @@ fn stair_path(store: &Store, r: &RailingRecipe) -> Result<(Vec<[f64; 3]>, Elemen
     let id = find(store, stair)
         .ok_or_else(|| Error::new("railing.no_host", "the railing's stair is gone"))?;
     let e = store.get(id).expect("found");
+    if crate::ramps::ramp_recipe(e).is_some() {
+        return Ok((crate::ramps::side_path(store, e, *left, *inset)?, id));
+    }
     let recipe = crate::stairs::stair_recipe(e)
         .ok_or_else(|| Error::new("railing.bad_host", "the host is not a Riviera stair"))?;
     let g = crate::stairs::regenerate(store, e)?;
@@ -1191,8 +1195,8 @@ pub(crate) fn create_on_stair(
     let stair = store
         .resolve(&p.stair_id)
         .and_then(|s| store.get(s))
-        .filter(|s| crate::stairs::stair_recipe(s).is_some())
-        .ok_or_else(|| Error::new("element.not_found", "no such stair"))?;
+        .filter(|s| crate::stairs::stair_recipe(s).is_some() || crate::ramps::ramp_recipe(s).is_some())
+        .ok_or_else(|| Error::new("element.not_found", "no such stair or ramp"))?;
     let inset = p
         .inset
         .as_ref()
@@ -1594,7 +1598,7 @@ pub(crate) fn transform(
         RailPath::Host { .. } | RailPath::Stair { .. } => {
             return Err(Error::new(
                 "railing.hosted",
-                "a railing on a host's edges or a stair follows its host; move the host",
+                "a railing on a host's edges, a stair or a ramp follows its host; move the host",
             ));
         }
     }

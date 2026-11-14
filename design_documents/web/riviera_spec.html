@@ -173,7 +173,7 @@ td code { white-space: nowrap; }
         <div class="tb-cell"><span class="tb-label">Revision</span><span class="tb-value">0.1 · Draft</span></div>
         <div class="tb-cell"><span class="tb-label">Date</span><span class="tb-value tb-num">2026-10-12</span></div>
         <div class="tb-cell"><span class="tb-label">Requirements</span><span class="tb-value tb-num">950</span></div>
-        <div class="tb-cell"><span class="tb-label">Commands</span><span class="tb-value tb-num">2,429</span></div>
+        <div class="tb-cell"><span class="tb-label">Commands</span><span class="tb-value tb-num">2,430</span></div>
         <div class="tb-cell"><span class="tb-label">Licence</span><span class="tb-value">GPL-3.0-or-later</span></div>
         <div class="tb-cell last-row"><span class="tb-label">Stack</span><span class="tb-value">IFC · Rust · OCCT · wx · LuaJIT · MCP</span></div>
         <div class="tb-cell last-row" style="grid-column: span 3"><span class="tb-label">By priority</span>
@@ -26145,6 +26145,7 @@ CREATE TABLE base_rxd (
 <p><strong>Acceptance criteria.</strong>
 - [x] Removing the middle segment of a vertical grid line merges two panels into one panel of twice the height. Restoring the segment splits it again, and the original panel type is kept.</p>
 <p><strong>Implementation note (2026-10-15, first build).</strong> As built: the curtain wall recipe's <code>grids</code> (manual lines by key, direction and position), <code>removed</code> (segments by line direction, position and index) and <code>panels</code> (overrides by cell); cells joined across removed segments become one panel (a rectangle, else per cell) and the segment's mullion goes; interior vertical mullions are now one piece per row. Commands <code>curtain.add_grid</code> (modes all, one, all_except), <code>curtain.set_grid_segments</code>, <code>curtain.move_grid</code>, <code>curtain.delete_grid</code>, and <code>curtain.set_layout</code> (an addition, all at once). The window: Modify | Curtain Walls › Edit Grid (lines with segment strings, manual lines, panels). Not built yet: placing lines by hovering edges in elevation or 3D with snaps, temporary dimensions and pins on grid lines.</p>
+<p><strong>Implementation note (2026-11-14, placing in the view).</strong> With a curtain wall selected, Modify | Curtain Walls › Grid has <strong>Vertical Line</strong>, <strong>Horizontal Line</strong>, <strong>Remove Line</strong> and <strong>Change Panel</strong> (ARC-CW-006). They work by clicking on the wall in a 3D, elevation or section view (vertical lines also in a plan, along the base line). The point is where the camera's ray meets the wall's vertical plane, rounded to the millimetre. The line, or for panels the cell, a click would change is drawn as the cursor moves. Remove Line takes the manual line within 0.3 m of the click. Change Panel asks for the panel first (glazed, solid, empty, door, vent, roll-up or the type's), then each click swaps one cell. Each click is its own undo step; Esc ends. Not built yet: snapping to panel midpoints and thirds, to levels, reference planes and neighbouring walls' lines; All Except Picked by clicking segments; temporary dimensions and pins.</p>
 <h3 id="355-mullions">3.5.5 Mullions</h3>
 <p><strong>ID:</strong> <code class="rid" id="ARC-CW-005">ARC-CW-005</code> · <strong>Priority:</strong> <span class="pri pri-p1">P1</span> · <strong>Ref:</strong> research/02 §6.4</p>
 <p><strong>Workflow.</strong> The user starts Architecture › Build › <strong>Mullion</strong> and picks a Placement mode: <strong>Grid Line</strong> (the whole line), <strong>Grid Line Segment</strong> or <strong>All Grid Lines</strong>. The same modes apply to border edges.</p>
@@ -27785,7 +27786,12 @@ CREATE TABLE base_rxd (
 <p><strong>Data (IFC mapping).</strong> <strong><code>IfcRamp</code></strong> (<code>STRAIGHT_RUN_RAMP</code>, <code>TWO_STRAIGHT_RUN_RAMP</code>, <code>QUARTER_TURN_RAMP</code>, <code>TWO_QUARTER_TURN_RAMP</code>, <code>HALF_TURN_RAMP</code> or <code>SPIRAL_RAMP</code>, classified as for stairs) with an <strong><code>IfcRampType</code></strong>, aggregating <strong><code>IfcRampFlight</code></strong> (<code>STRAIGHT</code> or <code>SPIRAL</code>), <strong><code>IfcSlab(LANDING)</code></strong> and <strong><code>IfcRailing</code></strong>. <code>Pset_RampCommon</code> holds RequiredSlope and IsExternal, and <code>Pset_RampFlightCommon</code> holds Headroom, ClearWidth and Slope. The sketch is stored in RXD element data (<code>sketch</code>).</p>
 <p><strong>Commands.</strong> <code>ramp.create(type_id, base_level, top_level | Unconnected(h), base_offset?, top_offset?, runs?: [curve], boundary?: [[curve],[curve]], risers?: [curve], width?, railing?) -&gt; element_id</code> and <code>ramp.edit_sketch(ramp_id, ...)</code>.</p>
 <p><strong>Acceptance criteria.</strong>
-- [ ] A ramp 0.6 m high at 1:12 with Maximum Incline Length 6 m, drawn as one straight run, is 7.2 m long and gets one landing between two 3.6 m runs.</p>
+- [x] A ramp 0.6 m high at 1:12 with Maximum Incline Length 6 m, drawn as one straight run, is 7.2 m long and gets one landing between two 3.6 m runs. <em>(Test: <code>ramps.rs</code> <code>a_long_run_gets_a_landing_and_the_slope_is_shared</code>.)</em>
+- [x] An L-shaped ramp 0.6 m high gets railings on both sides. The outer one goes round the corner landing's outside and the inner one across its inside; both rise from the bottom to 0.6 m and run level over the landing. They move out when the ramp is widened and are deleted with it. A 100 mm ramp gets none until <code>ramp.add_railings</code>. <em>(Test: <code>riviera-store/tests/ramps.rs</code> <code>a_ramp_gets_railings_that_follow_it</code>.)</em></p>
+<p><strong>Implementation note (2026-11-14).</strong> As built:
+- <strong>Railings:</strong> a ramp rising more than 150 mm gets railings on both sides when made (ADA 405.8; <code>railings</code> overrides, <code>railing_type_id</code> sets the type). <code>ramp.add_railings(ramp_ids, type_id?, sides?, inset?)</code> adds them to sides without one. They are stair-style railings hosted on the ramp (<code>railing.create_on_stair</code> takes a ramp too): along each flight at its slope, level over landings, round the outside of a corner landing and across the inside. They follow the ramp's path, levels and width, and are deleted with it.
+- <strong>The window:</strong> the Ramp tool's <strong>Railings</strong> row; Modify | Ramps with <strong>Edit Path</strong> (the Ramp tool draws the centreline again; Enter replaces it), <strong>Flip Direction</strong> and <strong>Railings</strong>; a ramp's <strong>Path</strong> row (points typed as <em>x, y; x, y</em>) and the type's <strong>Shape</strong> row.
+- <strong>Not built yet:</strong> boundary and riser sketches; curved runs; grips on the path in the view; ramp flights and landings as separate IFC parts; Text Up/Down.</p>
 
 <h2 id="37a-vertical-transportation-elevators">3.7a Vertical transportation: elevators</h2>
 <p>Owner requirement (2026-11-01: "Elevators, both passenger and freight"; 2026-11-03: "Go with your recommended defaults and start building elevators"), planned in <code>VERTICAL_TRANSPORT_PLAN.md</code> and researched in <code>research/16_elevators.md</code> (sources S1505–S1684 and S2383–S2538). An elevator is made of ordinary elements sized by <strong>rule packs</strong>, as bathrooms are (§3.9a): the sizes, the accessibility minimums and the code limits are data with their jurisdiction, edition, source and confidence. This section covers passenger, hospital, freight and vehicle elevators and small lifts (LULAs, home elevators, vertical platform lifts, dumbwaiters). Panoramic cars, banks, escalators and moving walks, stairlifts, people movers, funiculars and ropeways follow, in the order of the plan's §11.</p>
@@ -34859,6 +34865,13 @@ unchanged. The first domain on the shared format is <strong>interiors</strong>: 
 <td><code>ramp.edit_sketch</code></td>
 <td>ramp_id, ...</td>
 <td>—</td>
+<td>Yes</td>
+<td>ARC-RAMP-001</td>
+</tr>
+<tr>
+<td><code>ramp.add_railings</code></td>
+<td>ramp_ids, type_id?, sides?, inset?</td>
+<td>[railing_id]</td>
 <td>Yes</td>
 <td>ARC-RAMP-001</td>
 </tr>
@@ -57995,7 +58008,7 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 </tbody>
 </table></div>
 <h2 id="a3-consolidated-command-index">A.3 Consolidated command index</h2>
-<p><strong>2429 unique commands</strong> in 464 domains. Every command is exposed automatically to the UI, to Lua (<code>riviera.&lt;domain&gt;.&lt;verb&gt;</code>) and to MCP (<code>&lt;domain&gt;_&lt;verb&gt;</code>), subject to its permission class.</p>
+<p><strong>2430 unique commands</strong> in 464 domains. Every command is exposed automatically to the UI, to Lua (<code>riviera.&lt;domain&gt;.&lt;verb&gt;</code>) and to MCP (<code>&lt;domain&gt;_&lt;verb&gt;</code>), subject to its permission class.</p>
 <div class="tbl"><table>
 <thead>
 <tr>
@@ -59258,7 +59271,7 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 </tr>
 <tr>
 <td><code>ramp</code></td>
-<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr>
 <td><code>rebar</code></td>
@@ -71673,6 +71686,14 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 <td>—</td>
 <td>Yes</td>
 <td>ARC-RAIL-001</td>
+</tr>
+<tr>
+<td><code>ramp.add_railings</code></td>
+<td>3</td>
+<td>ramp_ids, type_id?, sides?, inset?</td>
+<td>[railing_id]</td>
+<td>Yes</td>
+<td>ARC-RAMP-001</td>
 </tr>
 <tr>
 <td><code>ramp.create</code></td>

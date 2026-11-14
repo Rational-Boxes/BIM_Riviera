@@ -56,7 +56,7 @@ fn choices<T>(items: &[(&str, T)]) -> Vec<(String, i32)> {
 }
 
 /// Panels a cell can take: the value, its label, and its command word.
-const PANEL_NAMES: [(curtain::Panel, &str, &str); 6] = [
+pub(crate) const PANEL_NAMES: [(curtain::Panel, &str, &str); 6] = [
     (curtain::Panel::Glazed, "Glazed", "glazed"),
     (curtain::Panel::Solid, "Solid", "solid"),
     (curtain::Panel::Empty, "Empty", "empty"),

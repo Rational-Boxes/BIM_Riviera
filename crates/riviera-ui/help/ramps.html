@@ -8,8 +8,8 @@ where a run would be longer than its type allows.</p>
 <ol>
   <li>Open a floor plan and click <b>Architecture › Ramp</b>
     <a href="riviera:action/ramp.create">Ramp</a>.</li>
-  <li>In Properties, set the <b>Height</b> it climbs (600 mm unless you change it) and its
-    <b>Width</b> (1.2 m).</li>
+  <li>In Properties, set the <b>Height</b> it climbs (600 mm unless you change it), its
+    <b>Width</b> (1.2 m) and whether it gets <b>Railings</b> (on by default).</li>
   <li>Click the points of its centreline from the bottom up. The status bar shows the run the
     type's maximum slope needs for that height, and how much is drawn so far.</li>
   <li>Press <kbd>Enter</kbd> to make the ramp. <kbd>Esc</kbd> drops the last point, then ends
@@ -23,6 +23,28 @@ height is shared so every flight has the same slope.</p>
 or lower the height.</p>
 <p><code>ramp.create</code></p>
 
+<h2 id="railings">Railings</h2>
+<p>A ramp that rises more than 150 mm (6 in) gets a railing on each side when it is made, as ADA
+405.8 asks. Turn off <b>Railings</b> in the tool's Properties to leave them off. Each railing
+follows the flights' slope, runs level over the landings, goes round the outside of a corner
+landing and cuts across the inside. When the ramp's path, levels or width change, the railings
+follow, and they are deleted with the ramp.</p>
+<p>To add railings later, select the ramps and choose <b>Modify | Ramps › Railings</b>
+<a href="riviera:action/ramp.add_railings">Railings</a>. Only sides without one get a railing.
+Change their type in the railing's Properties.
+<code>ramp.add_railings</code></p>
+
+<h2 id="edit-path">Changing the path</h2>
+<ul>
+  <li><b>Modify | Ramps › Edit Path</b> <a href="riviera:action/ui.ramp_edit_path">Edit
+    Path</a>: in a plan, the ramp's path is shown; click its new centreline from the bottom up and
+    press <kbd>Enter</kbd>. <kbd>Esc</kbd> keeps the path as it was.</li>
+  <li><b>Path</b> in Properties lists the points as <i>x, y; x, y; …</i>. Type new ones to place
+    them exactly.</li>
+  <li><b>Flip Direction</b> <a href="riviera:action/ui.ramp_flip">Flip Direction</a> makes the
+    top end the bottom.</li>
+</ul>
+
 <h2 id="properties">Properties</h2>
 <table>
   <tr><td>Base Constraint, Base Offset</td><td>The level its bottom is on, and how far above
@@ -30,6 +52,9 @@ or lower the height.</p>
   <tr><td>Top Constraint, Top Offset</td><td>The level its top reaches, or <i>Unconnected</i>
     with a height.</td></tr>
   <tr><td>Width</td><td>Across the ramp.</td></tr>
+  <tr><td>Path</td><td>The centreline's points from the bottom up.</td></tr>
+  <tr><td>Slope, Run Needed</td><td>The slope as built, and the run its type's maximum slope
+    needs for its height (read only).</td></tr>
   <tr><td>Type</td><td><b>Maximum Slope</b> (1 in 12 by default), <b>Maximum Incline
     Length</b> (9 m), <b>Thickness</b> (150 mm) and <b>Shape</b>: <i>Thick</i>, a slab under the
     sloped surface, or <i>Solid</i>, filled down to the base. These change every ramp of the
@@ -44,5 +69,5 @@ level.</p>
 <h2 id="ifc">In IFC</h2>
 <p>A ramp is an <code>IfcRamp</code> of an <code>IfcRampType</code>, contained in its base
 level, with a faceted B-rep body.</p>
-<p class="note">Not yet available: curved ramps, editing the path with grips, railings that
-follow a ramp, and ramp flights and landings as separate IFC parts.</p>
+<p class="note">Not yet available: curved ramps, editing the path with grips in the view, and ramp
+flights and landings as separate IFC parts.</p>

@@ -12151,6 +12151,8 @@ R and U are computed from the layer materials' thermal assets: `R = Rsi + Σ t�
 
 **Implementation note (2026-10-15, first build).** As built: the curtain wall recipe's `grids` (manual lines by key, direction and position), `removed` (segments by line direction, position and index) and `panels` (overrides by cell); cells joined across removed segments become one panel (a rectangle, else per cell) and the segment's mullion goes; interior vertical mullions are now one piece per row. Commands `curtain.add_grid` (modes all, one, all_except), `curtain.set_grid_segments`, `curtain.move_grid`, `curtain.delete_grid`, and `curtain.set_layout` (an addition, all at once). The window: Modify | Curtain Walls › Edit Grid (lines with segment strings, manual lines, panels). Not built yet: placing lines by hovering edges in elevation or 3D with snaps, temporary dimensions and pins on grid lines.
 
+**Implementation note (2026-11-14, placing in the view).** With a curtain wall selected, Modify | Curtain Walls › Grid has **Vertical Line**, **Horizontal Line**, **Remove Line** and **Change Panel** (ARC-CW-006). They work by clicking on the wall in a 3D, elevation or section view (vertical lines also in a plan, along the base line). The point is where the camera's ray meets the wall's vertical plane, rounded to the millimetre. The line, or for panels the cell, a click would change is drawn as the cursor moves. Remove Line takes the manual line within 0.3 m of the click. Change Panel asks for the panel first (glazed, solid, empty, door, vent, roll-up or the type's), then each click swaps one cell. Each click is its own undo step; Esc ends. Not built yet: snapping to panel midpoints and thirds, to levels, reference planes and neighbouring walls' lines; All Except Picked by clicking segments; temporary dimensions and pins.
+
 ### 3.5.5 Mullions
 **ID:** ARC-CW-005 · **Priority:** P1 · **Ref:** research/02 §6.4
 
@@ -14068,7 +14070,13 @@ These are view annotation and are specified in the DOC chapter. This chapter req
 **Commands.** `ramp.create(type_id, base_level, top_level | Unconnected(h), base_offset?, top_offset?, runs?: [curve], boundary?: [[curve],[curve]], risers?: [curve], width?, railing?) -> element_id` and `ramp.edit_sketch(ramp_id, ...)`.
 
 **Acceptance criteria.**
-- [ ] A ramp 0.6 m high at 1:12 with Maximum Incline Length 6 m, drawn as one straight run, is 7.2 m long and gets one landing between two 3.6 m runs.
+- [x] A ramp 0.6 m high at 1:12 with Maximum Incline Length 6 m, drawn as one straight run, is 7.2 m long and gets one landing between two 3.6 m runs. *(Test: `ramps.rs` `a_long_run_gets_a_landing_and_the_slope_is_shared`.)*
+- [x] An L-shaped ramp 0.6 m high gets railings on both sides. The outer one goes round the corner landing's outside and the inner one across its inside; both rise from the bottom to 0.6 m and run level over the landing. They move out when the ramp is widened and are deleted with it. A 100 mm ramp gets none until `ramp.add_railings`. *(Test: `riviera-store/tests/ramps.rs` `a_ramp_gets_railings_that_follow_it`.)*
+
+**Implementation note (2026-11-14).** As built:
+- **Railings:** a ramp rising more than 150 mm gets railings on both sides when made (ADA 405.8; `railings` overrides, `railing_type_id` sets the type). `ramp.add_railings(ramp_ids, type_id?, sides?, inset?)` adds them to sides without one. They are stair-style railings hosted on the ramp (`railing.create_on_stair` takes a ramp too): along each flight at its slope, level over landings, round the outside of a corner landing and across the inside. They follow the ramp's path, levels and width, and are deleted with it.
+- **The window:** the Ramp tool's **Railings** row; Modify | Ramps with **Edit Path** (the Ramp tool draws the centreline again; Enter replaces it), **Flip Direction** and **Railings**; a ramp's **Path** row (points typed as *x, y; x, y*) and the type's **Shape** row.
+- **Not built yet:** boundary and riser sketches; curved runs; grips on the path in the view; ramp flights and landings as separate IFC parts; Text Up/Down.
 
 ---
 
@@ -18734,6 +18742,7 @@ All commands below are registered once in the command registry and exposed autom
 | `railingtype.set_per_tread` | type_id, enabled, count, family_id | — | Yes | ARC-RAIL-002 |
 | `ramp.create` | type_id, base_level, top_level \| Unconnected(h), base_offset?, top_offset?, runs?: [curve], boundary?: [[curve],[curve]], risers?: [curve], width?, railing? | element_id | Yes | ARC-RAMP-001 |
 | `ramp.edit_sketch` | ramp_id, ... | — | Yes | ARC-RAMP-001 |
+| `ramp.add_railings` | ramp_ids, type_id?, sides?, inset? | [railing_id] | Yes | ARC-RAMP-001 |
 | `opening.create_by_face` | host_ref, loops | element_id | Yes | ARC-OPEN-001 |
 | `opening.create_vertical` | host_id, loops | element_id | Yes | ARC-OPEN-002 |
 | `opening.set_loops` | opening_id, loops | — | Yes | ARC-OPEN-002, ARC-STAIR-007 |
@@ -32264,7 +32273,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2429 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2430 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -32581,7 +32590,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `railing` | 13 |
 | `railing_type` | 1 |
 | `railingtype` | 5 |
-| `ramp` | 2 |
+| `ramp` | 3 |
 | `rebar` | 25 |
 | `rebar_bar_type` | 1 |
 | `rebar_coupler` | 1 |
@@ -34210,6 +34219,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `railingtype.set_per_tread` | 3 | type_id, enabled, count, family_id | — | Yes | ARC-RAIL-002 |
 | `railingtype.set_posts` | 3 | type_id, start, corner, end, corner_at, angle? | — | Yes | ARC-RAIL-002 |
 | `railingtype.set_rails` | 3 | type_id, rows | — | Yes | ARC-RAIL-001 |
+| `ramp.add_railings` | 3 | ramp_ids, type_id?, sides?, inset? | [railing_id] | Yes | ARC-RAMP-001 |
 | `ramp.create` | 3 | type_id, base_level, top_level \ | Unconnected(h), base_offset?, top_offset?, runs?: [curve], boundary?: [[curve],[curve]], risers?: [curve], width?, railing? | element_id | Yes |
 | `ramp.edit_sketch` | 3 | ramp_id, ... | — | Yes | ARC-RAMP-001 |
 | `rebar.add_crank` | 4 | rebar_id, segment, position, length, offset, angle | — | Yes | STR-RBR-009 |

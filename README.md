@@ -154,8 +154,8 @@ ribbon's tools, the command shell, Lua and MCP alike.
   `layout.get` / `layout.redo` make the layout again with changed values in one undo step.
   **Your own type catalogue** (DM-TYPE-004): Save Type to My Catalogue… keeps a type in a per-user
   (or shared) file, and every project lists and loads it (`type.save_to_catalogue`,
-  `type.remove_from_catalogue`). Not yet: picking curtain grid lines and panels in
-  the view, ramp and opening Modify tools.
+  `type.remove_from_catalogue`). Curtain grid lines and panels are placed by clicking on the
+  wall (Modify | Curtain Walls › Grid). Not yet: an opening Modify tab.
 
 ### Commands, scripting and AI agents
 
@@ -408,7 +408,10 @@ Create … Boundary* tab:
 - **Ramps** (Architecture › Ramp): click a centreline in a plan from the bottom up. Corners get
   square landings, and a run longer than the type's maximum incline length (9 m) is split by
   landings. A slope steeper than the type's maximum (1:12) gives a warning. Thick or solid
-  shapes; `IfcRamp` (`ramp.create`, `ramp.set`; ARC-RAMP-001).
+  shapes. Ramps rising more than 150 mm get railings on both sides that follow the flights and
+  landings. Modify | Ramps has Edit Path, Flip Direction and Railings, and a ramp's Path row
+  takes typed points; `IfcRamp` (`ramp.create`, `ramp.set`, `ramp.add_railings`; ARC-RAMP-001).
+  Not yet: curved runs, boundary and riser sketches.
 - **Stairs through floors** (ARC-STAIR-007): a run drawn to within a tread of the top snaps to
   reach the level above and completes the stair; Esc completes it too, the last run carrying on.
   The stair keeps reaching its top as levels move, and its railings extend with it. Where a floor

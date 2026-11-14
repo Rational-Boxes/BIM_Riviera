@@ -4380,7 +4380,8 @@ impl LocalProject {
                     }
                     railings::RailPath::Stair { stair, .. } => {
                         let h = store.get(store.find_by_guid(&GlobalId::parse(&stair)?)?)?;
-                        GlobalId::parse(&stairs::stair_recipe(h)?.base_level)
+                        let base = stairs::stair_recipe(h).map(|r| r.base_level).or_else(|| riviera_core::ramps::ramp_recipe(h).map(|r| r.extent.base_level))?;
+                        GlobalId::parse(&base)
                     }
                 },
             );

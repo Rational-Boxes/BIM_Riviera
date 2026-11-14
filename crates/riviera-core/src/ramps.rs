@@ -16,6 +16,10 @@
 //! - The height is shared by the flights in proportion to their lengths, so the slope is the
 //!   same on every flight. A slope steeper than the type's maximum is reported as a warning;
 //!   the ramp is still made.
+//! - **Railings** follow each side over its flights, landings and corners ([`side_path`]): a
+//!   ramp rising more than 150 mm gets them on both sides when made (ADA 405.8; `railings`
+//!   overrides), and `ramp.add_railings` adds them later. They follow the ramp when its path,
+//!   levels or width change, and go with it.
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -375,7 +379,14 @@ pub struct CreateParams {
     #[serde(default)]
     #[schemars(extend("x-riviera-data-type" = "length"))]
     pub top_offset: f64,
+    /// Railings on both sides; by default when it rises more than 150 mm (ADA 405.8).
+    pub railings: Option<bool>,
+    /// The railings' type (default the model's first railing type).
+    pub railing_type_id: Option<ElementRef>,
 }
+
+/// The rise above which a ramp gets railings when made (ADA 405.8: 6 in).
+pub const RAILING_RISE: f64 = 0.15;
 
 fn resolve_type(store: &Store, r: &ElementRef) -> Result<ElementId> {
     let id = store
@@ -429,7 +440,81 @@ pub(crate) fn create(txn: &mut crate::txn::Transaction<'_>, p: CreateParams) -> 
             ),
     )?;
     warn_if_steep(txn, id)?;
+    let store = txn.store().clone();
+    let rise = regenerate(&store, store.get(id).expect("made"))?.height;
+    if p.railings.unwrap_or(rise > RAILING_RISE + 1e-9) {
+        add_railings(txn, AddRailingsParams { ramp_ids: vec![ElementRef::Id(id)], type_id: p.railing_type_id, sides: None, inset: None })?;
+    }
     Ok(id)
+}
+
+/// One side of a ramp (`left` going up), `inset` in from its edge, with its heights: along
+/// each flight, level over the landings, round the outside of a corner landing and across the
+/// inside.
+pub fn side_path(store: &Store, e: &Element, left: bool, inset: f64) -> Result<Vec<[f64; 3]>> {
+    let g = regenerate(store, e)?;
+    let mut out: Vec<[f64; 3]> = Vec::new();
+    let mut last: Option<([f64; 2], [f64; 2])> = None;
+    for p in g.pieces.iter().filter(|p| !p.landing) {
+        // Corners: 0, 1 the right side up the flight; 3, 2 the left.
+        let (i, j, o) = if left { (3, 2, 0) } else { (0, 1, 3) };
+        let inward = unit(sub(p.corners[o], p.corners[i]));
+        let a = at(p.corners[i], inward, inset);
+        let b = at(p.corners[j], inward, inset);
+        let d = unit(sub(b, a));
+        if let Some((q, dq)) = last {
+            // A turn: the two sides' lines meet at the corner landing's edge.
+            let cross = dq[0] * d[1] - dq[1] * d[0];
+            if cross.abs() > 1e-6 {
+                let w = sub(a, q);
+                let t = (w[0] * d[1] - w[1] * d[0]) / cross;
+                let m = at(q, dq, t);
+                out.push([m[0], m[1], p.z[0]]);
+            }
+        }
+        out.push([a[0], a[1], p.z[0]]);
+        out.push([b[0], b[1], p.z[1]]);
+        last = Some((b, d));
+    }
+    out.dedup_by(|x, y| (x[0] - y[0]).hypot(x[1] - y[1]) < 1e-6 && (x[2] - y[2]).abs() < 1e-6);
+    if out.len() < 2 {
+        return Err(Error::new("ramp.too_short", "the ramp is too short for a railing"));
+    }
+    Ok(out)
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct AddRailingsParams {
+    pub ramp_ids: Vec<ElementRef>,
+    /// A railing type (default the model's first).
+    pub type_id: Option<ElementRef>,
+    /// `left`, `right` (going up); default both.
+    pub sides: Option<Vec<crate::railings::StairSide>>,
+    /// In from the ramp's edge (default 0.05 m).
+    #[schemars(extend("x-riviera-data-type" = "length"))]
+    pub inset: Option<f64>,
+}
+
+/// Railings along ramps' sides (`ramp.add_railings`); a side that already has one is skipped.
+pub(crate) fn add_railings(txn: &mut crate::txn::Transaction<'_>, p: AddRailingsParams) -> Result<Vec<ElementId>> {
+    let store = txn.store().clone();
+    let mut made = Vec::new();
+    for r in &p.ramp_ids {
+        let id = store.resolve(r).filter(|id| store.get(*id).and_then(ramp_recipe).is_some()).ok_or_else(|| Error::new("ramp.not_riviera", format!("{r:?} is not a Riviera ramp")))?;
+        let guid = store.get(id).expect("resolved").guid().to_string();
+        let has = |left: bool| {
+            txn.store().iter().filter_map(crate::railings::railing_recipe).any(|rr| matches!(rr.path, crate::railings::RailPath::Stair { ref stair, left: l, .. } if *stair == guid && l == left))
+        };
+        let sides = p.sides.clone().unwrap_or_else(|| vec![crate::railings::StairSide::Left, crate::railings::StairSide::Right]);
+        let sides: Vec<_> = sides.into_iter().filter(|s| !has(*s == crate::railings::StairSide::Left)).collect();
+        if sides.is_empty() {
+            continue;
+        }
+        let c = crate::railings::CreateOnStairParams { stair_id: ElementRef::Id(id), type_id: p.type_id.clone(), sides: Some(sides), inset: p.inset.map(Value::from) };
+        made.extend(crate::railings::create_on_stair(txn, c)?);
+    }
+    Ok(made)
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]

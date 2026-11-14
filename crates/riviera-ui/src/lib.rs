@@ -22,6 +22,7 @@ mod columns;
 mod components;
 mod crash;
 mod curtain;
+mod curtain_pick;
 mod curtain_grid;
 mod curved;
 mod datum_tools;
@@ -386,6 +387,7 @@ struct Gui {
     auto_preview: Option<serde_json::Value>,
     curtain_tool: Option<curtain::CurtainTool>,
     ramp_tool: Option<ramps::RampTool>,
+    curtain_pick: Option<curtain_pick::CurtainPick>,
     measure_tool: Option<ramps::MeasureTool>,
     skylight_tool: Option<skylights::SkylightTool>,
     /// The Place Component tool (a component picked up from the library, or a project type).
@@ -1551,6 +1553,7 @@ impl Gui {
         self.end_rebar_host_pick();
         self.end_coupler();
         self.end_curtain_tool();
+        self.end_curtain_pick();
         self.end_ramp_tool();
         self.end_measure_tool();
         self.end_skylight_tool();
@@ -1592,6 +1595,7 @@ impl Gui {
             return self.run_escape();
         }
         if self.curtain_escape()
+            || self.curtain_pick_escape()
             || self.measure_escape()
             || self.ramp_key(WXK_ESCAPE)
             || self.end_skylight_tool()
@@ -1691,6 +1695,7 @@ impl Gui {
             || self.steel_tool.is_some()
             || self.rebar_sketch.is_some()
             || self.curtain_tool.is_some()
+            || self.curtain_pick.is_some()
             || self.ramp_tool.is_some()
             || self.measure_tool.is_some()
             || self.skylight_tool.is_some()
@@ -1739,7 +1744,9 @@ impl Gui {
         if self.legend_tool.is_some() {
             return self.legend_click(x, y);
         }
-        if self.adjust.is_some() {
+        if self.curtain_pick.is_some() {
+            self.curtain_pick_click(x, y);
+        } else if self.adjust.is_some() {
             self.adjust_click(x, y);
         } else if self.bar_pick.is_some() {
             self.bar_pick_click(x, y);
@@ -1898,6 +1905,10 @@ impl Gui {
         }
         if self.ramp_tool.is_some() {
             self.ramp_motion(x, y);
+            redraw = true;
+        }
+        if self.curtain_pick.is_some() {
+            self.curtain_pick_motion(x, y);
             redraw = true;
         }
         if self.measure_tool.is_some() {
@@ -3959,6 +3970,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 auto_preview: None,
                 curtain_tool: None,
                 ramp_tool: None,
+                curtain_pick: None,
                 measure_tool: None,
                 skylight_tool: None,
                 place_tool: None,
@@ -4668,6 +4680,16 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
             g.start_ramp_tool();
             focus(g);
         }),
+        "ui.ramp_edit_path" => with(gui, |g| {
+            g.edit_ramp_path();
+            focus(g);
+        }),
+        "ui.ramp_flip" => with(gui, Gui::flip_ramps),
+        "ui.curtain_add_u" => with(gui, |g| g.start_curtain_pick("u")),
+        "ui.curtain_add_v" => with(gui, |g| g.start_curtain_pick("v")),
+        "ui.curtain_remove_line" => with(gui, |g| g.start_curtain_pick("remove")),
+        "ui.curtain_panel" => with(gui, |g| g.start_curtain_pick("panel")),
+        "ramp.add_railings" => with(gui, Gui::rail_ramps),
         "component.place" => with(gui, |g| {
             g.place_component();
             focus(g);

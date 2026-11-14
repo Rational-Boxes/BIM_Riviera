@@ -205,6 +205,14 @@ closets, baffles and atriums, then their window forms filled from the last value
 - **The user's type catalogue** (DM-TYPE-004): Save Type to My Catalogue… and Remove from My
   Catalogue… in every Type list; saved types are listed and loaded in every project.
 
+**2026-11-14:**
+- **The hotel sample regenerated**, so its layouts and atrium carry what made them and Edit
+  Layout works on them.
+- **Ramps:** Modify | Ramps with Edit Path, Flip Direction and Railings; the tool's Railings
+  row (on above a 150 mm rise); a typed Path row; the type's Shape row. Railings follow the ramp
+  (`ramp.add_railings`).
+- **Curtain grids in the view:** Vertical Line, Horizontal Line, Remove Line and Change Panel on
+  Modify | Curtain Walls, by clicking on the wall in 3D, elevation, section or plan.
+
 **Remaining:**
-- Modify tabs for ramps and openings (there are no ramp or opening tools to put on them).
-- Placing curtain grid lines and panels by clicking in the view (Properties rows for now).
+- A Modify tab for openings (shafts have Edit Boundary through Properties only).

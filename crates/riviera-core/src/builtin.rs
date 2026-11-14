@@ -3605,7 +3605,8 @@ modify_command!(
     "Creates railings on a stair's sides (`sides`: `left`, `right`, going up; default both), `inset` in from \
      its edges (default 50 mm). Each follows the nosing line at the type's height, crosses the landings at \
      their height (round the outside of a turn, straight across the inside) and follows the stair when it \
-     changes. `stair.create` places them unless `railings` is false.",
+     changes. `stair.create` places them unless `railings` is false. `stair_id` may also be a ramp \
+     (as `ramp.add_railings`).",
     "Railing",
     crate::railings::CreateOnStairParams,
     Vec<ElementId>,

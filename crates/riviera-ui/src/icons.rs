@@ -205,6 +205,18 @@ fn body(name: &str, dark: bool) -> Option<String> {
         "curtain_grid" => format!(
             r#"<path d="M4 4h24v24H4z" fill="{f}" {s}/><path d="M16 4v24M4 16h12" {s}/><path d="M16 16h12" {sa} stroke-dasharray="2 2"/>"#
         ),
+        // A curtain wall with a new vertical (accent) line.
+        "curtain_grid_u" => format!(
+            r#"<path d="M4 4h24v24H4z" fill="{f}" {s}/><path d="M10 4v24M4 16h24" {s}/><path d="M20 4v24" {sa} stroke-width="2.5"/>"#
+        ),
+        // A curtain wall with a new horizontal (accent) line.
+        "curtain_grid_v" => format!(
+            r#"<path d="M4 4h24v24H4z" fill="{f}" {s}/><path d="M16 4v24M4 12h24" {s}/><path d="M4 21h24" {sa} stroke-width="2.5"/>"#
+        ),
+        // A curtain wall with one cell filled (Change Panel).
+        "curtain_panel" => format!(
+            r#"<path d="M4 4h24v24H4z" fill="{f}" {s}/><path d="M16 4v24M4 16h24" {s}/><rect x="16" y="16" width="12" height="12" fill="{a}" {s}/>"#
+        ),
         "lining" => format!(
             r#"<path d="M4 4h10v24H4z" fill="{f}" {s}/><path d="M16 4h4v24h-4z" fill="{f}" {sa}/>"#
         ),

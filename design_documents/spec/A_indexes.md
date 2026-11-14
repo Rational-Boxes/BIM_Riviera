@@ -235,7 +235,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2429 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2430 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -552,7 +552,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `railing` | 13 |
 | `railing_type` | 1 |
 | `railingtype` | 5 |
-| `ramp` | 2 |
+| `ramp` | 3 |
 | `rebar` | 25 |
 | `rebar_bar_type` | 1 |
 | `rebar_coupler` | 1 |
@@ -2181,6 +2181,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `railingtype.set_per_tread` | 3 | type_id, enabled, count, family_id | — | Yes | ARC-RAIL-002 |
 | `railingtype.set_posts` | 3 | type_id, start, corner, end, corner_at, angle? | — | Yes | ARC-RAIL-002 |
 | `railingtype.set_rails` | 3 | type_id, rows | — | Yes | ARC-RAIL-001 |
+| `ramp.add_railings` | 3 | ramp_ids, type_id?, sides?, inset? | [railing_id] | Yes | ARC-RAMP-001 |
 | `ramp.create` | 3 | type_id, base_level, top_level \ | Unconnected(h), base_offset?, top_offset?, runs?: [curve], boundary?: [[curve],[curve]], risers?: [curve], width?, railing? | element_id | Yes |
 | `ramp.edit_sketch` | 3 | ramp_id, ... | — | Yes | ARC-RAMP-001 |
 | `rebar.add_crank` | 4 | rebar_id, segment, position, length, offset, angle | — | Yes | STR-RBR-009 |

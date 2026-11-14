@@ -61,6 +61,24 @@ from 0. The panel is <i>glazed</i>, <i>solid</i>, <i>empty</i>, <i>door</i>, <i>
 <code>curtain.delete_grid</code>, <code>curtain.set_panel_type</code>,
 <code>curtain.set_layout</code></p>
 
+<h2 id="pick-grid">Placing grid lines and panels in the view</h2>
+<p>Select a curtain wall; <b>Modify | Curtain Walls › Grid</b> has four tools that work by
+clicking on the wall. Each click is one change, the line or cell it would change is drawn as you
+move, and <kbd>Esc</kbd> ends.</p>
+<ul>
+  <li><b>Vertical Line</b> <a href="riviera:action/ui.curtain_add_u">Vertical Line</a>: click
+    where the line goes, in a 3D, elevation or section view, or in a plan along the wall.</li>
+  <li><b>Horizontal Line</b> <a href="riviera:action/ui.curtain_add_v">Horizontal Line</a>: click
+    the height it goes at, in a 3D, elevation or section view.</li>
+  <li><b>Remove Line</b> <a href="riviera:action/ui.curtain_remove_line">Remove Line</a>: click
+    near a line you placed. The type's lines change in the type.</li>
+  <li><b>Change Panel</b> <a href="riviera:action/ui.curtain_panel">Change Panel</a>: choose the
+    panel (glazed, solid, empty, door, vent, roll-up, or the type's), then click the cells to
+    change.</li>
+</ul>
+<p>Positions are rounded to the millimetre. To place one exactly, type it in Properties
+(<b>Add Vertical Line At</b>, <b>Add Horizontal Line At</b>).</p>
+
 <h2 id="attach">Attaching the top to roofs</h2>
 <p>Select a curtain wall and use <b>Attach Top</b> with a roof, as for a wall
 (<code>wall.attach</code>): its top then follows the roof's underside along its length, so a
@@ -77,8 +95,7 @@ height.</p>
 <p>An <code>IfcCurtainWall</code> of an <code>IfcCurtainWallType</code>, aggregating its panels
 (<code>IfcPlate</code>, <code>CURTAIN_PANEL</code>) and mullions (<code>IfcMember</code>,
 <code>MULLION</code>).</p>
-<p class="note">Not yet available: arc curtain walls, placing grid lines by clicking in an
-elevation, wall-type and family panels, mullion profiles and corner mullions, Adjust for Mullion
+<p class="note">Not yet available: arc curtain walls, wall-type and family panels, mullion profiles and corner mullions, Adjust for Mullion
 Size, curtain systems by face; curtain-wall doors are not in door schedules yet, and a curtain
 wall does not yet refuse doors or windows in the stretch of wall it replaces. For sloped glazing
 see <a href="riviera:help/roofs#glazing">Roofs</a>.</p>

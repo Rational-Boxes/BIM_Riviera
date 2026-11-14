@@ -2126,7 +2126,49 @@ help = "Turn the selected path array's members into independent objects"
 id = "ramp.create"
 label = "Ramp"
 icon = "ramp"
-help = "Draw a ramp in a plan: click its centreline's points from the bottom up and press Enter; its height and width are in Properties"
+help = "Draw a ramp in a plan: click its centreline's points from the bottom up and press Enter; its height, width and railings are in Properties"
+
+[[action]]
+id = "ui.curtain_add_u"
+label = "Vertical Line"
+icon = "curtain_grid_u"
+help = "Add vertical grid lines to the selected curtain wall by clicking on it (in a plan, 3D, elevation or section view); Esc ends"
+
+[[action]]
+id = "ui.curtain_add_v"
+label = "Horizontal Line"
+icon = "curtain_grid_v"
+help = "Add horizontal grid lines to the selected curtain wall by clicking on it in a 3D, elevation or section view; Esc ends"
+
+[[action]]
+id = "ui.curtain_remove_line"
+label = "Remove Line"
+icon = "delete"
+help = "Remove grid lines you placed on the selected curtain wall by clicking them; Esc ends"
+
+[[action]]
+id = "ui.curtain_panel"
+label = "Change Panel"
+icon = "curtain_panel"
+help = "Choose a panel (glazed, solid, empty, door, vent, roll-up or the type's), then click the selected curtain wall's cells to change; Esc ends"
+
+[[action]]
+id = "ui.ramp_edit_path"
+label = "Edit Path"
+icon = "edit_boundary"
+help = "Draw the selected ramp's centreline again in a plan, from the bottom up; Enter replaces it (its railings follow)"
+
+[[action]]
+id = "ui.ramp_flip"
+label = "Flip Direction"
+icon = "flip"
+help = "Make the selected ramps climb the other way: the top end becomes the bottom"
+
+[[action]]
+id = "ramp.add_railings"
+label = "Railings"
+icon = "railing"
+help = "Put railings on the selected ramps' sides that have none, following the flights and landings"
 
 [[action]]
 id = "skylight.create"
@@ -5109,6 +5151,14 @@ panels = [
 ]
 
 [[context]]
+category = "cat.ramps"
+label = "Ramps"
+panels = [
+  { label = "Mode", tools = [{ action = "ui.ramp_edit_path", size = "large" }, { action = "ui.ramp_flip", size = "large" }] },
+  { label = "Railing", tools = [{ action = "ramp.add_railings", size = "large" }] },
+]
+
+[[context]]
 category = "ctx.components"
 label = "Components"
 panels = [{ label = "Component", tools = [
@@ -5449,7 +5499,15 @@ panels = [{ label = "Edit Group", tools = [
 [[context]]
 category = "cat.curtain_walls"
 label = "Curtain Walls"
-panels = [{ label = "Curtain Wall", tools = [{ action = "curtain.set_layout", size = "large" }] }]
+panels = [
+  { label = "Curtain Wall", tools = [{ action = "curtain.set_layout", size = "large" }] },
+  { label = "Grid", tools = [
+    { action = "ui.curtain_add_u", size = "large" },
+    { action = "ui.curtain_add_v", size = "large" },
+    { action = "ui.curtain_remove_line", size = "small" },
+    { action = "ui.curtain_panel", size = "small" },
+  ] },
+]
 
 [[context]]
 category = "cat.windows"

@@ -329,6 +329,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(CeilingSetShape),
         registry.add(RampCreate),
         registry.add(RampSet),
+        registry.add(RampAddRailings),
         registry.add(MeasureBetween),
         registry.add(MeasureChain),
         registry.add(MeasureAlong),
@@ -965,7 +966,9 @@ edit_command!(
      square landing at each corner), `width` wide (1.2 m by default), from a base level and offset to a \
      top level and offset or a height, of a ramp type (the default 1:12, 9 m maximum incline, 150 mm \
      thick). Runs longer than the maximum incline length get landings as deep as the ramp is wide. A \
-     ramp steeper than its type allows is made, with a warning. Returns the ramp.",
+     ramp steeper than its type allows is made, with a warning. A ramp rising more than 150 mm gets \
+     railings on both sides following its flights and landings (ADA 405.8; `railings` overrides, \
+     `railing_type_id` picks their type). Returns the ramp.",
     "Ramp",
     crate::ramps::CreateParams,
     ElementId,
@@ -982,6 +985,21 @@ edit_command!(
     crate::ramps::SetParams,
     (),
     crate::ramps::set
+);
+
+edit_command!(
+    RampAddRailings,
+    "ramp.add_railings",
+    "Add railings to ramps",
+    "Railings along ramps' sides (`left`, `right` going up; default both), `inset` in from the edge \
+     (default 50 mm), of a railing type (default the model's first). They follow each flight's slope, \
+     run level over the landings and round the outside of corner landings, follow the ramp when it \
+     changes and are deleted with it. A side that has a railing already is skipped. Returns the new \
+     railings.",
+    "Add Ramp Railings",
+    crate::ramps::AddRailingsParams,
+    Vec<ElementId>,
+    crate::ramps::add_railings
 );
 
 /// A read-only command of a pure function.
