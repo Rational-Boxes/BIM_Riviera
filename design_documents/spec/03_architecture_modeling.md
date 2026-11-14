@@ -1843,7 +1843,7 @@ R and U are computed from the layer materials' thermal assets: `R = Rsi + Σ t�
 **Acceptance criteria.**
 - [ ] Swapping a glazed panel for a curtain-wall door turns that cell into an `IfcDoor` aggregated in the `IfcCurtainWall`, and it appears in the door schedule.
 
-**Implementation note (2026-10-15, first build).** As built: `curtain.set_panel_type(curtain_id, cells, panel)` with panels Glazed, Solid, Empty and Door; a door fills its cell from the base and is written as an `IfcDoor` (DOOR) aggregated in the curtain wall. Not built yet: Tab-selecting panels, door families (the door is a plain leaf), the door schedule, wall-type and family panels, pinning.
+**Implementation note (2026-10-15, first build).** As built: `curtain.set_panel_type(curtain_id, cells, panel)` with panels Glazed, Solid, Empty and Door; a door fills its cell from the base and is written as an `IfcDoor` (DOOR) aggregated in the curtain wall. Not built yet: Tab-selecting panels, door families (the door is a plain leaf), the door schedule, wall-type and family panels, pinning. *Built (2026-11-13/14):* a selected curtain wall's Properties list its panel overrides and take new ones as typed cells (`2,0 3,0 door`); Modify | Curtain Walls › Grid › **Change Panel** asks for the panel (glazed, solid, empty, door, vent, roll-up or the type's), then swaps each cell clicked on the wall in a 3D, elevation, section or plan view (ARC-CW-004's note).
 
 ### 3.5.7 Curtain systems by face
 **ID:** ARC-CW-007 · **Priority:** P2 · **Ref:** research/02 §6.6, §12.1
@@ -3142,7 +3142,7 @@ Owner requirement (2026-10-28), planned in `GLAZED_ENCLOSURES_PLAN.md`, research
 - [x] With `walls`, a ridge-roofed atrium's roof 1 m past the void has four glazed curtain walls attached to it, and nothing overlaps.
 - [x] A barrel-vaulted atrium through three storeys whose roof reaches 8 m past the void over a terrace reports the roof's 173 m², smoke control but no separation finding, and nothing overlaps; saved and opened, it is still an atrium.
 
-*Built (2026-11-12):* `riviera_core::atriums`, Interiors › Glazed Spaces › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; editing the atrium as one; the atrium space's own volume in schedules.
+*Built (2026-11-12):* `riviera_core::atriums`, Interiors › Glazed Spaces › Atrium. Defaults are E-134. Not yet: linear, attached and edge atriums; space-frame and ETFE roofs; smoke vents and their EN 12101-2 areas and the UK's 10 % vent rule; balcony spill plumes and t² filling; stack ventilation, stratification, daylight and energy; the atrium space's own volume in schedules. *Built (2026-11-13):* the atrium is made again as one with Edit Layout (`layout.redo`, DM-TYPE-003): its void, guards, roof, walls and space are one set, its guard and glazing types are kept, in one undo step.
 
 ### Sun-control baffles
 **ID:** ARC-GLZ-019 · **Priority:** P1 · **Ref:** GLAZED_ENCLOSURES_PLAN §5.2, §9 (phase 3); research/10 (A035–A040); ANA-SOLAR-001 (the sun's position); ARC-GLZ-018 (atriums)
@@ -3501,6 +3501,7 @@ These are view annotation and are specified in the DOC chapter. This chapter req
   - On a landing it is flat at the landing's height. At a turn it goes round the landing's corner on both sides; a half turn goes round the outside and straight across the well on the inside.
   - Rails follow the sloped path at the type's heights, measured plumb above the nosing line. Posts and balusters stand plumb.
   - The railing follows the stair (its runs, levels and moves) and is deleted with it. It is contained in the stair's base level; aggregation into the `IfcStair` comes later.
+- **On ramps** (2026-11-14, ARC-RAMP-001): the same railing path on a ramp (`railing.create_on_stair` and `ramp.add_railings` take a ramp): along each flight at its slope, level over landings, round the outside of a corner landing and across the inside. It follows the ramp's path, levels and width and is deleted with it. Ramps rising more than 150 mm get them when made (E-141).
 - **Later:** continuous handrails and their extensions, By Host heights per segment, angled joins (vertical/horizontal segments), baluster families and multi-row patterns, stair gaps in guarded edges, and editing paths.
 
 ### 3.7.8 Baluster placement
