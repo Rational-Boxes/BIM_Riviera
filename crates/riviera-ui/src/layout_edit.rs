@@ -3,7 +3,7 @@
 
 //! Edit Layout (EDIT_AUDIT phase 5): a piece of a layout (a kitchen line-up, cabinet or counter
 //! run, closet, gym or studio, seating, interior layout, retail run, baffles, tile, locker room
-//! or self-checkout pod) selected, the arguments it was made with are shown one per row and the
+//! self-checkout pod or atrium) selected, the arguments it was made with are shown one per row and the
 //! layout is made again with those changed (`layout.get`, `layout.redo`; one undo step).
 
 use serde_json::{Value, json};

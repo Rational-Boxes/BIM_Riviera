@@ -337,8 +337,9 @@ Stairs now take another stair type in core, and a stair type's rules (`max_riser
 - Each piece a layout command places carries `rxd:made_by`: a set key, the command and the arguments it ran with. The tag is written in the command's own transaction. The layout commands are:
   - `foodservice.lineup`, `cabinet.run`, `counter.run`, `closet.create`;
   - `gym.layout`, `gym.studio`, `seating.layout`, `interior.layout`;
-  - `retail.run`, `shading.baffles`, `tile.create`, `bath.locker_room`, `sco.place_pod`.
-- **Edit Layout** (Modify | Components and Interiors › Kitchen & Casework) works from any selected piece. It shows the arguments one per row (text bare, lists and points as JSON). Changing any of them deletes the set's pieces and runs the command again with the changed arguments. This is one undo step: the command runs inside the same transaction (`CommandContext::run_nested`).
+  - `retail.run`, `shading.baffles`, `tile.create`, `bath.locker_room`, `sco.place_pod`;
+  - `atrium.create`: its void, guards, roof, walls and the atrium space are one set. The guard and glazing types it makes are not tagged, so they stay and are reused.
+- **Edit Layout** (Modify | Components, Roofs and Railings, Interiors › Kitchen & Casework and Glazed Spaces) works from any selected piece. It shows the arguments one per row (text bare, lists and points as JSON). Changing any of them deletes the set's pieces and runs the command again with the changed arguments. This is one undo step: the command runs inside the same transaction (`CommandContext::run_nested`).
 - Tools that already replace their own results (bathroom layouts, saunas, steam rooms, toilet cores) keep doing so. Pieces placed before this was built carry no tag and are refused with `layout.none`.
 
 **Commands.**

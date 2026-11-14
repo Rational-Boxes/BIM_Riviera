@@ -1091,7 +1091,7 @@ help = "Edit a unit type in isolation (ARC-GRP-004): the selected copy, or the f
 id = "ui.edit_layout"
 label = "Edit Layout"
 icon = "edit_layout"
-help = "Make the selected piece's layout again with changed values: a kitchen line-up, cabinet or counter run, closet, gym or studio, seating, interior layout, retail run, sun-control baffles, tile, locker room or self-checkout pod; its pieces are replaced in one undo step"
+help = "Make the selected piece's layout again with changed values: a kitchen line-up, cabinet or counter run, closet, gym or studio, seating, interior layout, retail run, sun-control baffles, tile, locker room, self-checkout pod or atrium; its pieces are replaced in one undo step"
 
 [[action]]
 id = "ui.change_unit_array"
@@ -4158,6 +4158,7 @@ tools = [
 label = "Glazed Spaces"
 tools = [
   { action = "ui.atrium", size = "large" },
+  { action = "ui.edit_layout", size = "small" },
   { action = "ui.baffles", size = "small" },
   { action = "growing.layout", size = "small" },
   { action = "growing.lights", size = "small" },
@@ -5265,7 +5266,7 @@ panels = [{ label = "Openings", tools = [
   { action = "railing.add_gate", size = "large" },
   { action = "railing.add_double_gate", size = "large" },
   { action = "ui.gate_hardware", size = "large" },
-] }]
+] }, { label = "Layout", tools = [{ action = "ui.edit_layout", size = "large" }] }]
 
 [[context]]
 category = "cat.ceilings"
@@ -5315,6 +5316,7 @@ panels = [
   ] },
   { label = "Railing", tools = [{ action = "railing.create_on_edges", size = "large" }] },
   { label = "Glazing", tools = [{ action = "roof.create_glazing_type", size = "large" }] },
+  { label = "Layout", tools = [{ action = "ui.edit_layout", size = "large" }] },
 ]
 
 [[context]]
@@ -5507,7 +5509,7 @@ items = [
   "ui.store_area", "ui.gondola_run", "ui.checkout_bank", "ui.sco_pod", "ui.sco_profile", "ui.check_store", "ui.check_checkouts", "ui.checkout_estimate", "ui.check_scos", "-",
   "ui.gym_layout", "ui.gym_studio", "ui.gym_mirror", "ui.locker_room", "ui.sauna", "ui.steam_room", "ui.check_gym", "-",
   "ui.swimming_pool", "ui.pool_entry", "ui.pool_lanes", "ui.pool_depth_markings", "ui.pool_plant", "ui.check_pools", "ui.pool_hall_air", "ui.pool_water_treatment", "ui.pool_structure", "ui.pool_bonding", "ui.pool_barriers", "-",
-  "ui.atrium", "ui.baffles", "ui.sun_check", "growing.layout", "growing.lights",
+  "ui.atrium", "ui.edit_layout", "ui.baffles", "ui.sun_check", "growing.layout", "growing.lights",
 ]
 
 [[menu]]

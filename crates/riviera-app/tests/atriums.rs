@@ -107,3 +107,26 @@ fn the_roofs_sides_closed_in_glass() {
     }
     assert_eq!(ok(&mut app, "overlap.find", json!({}))["overlaps"], json!([]));
 }
+
+#[test]
+fn an_atrium_is_made_again_as_one() {
+    let (_dir, mut app, levels) = building();
+    let a = ok(&mut app, "atrium.create", json!({ "outline": [[10.0, 9.0], [20.0, 9.0], [20.0, 21.0], [10.0, 21.0]], "base_level": levels[0], "top_level": levels[4], "roof_offset": 4.5 }));
+    // Picked by one of its guards: the void, four guards, the roof and the atrium space.
+    let l = ok(&mut app, "layout.get", json!({ "element_id": a["guards"][0] }));
+    assert_eq!(l["command"], "atrium.create");
+    assert_eq!(l["elements"].as_array().unwrap().len(), 7, "{l:#}");
+    // Opened to level 3 only, under a barrel: two guards, and the old parts gone.
+    let r = ok(&mut app, "layout.redo", json!({ "element_id": a["roof"], "params": { "top_level": levels[2], "form": "barrel" } }));
+    assert_eq!(r["removed"], 7);
+    assert_eq!(r["result"]["opened"], json!(["Level 2", "Level 3"]));
+    let st = store(&app);
+    assert!(st.iter().all(|e| json!(e.id()) != a["roof"] && json!(e.id()) != a["atrium"]));
+    assert_eq!(st.iter().filter(|e| e.class == "IfcRailing").count(), 2);
+    // One guard type and one glazing type still: types are kept, not made twice.
+    assert_eq!(st.iter().filter(|e| e.name.as_deref() == Some("Atrium glazing")).count(), 1);
+    let r = ok(&mut app, "atrium.check", json!({}))[0].clone();
+    assert_eq!(r["storeys"], 3, "{r:#}");
+    ok(&mut app, "edit.undo", json!({}));
+    assert_eq!(ok(&mut app, "atrium.check", json!({}))[0]["storeys"], 5);
+}

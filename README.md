@@ -150,9 +150,9 @@ ribbon's tools, the command shell, Lua and MCP alike.
   overrides, sloped glazing types, arch spring edges, grab bars, toposolid points and unit arrays.
   Stair types swap and edit like the others. Every Modify tab now ends with the generic parameter
   rows. **Edit Layout** (DM-TYPE-003): pieces made by a layout tool (line-ups, cabinet runs, gym,
-  closets, baffles, bathroom layouts and others) remember the command and its values, and
+  closets, baffles, locker rooms, atriums and others) remember the command and its values, and
   `layout.get` / `layout.redo` make the layout again with changed values in one undo step. Not
-  yet: a user catalogue, atriums made again as a whole, picking curtain grid lines and panels in
+  yet: a user catalogue, picking curtain grid lines and panels in
   the view, ramp and opening Modify tools.
 
 ### Commands, scripting and AI agents

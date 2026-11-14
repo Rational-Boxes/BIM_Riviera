@@ -19,7 +19,8 @@
 //!
 //! Not built yet: linear, attached and edge atriums, space-frame and ETFE roofs, smoke vents and
 //! their EN 12101-2 areas, balcony spill plumes, stack ventilation and stratification, the
-//! atrium's daylight and energy, editing the atrium as one (its parts are edited as themselves).
+//! atrium's daylight and energy. It is made again as one with `layout.redo` (Edit Layout), or its
+//! parts are edited as themselves.
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

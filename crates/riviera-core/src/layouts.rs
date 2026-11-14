@@ -3,7 +3,8 @@
 
 //! Layouts made again (EDIT_AUDIT phase 5): the pieces a layout tool places (a kitchen line-up, a
 //! cabinet or counter run, a closet, a gym or studio, seating, an interior layout, a retail run,
-//! sun-control baffles, tile, a locker room, a self-checkout pod) remember the command and the
+//! sun-control baffles, tile, a locker room, a self-checkout pod, an atrium with its void, guards,
+//! roof and walls) remember the command and the
 //! arguments that made them. `layout.get` reads them back from any piece; `layout.redo` deletes
 //! the set and runs the command again with changed arguments, in one undo step.
 
@@ -23,7 +24,7 @@ use crate::txn::Transaction;
 pub const KEY: &str = "rxd:made_by";
 
 /// The layout commands whose pieces can be made again.
-pub const COMMANDS: [&str; 13] = [
+pub const COMMANDS: [&str; 14] = [
     "foodservice.lineup",
     "cabinet.run",
     "counter.run",
@@ -37,6 +38,7 @@ pub const COMMANDS: [&str; 13] = [
     "tile.create",
     "bath.locker_room",
     "sco.place_pod",
+    "atrium.create",
 ];
 
 pub fn is_layout(name: &str) -> bool {
