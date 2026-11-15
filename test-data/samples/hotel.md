@@ -24,8 +24,10 @@ script `hotel.lua` builds it; these are the same steps in the window.
    the roof. None crosses the atrium, and the ballroom and conference rooms are left column-free.
 4. **Lifts** (**Architecture › Lifts & Transport › Elevator**). In each corner, a passenger lift from
    the ground floor to the roof, its landing turned toward the building: at (2, 4) and (2, 36)
-   turned −90°, at (58, 4) and (58, 36) turned 90°. A freight lift beside the south-east one at
-   (54.85, 4) and the north-west one at (5.15, 36). All six run from the basement.
+   turned −90°, at (58, 4) and (58, 36) turned 90°, each opening onto the corner's lobby by the
+   end façade. A freight lift beside the south-east one at (53.6, 7.2) turned 180° and the
+   north-west one at (6.2, 32.8), each opening straight onto the corridor. All six run from the
+   basement.
 5. **The atrium** (**Interiors › Glazed Spaces › Atrium**). Top level *Roof*, a ridge roof 6 m above
    it; click the void's corners (18.5, 10.5) and (41.5, 29.5) on the ground floor. Every floor
    above is opened and guarded 42 in high. To reach the roof over the pool, the patio and the
@@ -56,16 +58,26 @@ script `hotel.lua` builds it; these are the same steps in the window.
    Toilet › Toilet Core** along the ballroom's south wall from (9.8, 7.4) to (17.8, 7.4), women's,
    four WCs (the accessible one first) and three lavatories; and along the conference rooms' from
    (42.2, 7.4) to (51.8, 7.4), men's, two WCs, three urinals and three lavatories.
+   **Corridors to the lifts and stairs**, taken from the ballroom and the end conference rooms:
+   walls at y = 10.35 and y = 28 both west of x = 18 and east of x = 42, so the south corridors
+   (y 7.5–10.35) line up with those on the floors above and the north ones (y 28–32.5) meet the
+   court. **Architecture › Opening › Wall Opening** opens each corner's lift landings onto its
+   corridor: the ballroom's south wall from 0.2 to 1.9 m along and its north wall from 0.2 to
+   5.1 m; the conference rooms' south wall from 10.2 to 17.85 m and their north wall from 13.3 to
+   17.85 m, each 2.4 m high. Doors: from the court into each corridor (the long walls at y = 8.9
+   and 29.2), from the ballroom and the end conference rooms onto them, and into each exit stair
+   at its floor landing (x = 6 on the ballroom's south wall, x = 53.7 on the conference rooms'
+   north wall). Place a Corridor room in each.
 8. **Set the rooms out** (**Interiors › Rooms & Furniture › Seating Layout**, a room selected): the
-   ballroom for a banquet (24 rounds of ten), Conference A as a theatre, B as a classroom, C as a
+   ballroom for a banquet (rounds of ten), Conference A as a theatre, B as a classroom, C as a
    boardroom, the restaurant for dining (30 four-tops). Each report gives the IBC occupant load,
    the exits it needs against the doors, and the egress width; none is short.
 9. **The drop-off.** Two W10 posts at (21, −10.5) and (39, −10.5), standing on the forecourt
    0.3 m below the ground floor, and a flat roof 4.3 m up from (20, −11.5) to (40, −0.65):
    14 ft clear for coaches, under the balconies.
-10. **Gym and spa (Level 2).** Walls round the west wing (x = 0–7.5, y = 10.35–32.5) and the
-   east wing (x = 52.5–60, y = 7.5–29.65), with doors to the corridors; the corridors run on past
-   them to the exit stairs. In the gym, **Gym
+10. **Gym and spa (Level 2).** Walls round the west wing (x = 0–7.5, y = 10.35–29.65) and the
+   east wing (x = 52.5–60, y = 10.35–29.65), with doors to the corridors; the corridors run on past
+   them to the exit stairs and the corner lifts. In the gym, **Gym
    Layout**: four treadmills, an elliptical, an upright bike and a rower facing east. In the spa
    draw a 2.4 × 2.0 m room and a 2.4 × 1.8 m room, their doors opening out, then **Sauna** and
    **Steam Room** in them.

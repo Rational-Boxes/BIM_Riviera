@@ -1767,8 +1767,9 @@ fn the_hotel_sample_has_its_units_atrium_and_roof_pool() {
     let sun = ok(&mut app, "shading.sun_check", json!({ "elements": [pool] }));
     assert!(sun["areas"][0]["passes"] == true, "{sun:#}");
     assert_eq!(st.iter().filter(|e| riviera_core::sun_control::recipe(e).is_some()).count(), 1);
-    // The ground floor's set-ups: the ballroom's rounds and the restaurant's four-tops.
-    assert!(st.iter().filter(|e| e.param("rxd:seating").is_some()).count() > 400);
+    // The ground floor's set-ups: the ballroom's rounds and the restaurant's four-tops (fewer
+    // since the corridors to the corner lifts were taken from the ballroom and conference rooms).
+    assert!(st.iter().filter(|e| e.param("rxd:seating").is_some()).count() > 350);
     // Six lifts: four guest lifts in the corners and two service lifts.
     assert_eq!(st.iter().filter(|e| e.class == "IfcTransportElement").count(), 6);
     // The basement: concrete on strip and pad footings, and its sump with two pumps.

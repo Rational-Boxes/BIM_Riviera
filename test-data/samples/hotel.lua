@@ -92,16 +92,17 @@ for k = 2, 7 do
   end
 end
 
--- The lifts in the four corners: a guest lift in each, and a service lift beside it in the
--- south-east and north-west corners, from the basement to the roof.
+-- The lifts in the four corners: a guest lift in each, opening onto the corner's lobby by the
+-- end façade, and a service lift beside it in the south-east and north-west corners opening
+-- straight onto the corridor, from the basement to the roof.
 local function lift(x, y, turn, kind)
   return riviera.elevator.create{ point = { x, y }, rotation = turn, base_level = basement, top_level = roof, kind = kind, equipment = false }
 end
 lift(2.0, 4.0, math.rad(-90), "passenger")
 lift(58.0, 4.0, math.rad(90), "passenger")
-lift(54.85, 4.0, math.rad(90), "freight")
+lift(53.6, 7.2, math.rad(180), "freight")
 lift(2.0, 36.0, math.rad(-90), "passenger")
-lift(5.15, 36.0, math.rad(-90), "freight")
+lift(6.2, 32.8, 0, "freight")
 lift(58.0, 36.0, math.rad(90), "passenger")
 
 -- The atrium: a 23 × 19 m void from the ground floor up through the roof, 42 in guards round
@@ -181,8 +182,28 @@ local conf_w = wall(l1, { 42, 0 }, { 42, 40 }, G)
 local conf_s = wall(l1, { 42, 7.5 }, { 60, 7.5 }, G)
 wall(l1, { 42, 15.8 }, { 60, 15.8 }, G)
 wall(l1, { 42, 24.2 }, { 60, 24.2 }, G)
-wall(l1, { 42, 32.5 }, { 60, 32.5 }, G)
+local conf_n = wall(l1, { 42, 32.5 }, { 60, 32.5 }, G)
 local rest_s = wall(l1, { 18, 30.35 }, { 42, 30.35 }, G)
+-- Corridors from the atrium court to the lifts and exit stairs in the four corners, taken from
+-- the ballroom and the end conference rooms: on the south side y 7.5–10.35 (as on the floors
+-- above), on the north y 28–32.5 (so each meets the court, which ends at y 30.35). Each corner's
+-- lift landings open onto its corridor, each exit stair has a door from it, and the court has a
+-- door into each.
+local ball_s2 = wall(l1, { 0, 10.35 }, { 18, 10.35 }, G)
+local ball_n2 = wall(l1, { 0, 28 }, { 18, 28 }, G)
+local conf_s2 = wall(l1, { 42, 10.35 }, { 60, 10.35 }, G)
+local conf_n2 = wall(l1, { 42, 28 }, { 60, 28 }, G)
+local function landing(w, u0, u1) riviera.opening.create_wall{ wall_id = w, u0 = u0, u1 = u1, top_constraint = { unconnected = 2.4 } } end
+landing(ball.s, 0.2, 1.9)
+landing(ball.n, 0.2, 7.4)
+landing(conf_s, 10.2, 17.85)
+landing(conf_n, 13.3, 17.85)
+-- (The stairs' doors are placed with the stairs, below.) The court's doors into the corridors;
+-- the conference rooms' doors at 9.5 and 31 along the court wall now open onto them too.
+for _, a in ipairs({ 8.9, 29.2 }) do riviera.door.place{ host_wall_id = ball.e, point_along = a } end
+riviera.door.place{ host_wall_id = conf_w, point_along = 29.2 }
+-- The ballroom and the end conference rooms open onto the corridors as well.
+for _, w in ipairs({ ball_s2, ball_n2, conf_s2, conf_n2 }) do riviera.door.place{ host_wall_id = w, point_along = 9.0 } end
 -- Doors: the lobby's entrance pair under the canopy, the ballroom's three, each conference
 -- room's two, the restaurant's two into the atrium court.
 for _, x in ipairs({ 28.0, 30.0 }) do riviera.door.place{ host_wall_id = facade[1].south, point_along = x } end
@@ -193,7 +214,11 @@ for _, a in ipairs({ 6, 18 }) do riviera.door.place{ host_wall_id = rest_s, poin
 riviera.door.place{ host_wall_id = conf_w, point_along = 36.2 }
 local function room(level, p, name, number) return riviera.room.place{ level_id = level, point = p, name = name, number = number } end
 local ballroom = room(l1, { 9, 20 }, "Ballroom", "G01")
-local conf = { room(l1, { 51, 11.5 }, "Conference A", "G02"), room(l1, { 51, 20 }, "Conference B", "G03"), room(l1, { 51, 28.4 }, "Conference C", "G04") }
+local conf = { room(l1, { 51, 13 }, "Conference A", "G02"), room(l1, { 51, 20 }, "Conference B", "G03"), room(l1, { 51, 26.1 }, "Conference C", "G04") }
+room(l1, { 9, 8.9 }, "Corridor", "G12")
+room(l1, { 9, 30.2 }, "Corridor", "G13")
+room(l1, { 51, 8.9 }, "Corridor", "G14")
+room(l1, { 51, 30.2 }, "Corridor", "G15")
 local restaurant = room(l1, { 30, 35 }, "Restaurant", "G05")
 room(l1, { 30, 5 }, "Lobby and atrium court", "G06")
 -- The public restrooms either side of the lobby, each with its door from the lobby: the women's
@@ -234,21 +259,22 @@ riviera.roof.create_footprint{ curves = { { line = { start = { 20, -11.5 }, ["en
 
 -- ---- Level 2: the gym (west wing) and the spa (east wing) ----
 local l2 = floors[2]
--- The gym's south wall at y = 10.35 (past the columns), so the south corridor runs on to the
--- south-west exit stair; the spa's north wall likewise at y = 29.65 for the north-east one.
+-- The gym's walls at y = 10.35 and 29.65 (past the columns), so the corridors run on to the
+-- south-west exit stair and the north-west lifts; the spa's likewise for the north-east stair
+-- and the south-east lifts.
 wall(l2, { 0, 10.35 }, { 7.5, 10.35 }, 3.2)
-wall(l2, { 0, 32.5 }, { 7.5, 32.5 }, 3.2)
-local gym_e = wall(l2, { 7.5, 10.35 }, { 7.5, 32.5 }, 3.2)
+wall(l2, { 0, 29.65 }, { 7.5, 29.65 }, 3.2)
+local gym_e = wall(l2, { 7.5, 10.35 }, { 7.5, 29.65 }, 3.2)
 riviera.door.place{ host_wall_id = gym_e, point_along = 12.5 }
 local gym = room(l2, { 4, 20 }, "Gym", "201G")
 local g = riviera.gym.layout{ room_id = gym, head = { 7.5, 20 }, pieces = {
   { item = "Treadmill, commercial", count = 4 }, { item = "Elliptical" }, { item = "Upright bike" }, { item = "Rower" },
 } }
 print(string.format("Gym: %d pieces in %d rows", #g.placed, g.rows))
-wall(l2, { 52.5, 7.5 }, { 60, 7.5 }, 3.2)
+wall(l2, { 52.5, 10.35 }, { 60, 10.35 }, 3.2)
 wall(l2, { 52.5, 29.65 }, { 60, 29.65 }, 3.2)
-local spa_w = wall(l2, { 52.5, 7.5 }, { 52.5, 29.65 }, 3.2)
-riviera.door.place{ host_wall_id = spa_w, point_along = 12.5 }
+local spa_w = wall(l2, { 52.5, 10.35 }, { 52.5, 29.65 }, 3.2)
+riviera.door.place{ host_wall_id = spa_w, point_along = 9.65 }
 room(l2, { 56, 12 }, "Spa", "201S")
 -- A sauna and a steam room in the spa's north end, their doors opening out.
 local function box(level, x, y, w, d, h)
@@ -313,6 +339,9 @@ local ne = exit_stair("Exit stair 2", 52.9, 54.5, 33.8, 38.1, 52.2, 55.2, 32.5, 
 -- women's restroom's wall at x = 9.6 bounds the south-west one; a wall at x = 50.4 the
 -- north-east one, by the kitchen) and out through the façade.
 riviera.door.place{ host_wall_id = sw[2].east, point_along = 0.9 }
+-- And in from the ground floor's corridors, to each stair's floor landing.
+riviera.door.place{ host_wall_id = ball.s, point_along = 6.0 }
+riviera.door.place{ host_wall_id = conf_n, point_along = 53.7 - 42 }
 riviera.door.place{ host_wall_id = facade[1].south, point_along = 8.6 }
 local ne_passage = wall(l1, { 50.4, 32.5 }, { 50.4, 40 }, G)
 riviera.door.place{ host_wall_id = ne[2].west, point_along = 0.9 }
