@@ -78,6 +78,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="0.1.0~pre.19" date="2026-11-14" type="development">
+      <description>
+        <p>Nineteenth pre-release (tag 0.1.0-pre.19), for testing. Fixes: Move and Copy work in 3D views, sections and elevations with x, y and height handles (doors, windows and openings keep to their wall or floor); an isolated group can be edited in the floor plan of its level (Edit in Plan); grouped components show the group's tools; walking routes pass through wall openings; and the hotel sample has corridors to every lift and exit stair on each floor.</p>
+      </description>
+    </release>
     <release version="0.1.0~pre.18" date="2026-11-14" type="development">
       <description>
         <p>Eighteenth pre-release (tag 0.1.0-pre.18), for testing. New: every Type list offers types to load (starter doors, windows, walls, floors, ceilings, roofs, ramps, railings and stairs, and component libraries) and your own type catalogue shared between projects; type rows for footings, railings, stairs and duct, pipe, tray and conduit runs, with run sizes; generic parameter rows on every element; Modify tabs for ducts, pipes, structural members, pools, lifts and ramps; Edit Layout to remake kitchen line-ups, cabinet runs, gyms, seating, baffles, atriums and other layouts with changed values; Edit Unit for modular rooms; ramp railings, Edit Path and Flip Direction; curtain grid lines and panels placed by clicking on the wall; a hotel kitchen; and the hotel sample rebuilt so its layouts can be edited.</p>
