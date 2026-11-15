@@ -411,6 +411,10 @@ Create … Boundary* tab:
   shapes. Ramps rising more than 150 mm get railings on both sides that follow the flights and
   landings. Modify | Ramps has Edit Path, Flip Direction and Railings, and a ramp's Path row
   takes typed points; `IfcRamp` (`ramp.create`, `ramp.set`, `ramp.add_railings`; ARC-RAMP-001).
+- **Move and Copy in 3D** (ARC-MOD-004/005): in 3D views, sections and elevations the selection
+  gets x, y and height handles; doors, windows and openings keep to their wall or floor, and
+  walls, floors, roofs and stairs move up and down by their offsets. **Edit in Plan** opens an
+  isolated group in the floor plan of its level, the rest faded, for 2D editing.
   Not yet: curved runs, boundary and riser sketches.
 - **Stairs through floors** (ARC-STAIR-007): a run drawn to within a tread of the top snaps to
   reach the level above and completes the stair; Esc completes it too, the last run carrying on.

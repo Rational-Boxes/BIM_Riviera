@@ -87,9 +87,16 @@ drawing tools, and lengths and angles can be typed and placed with <kbd>Enter</k
 pick elements in the view and stay active for more picks.</p>
 <table>
   <tr><th>Tool</th><th>How it works</th></tr>
-  <tr><td><b>Move</b> <kbd>MV</kbd></td><td>Click a start point and an end point, or type a
-    distance. <a class="run" href="riviera:action/element.move">Move</a></td></tr>
-  <tr><td><b>Copy</b> <kbd>CO</kbd></td><td>As Move, leaving the original in place.</td></tr>
+  <tr><td><b>Move</b> <kbd>MV</kbd></td><td>In a plan: click a start point and an end point, or
+    type a distance. In a 3D view, a section or an elevation: the selection gets a handle per
+    axis (x red, y green, height blue). Click a handle, move along it (a box shows where the
+    selection goes) and click to place, or type a distance and press <kbd>Enter</kbd>. The tool
+    stays on for the next move; <kbd>Esc</kbd> lets go of a handle, then ends it. Doors, windows
+    and wall openings only get handles along their wall and up it, floor openings only across the
+    floor, and rooms and grids no height handle. Walls, floors, roofs and stairs moved up or down
+    change their base and top offsets. <a class="run" href="riviera:action/element.move">Move</a></td></tr>
+  <tr><td><b>Copy</b> <kbd>CO</kbd></td><td>As Move, leaving the original in place (with the
+    same handles in 3D).</td></tr>
   <tr><td><b>Rotate</b> <kbd>RO</kbd></td><td>Rotates about the selection's centre: click a point on
     the first ray, then the second ray, or type an angle in degrees.</td></tr>
   <tr><td><b>Array</b> <kbd>AR</kbd></td><td>Copies in a row: give the number of members (the
@@ -156,8 +163,15 @@ curve).</p>
   <li><b>Place Group</b>: choose the group, then click in a plan where its origin goes (the
     middle of the original elements); Esc ends.</li>
   <li>Members can't be moved or deleted on their own. Select a member and use <b>Modify | Model
-    Groups › Edit Group</b> (<kbd>EG</kbd>): change the members, <b>Add</b> or <b>Remove</b>
-    selected elements, then <b>Finish</b> (every instance follows) or <b>Cancel</b>.</li>
+    Groups › Edit Group</b> (<kbd>EG</kbd>; also <b>Architecture › Model</b> and the Modify
+    menu): change the members, <b>Add</b> or <b>Remove</b> selected elements, then <b>Finish</b>
+    (every instance follows) or <b>Cancel</b>. Selecting any member, a component included,
+    shows the Model Groups tab.</li>
+  <li><b>Edit in Plan</b> on the Edit Group tab: an isolated group belongs to no plan, so this
+    opens the floor plan of the level its members stand on (making one if there is none, and
+    asking which when they stand on several), with the rest of the building faded, to edit the
+    group in 2D. Members you add or remove are isolated again; Finish or Cancel shows everything.
+    <a class="run" href="riviera:action/ui.group_plan">Edit in Plan</a></li>
   <li><b>Change Group Type</b> makes the selected instance another group type; <b>Duplicate
     Group Type</b> gives it a copy of its type under a new name, to change apart from the others;
     <b>Rename Group Type</b> renames the type.</li>

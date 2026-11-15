@@ -133,6 +133,10 @@ impl Gui {
     pub(crate) fn start_modify(&mut self, kind: Kind) {
         let frame = self.frame;
         if !self.in_plan() {
+            // Move and Copy have handles in 3D views, sections and elevations.
+            if matches!(kind, Kind::Move | Kind::Copy) {
+                return self.start_move3d(kind == Kind::Copy);
+            }
             return frame.set_status_text(
                 &format!("{} works in plan views (View › Floor Plan)", kind.label()),
                 0,

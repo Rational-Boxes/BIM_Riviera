@@ -81,6 +81,7 @@ pub const UI_ACTIONS: &[&str] = &[
     "ui.change_unit_array",
     "ui.edit_layout",
     "ui.ramp_edit_path",
+    "ui.group_plan",
     "ui.ramp_flip",
     "ui.curtain_add_u",
     "ui.curtain_add_v",

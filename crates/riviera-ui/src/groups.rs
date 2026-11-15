@@ -7,6 +7,11 @@
 //! click where its origin goes, in a plan), Edit Group on a selected member's group with Add,
 //! Remove, Finish and Cancel, Exclude a selected member from its instance and Restore Excluded,
 //! and Ungroup. Manage › Selection: Save Selection and Load Selection.
+//!
+//! An isolated group belongs to no plan, so Edit Group › Edit in Plan opens the floor plan of a
+//! level its members stand on (made if there is none; asked when they stand on several), with
+//! the rest of the building faded, for 2D editing. Members added or removed are isolated again;
+//! Finish or Cancel ends the isolation in every view it was made in.
 
 use riviera_core::{ElementId, GlobalId, groups};
 use serde_json::json;
@@ -127,6 +132,7 @@ impl Gui {
             json!({ "element_ids": ids }),
             "Added to the group",
         );
+        self.isolate_group_views();
     }
 
     pub(crate) fn group_remove(&mut self) {
@@ -136,6 +142,7 @@ impl Gui {
             json!({ "element_ids": ids }),
             "Removed from the group",
         );
+        self.isolate_group_views();
     }
 
     pub(crate) fn group_finish(&mut self) {
@@ -144,12 +151,112 @@ impl Gui {
             json!({}),
             "Group edited: every instance follows",
         );
+        self.group_views_closed();
         self.unit_edit_closed(true);
     }
 
     pub(crate) fn group_cancel(&mut self) {
         self.group_run("group.cancel", json!({}), "Group editing cancelled");
+        self.group_views_closed();
         self.unit_edit_closed(false);
+    }
+
+    /// The members of the group open in the editor.
+    fn edited_members(&mut self) -> Vec<ElementId> {
+        let Some(store) = self.store_now() else { return Vec::new() };
+        let Some(open) = groups::editing(&store) else { return Vec::new() };
+        store.iter().filter(|e| groups::instance_of(e).as_deref() == Some(open.as_str())).map(|e| e.id()).collect()
+    }
+
+    /// Edit Group › Edit in Plan: the floor plan of a level the edited group's members stand on,
+    /// the rest faded.
+    pub(crate) fn group_plan(&mut self) {
+        let frame = self.frame;
+        let Some(store) = self.store_now() else { return };
+        if groups::editing(&store).is_none() {
+            return frame.set_status_text("Edit in Plan: open a group with Edit Group first", 0);
+        }
+        let members = self.edited_members();
+        let levels = riviera_core::plans::levels(&store);
+        if levels.is_empty() || members.is_empty() {
+            return frame.set_status_text("Edit in Plan: the group has no members on a level", 0);
+        }
+        // Each member's lowest point, from the model as drawn; its level the highest at or below it.
+        let mut lowest: std::collections::HashMap<ElementId, f32> = std::collections::HashMap::new();
+        for m in &self.scene().meshes {
+            if let Some(id) = m.element.filter(|id| members.contains(id)) {
+                let z = m.positions.iter().map(|p| p[2]).fold(f32::INFINITY, f32::min);
+                let e = lowest.entry(id).or_insert(f32::INFINITY);
+                *e = e.min(z);
+            }
+        }
+        let mut on: Vec<usize> = lowest
+            .values()
+            .map(|z| levels.iter().rposition(|l| l.0 <= f64::from(*z) + 0.05).unwrap_or(0))
+            .collect();
+        on.sort_unstable();
+        on.dedup();
+        if on.is_empty() {
+            on.push(0);
+        }
+        let name = |k: usize| store.get(levels[k].2).and_then(|e| e.name.clone()).unwrap_or_default();
+        let pick = if on.len() == 1 {
+            on[0]
+        } else {
+            let names: Vec<String> = on.iter().map(|k| name(*k)).collect();
+            let refs: Vec<&str> = names.iter().map(String::as_str).collect();
+            let d = SingleChoiceDialog::builder(&frame, "The group's members stand on several levels. Plan of:", "Edit in Plan", &refs).build();
+            if d.show_modal() != ID_OK {
+                return;
+            }
+            on[usize::try_from(d.get_selection()).unwrap_or(0).min(on.len() - 1)]
+        };
+        let (_, guid, level) = levels[pick].clone();
+        let existing = store.iter().find(|e| riviera_core::views::view_data(e).is_some_and(|d| d.kind == riviera_core::plans::KIND_PLAN && d.level.as_deref() == Some(guid.as_str()))).map(|e| e.id());
+        let view = match existing {
+            Some(v) => v,
+            None => match self.run("view.create_plan", json!({ "kind": "floor_plan", "level_ids": [level] })) {
+                Ok(v) => match v.as_array().and_then(|a| a.first()).and_then(serde_json::Value::as_u64) {
+                    Some(v) => ElementId(v),
+                    None => return,
+                },
+                Err(e) => return super::error(&frame, &format!("No plan could be made:\n{e}")),
+            },
+        };
+        let Some(doc) = self.doc else { return };
+        self.open_view(doc, Some(view));
+        self.after_view_change();
+        if !self.group_views.contains(&view) {
+            self.group_views.push(view);
+        }
+        self.isolate_group_views();
+        self.select_ids(&members, Combine::Replace);
+        self.zoom_to_fit();
+        frame.set_status_text(&format!("Editing the group in the plan of {}: the rest of the building is faded; Finish or Cancel ends it", name(pick)), 0);
+    }
+
+    /// The edited group's members isolated (the rest faded) in the plans opened for it.
+    fn isolate_group_views(&mut self) {
+        let views = self.group_views.clone();
+        if views.is_empty() {
+            return;
+        }
+        let members = self.edited_members();
+        if members.is_empty() {
+            return;
+        }
+        for v in views {
+            let _ = self.run("view.temp_isolate", json!({ "view_id": v, "element_ids": members, "by": "element", "ghost_others": true }));
+        }
+        self.after_temp_change_pub();
+    }
+
+    /// Finish or Cancel: the plans opened for the group show everything again.
+    fn group_views_closed(&mut self) {
+        for v in std::mem::take(&mut self.group_views) {
+            let _ = self.run("view.temp_reset", json!({ "view_id": v }));
+        }
+        self.after_temp_change_pub();
     }
 
     /// Exclude the selected member from its instance.

@@ -23,6 +23,7 @@ mod components;
 mod crash;
 mod curtain;
 mod curtain_pick;
+mod move3d;
 mod curtain_grid;
 mod curved;
 mod datum_tools;
@@ -388,6 +389,7 @@ struct Gui {
     curtain_tool: Option<curtain::CurtainTool>,
     ramp_tool: Option<ramps::RampTool>,
     curtain_pick: Option<curtain_pick::CurtainPick>,
+    move3d: Option<move3d::Move3d>,
     measure_tool: Option<ramps::MeasureTool>,
     skylight_tool: Option<skylights::SkylightTool>,
     /// The Place Component tool (a component picked up from the library, or a project type).
@@ -468,6 +470,8 @@ struct Gui {
     group_pick: Option<String>,
     /// Edit Unit: the unit copy open in the group editor, isolated.
     unit_edit: Option<units_ui::UnitEdit>,
+    /// Plans opened by Edit in Plan for the group being edited (their isolation ends with it).
+    group_views: Vec<ElementId>,
     /// Site Component: the component type being placed.
     site_pick: Option<ElementId>,
     /// The Area tool: its area plan and the area type it places.
@@ -1554,6 +1558,7 @@ impl Gui {
         self.end_coupler();
         self.end_curtain_tool();
         self.end_curtain_pick();
+        self.end_move3d();
         self.end_ramp_tool();
         self.end_measure_tool();
         self.end_skylight_tool();
@@ -1596,6 +1601,7 @@ impl Gui {
         }
         if self.curtain_escape()
             || self.curtain_pick_escape()
+            || self.move3d_key(WXK_ESCAPE)
             || self.measure_escape()
             || self.ramp_key(WXK_ESCAPE)
             || self.end_skylight_tool()
@@ -1696,6 +1702,7 @@ impl Gui {
             || self.rebar_sketch.is_some()
             || self.curtain_tool.is_some()
             || self.curtain_pick.is_some()
+            || self.move3d.is_some()
             || self.ramp_tool.is_some()
             || self.measure_tool.is_some()
             || self.skylight_tool.is_some()
@@ -1711,7 +1718,7 @@ impl Gui {
 
     /// A key handed to the tools in progress; `true` when one used it.
     pub(crate) fn tools_key(&mut self, key: i32, shift: bool, f: &Frame) -> bool {
-        let mut used = self.sel_edit_key(key) || self.run_key(key) || self.adjust_key(key) || self.bar_pick_key(key) || self.rebar_host_key(key) || self.coupler_key(key) || self.steel_key(key) || self.rebar_sketch_key(key) || self.walk_key(key, true, shift);
+        let mut used = self.move3d_key(key) || self.sel_edit_key(key) || self.run_key(key) || self.adjust_key(key) || self.bar_pick_key(key) || self.rebar_host_key(key) || self.coupler_key(key) || self.steel_key(key) || self.rebar_sketch_key(key) || self.walk_key(key, true, shift);
         if !used && self.sketch.is_some() {
             let (mx, my) = self.mouse;
             used = self.sketch_key(key, mx, my);
@@ -1746,6 +1753,8 @@ impl Gui {
         }
         if self.curtain_pick.is_some() {
             self.curtain_pick_click(x, y);
+        } else if self.move3d.is_some() {
+            self.move3d_click(x, y);
         } else if self.adjust.is_some() {
             self.adjust_click(x, y);
         } else if self.bar_pick.is_some() {
@@ -1909,6 +1918,10 @@ impl Gui {
         }
         if self.curtain_pick.is_some() {
             self.curtain_pick_motion(x, y);
+            redraw = true;
+        }
+        if self.move3d.is_some() {
+            self.move3d_motion(x, y);
             redraw = true;
         }
         if self.measure_tool.is_some() {
@@ -2479,6 +2492,11 @@ impl Gui {
                         if riviera_core::elevators::elevator(e).is_some() || riviera_core::escalators::escalator(e).is_some() || riviera_core::stairlifts::stairlift(e).is_some() {
                             return Some("ctx.lifts");
                         }
+                        // A group's members (whatever they are) have the group's tools: Edit
+                        // Group is how they change.
+                        if riviera_core::groups::instance_of(e).is_some() {
+                            return Some("ctx.groups");
+                        }
                         // Placed components and path arrays have their own tools, whatever
                         // category their component gives them.
                         if riviera_core::mesh_objects::mesh_object_recipe(e).is_some() {
@@ -2486,9 +2504,6 @@ impl Gui {
                         }
                         if riviera_core::path_arrays::path_array_recipe(e).is_some() {
                             return Some("ctx.path_arrays");
-                        }
-                        if riviera_core::groups::instance_of(e).is_some() {
-                            return Some("ctx.groups");
                         }
                         riviera_core::categories::category_of(e).map(|c| c.key)
                     })
@@ -3971,6 +3986,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 curtain_tool: None,
                 ramp_tool: None,
                 curtain_pick: None,
+                move3d: None,
                 measure_tool: None,
                 skylight_tool: None,
                 place_tool: None,
@@ -4034,6 +4050,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 host_pick: None,
                 area_pick: None,
                 group_pick: None,
+                group_views: Vec::new(),
                 unit_edit: None,
                 site_pick: None,
                 text_pick: None,
@@ -4685,6 +4702,10 @@ fn perform(gui: &Rc<RefCell<Gui>>, f: &Frame, action: &str) {
             focus(g);
         }),
         "ui.ramp_flip" => with(gui, Gui::flip_ramps),
+        "ui.group_plan" => with(gui, |g| {
+            g.group_plan();
+            focus(g);
+        }),
         "ui.curtain_add_u" => with(gui, |g| g.start_curtain_pick("u")),
         "ui.curtain_add_v" => with(gui, |g| g.start_curtain_pick("v")),
         "ui.curtain_remove_line" => with(gui, |g| g.start_curtain_pick("remove")),

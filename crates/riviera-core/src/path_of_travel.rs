@@ -6,7 +6,8 @@
 //!
 //! - **Analysis zone**: a band from a bottom to a top offset above the plan's level. Obstacles
 //!   are the walls (their bodies, straight, with a gap where a door's opening reaches the zone's
-//!   bottom; windows are not passable) and the placed components whose body reaches into the
+//!   bottom, and where a wall opening does from the floor with headroom to walk through;
+//!   windows are not passable) and the placed components whose body reaches into the
 //!   band (their plan outline: the hull of their vertices), except the ignored categories.
 //! - **Clearance**: each obstacle is grown by the clearance (its outline offset, the corners
 //!   rounded by short chords outside the true arc, so a route never cuts a corner).
@@ -143,6 +144,10 @@ fn rect(a: [f64; 2], b: [f64; 2], half: f64) -> Poly {
     vec![[a[0] - n[0], a[1] - n[1]], [b[0] - n[0], b[1] - n[1]], [b[0] + n[0], b[1] + n[1]], [a[0] + n[0], a[1] + n[1]]]
 }
 
+/// The clear height a wall opening needs above the zone's bottom to be walked through: with the
+/// zone's usual 0.2 m bottom offset, 2.0 m above the floor (IBC 1003.2's 80 in, rounded).
+const HEADROOM: f64 = 1.8;
+
 /// The obstacles of a level's analysis zone, grown by the clearance.
 pub fn obstacles(store: &Store, level: ElementId, s: &Settings) -> Vec<Poly> {
     let Some(level_e) = store.get(level) else { return Vec::new() };
@@ -150,8 +155,10 @@ pub fn obstacles(store: &Store, level: ElementId, s: &Settings) -> Vec<Poly> {
     let (z0, z1) = (z + s.zone_bottom, z + s.zone_top);
     let ignored = |e: &Element| crate::categories::category_of(e).is_some_and(|c| s.ignored_categories.iter().any(|k| k == c.key));
     let mut out = Vec::new();
-    // Walls, split at doors whose opening reaches the zone's bottom.
+    // Walls, split at doors whose opening reaches the zone's bottom, and at wall openings that
+    // do too with headroom to walk through.
     let doors = crate::inserts::placed(store);
+    let openings = crate::wall_openings::all(store);
     for e in store.iter().filter(|e| crate::walls::wall_recipe(e).is_some()) {
         if ignored(e) {
             continue;
@@ -165,6 +172,7 @@ pub fn obstacles(store: &Store, level: ElementId, s: &Settings) -> Vec<Poly> {
             .iter()
             .filter(|d| d.host == e.id() && d.kind == crate::inserts::Kind::Door && d.z0 <= z0 + 1e-6)
             .map(|d| ((d.recipe.along - d.ty.width / 2.0).max(0.0), (d.recipe.along + d.ty.width / 2.0).min(len)))
+            .chain(openings.iter().filter(|o| o.host == e.id() && o.z[0] <= z0 + 1e-6 && o.z[1] >= z0 + HEADROOM).map(|o| (o.recipe.u[0].max(0.0), o.recipe.u[1].min(len))))
             .collect();
         gaps.sort_by(|a, b| a.0.total_cmp(&b.0));
         let u = g.direction();

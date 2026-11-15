@@ -484,17 +484,26 @@ impl Gui {
             })
             .collect();
         if levels.is_empty() {
-            return frame.set_status_text(
-                &format!(
-                    "Every level already has a {}",
-                    if ceiling {
-                        "ceiling plan"
-                    } else {
-                        "floor plan"
-                    }
-                ),
-                0,
-            );
+            // Every level has one: open one of them rather than do nothing.
+            let mut existing: Vec<(f64, String, ElementId)> = store
+                .iter()
+                .filter_map(|e| views::view_data(e).filter(|d| d.kind == kind).map(|d| (e, d)))
+                .map(|(e, d)| {
+                    let z = plans::levels(&store).iter().find(|l| Some(&l.1) == d.level.as_ref()).map_or(0.0, |l| l.0);
+                    (z, e.name.clone().unwrap_or_default(), e.id())
+                })
+                .collect();
+            existing.sort_by(|a, b| a.0.total_cmp(&b.0));
+            let names: Vec<&str> = existing.iter().map(|v| v.1.as_str()).collect();
+            let what = if ceiling { "ceiling plan" } else { "floor plan" };
+            let d = SingleChoiceDialog::builder(&frame, &format!("Every level already has a {what}. Open:"), title, &names).build();
+            if d.show_modal() == ID_OK
+                && let Some(v) = usize::try_from(d.get_selection()).ok().and_then(|k| existing.get(k))
+            {
+                self.open_view(doc, Some(v.2));
+                self.after_view_change();
+            }
+            return;
         }
         let names: Vec<&str> = levels.iter().map(|l| l.1.as_str()).collect();
         let dialog = MultiChoiceDialog::builder(&frame, "Levels:", title, &names).build();

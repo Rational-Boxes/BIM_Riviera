@@ -96,3 +96,28 @@ fn path_of_travel() {
     assert_eq!(run(&r, &mut doc, "path_of_travel.create", json!({ "view_id": plan.0, "start": [0, -4], "end": [3, 0] })).unwrap_err().code, "path_of_travel.no_route");
     assert!(run(&r, &mut doc, "route_settings.set", json!({ "zone_top": 0.1 })).is_err());
 }
+
+#[test]
+fn a_wall_opening_from_the_floor_is_walked_through() {
+    let dir = tempfile::tempdir().unwrap();
+    let (_project, mut doc) = LocalProject::new(Schema::Ifc4, &dir.path().join("route.ifc")).unwrap();
+    let r = registry();
+    let l1 = doc.store().iter().find(|e| e.class == "IfcBuildingStorey").unwrap().id();
+    // A 12 × 10 m box split by a wall at x = 0 from y = -5 to 5; openings at y = 2 (along 7).
+    let w = |doc: &mut Document, a: [f64; 2], b: [f64; 2]| id(&ok(&r, doc, "wall.create", json!({ "curve": { "line": { "start": a, "end": b } }, "base_level": l1.0, "top_constraint": { "unconnected": 3.0 } })));
+    for (a, b) in [([-6.0, -5.0], [6.0, -5.0]), ([6.0, -5.0], [6.0, 5.0]), ([6.0, 5.0], [-6.0, 5.0]), ([-6.0, 5.0], [-6.0, -5.0])] {
+        w(&mut doc, a, b);
+    }
+    let wall = w(&mut doc, [0.0, -5.0], [0.0, 5.0]);
+    let plan = id(&ok(&r, &mut doc, "view.create_plan", json!({ "level_ids": [l1.0] }))[0]);
+    let closed = run(&r, &mut doc, "path_of_travel.create", json!({ "view_id": plan.0, "start": [-3, 0], "end": [3, 0] }));
+    assert!(closed.is_err(), "the two halves are closed off");
+    // A window-height opening is no way through; one from the floor 2.4 m high is.
+    let high = ok(&r, &mut doc, "opening.create_wall", json!({ "wall_id": wall.0, "u0": 6.25, "u1": 7.75, "base_offset": 0.9, "top_constraint": { "unconnected": 1.2 } }));
+    assert!(run(&r, &mut doc, "path_of_travel.create", json!({ "view_id": plan.0, "start": [-3, 0], "end": [3, 0] })).is_err());
+    ok(&r, &mut doc, "element.delete", json!({ "element_ids": [high] }));
+    ok(&r, &mut doc, "opening.create_wall", json!({ "wall_id": wall.0, "u0": 6.25, "u1": 7.75, "top_constraint": { "unconnected": 2.4 } }));
+    let p = id(&ok(&r, &mut doc, "path_of_travel.create", json!({ "view_id": plan.0, "start": [-3, 0], "end": [3, 0] })));
+    let len = info(&r, &mut doc, p)["length"].as_f64().unwrap();
+    assert!(len > 6.0 && len < 8.0, "through the opening: {len}");
+}

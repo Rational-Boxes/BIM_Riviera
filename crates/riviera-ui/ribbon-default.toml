@@ -2129,6 +2129,12 @@ icon = "ramp"
 help = "Draw a ramp in a plan: click its centreline's points from the bottom up and press Enter; its height, width and railings are in Properties"
 
 [[action]]
+id = "ui.group_plan"
+label = "Edit in Plan"
+icon = "plan"
+help = "Open the floor plan of a level the edited group's members stand on, with the rest of the building faded, to edit the group in 2D; Finish or Cancel ends the isolation"
+
+[[action]]
 id = "ui.curtain_add_u"
 label = "Vertical Line"
 icon = "curtain_grid_u"
@@ -4117,6 +4123,7 @@ label = "Model"
 tools = [
   { action = "group.place", size = "large" },
   { action = "group.create", size = "small" },
+  { action = "group.edit", size = "small" },
   { action = "ui.unit_type", size = "small" },
   { action = "ui.unit_array", size = "small" },
   { action = "ui.unit_connect", size = "small" },
@@ -5493,6 +5500,7 @@ panels = [{ label = "Edit Group", tools = [
   { action = "group.remove_members", size = "large" },
   { action = "group.finish", size = "large" },
   { action = "group.cancel", size = "large" },
+  { action = "ui.group_plan", size = "large" },
   { action = "ui.unit_context", size = "large" },
 ] }]
 
@@ -5578,6 +5586,7 @@ items = ["dim.create_aligned"]
 label = "&Modify"
 items = [
   "tool.modify", "-",
+  "group.edit", "-",
   "element.align", "element.offset", "element.mirror_pick", "element.mirror_draw", "-",
   "element.move", "element.copy", "element.rotate", "element.array_linear", "element.array_radial", "-",
   "element.trim_corner", "element.trim_extend", "element.split", "-",

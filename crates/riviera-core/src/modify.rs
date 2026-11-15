@@ -64,6 +64,14 @@ pub enum Xform {
 }
 
 impl Xform {
+    /// The vertical part of a translation (0 for turns and mirrors).
+    pub fn dz(&self) -> f64 {
+        match *self {
+            Xform::Translate(v) => v[2],
+            _ => 0.0,
+        }
+    }
+
     pub fn point(&self, p: [f64; 2]) -> [f64; 2] {
         match *self {
             Xform::Translate(v) => [p[0] + v[0], p[1] + v[1]],
@@ -191,12 +199,14 @@ pub fn transform(
                 for o in crate::wall_openings::of_host(&store, e.guid().as_str()) {
                     crate::wall_openings::copy_to(txn, o, &guid, [0.0; 3])?;
                 }
+                lift(txn, new, x.dz())?;
                 out.push(new);
             } else {
                 set_recipe(txn, id, &r)?;
                 if x.reflects() {
                     inserts::toggle_facing(txn, &hosted)?;
                 }
+                lift(txn, id, x.dz())?;
                 out.push(id);
             }
         } else if let Some(g) = grids::grid_data(e) {
@@ -489,6 +499,7 @@ pub fn transform(
         } else if crate::stairs::stair_recipe(e).is_some() {
             let target = if copy { txn.create(copied(e))? } else { id };
             crate::stairs::transform(txn, target, &|p| x.point(p))?;
+            lift(txn, target, x.dz())?;
             out.push(target);
         } else if let Some(mut r) = crate::roofs::roof_recipe(e).filter(|r| r.extrusion.is_some()) {
             // A roof by extrusion moves with a plane fixed where it is put.
@@ -508,6 +519,7 @@ pub fn transform(
         {
             let target = if copy { txn.create(copied(e))? } else { id };
             crate::floors::translate(txn, target, &|p| x.point(p), x.reflects())?;
+            lift(txn, target, x.dz())?;
             // Its vertical openings and skylights go with it (a copy is made whole).
             if !copy {
                 crate::slab_openings::follow_host(txn, e.guid().as_str(), &|p| x.point(p))?;
@@ -564,6 +576,31 @@ fn drop_misfits(txn: &mut Transaction<'_>, wall: ElementId) -> Result<()> {
         element_ids: gone,
     });
     Ok(())
+}
+
+/// Raises an element kept by its level and offsets (a wall, floor, ceiling, roof or stair) by
+/// `dz`: its base offset, and its top offset when its top is a level (an unconnected height
+/// moves with the base).
+fn lift(txn: &mut Transaction<'_>, id: ElementId, dz: f64) -> Result<()> {
+    if dz.abs() < 1e-12 {
+        return Ok(());
+    }
+    let Some(mut v) = txn.store().get(id).and_then(|e| e.param(RECIPE_KEY)).cloned() else { return Ok(()) };
+    let add = |v: &mut Value, keys: &[&str]| {
+        for k in keys {
+            if let Some(x) = v.get(*k).and_then(Value::as_f64) {
+                v[*k] = Value::from(x + dz);
+            }
+        }
+    };
+    add(&mut v, &["base_offset", "baseOffset", "offset"]);
+    let unconnected = v.get("top").is_some_and(|t| t.get("unconnected").is_some());
+    if v.get("top").is_some() && !unconnected {
+        add(&mut v, &["top_offset", "topOffset"]);
+    }
+    txn.modify(id, |e| {
+        e.params.insert(RECIPE_KEY.into(), v);
+    })
 }
 
 fn wall_of(store: &Store, r: &ElementRef) -> Result<(ElementId, walls::WallRecipe)> {
