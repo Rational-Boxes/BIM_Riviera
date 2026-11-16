@@ -684,6 +684,7 @@ pub fn member_geometry(store: &Store, m: &Member) -> Result<MeshObjectGeometry> 
             rotation: m.rotation,
             mirror: false,
             scale: ty.scale * m.scale,
+            tilt: crate::mesh_objects::IDENTITY,
         },
         ty,
         mesh,

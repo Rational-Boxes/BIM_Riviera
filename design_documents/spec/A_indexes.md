@@ -235,7 +235,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 
 ## A.3 Consolidated command index
 
-**2430 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
+**2431 unique commands** in 464 domains. Every command is exposed automatically to the UI, to Lua (`riviera.<domain>.<verb>`) and to MCP (`<domain>_<verb>`), subject to its permission class.
 
 | Domain | Commands |
 |--------|---------:|
@@ -366,7 +366,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `electrical_load_area` | 2 |
 | `electrical_load_type` | 1 |
 | `electrical_settings` | 2 |
-| `element` | 39 |
+| `element` | 40 |
 | `elevationmarker` | 1 |
 | `elevator` | 8 |
 | `embodied_carbon` | 5 |
@@ -1295,6 +1295,7 @@ Where a requirement gives two priorities (for example "P0 (Local), P1 (BIMserver
 | `element.query` | 2 | spec | {ids[], total, fields?} | No | DM-LUA-003 |
 | `element.recognise` | 2 | element_ids[] | report | Yes | DM-FILE-001 |
 | `element.rotate` | 3 | element_ids, center: point, angle, axis?: vector, copy?: bool | [element_id] | Yes | ARC-MOD-006 |
+| `element.rotate_3d` | 3 | element_ids, center: [x, y, z], axis: x\ | y\ | z, angle, copy? | [element_id] |
 | `element.scale` | 3 | element_ids, origin, factor | — | Yes | ARC-MOD-012 |
 | `element.select_by_id` | 2 | ids_or_guids[] | element_id[] | No | DM-ID-001 |
 | `element.set_key` | 5 | element_ids[], key_parameter, row_key? | () | Yes | DOC-SCH-006 |

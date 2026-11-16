@@ -63,3 +63,61 @@ fn a_door_moved_off_its_wall_keeps_to_it() {
     assert!((after["sill"].as_f64().unwrap() - before["sill"].as_f64().unwrap() - 0.2).abs() < 1e-9);
     assert_eq!(after["host"], before["host"]);
 }
+
+/// The scene's box of an element (min, max).
+fn bounds(app: &App, id: &Value) -> ([f64; 3], [f64; 3]) {
+    let s = app.document(app.active().unwrap()).unwrap().doc.store().clone();
+    let e = s.get(ElementId(id.as_u64().unwrap())).unwrap();
+    let g = riviera_core::mesh_objects::regenerate(&s, e).unwrap();
+    let (mut lo, mut hi) = ([f64::INFINITY; 3], [f64::NEG_INFINITY; 3]);
+    for (_, m) in g.slot_meshes() {
+        for p in &m.0 {
+            for k in 0..3 {
+                lo[k] = lo[k].min(p[k]);
+                hi[k] = hi[k].max(p[k]);
+            }
+        }
+    }
+    (lo, hi)
+}
+
+#[test]
+fn components_and_masses_tilt_about_x_and_y_walls_only_turn() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut app = App::new(AppConfig { live: None, untitled_dir: dir.path().join("u") });
+    ok(&mut app, "file.new", json!({}));
+    let l1 = ok(&mut app, "level.list", json!({}))[0]["id"].clone();
+    // A desk, 60 × 30 in, standing at (3, 5): tipped 90° about x through its insertion point it
+    // stands on its side, as tall as it was deep.
+    let t = ok(&mut app, "furnishing.load", json!({ "names": ["Desk 60 × 30 in"] }))["Desk 60 × 30 in"].clone();
+    let desk = ok(&mut app, "mesh_object.place", json!({ "type_id": t, "point": [3.0, 5.0], "level": l1 }));
+    let (lo, hi) = bounds(&app, &desk);
+    let depth = hi[1] - lo[1];
+    ok(&mut app, "element.rotate_3d", json!({ "element_ids": [desk], "center": [3.0, 5.0, 0.0], "axis": "x", "angle": "90°" }));
+    let (lo2, hi2) = bounds(&app, &desk);
+    assert!(((hi2[2] - lo2[2]) - depth).abs() < 1e-6, "now {} tall, was {depth} deep", hi2[2] - lo2[2]);
+    assert!(recipe(&app, &desk)["tilt"].is_array());
+    // About z it turns in plan; the tilt turns with it (still on its side).
+    ok(&mut app, "element.rotate_3d", json!({ "element_ids": [desk], "center": [3.0, 5.0, 0.0], "axis": "z", "angle": "90°" }));
+    let (lo3, hi3) = bounds(&app, &desk);
+    assert!(((hi3[2] - lo3[2]) - depth).abs() < 1e-6);
+    // Saved and reopened, it keeps its tilt.
+    let path = dir.path().join("tilt.ifc");
+    ok(&mut app, "file.save_as", json!({ "path": path }));
+    let d = app.active().unwrap();
+    ok(&mut app, "file.close", json!({ "document_id": d }));
+    ok(&mut app, "file.open", json!({ "path": path }));
+    let (lo4, hi4) = bounds(&app, &desk);
+    assert!(((hi4[2] - lo4[2]) - depth).abs() < 1e-6 && (lo4[0] - lo3[0]).abs() < 1e-6);
+    // A wall turns in plan but refuses a tilt.
+    let wall = ok(&mut app, "wall.create", json!({ "curve": { "line": { "start": [0.0, 0.0], "end": [6.0, 0.0] } }, "base_level": l1, "top_constraint": { "unconnected": 3.0 } }));
+    ok(&mut app, "element.rotate_3d", json!({ "element_ids": [wall], "center": [0.0, 0.0, 0.0], "axis": "z", "angle": "90°" }));
+    let e = app.execute("element.rotate_3d", json!({ "element_ids": [wall], "center": [0.0, 0.0, 0.0], "axis": "y", "angle": "30°" }), &Caller::user()).unwrap_err();
+    assert_eq!(e.code, "element.cannot_tilt");
+    // A mass tips over about y: its 25 m tall block lies 25 m long in x.
+    let m = ok(&mut app, "mass.create", json!({ "name": "Block", "forms": [{ "kind": "extrusion", "start": 0.0, "end": 25.0, "level": l1, "profile": [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]] }] }));
+    ok(&mut app, "element.rotate_3d", json!({ "element_ids": [m], "center": [0.0, 0.0, 0.0], "axis": "y", "angle": "90°" }));
+    let r = recipe(&app, &m);
+    let n = &r["forms"][0]["plane"]["normal"];
+    assert!((n[0].as_f64().unwrap().abs() - 1.0).abs() < 1e-9 && n[2].as_f64().unwrap().abs() < 1e-9, "{r:#}");
+}

@@ -1013,6 +1013,14 @@ pub(crate) fn update_to_face(txn: &mut Transaction<'_>, p: UpdateParams) -> Resu
 }
 
 /// Moves, turns or mirrors a mass.
+/// Turns a mass's forms by `m` about `c` in 3D (`element.rotate_3d`).
+pub(crate) fn tilt(txn: &mut Transaction<'_>, id: ElementId, c: [f64; 3], m: &[[f64; 3]; 3]) -> Result<()> {
+    let store = txn.store().clone();
+    let mut r = recipe(store.get(id).expect("exists")).expect("a mass");
+    crate::in_place::tilt_forms(&store, id, &mut r.forms, c, m)?;
+    write(txn, id, &r)
+}
+
 pub(crate) fn transform(
     txn: &mut Transaction<'_>,
     id: ElementId,

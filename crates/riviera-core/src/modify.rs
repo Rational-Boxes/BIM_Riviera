@@ -713,6 +713,69 @@ pub struct RotateParams {
     pub copy: bool,
 }
 
+/// An axis of rotation through a point in 3D.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum Axis3 {
+    X,
+    Y,
+    Z,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields)]
+pub struct Rotate3dParams {
+    pub element_ids: Vec<ElementRef>,
+    /// The point the axis runs through (metres).
+    pub center: [f64; 3],
+    /// `z` turns in plan, any element; `x` and `y` tilt, placed components, masses and in-place
+    /// elements only.
+    pub axis: Axis3,
+    /// Counter-clockwise looking down the axis toward the origin; accepts units ("30°").
+    #[schemars(extend("x-riviera-data-type" = "angle"))]
+    pub angle: f64,
+    #[serde(default)]
+    pub copy: bool,
+}
+
+/// `element.rotate_3d`: about the vertical through `center` as `element.rotate` does; about a
+/// horizontal axis, tilting the elements that can tilt (the others refused by name).
+pub(crate) fn rotate_3d(txn: &mut Transaction<'_>, p: Rotate3dParams) -> Result<Vec<ElementId>> {
+    let dir = match p.axis {
+        Axis3::Z => return rotate(txn, RotateParams { element_ids: p.element_ids, center: [p.center[0], p.center[1]], angle: p.angle, copy: p.copy }),
+        Axis3::X => [1.0, 0.0, 0.0],
+        Axis3::Y => [0.0, 1.0, 0.0],
+    };
+    let store = txn.store().clone();
+    let ids = resolve_all(&store, &p.element_ids)?;
+    for id in &ids {
+        let e = store.get(*id).expect("resolved");
+        let tilts = crate::mesh_objects::mesh_object_recipe(e).is_some_and(|r| r.face.is_none()) || crate::masses::recipe(e).is_some() || crate::in_place::recipe(e).is_some();
+        if !tilts {
+            let what = crate::categories::category_of(e).map_or_else(|| e.class.clone(), |c| c.name.to_owned());
+            return Err(Error::new("element.cannot_tilt", format!("element {id} ({what}) can only turn in plan: only placed components, masses and in-place elements tilt")));
+        }
+        if !p.copy {
+            check_unpinned(&store, *id)?;
+        }
+    }
+    // Copies first, then they are tilted.
+    let ids = if p.copy { transform(txn, &p.element_ids, Xform::Translate([0.0; 3]), true)? } else { ids };
+    let m = crate::mesh_objects::axis_rotation(dir, p.angle);
+    for id in &ids {
+        let store = txn.store().clone();
+        let e = store.get(*id).expect("resolved");
+        if crate::mesh_objects::mesh_object_recipe(e).is_some() {
+            crate::mesh_objects::tilt_about(txn, *id, p.center, &m)?;
+        } else if crate::masses::recipe(e).is_some() {
+            crate::masses::tilt(txn, *id, p.center, &m)?;
+        } else {
+            crate::in_place::tilt(txn, *id, p.center, &m)?;
+        }
+    }
+    Ok(ids)
+}
+
 pub(crate) fn rotate(txn: &mut Transaction<'_>, p: RotateParams) -> Result<Vec<ElementId>> {
     let x = Xform::Rotate {
         center: p.center,

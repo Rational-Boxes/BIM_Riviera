@@ -411,6 +411,9 @@ Create … Boundary* tab:
   shapes. Ramps rising more than 150 mm get railings on both sides that follow the flights and
   landings. Modify | Ramps has Edit Path, Flip Direction and Railings, and a ramp's Path row
   takes typed points; `IfcRamp` (`ramp.create`, `ramp.set`, `ramp.add_railings`; ARC-RAMP-001).
+- **Rotate in 3D** (ARC-MOD-006): rings per axis at the selection's centre, dragged round with a
+  solid preview, exact angles and 45°/90° snap; placed components, masses and in-place elements
+  tilt about x and y (`element.rotate_3d`), everything else turns in plan.
 - **Move and Copy in 3D** (ARC-MOD-004/005): in 3D views, sections and elevations the selection
   gets x, y and height handles; doors, windows and openings keep to their wall or floor, and
   walls, floors, roofs and stairs move up and down by their offsets. **Edit in Plan** opens an

@@ -99,8 +99,14 @@ pick elements in the view and stay active for more picks.</p>
     change their base and top offsets. <a class="run" href="riviera:action/element.move">Move</a></td></tr>
   <tr><td><b>Copy</b> <kbd>CO</kbd></td><td>As Move, leaving the original in place (with the
     same handles in 3D).</td></tr>
-  <tr><td><b>Rotate</b> <kbd>RO</kbd></td><td>Rotates about the selection's centre: click a point on
-    the first ray, then the second ray, or type an angle in degrees.</td></tr>
+  <tr><td><b>Rotate</b> <kbd>RO</kbd></td><td>In a plan: rotates about the selection's centre; click a
+    point on the first ray, then the second ray, or type an angle in degrees. In a 3D view, a
+    section or an elevation: the selection turns translucent and gets a ring per axis at its
+    centre (x red, y green, z blue). Drag a ring round: a solid copy of the selection turns with
+    it, and the selection turns when you let go. The box beside the rings takes exact angles in
+    degrees (Enter turns by them) and a <b>Snap</b> of 45° or 90°. Placed components, masses and
+    in-place elements get all three rings and can tilt; everything else turns in plan, so it gets
+    the z ring only. <code>element.rotate_3d</code></td></tr>
   <tr><td><b>Array</b> <kbd>AR</kbd></td><td>Copies in a row: give the number of members (the
     original included) and <b>Move To</b>, then click a start point and where the second member
     (<i>2nd</i>) or the last member (<i>Last</i>) goes, or type a distance. The members are

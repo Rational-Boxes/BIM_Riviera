@@ -137,6 +137,9 @@ impl Gui {
             if matches!(kind, Kind::Move | Kind::Copy) {
                 return self.start_move3d(kind == Kind::Copy);
             }
+            if kind == Kind::Rotate {
+                return self.start_rotate3d();
+            }
             return frame.set_status_text(
                 &format!("{} works in plan views (View › Floor Plan)", kind.label()),
                 0,

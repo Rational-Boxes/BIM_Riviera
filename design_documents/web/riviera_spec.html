@@ -173,7 +173,7 @@ td code { white-space: nowrap; }
         <div class="tb-cell"><span class="tb-label">Revision</span><span class="tb-value">0.1 · Draft</span></div>
         <div class="tb-cell"><span class="tb-label">Date</span><span class="tb-value tb-num">2026-10-12</span></div>
         <div class="tb-cell"><span class="tb-label">Requirements</span><span class="tb-value tb-num">950</span></div>
-        <div class="tb-cell"><span class="tb-label">Commands</span><span class="tb-value tb-num">2,430</span></div>
+        <div class="tb-cell"><span class="tb-label">Commands</span><span class="tb-value tb-num">2,431</span></div>
         <div class="tb-cell"><span class="tb-label">Licence</span><span class="tb-value">GPL-3.0-or-later</span></div>
         <div class="tb-cell last-row"><span class="tb-label">Stack</span><span class="tb-value">IFC · Rust · OCCT · wx · LuaJIT · MCP</span></div>
         <div class="tb-cell last-row" style="grid-column: span 3"><span class="tb-label">By priority</span>
@@ -31050,8 +31050,8 @@ unchanged. The first domain on the shared format is <strong>interiors</strong>: 
 <td><strong>Rotate</strong></td>
 <td><span class="pri pri-p0">P0</span></td>
 <td>RO (R3 sets a new centre)</td>
-<td><em>Disjoin</em>, <em>Copy</em>, <em>Angle</em> (typed; enabled after the first ray), <em>Center of rotation</em>: Place or Default. The centre control starts at the selection's bounding-box centre; the user can drag it, click it and pick, press Spacebar and pick, or use <em>Place</em>. The user clicks a first ray and a second ray, or types an angle. The axis is normal to the view (in 3D, normal to the work plane). Walls cannot be rotated in elevation. Hosted inserts cannot be rotated away from their wall</td>
-<td><code>element.rotate(element_ids, center: point, angle, axis?: vector, copy?: bool) -&gt; [element_id]</code></td>
+<td><em>Disjoin</em>, <em>Copy</em>, <em>Angle</em> (typed; enabled after the first ray), <em>Center of rotation</em>: Place or Default. The centre control starts at the selection's bounding-box centre; the user can drag it, click it and pick, press Spacebar and pick, or use <em>Place</em>. The user clicks a first ray and a second ray, or types an angle. The axis is normal to the view (in 3D, normal to the work plane). Walls cannot be rotated in elevation. Hosted inserts cannot be rotated away from their wall. <em>Built (2026-11-16), in 3D:</em> in a 3D view, section or elevation the selection turns translucent and gets a ring per axis through its centre (x, y, z; the z ring alone unless every selected element can tilt). Dragging a ring turns a solid copy of the selection with the cursor (round the ring's centre on screen, whole turns counted); letting go turns it (<code>element.rotate_3d</code>). A box beside the rings takes exact angles per axis and a snap of 45° or 90°. <strong>Tilting</strong> (about x or y): placed components keep a tilt (a rotation matrix after their turn in plan, written to IFC as the placement's axis and reference direction) and their insertion point goes round the centre; masses and in-place elements turn their forms' planes; components on a wall face, forms swept along a plan path and all other elements are refused (<code>element.cannot_tilt</code>)</td>
+<td><code>element.rotate(element_ids, center: point, angle, axis?: vector, copy?: bool) -&gt; [element_id]</code>; <code>element.rotate_3d(element_ids, center: [x, y, z], axis: x\|y\|z, angle, copy?) -&gt; [element_id]</code></td>
 </tr>
 <tr>
 <td>ARC-MOD-007</td>
@@ -35391,6 +35391,13 @@ unchanged. The first domain on the shared format is <strong>interiors</strong>: 
 <tr>
 <td><code>element.rotate</code></td>
 <td>element_ids, center: point, angle, axis?: vector, copy?: bool</td>
+<td>[element_id]</td>
+<td>Yes</td>
+<td>ARC-MOD-006</td>
+</tr>
+<tr>
+<td><code>element.rotate_3d</code></td>
+<td>element_ids, center: [x, y, z], axis: x|y|z, angle, copy?</td>
 <td>[element_id]</td>
 <td>Yes</td>
 <td>ARC-MOD-006</td>
@@ -58010,7 +58017,7 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 </tbody>
 </table></div>
 <h2 id="a3-consolidated-command-index">A.3 Consolidated command index</h2>
-<p><strong>2430 unique commands</strong> in 464 domains. Every command is exposed automatically to the UI, to Lua (<code>riviera.&lt;domain&gt;.&lt;verb&gt;</code>) and to MCP (<code>&lt;domain&gt;_&lt;verb&gt;</code>), subject to its permission class.</p>
+<p><strong>2431 unique commands</strong> in 464 domains. Every command is exposed automatically to the UI, to Lua (<code>riviera.&lt;domain&gt;.&lt;verb&gt;</code>) and to MCP (<code>&lt;domain&gt;_&lt;verb&gt;</code>), subject to its permission class.</p>
 <div class="tbl"><table>
 <thead>
 <tr>
@@ -58529,7 +58536,7 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 </tr>
 <tr>
 <td><code>element</code></td>
-<td style="text-align: right;">39</td>
+<td style="text-align: right;">40</td>
 </tr>
 <tr>
 <td><code>elevationmarker</code></td>
@@ -64600,6 +64607,14 @@ Ownership is advisory, so step 7 is what gives it force at merge time.</p>
 <td>[element_id]</td>
 <td>Yes</td>
 <td>ARC-MOD-006</td>
+</tr>
+<tr>
+<td><code>element.rotate_3d</code></td>
+<td>3</td>
+<td>element_ids, center: [x, y, z], axis: x\</td>
+<td>y\</td>
+<td>z, angle, copy?</td>
+<td>[element_id]</td>
 </tr>
 <tr>
 <td><code>element.scale</code></td>

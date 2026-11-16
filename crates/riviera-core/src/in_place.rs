@@ -566,6 +566,33 @@ pub(crate) fn transform(
     write(txn, id, &r)
 }
 
+/// Turns an in-place element's forms by `m` about `c` in 3D (`element.rotate_3d`).
+pub(crate) fn tilt(txn: &mut Transaction<'_>, id: ElementId, c: [f64; 3], m: &[[f64; 3]; 3]) -> Result<()> {
+    let store = txn.store().clone();
+    let mut r = recipe(store.get(id).expect("exists")).expect("an in-place element");
+    tilt_forms(&store, id, &mut r.forms, c, m)?;
+    write(txn, id, &r)
+}
+
+/// Turns forms by `m` about `c`: each form's plane (made explicit) goes round `c`, its profile
+/// with it. A sweep, whose path is in plan, can't tilt.
+pub(crate) fn tilt_forms(store: &Store, id: ElementId, forms: &mut [Form], c: [f64; 3], m: &[[f64; 3]; 3]) -> Result<()> {
+    use crate::mesh_objects::mat_vec;
+    for f in forms.iter_mut() {
+        if matches!(f.shape, Shape::Sweep { .. }) {
+            return Err(Error::new("element.cannot_tilt", format!("element {id} has a sweep, whose path is in plan: it can only turn in plan")));
+        }
+        let plane = crate::work_planes::resolve(store, &f.plane)?;
+        let d = mat_vec(m, [plane.origin[0] - c[0], plane.origin[1] - c[1], plane.origin[2] - c[2]]);
+        f.plane = crate::work_planes::WorkPlaneRef::Explicit {
+            origin: [c[0] + d[0], c[1] + d[1], c[2] + d[2]],
+            x_dir: mat_vec(m, plane.x),
+            normal: mat_vec(m, plane.normal),
+        };
+    }
+    Ok(())
+}
+
 /// Carries forms by a plan transformation (each plane made explicit).
 pub(crate) fn transform_forms(
     store: &Store,

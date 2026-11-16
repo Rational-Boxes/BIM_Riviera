@@ -211,6 +211,7 @@ pub(crate) fn register(registry: &mut CommandRegistry) {
         registry.add(ElementMove),
         registry.add(ElementCopy),
         registry.add(ElementRotate),
+        registry.add(ElementRotate3d),
         registry.add(ElementMirror),
         registry.add(ElementOffset),
         registry.add(ElementSplit),
@@ -2477,6 +2478,21 @@ modify_command!(
     modify::RotateParams,
     Vec<ElementId>,
     modify::rotate
+);
+modify_command!(
+    ElementRotate3d,
+    "element.rotate_3d",
+    "Rotate elements about an axis in 3D",
+    "Rotates elements by `angle` (counter-clockwise looking down the axis; accepts \"30°\") about the \
+     `x`, `y` or `z` axis through `center` (a 3D point); with `copy`, rotates copies. About `z` it \
+     is `element.rotate` (any element turns in plan); about `x` or `y` it tilts placed components \
+     (their insertion point goes round the centre and their tilt is kept with them, in IFC too), \
+     masses and in-place elements (their forms' planes turn). Other elements, a component on a \
+     wall face, and a form swept along a plan path are refused.",
+    "Rotate",
+    modify::Rotate3dParams,
+    Vec<ElementId>,
+    modify::rotate_3d
 );
 modify_command!(
     ElementMirror,

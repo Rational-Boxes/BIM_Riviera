@@ -69,6 +69,11 @@ fn copy_signature(g: &MeshObjectGeometry, map: StepId, scale: f64) -> String {
         g.placement.rotation.to_bits().hash(h);
         g.placement.mirror.hash(h);
         g.placement.scale.to_bits().hash(h);
+        for row in g.placement.tilt {
+            for v in row {
+                v.to_bits().hash(h);
+            }
+        }
         map.0.hash(h);
         scale.to_bits().hash(h);
     })
@@ -366,17 +371,18 @@ pub(crate) fn write_mapped(
         "IfcCartesianPoint",
         &[("Coordinates", reals(&p.origin.map(|v| v / scale)))],
     )?;
+    // Its axes turned in plan and, for a tilted copy, tilted too.
     let up = create(
         ifc,
         "IfcDirection",
-        &[("DirectionRatios", reals(&[0.0, 0.0, 1.0]))],
+        &[("DirectionRatios", reals(&riviera_core::mesh_objects::mat_vec(&p.tilt, [0.0, 0.0, 1.0])))],
     )?;
     let x = create(
         ifc,
         "IfcDirection",
         &[(
             "DirectionRatios",
-            reals(&[p.rotation.cos(), p.rotation.sin(), 0.0]),
+            reals(&riviera_core::mesh_objects::mat_vec(&p.tilt, [p.rotation.cos(), p.rotation.sin(), 0.0])),
         )],
     )?;
     let axes = create(

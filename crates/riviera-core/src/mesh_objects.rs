@@ -504,6 +504,36 @@ pub struct MeshObjectRecipe {
     /// underside, and it follows the ceiling up and down.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ceiling: Option<String>,
+    /// A tilt (a rotation matrix, rows) applied about the insertion point after its turn in
+    /// plan: turned about a horizontal axis in 3D (`element.rotate_3d`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tilt: Option<[[f64; 3]; 3]>,
+}
+
+/// No tilt.
+pub const IDENTITY: [[f64; 3]; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+
+/// `m` times `v`.
+pub fn mat_vec(m: &[[f64; 3]; 3], v: [f64; 3]) -> [f64; 3] {
+    [0, 1, 2].map(|i| m[i][0] * v[0] + m[i][1] * v[1] + m[i][2] * v[2])
+}
+
+/// `a` times `b`.
+pub fn mat_mul(a: &[[f64; 3]; 3], b: &[[f64; 3]; 3]) -> [[f64; 3]; 3] {
+    [0, 1, 2].map(|i| [0, 1, 2].map(|j| a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j]))
+}
+
+/// The rotation by `angle` (radians, counter-clockwise looking down the axis) about the unit
+/// vector `a` (Rodrigues).
+pub fn axis_rotation(a: [f64; 3], angle: f64) -> [[f64; 3]; 3] {
+    let (s, c) = angle.sin_cos();
+    let t = 1.0 - c;
+    let [x, y, z] = a;
+    [
+        [t * x * x + c, t * x * y - s * z, t * x * z + s * y],
+        [t * x * y + s * z, t * y * y + c, t * y * z - s * x],
+        [t * x * z - s * y, t * y * z + s * x, t * z * z + c],
+    ]
 }
 
 /// A copy mounted on a wall's face.
@@ -912,6 +942,8 @@ pub struct Placement {
     pub rotation: f64,
     pub mirror: bool,
     pub scale: f64,
+    /// Applied about the origin after the turn ([`IDENTITY`] for none).
+    pub tilt: [[f64; 3]; 3],
 }
 
 impl Placement {
@@ -920,18 +952,15 @@ impl Placement {
         let y = if self.mirror { -p[1] } else { p[1] };
         let (s, c) = self.rotation.sin_cos();
         let (x, y, z) = (p[0] * self.scale, y * self.scale, p[2] * self.scale);
-        [
-            self.origin[0] + x * c - y * s,
-            self.origin[1] + x * s + y * c,
-            self.origin[2] + z,
-        ]
+        let q = mat_vec(&self.tilt, [x * c - y * s, x * s + y * c, z]);
+        [self.origin[0] + q[0], self.origin[1] + q[1], self.origin[2] + q[2]]
     }
 
     /// A type-space direction in project coordinates (unit length kept).
     pub fn apply_direction(&self, d: [f64; 3]) -> [f64; 3] {
         let y = if self.mirror { -d[1] } else { d[1] };
         let (s, c) = self.rotation.sin_cos();
-        [d[0] * c - y * s, d[0] * s + y * c, d[2]]
+        mat_vec(&self.tilt, [d[0] * c - y * s, d[0] * s + y * c, d[2]])
     }
 }
 
@@ -1045,6 +1074,7 @@ pub fn regenerate(store: &Store, e: &Element) -> Result<MeshObjectGeometry> {
             rotation,
             mirror: r.mirror,
             scale: ty.scale * r.scale,
+            tilt: r.tilt.unwrap_or(IDENTITY),
         },
         ty,
         mesh,
@@ -1371,6 +1401,7 @@ pub(crate) fn place(txn: &mut crate::txn::Transaction<'_>, p: PlaceParams) -> Re
         host: None,
         face: None,
         ceiling: None,
+        tilt: None,
     };
     if !(p.scale > 0.0 && p.scale.is_finite()) {
         return Err(Error::new(
@@ -1719,8 +1750,22 @@ pub(crate) fn transform(
         Some(axis) => {
             r.rotation = 2.0 * axis - r.rotation;
             r.mirror = !r.mirror;
+            // A tilt is reflected across the same vertical plane.
+            if let Some(t) = r.tilt {
+                let (s, c) = (2.0 * axis).sin_cos();
+                let m = [[c, s, 0.0], [s, -c, 0.0], [0.0, 0.0, 1.0]];
+                r.tilt = Some(mat_mul(&mat_mul(&m, &t), &m));
+            }
         }
-        None => r.rotation += turn,
+        None => {
+            r.rotation += turn;
+            // A tilt turns with it about the vertical.
+            if let Some(t) = r.tilt {
+                let z = axis_rotation([0.0, 0.0, 1.0], turn);
+                let back = axis_rotation([0.0, 0.0, 1.0], -turn);
+                r.tilt = Some(mat_mul(&mat_mul(&z, &t), &back));
+            }
+        }
     }
     // On a face its place and facing are the face's, wherever its wall has gone (a mirror turns
     // the wall's sides over, not the way it faces).
@@ -1729,6 +1774,30 @@ pub(crate) fn transform(
         r.rotation = rot;
     }
     r.offset += dz;
+    write(txn, id, &r)
+}
+
+/// Turns a copy by `m` about the point `c` in 3D (`element.rotate_3d` about a horizontal axis):
+/// its insertion point goes round `c` and its tilt takes `m`. One on a wall face is refused.
+pub(crate) fn tilt_about(txn: &mut crate::txn::Transaction<'_>, id: ElementId, c: [f64; 3], m: &[[f64; 3]; 3]) -> Result<()> {
+    let store = txn.store().clone();
+    let e = store.get(id).expect("exists");
+    let mut r = mesh_object_recipe(e).expect("a custom object");
+    if r.face.is_some() {
+        return Err(Error::new("element.cannot_tilt", format!("element {id} is on a wall face: it can only turn in plan")));
+    }
+    let o = regenerate(&store, e)?.placement.origin;
+    let d = mat_vec(m, [o[0] - c[0], o[1] - c[1], o[2] - c[2]]);
+    let to = [c[0] + d[0], c[1] + d[1], c[2] + d[2]];
+    // Its new point, then the offset that puts its insertion point at the turned height above
+    // whatever it stands on there.
+    r.point = [to[0], to[1]];
+    r.offset = 0.0;
+    r.tilt = Some(mat_mul(m, &r.tilt.unwrap_or(IDENTITY)));
+    write(txn, id, &r)?;
+    let store = txn.store().clone();
+    let base = regenerate(&store, store.get(id).expect("exists"))?.placement.origin[2];
+    r.offset = to[2] - base;
     write(txn, id, &r)
 }
 
@@ -1819,6 +1888,7 @@ mod tests {
             rotation: std::f64::consts::FRAC_PI_2,
             mirror: true,
             scale: 2.0,
+            tilt: IDENTITY,
         };
         let q = pl.apply([1.0, 1.0, 1.0]);
         // Mirrored: (1, -1); doubled: (2, -2); turned 90°: (2, 2); moved.
