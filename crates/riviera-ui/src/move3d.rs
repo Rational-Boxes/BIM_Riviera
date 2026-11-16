@@ -1,28 +1,36 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Riviera contributors
 
-//! Move and Copy outside plans (ARC-MOD-001, ARC-MOD-002): in a 3D view, a section or an
-//! elevation, the selection gets a handle per axis at its centre (x red, y green, z blue).
-//! Click a handle, move the mouse along it (the selection's box follows) and click to place, or
-//! type a distance and press Enter. The tool stays on for further moves; Esc drops a handle in
-//! use, then ends it.
+//! Move and Copy outside plans (ARC-MOD-004, ARC-MOD-005): in a 3D view, a section or an
+//! elevation the selection turns translucent and gets a handle per axis at its centre: a 3D
+//! arrow with a cone for its head (x red, y green, z blue; yellow when the cursor is on it).
+//! Press on a handle and drag: the selection's copy follows along that axis, solid, and the
+//! selection moves there when the button is let go. Beside the handles a box of fields, one per
+//! axis, shows the distance dragged and takes exact values (Enter moves by them). The tool
+//! stays on for further moves; Esc ends it.
 //!
-//! What a selection may do decides its handles: doors, windows and wall openings move along their
-//! wall and up it only (the core keeps them in their wall), floor openings and shafts across
-//! the floor only, and rooms and grids, which keep to their levels, have no height handle.
+//! What a selection may do decides its handles: doors, windows and wall openings move in the
+//! plane of their wall (along it and up it; the core keeps them in their wall), floor openings
+//! and shafts in the plane of the floor, and rooms and grids, which keep to their levels, have no
+//! height handle.
 
 use riviera_core::ElementId;
-use riviera_render::RenderBackend;
-use riviera_render::plan::Lines;
+use riviera_render::{SceneMesh, Visibility};
 use serde_json::{Value, json};
 use wxdragon::prelude::*;
 
 use super::Gui;
 
-const PREVIEW: [f32; 4] = [0.05, 0.35, 0.95, 1.0];
-/// A handle's length on screen, and how near the cursor must be to take it (pixels).
-const HANDLE_PX: f32 = 90.0;
-const GRAB_PX: f32 = 9.0;
+/// A handle's length on screen, its shaft's and cone's radii and the cone's length (pixels), and
+/// how near the cursor must be to take it.
+const HANDLE_PX: f64 = 95.0;
+const SHAFT_PX: f64 = 2.5;
+const CONE_R_PX: f64 = 8.0;
+const CONE_L_PX: f64 = 24.0;
+const GRAB_PX: f32 = 10.0;
+/// The selection's opacity while it is being moved.
+const GHOST: f32 = 0.3;
+const HOVER: [f32; 4] = [1.0, 0.82, 0.1, 1.0];
 
 /// One handle: its label and direction (a unit vector) and colour.
 #[derive(Debug, Clone)]
@@ -36,21 +44,31 @@ pub struct Axis {
 pub struct Move3d {
     copy: bool,
     targets: Vec<ElementId>,
-    /// The selection's box (min, max), and its centre, where the handles stand.
+    /// The selection's box (min, max); the handles stand at its centre.
     lo: [f64; 3],
     hi: [f64; 3],
     axes: Vec<Axis>,
     hover: Option<usize>,
-    /// The handle in use, where along it the grab was, and how far the cursor has taken it.
-    active: Option<usize>,
+    /// The handle being dragged, where along it the grab was, and how far it has gone.
+    drag: Option<usize>,
     start: f64,
     delta: f64,
-    typed: String,
+}
+
+/// The fields beside the handles: a box over the view with one field per axis.
+pub struct MoveFields {
+    panel: Panel,
+    fields: Vec<TextCtrl>,
 }
 
 impl Move3d {
     fn center(&self) -> [f64; 3] {
         [(self.lo[0] + self.hi[0]) / 2.0, (self.lo[1] + self.hi[1]) / 2.0, (self.lo[2] + self.hi[2]) / 2.0]
+    }
+
+    /// How far the drag has taken the selection.
+    fn shift(&self) -> [f64; 3] {
+        self.drag.map_or([0.0; 3], |k| add([0.0; 3], self.axes[k].dir, self.delta))
     }
 }
 
@@ -58,12 +76,17 @@ fn add(a: [f64; 3], b: [f64; 3], k: f64) -> [f64; 3] {
     [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k]
 }
 
-fn v3(p: [f64; 3]) -> glam::Vec3 {
-    glam::Vec3::new(p[0] as f32, p[1] as f32, p[2] as f32)
+fn cross(a: [f64; 3], b: [f64; 3]) -> [f64; 3] {
+    [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
 }
 
-fn f3(p: [f64; 3]) -> [f32; 3] {
-    [p[0] as f32, p[1] as f32, p[2] as f32]
+fn unit(a: [f64; 3]) -> [f64; 3] {
+    let l = (a[0] * a[0] + a[1] * a[1] + a[2] * a[2]).sqrt().max(1e-12);
+    [a[0] / l, a[1] / l, a[2] / l]
+}
+
+fn v3(p: [f64; 3]) -> glam::Vec3 {
+    glam::Vec3::new(p[0] as f32, p[1] as f32, p[2] as f32)
 }
 
 /// The distance in pixels from `p` to the segment `a`–`b`.
@@ -72,6 +95,48 @@ fn to_segment(p: (f32, f32), a: (f32, f32), b: (f32, f32)) -> f32 {
     let l2 = (dx * dx + dy * dy).max(1e-6);
     let t = (((p.0 - a.0) * dx + (p.1 - a.1) * dy) / l2).clamp(0.0, 1.0);
     (p.0 - a.0 - dx * t).hypot(p.1 - a.1 - dy * t)
+}
+
+/// An arrow from `from` along `dir`: a shaft of radius `r` and length `shaft`, then a cone of
+/// radius `cr` and length `cl`.
+fn arrow(from: [f64; 3], dir: [f64; 3], r: f64, shaft: f64, cr: f64, cl: f64, color: [f32; 4]) -> SceneMesh {
+    const N: usize = 16;
+    let side = if dir[2].abs() < 0.9 { [0.0, 0.0, 1.0] } else { [1.0, 0.0, 0.0] };
+    let u = unit(cross(dir, side));
+    let w = cross(dir, u);
+    let ring = |c: [f64; 3], rad: f64| -> Vec<[f32; 3]> {
+        (0..N)
+            .map(|k| {
+                let a = std::f64::consts::TAU * k as f64 / N as f64;
+                let p = add(add(c, u, rad * a.cos()), w, rad * a.sin());
+                [p[0] as f32, p[1] as f32, p[2] as f32]
+            })
+            .collect()
+    };
+    let base = ring(from, r);
+    let top = add(from, dir, shaft);
+    let neck = ring(top, r);
+    let rim = ring(top, cr);
+    let tip = add(top, dir, cl);
+    let mut positions = Vec::new();
+    positions.extend(&base); // 0..N
+    positions.extend(&neck); // N..2N
+    positions.extend(&rim); // 2N..3N
+    positions.push([from[0] as f32, from[1] as f32, from[2] as f32]); // 3N: base centre
+    positions.push([top[0] as f32, top[1] as f32, top[2] as f32]); // 3N+1: rim centre
+    positions.push([tip[0] as f32, tip[1] as f32, tip[2] as f32]); // 3N+2: tip
+    let n = N as u32;
+    let (bc, rc, tp) = (3 * n, 3 * n + 1, 3 * n + 2);
+    let mut indices = Vec::new();
+    for k in 0..n {
+        let j = (k + 1) % n;
+        // The shaft's side, its base, the cone's base and its side.
+        indices.extend([k, j, n + j, k, n + j, n + k]);
+        indices.extend([bc, j, k]);
+        indices.extend([rc, 2 * n + k, 2 * n + j]);
+        indices.extend([2 * n + k, tp, 2 * n + j]);
+    }
+    SceneMesh { element: None, class: "Move handle".into(), positions, indices, color }
 }
 
 impl Gui {
@@ -91,19 +156,20 @@ impl Gui {
             return frame.set_status_text(&format!("{what}: the selection can't be moved here"), 0);
         }
         self.end_tool(&frame);
-        self.move3d = Some(Move3d { copy, targets, lo, hi, axes, hover: None, active: None, start: 0.0, delta: 0.0, typed: String::new() });
-        self.move3d_draw();
+        self.move3d = Some(Move3d { copy, targets, lo, hi, axes, hover: None, drag: None, start: 0.0, delta: 0.0 });
+        self.move3d_fields_open();
+        self.move3d_redraw();
         self.move3d_prompt();
-        self.refresh_active();
     }
 
     pub(crate) fn end_move3d(&mut self) -> bool {
         if self.move3d.take().is_none() {
             return false;
         }
-        if let Some(v) = self.viewport() {
-            v.set_overlay_lines(&[]);
+        if let Some(f) = self.move3d_fields.take() {
+            f.panel.destroy();
         }
+        self.move3d_redraw();
         true
     }
 
@@ -123,20 +189,21 @@ impl Gui {
 
     /// The handles a selection gets.
     fn axes_for(&self, ids: &[ElementId]) -> Vec<Axis> {
-        let x = Axis { label: "x", dir: [1.0, 0.0, 0.0], color: [0.85, 0.15, 0.15, 1.0] };
-        let y = Axis { label: "y", dir: [0.0, 1.0, 0.0], color: [0.15, 0.65, 0.15, 1.0] };
-        let z = Axis { label: "height", dir: [0.0, 0.0, 1.0], color: [0.15, 0.35, 0.95, 1.0] };
+        let x = Axis { label: "X", dir: [1.0, 0.0, 0.0], color: [0.86, 0.16, 0.16, 1.0] };
+        let y = Axis { label: "Y", dir: [0.0, 1.0, 0.0], color: [0.16, 0.66, 0.16, 1.0] };
+        let z = Axis { label: "Z", dir: [0.0, 0.0, 1.0], color: [0.16, 0.36, 0.95, 1.0] };
         let Some(store) = self.active_view().and_then(|v| self.app.document(v.doc)).map(|d| d.doc.store().clone()) else { return Vec::new() };
         let elements: Vec<&riviera_core::Element> = ids.iter().filter_map(|id| store.get(*id)).collect();
-        // Doors, windows and wall openings: along their wall and up it.
+        // Doors, windows and wall openings: in the plane of their wall.
         let host = |e: &riviera_core::Element| riviera_core::inserts::insert_recipe(e).map(|r| r.host).or_else(|| riviera_core::wall_openings::wall_opening_recipe(e).map(|r| r.host));
         if !elements.is_empty() && elements.iter().all(|e| host(e).is_some()) {
+            let up = Axis { label: "Up", ..z };
             let wall = host(elements[0]).and_then(|g| riviera_core::GlobalId::parse(&g)).and_then(|g| store.find_by_guid(&g)).and_then(|w| store.get(w));
-            let Some(g) = wall.and_then(|w| riviera_core::walls::regenerate(&store, w).ok()) else { return vec![z] };
+            let Some(g) = wall.and_then(|w| riviera_core::walls::regenerate(&store, w).ok()) else { return vec![up] };
             let u = g.direction();
-            return vec![Axis { label: "along the wall", dir: [u[0], u[1], 0.0], color: [0.85, 0.15, 0.15, 1.0] }, z];
+            return vec![Axis { label: "Along", dir: [u[0], u[1], 0.0], color: x.color }, up];
         }
-        // Floor openings and shafts: across the floor.
+        // Floor openings and shafts: in the plane of the floor.
         if elements.iter().all(|e| riviera_core::slab_openings::shaft_recipe(e).is_some() || riviera_core::slab_openings::opening_recipe(e).is_some()) {
             return vec![x, y];
         }
@@ -145,20 +212,25 @@ impl Gui {
         if flat { vec![x, y] } else { vec![x, y, z] }
     }
 
-    /// A handle's length in metres, so it stands about [`HANDLE_PX`] long on screen.
-    fn handle_length(&self, c: [f64; 3], dir: [f64; 3]) -> f64 {
-        let Some(v) = self.active_view() else { return 1.0 };
+    /// Metres per pixel at `p` in the active view.
+    fn move3d_scale(&self, p: [f64; 3]) -> f64 {
+        let Some(v) = self.active_view() else { return 0.01 };
         let size = v.panel.get_client_size();
         let (w, h) = (size.width as f32, size.height as f32);
-        let px = match (v.camera.project(v3(c), w, h), v.camera.project(v3(add(c, dir, 1.0)), w, h)) {
-            (Some(a), Some(b)) => (b.0 - a.0).hypot(b.1 - a.1),
-            _ => 0.0,
-        };
-        if px > 1e-3 { f64::from(HANDLE_PX / px).clamp(0.05, 1e4) } else { 1.0 }
+        // Across the screen at `p`: two points a metre apart square to the view.
+        let right = v.camera.ray(w / 2.0 + 1.0, h / 2.0, w, h).1 - v.camera.ray(w / 2.0, h / 2.0, w, h).1;
+        let side = if right.length() > 1e-9 { right.normalize() } else { glam::Vec3::X };
+        match (v.camera.project(v3(p), w, h), v.camera.project(v3(p) + side, w, h)) {
+            (Some(a), Some(b)) => {
+                let px = f64::from((b.0 - a.0).hypot(b.1 - a.1));
+                if px > 1e-3 { 1.0 / px } else { 0.01 }
+            }
+            _ => 0.01,
+        }
     }
 
-    /// Where along `axis` (from the centre) the cursor at (`x`, `y`) is: the nearest point of the
-    /// axis to the cursor's ray.
+    /// Where along `a` (from `c`) the cursor at (`x`, `y`) is: the nearest point of the axis to
+    /// the cursor's ray.
     fn along_axis(&self, x: i32, y: i32, c: [f64; 3], a: [f64; 3]) -> Option<f64> {
         let v = self.active_view()?;
         let size = v.panel.get_client_size();
@@ -172,19 +244,19 @@ impl Gui {
         (den > 1e-4).then(|| (dot(a, w0) - b * dot(d, w0)) / den)
     }
 
-    /// The handle under the cursor.
+    /// The handle under the cursor: the nearest on screen within reach of its shaft and cone.
     fn handle_at(&self, x: i32, y: i32) -> Option<usize> {
         let t = self.move3d.as_ref()?;
         let v = self.active_view()?;
         let size = v.panel.get_client_size();
         let (w, h) = (size.width as f32, size.height as f32);
         let c = t.center();
+        let len = HANDLE_PX * self.move3d_scale(c);
         t.axes
             .iter()
             .enumerate()
             .filter_map(|(k, a)| {
-                let tip = add(c, a.dir, self.handle_length(c, a.dir));
-                let (p, q) = (v.camera.project(v3(c), w, h)?, v.camera.project(v3(tip), w, h)?);
+                let (p, q) = (v.camera.project(v3(c), w, h)?, v.camera.project(v3(add(c, a.dir, len)), w, h)?);
                 Some((to_segment((x as f32, y as f32), p, q), k))
             })
             .filter(|(d, _)| *d <= GRAB_PX)
@@ -192,114 +264,186 @@ impl Gui {
             .map(|(_, k)| k)
     }
 
-    fn move3d_draw(&mut self) {
-        let Some(t) = self.move3d.clone() else { return };
-        let shift = t.active.map_or([0.0; 3], |k| add([0.0; 3], t.axes[k].dir, t.delta));
-        let c = add(t.center(), shift, 1.0);
-        let mut lines = Vec::new();
-        for (k, a) in t.axes.iter().enumerate() {
-            let len = self.handle_length(c, a.dir);
-            let tip = add(c, a.dir, len);
-            // An arrowhead across the handle.
-            let side = if a.dir[2].abs() < 0.9 { [-a.dir[1], a.dir[0], 0.0] } else { [1.0, 0.0, 0.0] };
-            let back = add(tip, a.dir, -0.18 * len);
-            let segments = vec![[f3(c), f3(tip)], [f3(tip), f3(add(back, side, 0.08 * len))], [f3(tip), f3(add(back, side, -0.08 * len))]];
-            let width = if t.active == Some(k) || t.hover == Some(k) { 4.0 } else { 2.5 };
-            lines.push(Lines { color: a.color, width, segments });
-            if t.active == Some(k) {
-                // The line it slides along, thin, a few box sizes either way.
-                let size = (0..3).map(|i| t.hi[i] - t.lo[i]).fold(1.0, f64::max);
-                let reach = 3.0 * size + t.delta.abs();
-                lines.push(Lines { color: a.color, width: 1.0, segments: vec![[f3(add(c, a.dir, -reach)), f3(add(c, a.dir, reach))]] });
+    /// Adds the tool's look to the active view's visibility: the selection translucent, the
+    /// handles, and while dragging, the selection where it would go.
+    pub(crate) fn move3d_decorate(&self, index: usize, vis: &mut Visibility) {
+        let Some(t) = &self.move3d else { return };
+        if self.views.get(index).is_none_or(|v| Some(v.id) != self.active) {
+            return;
+        }
+        for id in &t.targets {
+            vis.translucent.insert(*id, GHOST);
+        }
+        let shift = t.shift();
+        if t.drag.is_some() {
+            for m in self.scene().meshes.iter().filter(|m| m.element.is_some_and(|e| t.targets.contains(&e))) {
+                let mut c = m.clone();
+                c.element = None;
+                for p in &mut c.positions {
+                    p[0] += shift[0] as f32;
+                    p[1] += shift[1] as f32;
+                    p[2] += shift[2] as f32;
+                }
+                vis.extra.push(c);
             }
         }
-        if t.active.is_some() {
-            // The selection's box where it would go.
-            let (lo, hi) = (add(t.lo, shift, 1.0), add(t.hi, shift, 1.0));
-            let p = |i: usize| f3([if i & 1 == 0 { lo[0] } else { hi[0] }, if i & 2 == 0 { lo[1] } else { hi[1] }, if i & 4 == 0 { lo[2] } else { hi[2] }]);
-            let edges = [(0, 1), (2, 3), (4, 5), (6, 7), (0, 2), (1, 3), (4, 6), (5, 7), (0, 4), (1, 5), (2, 6), (3, 7)];
-            lines.push(Lines { color: PREVIEW, width: 1.5, segments: edges.iter().map(|(a, b)| [p(*a), p(*b)]).collect() });
+        let c = add(t.center(), shift, 1.0);
+        let s = self.move3d_scale(c);
+        for (k, a) in t.axes.iter().enumerate() {
+            let color = if t.drag == Some(k) || (t.drag.is_none() && t.hover == Some(k)) { HOVER } else { a.color };
+            vis.extra.push(arrow(c, a.dir, SHAFT_PX * s, (HANDLE_PX - CONE_L_PX) * s, CONE_R_PX * s, CONE_L_PX * s, color));
         }
-        if let Some(v) = self.viewport() {
-            v.set_overlay_lines(&lines);
+    }
+
+    /// Redraws the active view with the tool's look, and places the fields beside the handles.
+    fn move3d_redraw(&mut self) {
+        if let Some(i) = self.views.iter().position(|v| Some(v.id) == self.active) {
+            self.update_inspection(i);
         }
+        self.move3d_fields_place();
+        self.refresh_active();
     }
 
     fn move3d_prompt(&mut self) {
         let Some(t) = self.move3d.clone() else { return };
         let what = if t.copy { "Copy" } else { "Move" };
-        let text = match t.active {
-            Some(k) => {
-                let d = if t.typed.is_empty() { self.format_length(t.delta) } else { t.typed.clone() };
-                format!("{d} {} · {what}: click to place, or type a distance and Enter; Esc lets go", t.axes[k].label)
-            }
-            None => {
-                let names: Vec<&str> = t.axes.iter().map(|a| a.label).collect();
-                format!("{what}: click a handle ({}) and move along it; Esc ends", names.join(", "))
-            }
+        let text = match t.drag {
+            Some(k) => format!("{} {} · {what}: let go to place it; Esc cancels", self.format_length(t.delta), t.axes[k].label),
+            None => format!("{what}: drag a handle, or type distances in the box and press Enter; Esc ends"),
         };
         self.frame.set_status_text(&text, 0);
     }
 
-    pub(crate) fn move3d_motion(&mut self, x: i32, y: i32) {
+    // ---- The fields ----
+
+    /// The box of fields, one per axis, over the view beside the handles.
+    fn move3d_fields_open(&mut self) {
         let Some(t) = self.move3d.clone() else { return };
-        match t.active {
-            Some(k) if t.typed.is_empty() => {
-                if let Some(s) = self.along_axis(x, y, t.center(), t.axes[k].dir)
-                    && let Some(m) = &mut self.move3d
-                {
-                    m.delta = ((s - t.start) * 1000.0).round() / 1000.0;
+        let Some(v) = self.active_view() else { return };
+        let panel = Panel::builder(&v.panel).build();
+        let sizer = FlexGridSizer::builder(0, 2).with_vgap(2).with_hgap(4).build();
+        let mut fields = Vec::new();
+        for a in &t.axes {
+            let label = StaticText::builder(&panel).with_label(a.label).build();
+            let field = TextCtrl::builder(&panel).with_value("0").with_size(Size::new(90, -1)).with_style(TextCtrlStyle::ProcessEnter).build();
+            field.set_tooltip(&format!("Distance along {} (Enter moves)", a.label));
+            sizer.add(&label, 0, SizerFlag::AlignCenterVertical | SizerFlag::All, 2);
+            sizer.add(&field, 0, SizerFlag::All, 2);
+            let gui = self.this.clone();
+            field.on_text_enter(move |_| {
+                if let Some(g) = gui.upgrade() {
+                    super::with(&g, Gui::move3d_fields_enter);
                 }
+            });
+            fields.push(field);
+        }
+        panel.set_sizer_and_fit(sizer, true);
+        self.move3d_fields = Some(MoveFields { panel, fields });
+    }
+
+    /// Keeps the box beside the handles' centre, inside the view.
+    fn move3d_fields_place(&self) {
+        let (Some(t), Some(f), Some(v)) = (&self.move3d, &self.move3d_fields, self.active_view()) else { return };
+        let size = v.panel.get_client_size();
+        let c = add(t.center(), t.shift(), 1.0);
+        let Some((px, py)) = v.camera.project(v3(c), size.width as f32, size.height as f32) else { return };
+        let box_size = f.panel.get_size();
+        let x = (px as i32 + 40).clamp(0, (size.width - box_size.width).max(0));
+        let y = (py as i32 + 30).clamp(0, (size.height - box_size.height).max(0));
+        f.panel.move_window(x, y);
+    }
+
+    /// Shows the distance dragged in its axis's field.
+    fn move3d_fields_show(&mut self) {
+        let Some(t) = self.move3d.clone() else { return };
+        let dragged = self.format_length(t.delta);
+        let texts: Vec<String> = (0..t.axes.len()).map(|k| if t.drag == Some(k) { dragged.clone() } else { "0".to_owned() }).collect();
+        let Some(f) = &self.move3d_fields else { return };
+        for (field, text) in f.fields.iter().zip(texts) {
+            field.set_value(&text);
+        }
+    }
+
+    /// Enter in a field: moves by the fields' distances.
+    pub(crate) fn move3d_fields_enter(&mut self) {
+        let frame = self.frame;
+        let Some(t) = self.move3d.clone() else { return };
+        let Some(f) = &self.move3d_fields else { return };
+        let texts: Vec<String> = f.fields.iter().map(TextCtrl::get_value).collect();
+        let mut v = [0.0; 3];
+        for (a, text) in t.axes.iter().zip(texts) {
+            let text = text.trim();
+            if text.is_empty() {
+                continue;
             }
-            Some(_) => {}
-            None => {
-                let hover = self.handle_at(x, y);
-                if let Some(m) = &mut self.move3d {
-                    m.hover = hover;
-                }
+            match self.run("units.parse", json!({ "text": text, "data_type": "length" })) {
+                Ok(d) => v = add(v, a.dir, d.as_f64().unwrap_or_default()),
+                Err(e) => return frame.set_status_text(&format!("{}: {e}", a.label), 0),
             }
         }
-        self.move3d_draw();
+        self.move3d_by(v);
+    }
+
+    // ---- Dragging ----
+
+    pub(crate) fn move3d_motion(&mut self, x: i32, y: i32) {
+        let hover = self.handle_at(x, y);
+        let Some(t) = &mut self.move3d else { return };
+        if t.drag.is_none() && t.hover != hover {
+            t.hover = hover;
+            self.move3d_redraw();
+        }
+    }
+
+    /// A press on a handle starts dragging it; `false` when there is none under the cursor.
+    pub(crate) fn move3d_press(&mut self, x: i32, y: i32) -> bool {
+        let Some(k) = self.move3d.as_ref().and(self.handle_at(x, y)) else { return false };
+        let t = self.move3d.clone().expect("checked");
+        let start = self.along_axis(x, y, t.center(), t.axes[k].dir).unwrap_or(0.0);
+        if let Some(m) = &mut self.move3d {
+            m.drag = Some(k);
+            m.start = start;
+            m.delta = 0.0;
+        }
+        self.move3d_redraw();
+        self.move3d_prompt();
+        true
+    }
+
+    pub(crate) fn move3d_drag_motion(&mut self, x: i32, y: i32) {
+        let Some(t) = self.move3d.clone() else { return };
+        let Some(k) = t.drag else { return };
+        if let Some(s) = self.along_axis(x, y, t.center(), t.axes[k].dir)
+            && let Some(m) = &mut self.move3d
+        {
+            m.delta = ((s - t.start) * 1000.0).round() / 1000.0;
+        }
+        self.move3d_fields_show();
+        self.move3d_redraw();
         self.move3d_prompt();
     }
 
-    pub(crate) fn move3d_click(&mut self, x: i32, y: i32) {
+    /// Letting go of a handle: the selection moves (or is copied) by the distance dragged.
+    pub(crate) fn move3d_drag_end(&mut self) {
         let Some(t) = self.move3d.clone() else { return };
-        match t.active {
-            None => {
-                let Some(k) = self.handle_at(x, y) else {
-                    return self.frame.set_status_text("Click one of the handles at the selection", 0);
-                };
-                let start = self.along_axis(x, y, t.center(), t.axes[k].dir).unwrap_or(0.0);
-                if let Some(m) = &mut self.move3d {
-                    m.active = Some(k);
-                    m.start = start;
-                    m.delta = 0.0;
-                }
-                self.move3d_draw();
-                self.move3d_prompt();
-            }
-            Some(_) => self.move3d_commit(),
+        let v = t.shift();
+        if let Some(m) = &mut self.move3d {
+            m.drag = None;
+            m.delta = 0.0;
+            m.hover = None;
         }
+        self.move3d_by(v);
     }
 
-    /// Moves (or copies) the selection by the handle's distance, and stays on for the next move.
-    fn move3d_commit(&mut self) {
+    /// Moves (or copies) the selection by `v` and stays on, the handles at its new centre.
+    fn move3d_by(&mut self, v: [f64; 3]) {
         let frame = self.frame;
         let Some(t) = self.move3d.clone() else { return };
-        let Some(k) = t.active else { return };
-        let distance = if t.typed.is_empty() {
-            t.delta
-        } else {
-            match self.run("units.parse", json!({ "text": t.typed, "data_type": "length" })) {
-                Ok(v) => v.as_f64().unwrap_or_default(),
-                Err(e) => return frame.set_status_text(&e, 0),
-            }
-        };
-        if distance.abs() < 1e-9 {
-            return self.move3d_release();
+        if v.iter().all(|c| c.abs() < 1e-9) {
+            self.move3d_fields_show();
+            self.move3d_redraw();
+            return self.move3d_prompt();
         }
-        let v = add([0.0; 3], t.axes[k].dir, distance);
         let result = if t.copy {
             self.run("element.copy", json!({ "element_ids": t.targets, "vectors": [v] }))
         } else {
@@ -320,54 +464,31 @@ impl Gui {
                         m.hi = hi;
                     }
                 }
-                self.move3d_release();
             }
             Err(e) => super::error(&frame, &format!("Nothing was moved:\n{e}")),
         }
-    }
-
-    /// Lets go of the handle in use.
-    fn move3d_release(&mut self) {
-        if let Some(m) = &mut self.move3d {
-            m.active = None;
-            m.delta = 0.0;
-            m.typed.clear();
-        }
-        self.move3d_draw();
+        self.move3d_fields_show();
+        self.move3d_redraw();
         self.move3d_prompt();
     }
 
-    /// Keys: a typed distance and Enter, Backspace, and Esc (lets go of the handle, then ends).
+    /// Esc: cancels a drag, else ends the tool.
     pub(crate) fn move3d_key(&mut self, key: i32) -> bool {
         let Some(t) = self.move3d.clone() else { return false };
-        match key {
-            WXK_ESCAPE => {
-                if t.active.is_some() {
-                    self.move3d_release();
-                } else {
-                    self.end_move3d();
-                    self.frame.set_status_text("Ready", 0);
-                }
+        if key != WXK_ESCAPE {
+            return false;
+        }
+        if t.drag.is_some() {
+            if let Some(m) = &mut self.move3d {
+                m.drag = None;
+                m.delta = 0.0;
             }
-            WXK_RETURN | WXK_NUMPAD_ENTER if t.active.is_some() => self.move3d_commit(),
-            WXK_BACK if !t.typed.is_empty() => {
-                if let Some(m) = &mut self.move3d {
-                    m.typed.pop();
-                }
-                self.move3d_prompt();
-            }
-            _ => {
-                let Some(c) = u32::try_from(key).ok().and_then(char::from_u32) else { return false };
-                let starts = c.is_ascii_digit() || c == '.' || c == '-';
-                let continues = !t.typed.is_empty() && (c.is_ascii_graphic() || c == ' ');
-                if t.active.is_none() || !(starts || continues) {
-                    return false;
-                }
-                if let Some(m) = &mut self.move3d {
-                    m.typed.push(c);
-                }
-                self.move3d_prompt();
-            }
+            self.move3d_fields_show();
+            self.move3d_redraw();
+            self.move3d_prompt();
+        } else {
+            self.end_move3d();
+            self.frame.set_status_text("Ready", 0);
         }
         true
     }

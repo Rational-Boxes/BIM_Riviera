@@ -88,10 +88,12 @@ pick elements in the view and stay active for more picks.</p>
 <table>
   <tr><th>Tool</th><th>How it works</th></tr>
   <tr><td><b>Move</b> <kbd>MV</kbd></td><td>In a plan: click a start point and an end point, or
-    type a distance. In a 3D view, a section or an elevation: the selection gets a handle per
-    axis (x red, y green, height blue). Click a handle, move along it (a box shows where the
-    selection goes) and click to place, or type a distance and press <kbd>Enter</kbd>. The tool
-    stays on for the next move; <kbd>Esc</kbd> lets go of a handle, then ends it. Doors, windows
+    type a distance. In a 3D view, a section or an elevation: the selection turns translucent and
+    gets an arrow per axis at its centre (x red, y green, z blue; yellow under the cursor).
+    Drag an arrow: a solid copy of the selection follows along that axis, and it moves there when
+    you let go. The box beside the arrows shows the distance dragged; type exact distances in it
+    and press <kbd>Enter</kbd> to move by them. The tool stays on for the next move;
+    <kbd>Esc</kbd> cancels a drag, then ends it. Doors, windows
     and wall openings only get handles along their wall and up it, floor openings only across the
     floor, and rooms and grids no height handle. Walls, floors, roofs and stairs moved up or down
     change their base and top offsets. <a class="run" href="riviera:action/element.move">Move</a></td></tr>

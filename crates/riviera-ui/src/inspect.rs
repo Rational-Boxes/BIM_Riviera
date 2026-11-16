@@ -236,6 +236,7 @@ impl Gui {
         lines.extend(self.adjust_lines(index));
         lines.extend(self.automation_lines(index));
         lines.extend(self.work_plane_grid(index));
+        self.move3d_decorate(index, &mut visibility);
         let v = &mut self.views[index];
         v.rebar_picks = rebar_picks;
         if let Some(vp) = &mut v.viewport {

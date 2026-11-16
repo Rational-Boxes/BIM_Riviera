@@ -208,6 +208,8 @@ enum Drag {
     },
     /// Dragging a section box face or a slice plane (3D views).
     Clip(inspect::ClipGrip),
+    /// Dragging a 3D Move handle.
+    Move3d,
     /// Dragging a viewport or schedule on a sheet, from a paper point (metres).
     SheetItem {
         item: u32,
@@ -390,6 +392,7 @@ struct Gui {
     ramp_tool: Option<ramps::RampTool>,
     curtain_pick: Option<curtain_pick::CurtainPick>,
     move3d: Option<move3d::Move3d>,
+    move3d_fields: Option<move3d::MoveFields>,
     measure_tool: Option<ramps::MeasureTool>,
     skylight_tool: Option<skylights::SkylightTool>,
     /// The Place Component tool (a component picked up from the library, or a project type).
@@ -1754,7 +1757,7 @@ impl Gui {
         if self.curtain_pick.is_some() {
             self.curtain_pick_click(x, y);
         } else if self.move3d.is_some() {
-            self.move3d_click(x, y);
+            // A click that is not a drag of a handle does nothing more in 3D Move.
         } else if self.adjust.is_some() {
             self.adjust_click(x, y);
         } else if self.bar_pick.is_some() {
@@ -3287,6 +3290,8 @@ fn attach_view_handlers(gui: &Rc<RefCell<Gui>>, id: u32, panel: Panel, frame: Fr
                         Some(Drag::Sketch)
                     } else if let Some((item, from)) = g.sheet_drag_start(x, y) {
                         Some(Drag::SheetItem { item, from })
+                    } else if g.move3d_press(x, y) {
+                        Some(Drag::Move3d)
                     } else if let Some(grip) = g.clip_grip_at(x, y) {
                         g.clip_drag_start(grip, x, y);
                         Some(Drag::Clip(grip))
@@ -3402,6 +3407,10 @@ fn attach_view_handlers(gui: &Rc<RefCell<Gui>>, id: u32, panel: Panel, frame: Fr
                             return;
                         }
                     }
+                    Some((Drag::Move3d, _, _)) => {
+                        g.move3d_drag_end();
+                        return;
+                    }
                     Some((Drag::SheetItem { item, from }, _, _)) => {
                         g.sheet_drag_end(item, from, x, y, click);
                         return;
@@ -3508,6 +3517,11 @@ fn attach_view_handlers(gui: &Rc<RefCell<Gui>>, id: u32, panel: Panel, frame: Fr
                         redraw = true;
                         return;
                     }
+                    Drag::Move3d => {
+                        g.move3d_drag_motion(x, y);
+                        redraw = true;
+                        return;
+                    }
                     Drag::SheetItem { item, from } => {
                         g.sheet_drag_motion(item, from, x, y);
                         redraw = true;
@@ -3550,6 +3564,7 @@ fn attach_view_handlers(gui: &Rc<RefCell<Gui>>, id: u32, panel: Panel, frame: Fr
                     | Drag::Grip { .. }
                     | Drag::MoveSelection { .. }
                     | Drag::Clip(_)
+                    | Drag::Move3d
                     | Drag::SheetItem { .. }
                     | Drag::Sketch
                     | Drag::Footprint(_)
@@ -3987,6 +4002,7 @@ pub fn run(file: Option<PathBuf>) -> Result<(), String> {
                 ramp_tool: None,
                 curtain_pick: None,
                 move3d: None,
+                move3d_fields: None,
                 measure_tool: None,
                 skylight_tool: None,
                 place_tool: None,
